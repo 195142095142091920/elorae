@@ -61,6 +61,7 @@ function renderEntry(id) {
   }
 
   const { prev, next } = neighbors(id);
+  const hasLore = (entry.lore || []).length > 0;
 
   document.title = `${entry.title} — Elorae`;
   document.body.className = "entry";
@@ -75,15 +76,17 @@ function renderEntry(id) {
     <a class="arrow prev" href="#/${prev.id}" aria-label="Previous">‹</a>
     <a class="arrow next" href="#/${next.id}" aria-label="Next">›</a>
     <div class="dock" id="dock">
-      <div class="title-block">
-        <h1>${escapeHtml(entry.title)}</h1>
+      <div class="title-block" id="titleblock">
+        <div class="title-row">
+          <h1>${escapeHtml(entry.title)}</h1>
+          ${hasLore ? `<button class="toggle" id="toggle" type="button">Lore +</button>` : ""}
+        </div>
         <p>${escapeHtml(entry.caption || "")}</p>
       </div>
-      <button class="toggle" id="toggle" type="button">Lore +</button>
     </div>
     <aside class="panel" id="panel">
       <header>
-        <span>Lore −</span>
+        <span>Lore</span>
         <button class="toggle" id="close" type="button">Close</button>
       </header>
       <h2>${escapeHtml(entry.title)}</h2>
@@ -92,11 +95,31 @@ function renderEntry(id) {
   `;
 
   const panel = $("#panel");
-  const dock = $("#dock");
-  const open = () => { panel.classList.add("open"); dock.style.opacity = "0"; };
-  const shut = () => { panel.classList.remove("open"); dock.style.opacity = "1"; };
-  $("#toggle").addEventListener("click", () => panel.classList.contains("open") ? shut() : open());
+  const toggle = $("#toggle");
+  const titleblock = $("#titleblock");
+  const open = () => panel.classList.add("open");
+  const shut = () => panel.classList.remove("open");
+
+  if (toggle) {
+    toggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      panel.classList.contains("open") ? shut() : open();
+    });
+  }
   $("#close").addEventListener("click", shut);
+
+  const hover = window.matchMedia("(hover: hover)").matches;
+  if (hover && hasLore) {
+    let leave;
+    const cancel = () => { clearTimeout(leave); };
+    const schedule = () => {
+      leave = setTimeout(shut, 180);
+    };
+    titleblock.addEventListener("mouseenter", () => { cancel(); open(); });
+    titleblock.addEventListener("mouseleave", schedule);
+    panel.addEventListener("mouseenter", cancel);
+    panel.addEventListener("mouseleave", schedule);
+  }
 
   if (window._keys) document.removeEventListener("keydown", window._keys);
   window._keys = (e) => {
