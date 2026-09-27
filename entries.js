@@ -4,7 +4,7 @@ window.ENTRIES = [
     id: "filibeth",
     title: "Filibeth",
     caption: "The white woman of the red wood",
-    image: "assets/filibeth.png",
+    image: "assets/filibeth.jpg",
     tags: ["figures"],
     fit: "cover",
     position: "62% 20%",
