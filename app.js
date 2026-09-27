@@ -1,10 +1,20 @@
 const $ = (sel, root = document) => root.querySelector(sel);
 
+const place = {
+  hash: "#/",
+  scroll: 0,
+};
+
 function route() {
   const hash = location.hash.replace(/^#\/?/, "");
   if (!hash) renderWall("all");
   else if (hash.startsWith("tag/")) renderWall(hash.slice(4));
   else renderEntry(hash);
+}
+
+function rememberWall(tag) {
+  place.hash = tag === "all" ? "#/" : `#/tag/${tag}`;
+  place.scroll = window.scrollY;
 }
 
 function renderWall(tag) {
@@ -28,6 +38,17 @@ function renderWall(tag) {
       ${entries.map(tile).join("") || `<p class="empty">No pieces in this set yet.</p>`}
     </main>
   `;
+
+  const backTo = tag === "all" ? "#/" : `#/tag/${tag}`;
+  if (place.hash === backTo) {
+    window.scrollTo(0, place.scroll);
+  } else {
+    window.scrollTo(0, 0);
+    place.hash = backTo;
+    place.scroll = 0;
+  }
+
+  window.addEventListener("scroll", () => rememberWall(tag), { passive: true });
 }
 
 function filterLink(name, current) {
@@ -56,7 +77,7 @@ function neighbors(id) {
 function renderEntry(id) {
   const entry = window.ENTRIES.find((e) => e.id === id);
   if (!entry) {
-    location.hash = "#/";
+    location.hash = place.hash || "#/";
     return;
   }
 
@@ -71,7 +92,7 @@ function renderEntry(id) {
            style="object-fit:${entry.fit || "cover"};object-position:${entry.position || "center"}">
     </div>
     <header class="topbar">
-      <a href="#/">← Index</a>
+      <a href="${place.hash || "#/"}">← Index</a>
     </header>
     <a class="arrow prev" href="#/${prev.id}" aria-label="Previous">‹</a>
     <a class="arrow next" href="#/${next.id}" aria-label="Next">›</a>
@@ -121,7 +142,11 @@ function renderEntry(id) {
 
   if (window._keys) document.removeEventListener("keydown", window._keys);
   window._keys = (e) => {
-    if (e.key === "Escape") shut();
+    if (e.key === "Escape") {
+      e.preventDefault();
+      location.hash = place.hash || "#/";
+      return;
+    }
     if (e.key === "ArrowLeft") location.hash = "#/" + prev.id;
     if (e.key === "ArrowRight") location.hash = "#/" + next.id;
   };
