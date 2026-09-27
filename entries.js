@@ -1,4 +1,5 @@
 window.ENTRIES = [
+  {id:"aghor", title:"Aghor", caption:"", image:"assets/Aghor.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"ashforge-kuroishi", title:"Ashforge Kuroishi", caption:"", image:"assets/Ashforge Kuroishi.png", tags:["places"], fit:"cover", position:"center", lore:[]},
   {id:"aszurithice-human", title:"Aszurithice, Human Form", caption:"", image:"assets/Aszurithice, Human Form.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"aszurithice", title:"Aszurithice", caption:"", image:"assets/Aszurithice.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
