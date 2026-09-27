@@ -39,10 +39,18 @@ function filterLink(name, current) {
 function tile(entry) {
   return `
     <a class="tile" href="#/${entry.id}">
-      <img src="${entry.image}" alt="${escapeHtml(entry.title)}">
+      <img src="${encodeURI(entry.image)}" alt="${escapeHtml(entry.title)}">
       <span class="label">${escapeHtml(entry.title)}</span>
     </a>
   `;
+}
+
+function neighbors(id) {
+  const list = window.ENTRIES;
+  const i = list.findIndex((e) => e.id === id);
+  const prev = list[(i - 1 + list.length) % list.length];
+  const next = list[(i + 1) % list.length];
+  return { prev, next };
 }
 
 function renderEntry(id) {
@@ -52,16 +60,20 @@ function renderEntry(id) {
     return;
   }
 
+  const { prev, next } = neighbors(id);
+
   document.title = `${entry.title} — Elorae`;
   document.body.className = "entry";
   document.body.innerHTML = `
     <div class="hero">
-      <img src="${entry.image}" alt="${escapeHtml(entry.title)}"
+      <img src="${encodeURI(entry.image)}" alt="${escapeHtml(entry.title)}"
            style="object-fit:${entry.fit || "cover"};object-position:${entry.position || "center"}">
     </div>
     <header class="topbar">
       <a href="#/">← Index</a>
     </header>
+    <a class="arrow prev" href="#/${prev.id}" aria-label="Previous">‹</a>
+    <a class="arrow next" href="#/${next.id}" aria-label="Next">›</a>
     <div class="dock" id="dock">
       <div class="title-block">
         <h1>${escapeHtml(entry.title)}</h1>
@@ -85,7 +97,14 @@ function renderEntry(id) {
   const shut = () => { panel.classList.remove("open"); dock.style.opacity = "1"; };
   $("#toggle").addEventListener("click", () => panel.classList.contains("open") ? shut() : open());
   $("#close").addEventListener("click", shut);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") shut(); });
+
+  if (window._keys) document.removeEventListener("keydown", window._keys);
+  window._keys = (e) => {
+    if (e.key === "Escape") shut();
+    if (e.key === "ArrowLeft") location.hash = "#/" + prev.id;
+    if (e.key === "ArrowRight") location.hash = "#/" + next.id;
+  };
+  document.addEventListener("keydown", window._keys);
 }
 
 function escapeHtml(s) {
