@@ -103,6 +103,26 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent);
 }
 
+.arrow {
+  position: fixed;
+  top: 50%;
+  z-index: 6;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  font-size: 42px;
+  line-height: 1;
+  color: #efe8dc;
+  opacity: 0.35;
+  transition: opacity 160ms ease;
+}
+
+.arrow:hover { opacity: 1; }
+.arrow.prev { left: 12px; }
+.arrow.next { right: 12px; }
+
 .dock {
   position: fixed;
   left: 0;
@@ -200,4 +220,5 @@ a { color: inherit; text-decoration: none; }
   .topbar { padding: 16px 12px; letter-spacing: 0.16em; }
   .filters { gap: 12px; }
   .panel { left: 0; right: 0; bottom: 0; }
+  .arrow { width: 40px; height: 40px; font-size: 32px; }
 }
