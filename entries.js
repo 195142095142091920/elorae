@@ -15,5 +15,20 @@ window.ENTRIES = [
   {id:"galands-first-flight", title:"Galand's First Flight", caption:"", image:"assets/Galand's First Flight.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"haethlin-dream", title:"Haethlin in the Dream", caption:"", image:"assets/Haethlin in the Dream .png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"haethlin", title:"Haethlin", caption:"", image:"assets/Haethlin.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
-  {id:"hanto-han", title:"Hanto Han", caption:"", image:"assets/Hanto Han.png", tags:["places"], fit:"cover", position:"center", lore:[]}
+  {id:"hanto-han", title:"Hanto Han", caption:"", image:"assets/Hanto Han.png", tags:["places"], fit:"cover", position:"center", lore:[]},
+  {id:"heldranc-flies", title:"Heldranc Flies", caption:"", image:"Heldranc Flies.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"heldranc-human", title:"Heldranc, Human Form", caption:"", image:"Heldranc, Human Form.webp", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"hesk", title:"Hesk", caption:"", image:"Hesk.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"horde-of-olesh", title:"Horde of Olesh", caption:"", image:"Horde of Olesh.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"imani-valash", title:"Imani Valash", caption:"", image:"Imani Valash.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"ito-gangara", title:"Ito Gangara", caption:"", image:"Ito Gangara.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"karanaro-tenbu", title:"Karanaro Tenbu", caption:"", image:"Karanaro Tenbu.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"kojin-redroot", title:"Kojin, in Redroot Village", caption:"", image:"Kojin, in Redroot Village.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"kojin", title:"Kojin", caption:"", image:"Kojin.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"maegoroth", title:"Maegoroth", caption:"", image:"Maegoroth.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"mano", title:"Mano", caption:"", image:"Mano.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"mintas-fae", title:"Mintas Fae", caption:"", image:"Mintas Fae.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"montmorian-rages", title:"Montmorian Rages", caption:"", image:"Montmorian Rages.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"montmorian-alabaster", title:"Montmorian and the Alabaster Blade", caption:"", image:"Montmorian and the Alabaster Blade.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"montmorian-chamber", title:"Montmorian in his Chamber", caption:"", image:"Montmorian in his Chamber .png", tags:["figures"], fit:"cover", position:"center", lore:[]}
 ];
