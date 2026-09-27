@@ -1,5 +1,5 @@
 window.ENTRIES = [
-  {id:"aghor", title:"Aghor", caption:"", image:"assets/Aghor.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
+  {id:"aghor", title:"Aghor", caption:"(UH-gorr) · Ancient of Time and Space", image:"assets/Aghor.png", tags:["figures"], fit:"cover", position:"center", lore:["The Creator, The Infinite, The God Soul, God.","Rogue Ancient said to have come from the Timeless Void to create the world. Creator of Time and Space, mortal souls, and the Infinite. Destroyed by the terrible power of the Godform, to whom the God Soul was absorbed, tripartite."]},
   {id:"ashforge-kuroishi", title:"Ashforge Kuroishi", caption:"", image:"assets/Ashforge Kuroishi.png", tags:["places"], fit:"cover", position:"center", lore:[]},
   {id:"aszurithice-human", title:"Aszurithice, Human Form", caption:"", image:"assets/Aszurithice, Human Form.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"aszurithice", title:"Aszurithice", caption:"", image:"assets/Aszurithice.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
