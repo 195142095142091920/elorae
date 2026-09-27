@@ -129,8 +129,8 @@ a { color: inherit; text-decoration: none; }
   right: 0;
   bottom: 0;
   z-index: 4;
-  padding: 48px var(--pad) 28px;
-  background: linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0));
+  padding: 72px var(--pad) 28px;
+  background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0) 100%);
 }
 
 .title-row {
@@ -145,7 +145,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.02em;
 }
 
-.title-block p {
+.title-block .caption {
   margin-top: 6px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
@@ -167,49 +167,28 @@ a { color: inherit; text-decoration: none; }
 
 .toggle:hover { color: #f3eee6; }
 
-.panel {
-  position: fixed;
-  left: 24px;
-  right: 24px;
-  bottom: 24px;
-  z-index: 5;
-  background: rgba(8, 8, 8, 0.78);
-  backdrop-filter: blur(10px);
-  color: #efe8dc;
-  padding: 28px 32px 32px;
-  transform: translateY(calc(100% + 40px));
-  transition: transform 280ms ease;
-}
-
-.panel.open { transform: translateY(0); }
-
-.panel header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 16px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #cfc6b8;
-}
-
-.panel h2 {
-  font-weight: 400;
-  font-size: 28px;
-  letter-spacing: 0.02em;
-  margin-bottom: 14px;
-}
-
-.panel p {
+.lore {
   max-width: 62ch;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 280ms ease, opacity 220ms ease, margin-top 280ms ease;
+}
+
+.lore.open {
+  max-height: 40vh;
+  opacity: 1;
+  margin-top: 14px;
+  overflow: auto;
+}
+
+.lore p {
   line-height: 1.55;
   font-size: 16px;
   color: #e7dfd3;
 }
 
-.panel p + p { margin-top: 12px; }
+.lore p + p { margin-top: 12px; }
 
 .empty {
   padding: 12px 4px;
@@ -224,6 +203,6 @@ a { color: inherit; text-decoration: none; }
   .wall { grid-template-columns: 1fr 1fr; padding: 0 12px 12px; }
   .topbar { padding: 16px 12px; letter-spacing: 0.16em; }
   .filters { gap: 12px; }
-  .panel { left: 0; right: 0; bottom: 0; }
   .arrow { width: 40px; height: 40px; font-size: 32px; }
+  .lore.open { max-height: 32vh; }
 }

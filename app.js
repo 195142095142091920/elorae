@@ -81,44 +81,43 @@ function renderEntry(id) {
           <h1>${escapeHtml(entry.title)}</h1>
           ${hasLore ? `<button class="toggle" id="toggle" type="button">Lore +</button>` : ""}
         </div>
-        <p>${escapeHtml(entry.caption || "")}</p>
+        <p class="caption">${escapeHtml(entry.caption || "")}</p>
+        ${hasLore ? `<div class="lore" id="lore">${(entry.lore || []).map((p) => `<p>${escapeHtml(p)}</p>`).join("")}</div>` : ""}
       </div>
     </div>
-    <aside class="panel" id="panel">
-      <header>
-        <span>Lore</span>
-        <button class="toggle" id="close" type="button">Close</button>
-      </header>
-      <h2>${escapeHtml(entry.title)}</h2>
-      ${(entry.lore || []).map((p) => `<p>${escapeHtml(p)}</p>`).join("")}
-    </aside>
   `;
 
-  const panel = $("#panel");
+  const lore = $("#lore");
   const toggle = $("#toggle");
   const titleblock = $("#titleblock");
-  const open = () => panel.classList.add("open");
-  const shut = () => panel.classList.remove("open");
+  const open = () => {
+    if (!lore) return;
+    lore.classList.add("open");
+    if (toggle) toggle.textContent = "Lore −";
+  };
+  const shut = () => {
+    if (!lore) return;
+    lore.classList.remove("open");
+    if (toggle) toggle.textContent = "Lore +";
+  };
 
   if (toggle) {
     toggle.addEventListener("click", (e) => {
       e.stopPropagation();
-      panel.classList.contains("open") ? shut() : open();
+      lore.classList.contains("open") ? shut() : open();
     });
   }
-  $("#close").addEventListener("click", shut);
 
   const hover = window.matchMedia("(hover: hover)").matches;
   if (hover && hasLore) {
     let leave;
-    const cancel = () => { clearTimeout(leave); };
-    const schedule = () => {
+    titleblock.addEventListener("mouseenter", () => {
+      clearTimeout(leave);
+      open();
+    });
+    titleblock.addEventListener("mouseleave", () => {
       leave = setTimeout(shut, 180);
-    };
-    titleblock.addEventListener("mouseenter", () => { cancel(); open(); });
-    titleblock.addEventListener("mouseleave", schedule);
-    panel.addEventListener("mouseenter", cancel);
-    panel.addEventListener("mouseleave", schedule);
+    });
   }
 
   if (window._keys) document.removeEventListener("keydown", window._keys);
