@@ -77,11 +77,10 @@ function renderEntry(id) {
     <a class="arrow next" href="#/${next.id}" aria-label="Next">›</a>
     <div class="dock" id="dock">
       <div class="title-block" id="titleblock">
-        <div class="title-row">
-          <h1>${escapeHtml(entry.title)}</h1>
-          ${hasLore ? `<button class="toggle" id="toggle" type="button">Lore +</button>` : ""}
-        </div>
-        <p class="caption">${escapeHtml(entry.caption || "")}</p>
+        <h1>${escapeHtml(entry.title)}</h1>
+        <p class="caption">
+          ${escapeHtml(entry.caption || "")}${hasLore ? ` <button class="more" id="toggle" type="button" aria-label="Expand">+</button>` : ""}
+        </p>
         ${hasLore ? `<div class="lore" id="lore">${(entry.lore || []).map((p) => `<p>${escapeHtml(p)}</p>`).join("")}</div>` : ""}
       </div>
     </div>
@@ -93,12 +92,12 @@ function renderEntry(id) {
   const open = () => {
     if (!lore) return;
     lore.classList.add("open");
-    if (toggle) toggle.textContent = "Lore −";
+    if (toggle) toggle.textContent = "−";
   };
   const shut = () => {
     if (!lore) return;
     lore.classList.remove("open");
-    if (toggle) toggle.textContent = "Lore +";
+    if (toggle) toggle.textContent = "+";
   };
 
   if (toggle) {
