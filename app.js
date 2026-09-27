@@ -3,6 +3,7 @@ const $ = (sel, root = document) => root.querySelector(sel);
 const place = {
   hash: "#/",
   scroll: 0,
+  tag: "all",
 };
 
 function route() {
@@ -12,9 +13,9 @@ function route() {
   else renderEntry(hash);
 }
 
-function rememberWall(tag) {
-  place.hash = tag === "all" ? "#/" : `#/tag/${tag}`;
+function onWallScroll() {
   place.scroll = window.scrollY;
+  place.hash = place.tag === "all" ? "#/" : `#/tag/${place.tag}`;
 }
 
 function renderWall(tag) {
@@ -40,15 +41,17 @@ function renderWall(tag) {
   `;
 
   const backTo = tag === "all" ? "#/" : `#/tag/${tag}`;
-  if (place.hash === backTo) {
-    window.scrollTo(0, place.scroll);
-  } else {
-    window.scrollTo(0, 0);
-    place.hash = backTo;
-    place.scroll = 0;
-  }
+  const keepScroll = place.hash === backTo;
+  place.tag = tag;
+  place.hash = backTo;
 
-  window.addEventListener("scroll", () => rememberWall(tag), { passive: true });
+  window.removeEventListener("scroll", onWallScroll);
+  window.addEventListener("scroll", onWallScroll, { passive: true });
+
+  requestAnimationFrame(() => {
+    window.scrollTo(0, keepScroll ? place.scroll : 0);
+    if (!keepScroll) place.scroll = 0;
+  });
 }
 
 function filterLink(name, current) {
@@ -81,6 +84,8 @@ function renderEntry(id) {
     return;
   }
 
+  window.removeEventListener("scroll", onWallScroll);
+
   const { prev, next } = neighbors(id);
   const hasLore = (entry.lore || []).length > 0;
 
@@ -107,9 +112,9 @@ function renderEntry(id) {
     </div>
   `;
 
-  const lore = $("#lore");
-  const toggle = $("#toggle");
-  const titleblock = $("#titleblock");
+  const lore = document.querySelector("#lore");
+  const toggle = document.querySelector("#toggle");
+  const titleblock = document.querySelector("#titleblock");
   const open = () => {
     if (!lore) return;
     lore.classList.add("open");
