@@ -263,6 +263,7 @@ body::after {
   margin-top: 6px;
   display: flex;
   align-items: baseline;
+  flex-wrap: wrap;
   gap: 6px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
@@ -610,39 +611,32 @@ body::after {
   }
   .dock,
   .life-dock {
-    width: 46vw;
-    padding: 36px 10px 84px;
+    width: 48vw;
+    padding: 28px 12px 80px;
     transition: width 220ms ease, opacity 180ms ease;
   }
+  .title-block h1 {
+    font-size: clamp(26px, 7.2vw, 34px);
+    line-height: 1.12;
+  }
   .title-block .caption {
+    position: static;
+    height: auto;
+    margin-top: 8px;
     font-size: 11px;
+    line-height: 1.35;
     white-space: normal;
   }
   .more,
   .life-toggle {
     font-size: 11px;
-    line-height: 14px;
+    line-height: 1.35;
     letter-spacing: 0.04em;
   }
-  .dock:not(:has(.lore.open)) .title-block {
-    padding-bottom: 18px;
-  }
-  .dock:not(:has(.lore.open)) .title-block .caption,
   .life-dock:not(:has(.life-sheet.open)) .life-toggle {
-    position: absolute;
-    bottom: 84px;
+    position: static;
+    height: auto;
     margin: 0;
-    height: 14px;
-    font-size: 11px;
-    line-height: 14px;
-    letter-spacing: 0.04em;
-  }
-  .dock:not(:has(.lore.open)) .title-block .caption {
-    left: 10px;
-    right: 46%;
-  }
-  .life-dock:not(:has(.life-sheet.open)) .life-toggle {
-    right: 10px;
   }
   .dock:has(.lore.open),
   .life-dock:has(.life-sheet.open) {
