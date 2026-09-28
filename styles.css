@@ -591,7 +591,12 @@ body::after {
   }
   .dock:has(.lore.open),
   .life-dock:has(.life-sheet.open) {
-    width: calc(100vw - 20px);
+    top: 56px;
+    bottom: 68px;
+    width: calc(100vw - 16px);
+    padding: 8px 16px 4px;
+    height: auto;
+    align-items: stretch;
   }
   .entry:has(.lore.open) .life-dock,
   .entry:has(.life-sheet.open) .dock {
@@ -600,19 +605,20 @@ body::after {
   }
   .dock .lore,
   .life-dock .life-sheet { max-width: none; }
-  .lore.open {
-    max-height: 46vh;
-    margin-top: 0;
-    margin-bottom: 12px;
+  .lore.open,
+  .life-sheet.open {
+    flex: 1 1 auto;
+    max-height: none;
+    height: 100%;
+    margin: 0 0 10px;
   }
-  .life-sheet.open { max-height: 50vh; }
   .dock:has(.lore.open)::after,
   .life-dock:has(.life-sheet.open)::after {
     background: radial-gradient(
-      ellipse at 50% 55%,
-      rgba(0,0,0,0.7) 0%,
-      rgba(0,0,0,0.32) 48%,
-      rgba(0,0,0,0) 76%
+      ellipse at 50% 40%,
+      rgba(0,0,0,0.72) 0%,
+      rgba(0,0,0,0.32) 52%,
+      rgba(0,0,0,0) 78%
     );
   }
   .pager { bottom: 12px; gap: 44px; z-index: 12; }
