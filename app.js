@@ -248,6 +248,16 @@ function bindTap(el, toggleFn) {
   });
 }
 
+function bindIdleScrollbar(el) {
+  if (!el) return;
+  let hide;
+  el.addEventListener("scroll", () => {
+    el.classList.add("show-bar");
+    clearTimeout(hide);
+    hide = setTimeout(() => el.classList.remove("show-bar"), 900);
+  }, { passive: true });
+}
+
 function renderEntry(id) {
   if (ALIASES[id]) {
     location.hash = "#/" + ALIASES[id];
@@ -309,6 +319,7 @@ function renderEntry(id) {
   const shutLife = () => {
     if (!life) return;
     life.classList.remove("open");
+    life.classList.remove("show-bar");
     if (lifeToggle) lifeToggle.textContent = "+ Lore";
   };
   const flipLore = () => {
@@ -343,6 +354,7 @@ function renderEntry(id) {
   bindHover(lifedock, openLife, shutLife);
   bindTap(dock, flipLore);
   bindTap(lifedock, flipLife);
+  bindIdleScrollbar(life);
   if (window._keys) document.removeEventListener("keydown", window._keys);
   window._keys = (e) => {
     if (e.key === "Escape") {
