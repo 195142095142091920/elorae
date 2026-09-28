@@ -24,18 +24,6 @@ function route() {
   else renderEntry(hash);
 }
 
-function paintBleed(src, position) {
-  const roots = [document.documentElement, document.body];
-  roots.forEach((el) => {
-    el.style.backgroundImage = src ? "url(\"" + src + "\")" : "";
-    el.style.backgroundSize = src ? "cover" : "";
-    el.style.backgroundPosition = src ? (position || "center") : "";
-    el.style.backgroundRepeat = src ? "no-repeat" : "";
-    el.style.backgroundAttachment = src ? "fixed" : "";
-    el.style.backgroundColor = src ? "#140e0a" : "";
-  });
-}
-
 function rooms(current) {
   const items = [
     ["atlas", "Atlas"],
@@ -68,7 +56,10 @@ function renderCover() {
   dropPlaceScroll();
   document.title = "Elorae";
   document.body.className = "cover";
-  paintBleed(COVER, "center 45%");
+  document.body.style.backgroundImage = "";
+  document.body.style.backgroundColor = "";
+  document.documentElement.style.backgroundImage = "";
+  document.documentElement.style.backgroundColor = "";
   document.body.innerHTML =
     '<div class="hero cover-hero"><img src="' + encodeURI(COVER) + '" alt="Elorae"></div>' +
     '<p class="cover-mark">Elorae</p>' +
@@ -82,7 +73,10 @@ function matchesTag(entry, tag) {
 }
 
 function renderWall(tag) {
-  paintBleed("");
+  document.body.style.backgroundImage = "";
+  document.body.style.backgroundColor = "";
+  document.documentElement.style.backgroundImage = "";
+  document.documentElement.style.backgroundColor = "";
   const entries = window.ENTRIES.filter((e) => matchesTag(e, tag));
   document.title = "Gallery - Elorae";
   document.body.className = "";
@@ -125,7 +119,8 @@ function tile(entry) {
 }
 
 function renderIndex() {
-  paintBleed("");
+  document.body.style.backgroundImage = "";
+  document.documentElement.style.backgroundImage = "";
   dropPlaceScroll();
   place.hash = "#/index";
   place.scroll = 0;
@@ -146,7 +141,8 @@ function renderIndex() {
 }
 
 function renderAtlas() {
-  paintBleed("");
+  document.body.style.backgroundImage = "";
+  document.documentElement.style.backgroundImage = "";
   dropPlaceScroll();
   place.hash = "#/atlas";
   place.scroll = 0;
@@ -161,7 +157,6 @@ function renderAtlas() {
 }
 
 function renderRoom(id, title, empty) {
-  paintBleed("");
   dropPlaceScroll();
   place.hash = "#/" + id;
   place.scroll = 0;
@@ -177,7 +172,8 @@ function flattenJournal() {
 }
 
 function renderJournal(id) {
-  paintBleed("");
+  document.body.style.backgroundImage = "";
+  document.documentElement.style.backgroundImage = "";
   const chapters = flattenJournal();
   const current = chapters.find((c) => c.id === id) || chapters[0];
   if (!current) {
@@ -288,13 +284,16 @@ function renderEntry(id) {
   }
   place.scroll = window.scrollY || place.scroll;
   dropPlaceScroll();
+  document.body.style.backgroundImage = "";
+  document.body.style.backgroundColor = "";
+  document.documentElement.style.backgroundImage = "";
+  document.documentElement.style.backgroundColor = "";
   const { prev, next } = neighbors(id);
   const loreBits = entry.lore || [];
   const bioBits = entry.bio || [];
   const hasLore = loreBits.length > 0;
   document.title = entry.title + " - Elorae";
   document.body.className = "entry";
-  paintBleed(entry.image, entry.position || "center");
   const loreBtn = hasLore ? '<button class="more" id="toggle" type="button">+</button>' : "";
   const loreBox = hasLore
     ? '<div class="lore" id="lore">' + loreBits.map((p, i) =>
