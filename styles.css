@@ -172,6 +172,18 @@ body::after {
 .hero { position: fixed; inset: 0; }
 .hero img { width: 100%; height: 100%; object-fit: cover; }
 
+.entry::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42vh;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.48) 42%, rgba(0,0,0,0) 100%);
+}
+
 .entry .topbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -207,7 +219,7 @@ body::after {
   z-index: 4;
   width: min(46vw, 560px);
   padding: 72px var(--pad) 28px;
-  background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0) 100%);
+  background: none;
 }
 
 .title-block h1 { font-weight: 400; font-size: clamp(28px, 4vw, 42px); }
@@ -250,7 +262,7 @@ body::after {
   flex-direction: column;
   align-items: flex-end;
   padding: 72px var(--pad) 28px;
-  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.32) 55%, rgba(0,0,0,0) 100%);
+  background: none;
 }
 .life-toggle {
   border: 0;
