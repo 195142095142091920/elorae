@@ -52,6 +52,10 @@ function dropPlaceScroll() {
   window.removeEventListener("scroll", onPlaceScroll);
 }
 
+function zoneOpen(lore, life) {
+  return (lore && lore.classList.contains("open")) || (life && life.classList.contains("open"));
+}
+
 function renderCover() {
   dropPlaceScroll();
   document.title = "Elorae";
@@ -373,6 +377,14 @@ function renderEntry(id) {
   bindTap(dock, flipLore);
   bindTap(lifedock, flipLife);
   bindIdleScrollbar(life);
+  document.querySelectorAll(".arrow").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      if (zoneOpen(lore, life)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  });
   if (window._keys) document.removeEventListener("keydown", window._keys);
   window._keys = (e) => {
     if (e.key === "Escape") {
@@ -382,6 +394,7 @@ function renderEntry(id) {
       location.hash = place.hash || "#/gallery";
       return;
     }
+    if (zoneOpen(lore, life)) return;
     if (e.key === "ArrowLeft") location.hash = "#/" + prev.id;
     if (e.key === "ArrowRight") location.hash = "#/" + next.id;
   };
