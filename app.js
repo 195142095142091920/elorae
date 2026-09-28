@@ -1,38 +1,74 @@
 const $ = (sel, root = document) => root.querySelector(sel);
 
+const COVER = "assets/Godtree.png";
+
 const place = {
-  hash: "#/",
+  hash: "#/gallery",
   scroll: 0,
   tag: "all",
 };
 
 function route() {
   const hash = location.hash.replace(/^#\/?/, "");
-  if (!hash) renderWall("all");
-  else if (hash.startsWith("tag/")) renderWall(hash.slice(4));
+  if (!hash) renderCover();
+  else if (hash === "gallery") renderWall("all");
+  else if (hash.startsWith("gallery/")) renderWall(hash.slice(8));
+  else if (hash === "atlas") renderRoom("atlas", "Atlas", "Not yet drawn.");
+  else if (hash === "index") renderIndex();
+  else if (hash === "journal") renderRoom("journal", "Journal", "No entries yet.");
   else renderEntry(hash);
+}
+
+function rooms(current) {
+  const items = [
+    ["atlas", "Atlas"],
+    ["gallery", "Gallery"],
+    ["index", "Index"],
+    ["journal", "Journal"],
+  ];
+  return items
+    .map(([id, label]) => {
+      const on = current === id ? " active" : "";
+      return `<a class="${on}" href="#/${id}">${label}</a>`;
+    })
+    .join(`<span class="dot">·</span>`);
+}
+
+function renderCover() {
+  window.removeEventListener("scroll", onWallScroll);
+  document.title = "Elorae";
+  document.body.className = "cover";
+  document.body.innerHTML = `
+    <div class="hero cover-hero">
+      <img src="${encodeURI(COVER)}" alt="Elorae">
+    </div>
+    <nav class="cover-nav">${rooms("")}</nav>
+  `;
 }
 
 function onWallScroll() {
   place.scroll = window.scrollY;
-  place.hash = place.tag === "all" ? "#/" : `#/tag/${place.tag}`;
+  place.hash = place.tag === "all" ? "#/gallery" : `#/gallery/${place.tag}`;
+}
+
+function matchesTag(entry, tag) {
+  if (tag === "all") return true;
+  if (tag === "scenes") return entry.tags.includes("scenes") || entry.tags.includes("relics");
+  return entry.tags.includes(tag);
 }
 
 function renderWall(tag) {
-  const entries = window.ENTRIES.filter((e) =>
-    tag === "all" ? true : e.tags.includes(tag)
-  );
+  const entries = window.ENTRIES.filter((e) => matchesTag(e, tag));
 
-  document.title = "Elorae";
+  document.title = "Gallery — Elorae";
   document.body.className = "";
   document.body.innerHTML = `
     <header class="topbar">
       <a href="#/">Elorae</a>
       <nav class="filters">
-        ${filterLink("all", tag)}
         ${filterLink("figures", tag)}
         ${filterLink("places", tag)}
-        ${filterLink("relics", tag)}
+        ${filterLink("scenes", tag)}
       </nav>
     </header>
     <main class="wall">
@@ -40,7 +76,7 @@ function renderWall(tag) {
     </main>
   `;
 
-  const backTo = tag === "all" ? "#/" : `#/tag/${tag}`;
+  const backTo = tag === "all" ? "#/gallery" : `#/gallery/${tag}`;
   const keepScroll = place.hash === backTo;
   place.tag = tag;
   place.hash = backTo;
@@ -55,9 +91,8 @@ function renderWall(tag) {
 }
 
 function filterLink(name, current) {
-  const href = name === "all" ? "#/" : `#/tag/${name}`;
   const on = current === name ? " active" : "";
-  return `<a class="${on}" href="${href}">${name}</a>`;
+  return `<a class="${on}" href="#/gallery/${name}">${name}</a>`;
 }
 
 function tile(entry) {
@@ -66,6 +101,54 @@ function tile(entry) {
       <img src="${encodeURI(entry.image)}" alt="${escapeHtml(entry.title)}">
       <span class="label">${escapeHtml(entry.title)}</span>
     </a>
+  `;
+}
+
+function renderIndex() {
+  window.removeEventListener("scroll", onWallScroll);
+  place.hash = "#/index";
+  place.scroll = 0;
+
+  const list = [...window.ENTRIES].sort((a, b) =>
+    a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
+  );
+
+  document.title = "Index — Elorae";
+  document.body.className = "room";
+  document.body.innerHTML = `
+    <header class="topbar">
+      <a href="#/">Elorae</a>
+      <nav class="filters">${rooms("index")}</nav>
+    </header>
+    <main class="index-list">
+      ${list
+        .map(
+          (e) => `
+        <a class="index-row" href="#/${e.id}">
+          <span class="index-name">${escapeHtml(e.title)}</span>
+          <span class="index-cap">${escapeHtml(e.caption || "")}</span>
+        </a>`
+        )
+        .join("")}
+    </main>
+  `;
+}
+
+function renderRoom(id, title, empty) {
+  window.removeEventListener("scroll", onWallScroll);
+  place.hash = `#/${id}`;
+  place.scroll = 0;
+
+  document.title = `${title} — Elorae`;
+  document.body.className = "room";
+  document.body.innerHTML = `
+    <header class="topbar">
+      <a href="#/">Elorae</a>
+      <nav class="filters">${rooms(id)}</nav>
+    </header>
+    <main class="room-body">
+      <p class="empty">${escapeHtml(empty)}</p>
+    </main>
   `;
 }
 
@@ -80,7 +163,7 @@ function neighbors(id) {
 function renderEntry(id) {
   const entry = window.ENTRIES.find((e) => e.id === id);
   if (!entry) {
-    location.hash = place.hash || "#/";
+    location.hash = place.hash || "#/gallery";
     return;
   }
 
@@ -97,7 +180,7 @@ function renderEntry(id) {
            style="object-fit:${entry.fit || "cover"};object-position:${entry.position || "center"}">
     </div>
     <header class="topbar">
-      <a href="${place.hash || "#/"}">← Index</a>
+      <a href="${place.hash || "#/gallery"}">← Back</a>
     </header>
     <a class="arrow prev" href="#/${prev.id}" aria-label="Previous">‹</a>
     <a class="arrow next" href="#/${next.id}" aria-label="Next">›</a>
@@ -118,7 +201,7 @@ function renderEntry(id) {
   const open = () => {
     if (!lore) return;
     lore.classList.add("open");
-    if (toggle) toggle.textContent = "−";
+    if (toggle) toggle.textContent = "\u2212";
   };
   const shut = () => {
     if (!lore) return;
@@ -149,7 +232,7 @@ function renderEntry(id) {
   window._keys = (e) => {
     if (e.key === "Escape") {
       e.preventDefault();
-      location.hash = place.hash || "#/";
+      location.hash = place.hash || "#/gallery";
       return;
     }
     if (e.key === "ArrowLeft") location.hash = "#/" + prev.id;
