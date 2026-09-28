@@ -147,7 +147,6 @@ function renderJournal(id) {
         escapeHtml(c.act) + ', ' + escapeHtml(c.chapter) + '</a>';
     }).join("") +
     '</nav><article class="journal-read">' +
-    '<p class="journal-kicker">Journal</p>' +
     '<h2>' + escapeHtml(current.title) + '</h2>' +
     current.blocks.map(journalBlock).join("") +
     '</article>';
@@ -162,11 +161,20 @@ function renderJournal(id) {
   document.addEventListener("keydown", window._keys);
 }
 
+function galleryIdFor(src) {
+  const hit = (window.ENTRIES || []).find((e) => e.image === src);
+  return hit ? hit.id : "";
+}
+
 function journalBlock(block) {
   if (block.type === "image") {
-    return '<figure class="journal-fig"><img src="' + encodeURI(block.src) +
-      '" alt="' + escapeHtml(block.cap || "") + '">' +
-      '<figcaption>' + escapeHtml(block.cap || "") + '</figcaption></figure>';
+    const id = galleryIdFor(block.src);
+    const img = '<img src="' + encodeURI(block.src) + '" alt="' + escapeHtml(block.cap || "") + '">';
+    const cap = '<figcaption>' + escapeHtml(block.cap || "") + '</figcaption>';
+    if (id) {
+      return '<figure class="journal-fig"><a href="#/' + id + '">' + img + '</a>' + cap + '</figure>';
+    }
+    return '<figure class="journal-fig">' + img + cap + '</figure>';
   }
   return '<p>' + escapeHtml(block.text || "") + '</p>';
 }
