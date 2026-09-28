@@ -1,5 +1,5 @@
 # Elorae
 
-Art-first gallery. Separate from the Quartz wiki.
+Visual encyclopedia of the world away.
 
-Edit `entries.js` and drop images into `assets/`.
+
