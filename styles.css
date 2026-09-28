@@ -178,10 +178,10 @@ body::after {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 70vh;
+  height: 42vh;
   z-index: 3;
   pointer-events: none;
-  background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.52) 48%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.48) 42%, rgba(0,0,0,0) 100%);
 }
 .entry:has(.lore.open)::before,
 .entry:has(.life-sheet.open)::before {
@@ -253,18 +253,24 @@ body::after {
   z-index: 1;
 }
 
-.title-block h1 { font-weight: 400; font-size: clamp(28px, 4vw, 42px); }
+.title-block {
+  display: flex;
+  flex-direction: column;
+}
+.title-block h1 { font-weight: 400; font-size: clamp(28px, 4vw, 42px); order: 0; }
 .title-block .caption {
+  order: 1;
   margin-top: 6px;
   display: flex;
   align-items: baseline;
   gap: 6px;
-  white-space: nowrap;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
   line-height: 1.3;
   color: var(--muted);
 }
+.title-block .lore { order: 2; }
+.title-block:has(.lore.open) .lore { order: -1; }
 
 .more {
   display: inline;
@@ -600,8 +606,8 @@ body::after {
   .dock {
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
   }
-  .dock .lore { order: -1; }
   .dock,
   .life-dock {
     width: 46vw;
@@ -610,25 +616,13 @@ body::after {
   }
   .title-block .caption {
     font-size: 11px;
-    white-space: nowrap;
+    white-space: normal;
   }
   .more,
   .life-toggle {
     font-size: 11px;
     line-height: 1.3;
     letter-spacing: 0.06em;
-  }
-  .dock:not(:has(.lore.open)) .title-block .caption {
-    position: absolute;
-    left: 10px;
-    right: 8px;
-    bottom: 84px;
-    margin: 0;
-  }
-  .life-dock:not(:has(.life-sheet.open)) .life-toggle {
-    position: absolute;
-    right: 10px;
-    bottom: 84px;
   }
   .dock:has(.lore.open),
   .life-dock:has(.life-sheet.open) {
