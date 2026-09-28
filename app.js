@@ -1,5 +1,3 @@
-const $ = (sel, root = document) => root.querySelector(sel);
-
 const COVER = "assets/Godtree.png";
 
 const place = {
@@ -30,27 +28,24 @@ function rooms(current) {
   return items
     .map(([id, label]) => {
       const on = current === id ? " active" : "";
-      return `<a class="${on}" href="#/${id}">${label}</a>`;
+      return '<a class="' + on + '" href="#/' + id + '">' + label + '</a>';
     })
-    .join(`<span class="dot">\u00b7</span>`);
+    .join('<span class="dot">&middot;</span>');
 }
 
 function renderCover() {
   window.removeEventListener("scroll", onWallScroll);
   document.title = "Elorae";
   document.body.className = "cover";
-  document.body.innerHTML = `
-    <div class="hero cover-hero">
-      <img src="${encodeURI(COVER)}" alt="Elorae">
-    </div>
-    <p class="cover-mark">Elorae</p>
-    <nav class="cover-nav">${rooms("")}</nav>
-  `;
+  document.body.innerHTML =
+    '<div class="hero cover-hero"><img src="' + encodeURI(COVER) + '" alt="Elorae"></div>' +
+    '<p class="cover-mark">Elorae</p>' +
+    '<nav class="cover-nav">' + rooms("") + '</nav>';
 }
 
 function onWallScroll() {
   place.scroll = window.scrollY;
-  place.hash = place.tag === "all" ? "#/gallery" : `#/gallery/${place.tag}`;
+  place.hash = place.tag === "all" ? "#/gallery" : "#/gallery/" + place.tag;
 }
 
 function matchesTag(entry, tag) {
@@ -61,31 +56,21 @@ function matchesTag(entry, tag) {
 
 function renderWall(tag) {
   const entries = window.ENTRIES.filter((e) => matchesTag(e, tag));
-
-  document.title = "Gallery \u2014 Elorae";
+  document.title = "Gallery - Elorae";
   document.body.className = "";
-  document.body.innerHTML = `
-    <header class="topbar">
-      <a href="#/">Elorae</a>
-      <nav class="filters">
-        ${filterLink("figures", tag)}
-        ${filterLink("places", tag)}
-        ${filterLink("scenes", tag)}
-      </nav>
-    </header>
-    <main class="wall">
-      ${entries.map(tile).join("") || `<p class="empty">No pieces in this set yet.</p>`}
-    </main>
-  `;
+  document.body.innerHTML =
+    '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' +
+    filterLink("figures", tag) + filterLink("places", tag) + filterLink("scenes", tag) +
+    '</nav></header><main class="wall">' +
+    (entries.map(tile).join("") || '<p class="empty">No pieces in this set yet.</p>') +
+    '</main>';
 
-  const backTo = tag === "all" ? "#/gallery" : `#/gallery/${tag}`;
+  const backTo = tag === "all" ? "#/gallery" : "#/gallery/" + tag;
   const keepScroll = place.hash === backTo;
   place.tag = tag;
   place.hash = backTo;
-
   window.removeEventListener("scroll", onWallScroll);
   window.addEventListener("scroll", onWallScroll, { passive: true });
-
   requestAnimationFrame(() => {
     window.scrollTo(0, keepScroll ? place.scroll : 0);
     if (!keepScroll) place.scroll = 0;
@@ -94,64 +79,44 @@ function renderWall(tag) {
 
 function filterLink(name, current) {
   const on = current === name ? " active" : "";
-  return `<a class="${on}" href="#/gallery/${name}">${name}</a>`;
+  return '<a class="' + on + '" href="#/gallery/' + name + '">' + name + '</a>';
 }
 
 function tile(entry) {
-  return `
-    <a class="tile" href="#/${entry.id}">
-      <img src="${encodeURI(entry.image)}" alt="${escapeHtml(entry.title)}">
-      <span class="label">${escapeHtml(entry.title)}</span>
-    </a>
-  `;
+  return '<a class="tile" href="#/' + entry.id + '">' +
+    '<img src="' + encodeURI(entry.image) + '" alt="' + escapeHtml(entry.title) + '">' +
+    '<span class="label">' + escapeHtml(entry.title) + '</span></a>';
 }
 
 function renderIndex() {
   window.removeEventListener("scroll", onWallScroll);
   place.hash = "#/index";
   place.scroll = 0;
-
   const list = [...window.ENTRIES].sort((a, b) =>
     a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
   );
-
-  document.title = "Index \u2014 Elorae";
+  document.title = "Index - Elorae";
   document.body.className = "room";
-  document.body.innerHTML = `
-    <header class="topbar">
-      <a href="#/">Elorae</a>
-      <nav class="filters">${rooms("index")}</nav>
-    </header>
-    <main class="index-list">
-      ${list
-        .map(
-          (e) => `
-        <a class="index-row" href="#/${e.id}">
-          <span class="index-name">${escapeHtml(e.title)}</span>
-          <span class="index-cap">${escapeHtml(e.caption || "")}</span>
-        </a>`
-        )
-        .join("")}
-    </main>
-  `;
+  document.body.innerHTML =
+    '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' + rooms("index") +
+    '</nav></header><main class="index-list">' +
+    list.map((e) =>
+      '<a class="index-row" href="#/' + e.id + '">' +
+      '<span class="index-name">' + escapeHtml(e.title) + '</span>' +
+      '<span class="index-cap">' + escapeHtml(e.caption || "") + '</span></a>'
+    ).join("") +
+    '</main>';
 }
 
 function renderRoom(id, title, empty) {
   window.removeEventListener("scroll", onWallScroll);
-  place.hash = `#/${id}`;
+  place.hash = "#/" + id;
   place.scroll = 0;
-
-  document.title = `${title} \u2014 Elorae`;
+  document.title = title + " - Elorae";
   document.body.className = "room";
-  document.body.innerHTML = `
-    <header class="topbar">
-      <a href="#/">Elorae</a>
-      <nav class="filters">${rooms(id)}</nav>
-    </header>
-    <main class="room-body">
-      <p class="empty">${escapeHtml(empty)}</p>
-    </main>
-  `;
+  document.body.innerHTML =
+    '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' + rooms(id) +
+    '</nav></header><main class="room-body"><p class="empty">' + escapeHtml(empty) + '</p></main>';
 }
 
 function flattenJournal() {
@@ -166,35 +131,26 @@ function renderJournal(id) {
     renderRoom("journal", "Journal", "No entries yet.");
     return;
   }
-
-  place.hash = `#/journal/${current.id}`;
+  place.hash = "#/journal/" + current.id;
   place.scroll = 0;
   window.scrollTo(0, 0);
-
-  document.title = `${current.title} \u2014 Elorae`;
+  document.title = current.title + " - Elorae";
   document.body.className = "room journal-page";
-  document.body.innerHTML = `
-    <div class="journal-bg">
-      <img src="${encodeURI(current.banner || COVER)}" alt="">
-    </div>
-    <header class="topbar journal-bar">
-      <a href="#/">Elorae</a>
-      <nav class="filters">${rooms("journal")}</nav>
-    </header>
-    <nav class="chapter-tabs">
-      ${chapters
-        .map((c) => {
-          const on = c.id === current.id ? " active" : "";
-          return `<a class="${on}" href="#/journal/${c.id}">${escapeHtml(c.act)}, ${escapeHtml(c.chapter)}</a>`;
-        })
-        .join("")}
-    </nav>
-    <article class="journal-read">
-      <p class="journal-kicker">Journal</p>
-      <h2>${escapeHtml(current.title)}</h2>
-      ${current.blocks.map(journalBlock).join("")}
-    </article>
-  `;
+  document.body.innerHTML =
+    '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
+    '<header class="topbar journal-bar"><a href="#/">Elorae</a><nav class="filters">' +
+    rooms("journal") + '</nav></header>' +
+    '<nav class="chapter-tabs">' +
+    chapters.map((c) => {
+      const on = c.id === current.id ? " active" : "";
+      return '<a class="' + on + '" href="#/journal/' + c.id + '">' +
+        escapeHtml(c.act) + ', ' + escapeHtml(c.chapter) + '</a>';
+    }).join("") +
+    '</nav><article class="journal-read">' +
+    '<p class="journal-kicker">Journal</p>' +
+    '<h2>' + escapeHtml(current.title) + '</h2>' +
+    current.blocks.map(journalBlock).join("") +
+    '</article>';
 
   if (window._keys) document.removeEventListener("keydown", window._keys);
   const i = chapters.findIndex((c) => c.id === current.id);
@@ -208,13 +164,11 @@ function renderJournal(id) {
 
 function journalBlock(block) {
   if (block.type === "image") {
-    return `
-      <figure class="journal-fig">
-        <img src="${encodeURI(block.src)}" alt="${escapeHtml(block.cap || "")}">
-        <figcaption>${escapeHtml(block.cap || "")}</figcaption>
-      </figure>`;
+    return '<figure class="journal-fig"><img src="' + encodeURI(block.src) +
+      '" alt="' + escapeHtml(block.cap || "") + '">' +
+      '<figcaption>' + escapeHtml(block.cap || "") + '</figcaption></figure>';
   }
-  return `<p>${escapeHtml(block.text || "")}</p>`;
+  return '<p>' + escapeHtml(block.text || "") + '</p>';
 }
 
 function neighbors(id) {
@@ -231,75 +185,45 @@ function renderEntry(id) {
     location.hash = place.hash || "#/gallery";
     return;
   }
-
   window.removeEventListener("scroll", onWallScroll);
-
   const { prev, next } = neighbors(id);
   const hasLore = (entry.lore || []).length > 0;
-
-  document.title = `${entry.title} \u2014 Elorae`;
+  document.title = entry.title + " - Elorae";
   document.body.className = "entry";
-  document.body.innerHTML = `
-    <div class="hero">
-      <img src="${encodeURI(entry.image)}" alt="${escapeHtml(entry.title)}"
-           style="object-fit:${entry.fit || "cover"};object-position:${entry.position || "center"}">
-    </div>
-    <header class="topbar">
-      <a href="${place.hash || "#/gallery"}">\u2190 Back</a>
-    </header>
-    <a class="arrow prev" href="#/${prev.id}" aria-label="Previous">\u2039</a>
-    <a class="arrow next" href="#/${next.id}" aria-label="Next">\u203a</a>
-    <div class="dock" id="dock">
-      <div class="title-block" id="titleblock">
-        <h1>${escapeHtml(entry.title)}</h1>
-        <p class="caption">
-          ${escapeHtml(entry.caption || "")}${hasLore ? ` <button class="more" id="toggle" type="button" aria-label="Expand">+</button>` : ""}
-        </p>
-        ${hasLore ? `<div class="lore" id="lore">${(entry.lore || []).map((p) => `<p>${escapeHtml(p)}</p>`).join("")}</div>` : ""}
-      </div>
-    </div>
-  `;
+  const loreBtn = hasLore ? ' <button class="more" id="toggle" type="button">+</button>' : "";
+  const loreBox = hasLore
+    ? '<div class="lore" id="lore">' + (entry.lore || []).map((p) => '<p>' + escapeHtml(p) + '</p>').join("") + '</div>'
+    : "";
+  document.body.innerHTML =
+    '<div class="hero"><img src="' + encodeURI(entry.image) + '" alt="' + escapeHtml(entry.title) +
+    '" style="object-fit:' + (entry.fit || "cover") + ';object-position:' + (entry.position || "center") + '"></div>' +
+    '<header class="topbar"><a href="' + (place.hash || "#/gallery") + '">Back</a></header>' +
+    '<a class="arrow prev" href="#/' + prev.id + '">&#8249;</a>' +
+    '<a class="arrow next" href="#/' + next.id + '">&#8250;</a>' +
+    '<div class="dock"><div class="title-block" id="titleblock">' +
+    '<h1>' + escapeHtml(entry.title) + '</h1>' +
+    '<p class="caption">' + escapeHtml(entry.caption || "") + loreBtn + '</p>' +
+    loreBox + '</div></div>';
 
   const lore = document.querySelector("#lore");
   const toggle = document.querySelector("#toggle");
   const titleblock = document.querySelector("#titleblock");
-  const open = () => {
-    if (!lore) return;
-    lore.classList.add("open");
-    if (toggle) toggle.textContent = "\u2212";
-  };
-  const shut = () => {
-    if (!lore) return;
-    lore.classList.remove("open");
-    if (toggle) toggle.textContent = "+";
-  };
-
+  const open = () => { if (!lore) return; lore.classList.add("open"); if (toggle) toggle.textContent = "-"; };
+  const shut = () => { if (!lore) return; lore.classList.remove("open"); if (toggle) toggle.textContent = "+"; };
   if (toggle) {
     toggle.addEventListener("click", (e) => {
       e.stopPropagation();
       lore.classList.contains("open") ? shut() : open();
     });
   }
-
-  const hover = window.matchMedia("(hover: hover)").matches;
-  if (hover && hasLore) {
+  if (window.matchMedia("(hover: hover)").matches && hasLore) {
     let leave;
-    titleblock.addEventListener("mouseenter", () => {
-      clearTimeout(leave);
-      open();
-    });
-    titleblock.addEventListener("mouseleave", () => {
-      leave = setTimeout(shut, 180);
-    });
+    titleblock.addEventListener("mouseenter", () => { clearTimeout(leave); open(); });
+    titleblock.addEventListener("mouseleave", () => { leave = setTimeout(shut, 180); });
   }
-
   if (window._keys) document.removeEventListener("keydown", window._keys);
   window._keys = (e) => {
-    if (e.key === "Escape") {
-      e.preventDefault();
-      location.hash = place.hash || "#/gallery";
-      return;
-    }
+    if (e.key === "Escape") { e.preventDefault(); location.hash = place.hash || "#/gallery"; return; }
     if (e.key === "ArrowLeft") location.hash = "#/" + prev.id;
     if (e.key === "ArrowRight") location.hash = "#/" + next.id;
   };
@@ -308,10 +232,10 @@ function renderEntry(id) {
 
 function escapeHtml(s) {
   return String(s)
-    .replaceAll("&", "&")
-    .replaceAll("<", "<")
-    .replaceAll(">", ">")
-    .replaceAll('"', """);
+    .replace(/&/g, "\u0026amp;")
+    .replace(/</g, "\u0026lt;")
+    .replace(/>/g, "\u0026gt;")
+    .replace(/"/g, "\u0026quot;");
 }
 
 window.addEventListener("hashchange", route);
