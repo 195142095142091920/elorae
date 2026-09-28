@@ -15,7 +15,8 @@ function route() {
   else if (hash.startsWith("gallery/")) renderWall(hash.slice(8));
   else if (hash === "atlas") renderRoom("atlas", "Atlas", "Not yet drawn.");
   else if (hash === "index") renderIndex();
-  else if (hash === "journal") renderRoom("journal", "Journal", "No entries yet.");
+  else if (hash === "journal") renderJournal();
+  else if (hash.startsWith("journal/")) renderJournal(hash.slice(8));
   else renderEntry(hash);
 }
 
@@ -31,7 +32,7 @@ function rooms(current) {
       const on = current === id ? " active" : "";
       return `<a class="${on}" href="#/${id}">${label}</a>`;
     })
-    .join(`<span class="dot">·</span>`);
+    .join(`<span class="dot">\u00b7</span>`);
 }
 
 function renderCover() {
@@ -61,7 +62,7 @@ function matchesTag(entry, tag) {
 function renderWall(tag) {
   const entries = window.ENTRIES.filter((e) => matchesTag(e, tag));
 
-  document.title = "Gallery — Elorae";
+  document.title = "Gallery \u2014 Elorae";
   document.body.className = "";
   document.body.innerHTML = `
     <header class="topbar">
@@ -114,7 +115,7 @@ function renderIndex() {
     a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
   );
 
-  document.title = "Index — Elorae";
+  document.title = "Index \u2014 Elorae";
   document.body.className = "room";
   document.body.innerHTML = `
     <header class="topbar">
@@ -140,7 +141,7 @@ function renderRoom(id, title, empty) {
   place.hash = `#/${id}`;
   place.scroll = 0;
 
-  document.title = `${title} — Elorae`;
+  document.title = `${title} \u2014 Elorae`;
   document.body.className = "room";
   document.body.innerHTML = `
     <header class="topbar">
@@ -151,6 +152,69 @@ function renderRoom(id, title, empty) {
       <p class="empty">${escapeHtml(empty)}</p>
     </main>
   `;
+}
+
+function flattenJournal() {
+  return window.JOURNAL || [];
+}
+
+function renderJournal(id) {
+  window.removeEventListener("scroll", onWallScroll);
+  const chapters = flattenJournal();
+  const current = chapters.find((c) => c.id === id) || chapters[0];
+  if (!current) {
+    renderRoom("journal", "Journal", "No entries yet.");
+    return;
+  }
+
+  place.hash = `#/journal/${current.id}`;
+  place.scroll = 0;
+  window.scrollTo(0, 0);
+
+  document.title = `${current.title} \u2014 Elorae`;
+  document.body.className = "room journal-page";
+  document.body.innerHTML = `
+    <header class="topbar">
+      <a href="#/">Elorae</a>
+      <nav class="filters">${rooms("journal")}</nav>
+    </header>
+    <div class="journal-banner">
+      <img src="${encodeURI(current.banner || COVER)}" alt="">
+      <h1>Journal</h1>
+    </div>
+    <nav class="chapter-tabs">
+      ${chapters
+        .map((c) => {
+          const on = c.id === current.id ? " active" : "";
+          return `<a class="${on}" href="#/journal/${c.id}">${escapeHtml(c.act)}, ${escapeHtml(c.chapter)}</a>`;
+        })
+        .join("")}
+    </nav>
+    <article class="journal-read">
+      <h2>${escapeHtml(current.title)}</h2>
+      ${current.blocks.map(journalBlock).join("")}
+    </article>
+  `;
+
+  if (window._keys) document.removeEventListener("keydown", window._keys);
+  const i = chapters.findIndex((c) => c.id === current.id);
+  window._keys = (e) => {
+    if (e.key === "Escape") location.hash = "#/";
+    if (e.key === "ArrowLeft" && i > 0) location.hash = "#/journal/" + chapters[i - 1].id;
+    if (e.key === "ArrowRight" && i < chapters.length - 1) location.hash = "#/journal/" + chapters[i + 1].id;
+  };
+  document.addEventListener("keydown", window._keys);
+}
+
+function journalBlock(block) {
+  if (block.type === "image") {
+    return `
+      <figure class="journal-fig">
+        <img src="${encodeURI(block.src)}" alt="${escapeHtml(block.cap || "")}">
+        <figcaption>${escapeHtml(block.cap || "")}</figcaption>
+      </figure>`;
+  }
+  return `<p>${escapeHtml(block.text || "")}</p>`;
 }
 
 function neighbors(id) {
@@ -173,7 +237,7 @@ function renderEntry(id) {
   const { prev, next } = neighbors(id);
   const hasLore = (entry.lore || []).length > 0;
 
-  document.title = `${entry.title} — Elorae`;
+  document.title = `${entry.title} \u2014 Elorae`;
   document.body.className = "entry";
   document.body.innerHTML = `
     <div class="hero">
@@ -181,10 +245,10 @@ function renderEntry(id) {
            style="object-fit:${entry.fit || "cover"};object-position:${entry.position || "center"}">
     </div>
     <header class="topbar">
-      <a href="${place.hash || "#/gallery"}">← Back</a>
+      <a href="${place.hash || "#/gallery"}">\u2190 Back</a>
     </header>
-    <a class="arrow prev" href="#/${prev.id}" aria-label="Previous">‹</a>
-    <a class="arrow next" href="#/${next.id}" aria-label="Next">›</a>
+    <a class="arrow prev" href="#/${prev.id}" aria-label="Previous">\u2039</a>
+    <a class="arrow next" href="#/${next.id}" aria-label="Next">\u203a</a>
     <div class="dock" id="dock">
       <div class="title-block" id="titleblock">
         <h1>${escapeHtml(entry.title)}</h1>
