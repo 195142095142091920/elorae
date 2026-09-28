@@ -252,7 +252,7 @@ function renderEntry(id) {
     ? '<div class="lore" id="lore">' + loreBits.map((p) => '<p>' + escapeHtml(p) + '</p>').join("") + '</div>'
     : "";
   const lifeUi = bioBits.length
-    ? '<button class="life-toggle" id="life-toggle" type="button">Life +</button>' +
+    ? '<button class="life-toggle" id="life-toggle" type="button">Lore +</button>' +
       '<aside class="life-sheet" id="life">' +
       bioBits.map((p) => '<p>' + escapeHtml(p) + '</p>').join("") +
       '</aside>'
@@ -278,12 +278,12 @@ function renderEntry(id) {
   const openLife = () => {
     if (!life) return;
     life.classList.add("open");
-    if (lifeToggle) lifeToggle.textContent = "Life -";
+    if (lifeToggle) lifeToggle.textContent = "Lore -";
   };
   const shutLife = () => {
     if (!life) return;
     life.classList.remove("open");
-    if (lifeToggle) lifeToggle.textContent = "Life +";
+    if (lifeToggle) lifeToggle.textContent = "Lore +";
   };
   if (toggle) {
     toggle.addEventListener("click", (e) => {
