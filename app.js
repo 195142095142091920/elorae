@@ -229,6 +229,13 @@ function neighbors(id) {
   return { prev, next };
 }
 
+function bindHover(el, openFn, shutFn) {
+  if (!el || !window.matchMedia("(hover: hover)").matches) return;
+  let leave;
+  el.addEventListener("mouseenter", () => { clearTimeout(leave); openFn(); });
+  el.addEventListener("mouseleave", () => { leave = setTimeout(shutFn, 180); });
+}
+
 function renderEntry(id) {
   if (ALIASES[id]) {
     location.hash = "#/" + ALIASES[id];
@@ -252,17 +259,20 @@ function renderEntry(id) {
     ? '<div class="lore" id="lore">' + loreBits.map((p) => '<p>' + escapeHtml(p) + '</p>').join("") + '</div>'
     : "";
   const lifeUi = bioBits.length
-    ? '<button class="life-toggle" id="life-toggle" type="button">Lore +</button>' +
+    ? '<div class="life-dock" id="lifedock">' +
+      '<button class="life-toggle" id="life-toggle" type="button">Lore +</button>' +
       '<aside class="life-sheet" id="life">' +
       bioBits.map((p) => '<p>' + escapeHtml(p) + '</p>').join("") +
-      '</aside>'
+      '</aside></div>'
     : "";
   document.body.innerHTML =
     '<div class="hero"><img src="' + encodeURI(entry.image) + '" alt="' + escapeHtml(entry.title) +
     '" style="object-fit:' + (entry.fit || "cover") + ';object-position:' + (entry.position || "center") + '"></div>' +
     '<header class="topbar"><a href="' + (place.hash || "#/gallery") + '">Back</a></header>' +
+    '<nav class="pager">' +
     '<a class="arrow prev" href="#/' + prev.id + '">&#8249;</a>' +
     '<a class="arrow next" href="#/' + next.id + '">&#8250;</a>' +
+    '</nav>' +
     '<div class="dock"><div class="title-block" id="titleblock">' +
     '<h1>' + escapeHtml(entry.title) + '</h1>' +
     '<p class="caption">' + escapeHtml(entry.caption || "") + loreBtn + '</p>' +
@@ -273,6 +283,7 @@ function renderEntry(id) {
   const titleblock = document.querySelector("#titleblock");
   const life = document.querySelector("#life");
   const lifeToggle = document.querySelector("#life-toggle");
+  const lifedock = document.querySelector("#lifedock");
   const open = () => { if (!lore) return; lore.classList.add("open"); if (toggle) toggle.textContent = "-"; };
   const shut = () => { if (!lore) return; lore.classList.remove("open"); if (toggle) toggle.textContent = "+"; };
   const openLife = () => {
@@ -297,16 +308,14 @@ function renderEntry(id) {
       life.classList.contains("open") ? shutLife() : openLife();
     });
   }
-  if (window.matchMedia("(hover: hover)").matches && hasLore) {
-    let leave;
-    titleblock.addEventListener("mouseenter", () => { clearTimeout(leave); open(); });
-    titleblock.addEventListener("mouseleave", () => { leave = setTimeout(shut, 180); });
-  }
+  bindHover(titleblock, open, shut);
+  bindHover(lifedock, openLife, shutLife);
   if (window._keys) document.removeEventListener("keydown", window._keys);
   window._keys = (e) => {
     if (e.key === "Escape") {
       e.preventDefault();
       if (life && life.classList.contains("open")) { shutLife(); return; }
+      if (lore && lore.classList.contains("open")) { shut(); return; }
       location.hash = place.hash || "#/gallery";
       return;
     }
