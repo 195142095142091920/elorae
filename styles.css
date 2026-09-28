@@ -195,7 +195,7 @@ body::after {
   position: fixed;
   left: 50%;
   bottom: 22px;
-  z-index: 6;
+  z-index: 12;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
@@ -251,6 +251,12 @@ body::after {
 .lore.open { max-height: 28vh; opacity: 1; margin-top: 14px; overflow: auto; }
 .lore p { line-height: 1.55; font-size: 16px; color: #e7dfd3; }
 .lore p + p { margin-top: 12px; }
+.lore .say {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #b7b0a4;
+}
 
 .life-dock {
   position: fixed;
@@ -521,9 +527,9 @@ body::after {
   .cover-mark { top: 22px; letter-spacing: 0.22em; }
   .cover-nav { gap: 10px; font-size: 11px; letter-spacing: 0.16em; bottom: 22px; }
   .dock,
-  .life-dock { width: calc(50vw - 8px); padding: 48px 12px 64px; }
-  .pager { bottom: 10px; gap: 18px; }
-  .arrow { width: 40px; height: 40px; font-size: 32px; }
+  .life-dock { width: 36vw; padding: 40px 10px 76px; }
+  .pager { bottom: 14px; gap: 40px; z-index: 12; }
+  .arrow { width: 44px; height: 44px; font-size: 34px; }
   .lore.open { max-height: 28vh; }
   .life-sheet.open { max-height: 42vh; }
   .index-row { grid-template-columns: 1fr; gap: 4px; }
