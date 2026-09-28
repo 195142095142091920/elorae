@@ -644,9 +644,9 @@ body::after {
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(0,0,0,0.08) 10%,
-      rgba(0,0,0,0.24) 32%,
-      rgba(0,0,0,0.30) 100%
+      rgba(0,0,0,0.22) 10%,
+      rgba(0,0,0,0.48) 34%,
+      rgba(0,0,0,0.58) 100%
     );
   }
   .life-dock:has(.life-sheet.open)::after {
@@ -654,8 +654,8 @@ body::after {
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(0,0,0,0.16) 12%,
-      rgba(0,0,0,0.26) 100%
+      rgba(0,0,0,0.32) 12%,
+      rgba(0,0,0,0.52) 100%
     );
   }
   .pager { bottom: 12px; gap: 44px; z-index: 12; }
