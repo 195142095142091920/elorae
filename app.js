@@ -32,7 +32,7 @@ function paintBleed(src, position) {
     el.style.backgroundPosition = src ? (position || "center") : "";
     el.style.backgroundRepeat = src ? "no-repeat" : "";
     el.style.backgroundAttachment = src ? "fixed" : "";
-    el.style.backgroundColor = src ? "transparent" : "";
+    el.style.backgroundColor = src ? "#140e0a" : "";
   });
 }
 
