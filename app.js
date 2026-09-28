@@ -174,14 +174,13 @@ function renderJournal(id) {
   document.title = `${current.title} \u2014 Elorae`;
   document.body.className = "room journal-page";
   document.body.innerHTML = `
-    <header class="topbar">
+    <div class="journal-bg">
+      <img src="${encodeURI(current.banner || COVER)}" alt="">
+    </div>
+    <header class="topbar journal-bar">
       <a href="#/">Elorae</a>
       <nav class="filters">${rooms("journal")}</nav>
     </header>
-    <div class="journal-banner">
-      <img src="${encodeURI(current.banner || COVER)}" alt="">
-      <h1>Journal</h1>
-    </div>
     <nav class="chapter-tabs">
       ${chapters
         .map((c) => {
@@ -191,6 +190,7 @@ function renderJournal(id) {
         .join("")}
     </nav>
     <article class="journal-read">
+      <p class="journal-kicker">Journal</p>
       <h2>${escapeHtml(current.title)}</h2>
       ${current.blocks.map(journalBlock).join("")}
     </article>
@@ -308,10 +308,10 @@ function renderEntry(id) {
 
 function escapeHtml(s) {
   return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+    .replaceAll("&", "&")
+    .replaceAll("<", "<")
+    .replaceAll(">", ">")
+    .replaceAll('"', """);
 }
 
 window.addEventListener("hashchange", route);
