@@ -244,12 +244,12 @@ body::after {
   object-fit: contain;
   display: block;
   -webkit-mask-image:
-    linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
-    linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+    linear-gradient(to right, transparent, #000 3.5%, #000 96.5%, transparent),
+    linear-gradient(to bottom, transparent, #000 3.5%, #000 96.5%, transparent);
   -webkit-mask-composite: source-in;
   mask-image:
-    linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
-    linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+    linear-gradient(to right, transparent, #000 3.5%, #000 96.5%, transparent),
+    linear-gradient(to bottom, transparent, #000 3.5%, #000 96.5%, transparent);
   mask-composite: intersect;
 }
 
