@@ -228,16 +228,50 @@ body::after {
   opacity: 0;
   transition: max-height 280ms ease, opacity 220ms ease, margin-top 280ms ease;
 }
-.lore.open { max-height: 40vh; opacity: 1; margin-top: 14px; overflow: auto; }
-.lore.has-bio.open { max-height: 58vh; }
+.lore.open { max-height: 28vh; opacity: 1; margin-top: 14px; overflow: auto; }
 .lore p { line-height: 1.55; font-size: 16px; color: #e7dfd3; }
 .lore p + p { margin-top: 12px; }
-.lore .bio {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(243,238,230,0.14);
+
+.life-toggle {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 8;
+  border: 0;
+  background: none;
+  color: #cfc6b8;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.8);
 }
-.lore .bio p { font-size: 15px; line-height: 1.62; }
+.life-sheet {
+  position: fixed;
+  right: 28px;
+  bottom: 56px;
+  z-index: 8;
+  width: min(42ch, calc(100vw - 40px));
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height 280ms ease, opacity 220ms ease;
+}
+.life-sheet.open {
+  max-height: 58vh;
+  overflow: auto;
+  opacity: 1;
+  pointer-events: auto;
+}
+.life-sheet p {
+  font-size: 15px;
+  line-height: 1.62;
+  color: #e7dfd3;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.7);
+}
+.life-sheet p + p { margin-top: 12px; }
 
 .room-body { padding: 48px var(--pad); }
 .index-list { padding: 8px var(--pad) 64px; max-width: 820px; }
@@ -439,7 +473,9 @@ body::after {
   .cover-nav { gap: 10px; font-size: 11px; letter-spacing: 0.16em; bottom: 22px; }
   .arrow { width: 40px; height: 40px; font-size: 32px; }
   .lore.open { max-height: 32vh; }
-  .lore.has-bio.open { max-height: 48vh; }
+  .life-toggle { right: 14px; bottom: 18px; }
+  .life-sheet { right: 14px; bottom: 44px; max-width: calc(100vw - 28px); }
+  .life-sheet.open { max-height: 48vh; }
   .index-row { grid-template-columns: 1fr; gap: 4px; }
   .journal-read { margin: 0 12px 48px; padding: 24px 18px 40px; }
   .journal-read::before { inset: -40px -24px; }
