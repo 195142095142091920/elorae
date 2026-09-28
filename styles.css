@@ -621,15 +621,11 @@ body::after {
   }
   .dock,
   .life-dock {
-    width: 34vw;
-    padding: 20px 10px 12px;
-    pointer-events: none;
-    transition: width 220ms ease, opacity 180ms ease;
-  }
-  .dock .title-block,
-  .life-dock .life-toggle,
-  .life-sheet.open {
+    width: 42vw;
+    min-height: 28vh;
+    padding: 28px 12px 16px;
     pointer-events: auto;
+    transition: width 220ms ease, opacity 180ms ease;
   }
   .title-block h1 {
     font-size: clamp(26px, 7.2vw, 34px);
@@ -663,15 +659,16 @@ body::after {
     height: auto;
     align-items: stretch;
     pointer-events: auto;
+    min-height: 0;
   }
   .dock:has(.lore.open) {
     top: auto;
-    padding: 20px 18px 64px;
+    padding: 20px 18px 28px;
     justify-content: flex-end;
   }
   .life-dock:has(.life-sheet.open) {
     top: 0;
-    padding: 12px 18px 64px;
+    padding: 12px 18px 28px;
   }
   .entry:has(.life-sheet.open) .topbar {
     opacity: 0;
@@ -721,8 +718,31 @@ body::after {
     height: 28vh;
     background: rgba(0,0,0,0.56);
   }
-  .pager { bottom: 10px; gap: 16px; z-index: 16; }
-  .arrow { width: 42px; height: 42px; font-size: 32px; }
+  .pager {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: auto;
+    transform: none;
+    pointer-events: none;
+    z-index: 16;
+  }
+  .arrow {
+    position: absolute;
+    top: 46%;
+    width: 44px;
+    height: 64px;
+    font-size: 34px;
+    pointer-events: auto;
+  }
+  .arrow.prev { left: 2px; }
+  .arrow.next { right: 2px; }
+  .entry:has(.lore.open) .pager,
+  .entry:has(.life-sheet.open) .pager {
+    opacity: 0;
+    pointer-events: none;
+  }
   .index-row { grid-template-columns: 1fr; gap: 4px; }
   .journal-read { margin: 0 12px 48px; padding: 24px 18px 40px; }
   .journal-read::before { inset: -40px -24px; }
