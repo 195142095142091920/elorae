@@ -597,12 +597,17 @@ body::after {
   }
   .dock:has(.lore.open),
   .life-dock:has(.life-sheet.open) {
-    top: 56px;
+    top: 0;
     bottom: 68px;
     width: calc(100vw - 16px);
-    padding: 8px 16px 4px;
+    padding: 12px 16px 4px;
     height: auto;
     align-items: stretch;
+  }
+  .entry:has(.lore.open) .topbar,
+  .entry:has(.life-sheet.open) .topbar {
+    opacity: 0;
+    pointer-events: none;
   }
   .entry:has(.lore.open) .life-dock,
   .entry:has(.life-sheet.open) .dock {
@@ -617,18 +622,21 @@ body::after {
     max-height: none;
     height: 100%;
     margin: 0 0 10px;
-    padding: 36px 0 40px;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 48px, #000 calc(100% - 52px), transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 48px, #000 calc(100% - 52px), transparent 100%);
+    padding: 48px 0 40px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 56px, #000 calc(100% - 52px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 56px, #000 calc(100% - 52px), transparent 100%);
   }
   .dock:has(.lore.open)::after,
   .life-dock:has(.life-sheet.open)::after {
-    background: radial-gradient(
-      ellipse at 50% 40%,
-      rgba(0,0,0,0.72) 0%,
-      rgba(0,0,0,0.32) 52%,
-      rgba(0,0,0,0) 78%
-    );
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.28) 18%, rgba(0,0,0,0.18) 70%, rgba(0,0,0,0) 100%),
+      radial-gradient(
+        ellipse at 50% 28%,
+        rgba(0,0,0,0.7) 0%,
+        rgba(0,0,0,0.32) 52%,
+        rgba(0,0,0,0) 78%
+      );
   }
   .pager { bottom: 12px; gap: 44px; z-index: 12; }
   .arrow { width: 44px; height: 44px; font-size: 34px; }
