@@ -527,11 +527,21 @@ body::after {
   .cover-mark { top: 22px; letter-spacing: 0.22em; }
   .cover-nav { gap: 10px; font-size: 11px; letter-spacing: 0.16em; bottom: 22px; }
   .dock,
-  .life-dock { width: 36vw; padding: 40px 10px 76px; }
-  .pager { bottom: 14px; gap: 40px; z-index: 12; }
+  .life-dock {
+    width: 38vw;
+    padding: 36px 12px 84px;
+    transition: width 220ms ease;
+  }
+  .dock:has(.lore.open),
+  .life-dock:has(.life-sheet.open) {
+    width: calc(100vw - 20px);
+  }
+  .dock .lore,
+  .life-dock .life-sheet { max-width: none; }
+  .pager { bottom: 12px; gap: 44px; z-index: 12; }
   .arrow { width: 44px; height: 44px; font-size: 34px; }
-  .lore.open { max-height: 28vh; }
-  .life-sheet.open { max-height: 42vh; }
+  .lore.open { max-height: 34vh; }
+  .life-sheet.open { max-height: 46vh; }
   .index-row { grid-template-columns: 1fr; gap: 4px; }
   .journal-read { margin: 0 12px 48px; padding: 24px 18px 40px; }
   .journal-read::before { inset: -40px -24px; }
