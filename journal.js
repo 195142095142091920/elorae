@@ -4,7 +4,7 @@ window.JOURNAL = [
     act: "III",
     chapter: "XLI",
     title: "Act III, Chapter XLI",
-    banner: "assets/Kojin, in Redroot Village.png",
+    banner: "assets/Silar Scorria.png",
     blocks: [
       { type: "p", text: "Five remained of Thalane\u2019s order, and that truth sat with them at the fire while the others watched from the rocks, unable to understand a word." },
       { type: "p", text: "Silar, who had followed rumor of dragons across the sea, asked how long they had sought Thalancord. Only the hours Kojin had already seen, Vaerek told him, though the search for the Drake\u2019s brothers and sister had gone on far longer. He named himself Rathkin, a son of a Shasirian mother. Silar took his hand. He was of Shasir as well. Neither had met another Sethian in a long time. He spoke aside to Kojin, who laughed, and called it fate: they had not meant to be at Redroot at all. The Interval had begun, and Thalancord was missing." },
