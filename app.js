@@ -33,19 +33,27 @@ function rooms(current) {
     .join('<span class="dot">&middot;</span>');
 }
 
+function onPlaceScroll() {
+  place.scroll = window.scrollY;
+}
+
+function bindPlaceScroll() {
+  window.removeEventListener("scroll", onPlaceScroll);
+  window.addEventListener("scroll", onPlaceScroll, { passive: true });
+}
+
+function dropPlaceScroll() {
+  window.removeEventListener("scroll", onPlaceScroll);
+}
+
 function renderCover() {
-  window.removeEventListener("scroll", onWallScroll);
+  dropPlaceScroll();
   document.title = "Elorae";
   document.body.className = "cover";
   document.body.innerHTML =
     '<div class="hero cover-hero"><img src="' + encodeURI(COVER) + '" alt="Elorae"></div>' +
     '<p class="cover-mark">Elorae</p>' +
     '<nav class="cover-nav">' + rooms("") + '</nav>';
-}
-
-function onWallScroll() {
-  place.scroll = window.scrollY;
-  place.hash = place.tag === "all" ? "#/gallery" : "#/gallery/" + place.tag;
 }
 
 function matchesTag(entry, tag) {
@@ -69,8 +77,7 @@ function renderWall(tag) {
   const keepScroll = place.hash === backTo;
   place.tag = tag;
   place.hash = backTo;
-  window.removeEventListener("scroll", onWallScroll);
-  window.addEventListener("scroll", onWallScroll, { passive: true });
+  bindPlaceScroll();
   requestAnimationFrame(() => {
     window.scrollTo(0, keepScroll ? place.scroll : 0);
     if (!keepScroll) place.scroll = 0;
@@ -89,7 +96,7 @@ function tile(entry) {
 }
 
 function renderIndex() {
-  window.removeEventListener("scroll", onWallScroll);
+  dropPlaceScroll();
   place.hash = "#/index";
   place.scroll = 0;
   const list = [...window.ENTRIES].sort((a, b) =>
@@ -109,7 +116,7 @@ function renderIndex() {
 }
 
 function renderRoom(id, title, empty) {
-  window.removeEventListener("scroll", onWallScroll);
+  dropPlaceScroll();
   place.hash = "#/" + id;
   place.scroll = 0;
   document.title = title + " - Elorae";
@@ -124,16 +131,16 @@ function flattenJournal() {
 }
 
 function renderJournal(id) {
-  window.removeEventListener("scroll", onWallScroll);
   const chapters = flattenJournal();
   const current = chapters.find((c) => c.id === id) || chapters[0];
   if (!current) {
     renderRoom("journal", "Journal", "No entries yet.");
     return;
   }
-  place.hash = "#/journal/" + current.id;
-  place.scroll = 0;
-  window.scrollTo(0, 0);
+  const backTo = "#/journal/" + current.id;
+  const keepScroll = place.hash === backTo;
+  place.hash = backTo;
+
   document.title = current.title + " - Elorae";
   document.body.className = "room journal-page";
   document.body.innerHTML =
@@ -150,6 +157,12 @@ function renderJournal(id) {
     '<h2>' + escapeHtml(current.title) + '</h2>' +
     current.blocks.map(journalBlock).join("") +
     '</article>';
+
+  bindPlaceScroll();
+  requestAnimationFrame(() => {
+    window.scrollTo(0, keepScroll ? place.scroll : 0);
+    if (!keepScroll) place.scroll = 0;
+  });
 
   if (window._keys) document.removeEventListener("keydown", window._keys);
   const i = chapters.findIndex((c) => c.id === current.id);
@@ -193,7 +206,8 @@ function renderEntry(id) {
     location.hash = place.hash || "#/gallery";
     return;
   }
-  window.removeEventListener("scroll", onWallScroll);
+  place.scroll = window.scrollY || place.scroll;
+  dropPlaceScroll();
   const { prev, next } = neighbors(id);
   const hasLore = (entry.lore || []).length > 0;
   document.title = entry.title + " - Elorae";
