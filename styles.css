@@ -289,13 +289,16 @@ body::after {
   opacity: 0;
   background: none;
   box-shadow: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   transition: max-height 280ms ease, opacity 220ms ease, margin-top 280ms ease, padding 280ms ease;
 }
+.lore::-webkit-scrollbar { display: none; width: 0; height: 0; }
 .lore.open {
-  max-height: 32vh;
+  max-height: none;
   opacity: 1;
   margin-top: 14px;
-  overflow: auto;
+  overflow: hidden;
   background: none;
   box-shadow: none;
   padding: 4px 0 8px;
@@ -379,23 +382,19 @@ body::after {
 }
 .life-sheet p + p { margin-top: 12px; }
 
-.lore,
 .life-sheet,
 .journal-read {
   scrollbar-width: thin;
   scrollbar-color: rgba(207,198,184,0.38) transparent;
 }
-.lore::-webkit-scrollbar,
 .life-sheet::-webkit-scrollbar,
 .journal-read::-webkit-scrollbar {
   width: 3px;
 }
-.lore::-webkit-scrollbar-track,
 .life-sheet::-webkit-scrollbar-track,
 .journal-read::-webkit-scrollbar-track {
   background: transparent;
 }
-.lore::-webkit-scrollbar-thumb,
 .life-sheet::-webkit-scrollbar-thumb,
 .journal-read::-webkit-scrollbar-thumb {
   background: rgba(207,198,184,0.4);
@@ -665,8 +664,9 @@ body::after {
   .life-dock .life-sheet { max-width: none; }
   .lore.open {
     flex: 0 1 auto;
-    max-height: 42vh;
+    max-height: none;
     height: auto;
+    overflow: hidden;
     margin: 10px 0 0;
     padding: 8px 0 12px;
     -webkit-mask-image: none;
