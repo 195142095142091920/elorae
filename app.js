@@ -68,9 +68,11 @@ function renderWall(tag) {
   document.title = "Gallery - Elorae";
   document.body.className = "";
   document.body.innerHTML =
+    '<div class="mast">' +
     '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' +
-    filterLink("figures", tag) + filterLink("places", tag) + filterLink("scenes", tag) +
-    '</nav></header><main class="wall">' +
+    rooms("gallery") + '</nav></header>' +
+    '<nav class="subbar">' + galleryFilters(tag) + '</nav></div>' +
+    '<main class="wall">' +
     (entries.map(tile).join("") || '<p class="empty">No pieces in this set yet.</p>') +
     '</main>';
 
@@ -85,9 +87,16 @@ function renderWall(tag) {
   });
 }
 
+function galleryFilters(current) {
+  return ["all", "figures", "places", "scenes"]
+    .map((name) => filterLink(name, current))
+    .join('<span class="dot">&middot;</span>');
+}
+
 function filterLink(name, current) {
   const on = current === name ? " active" : "";
-  return '<a class="' + on + '" href="#/gallery/' + name + '">' + name + '</a>';
+  const href = name === "all" ? "#/gallery" : "#/gallery/" + name;
+  return '<a class="' + on + '" href="' + href + '">' + name + '</a>';
 }
 
 function tile(entry) {
