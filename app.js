@@ -229,11 +229,23 @@ function neighbors(id) {
   return { prev, next };
 }
 
+function canHover() {
+  return window.matchMedia("(hover: hover)").matches;
+}
+
 function bindHover(el, openFn, shutFn) {
-  if (!el || !window.matchMedia("(hover: hover)").matches) return;
+  if (!el || !canHover()) return;
   let leave;
   el.addEventListener("mouseenter", () => { clearTimeout(leave); openFn(); });
   el.addEventListener("mouseleave", () => { leave = setTimeout(shutFn, 180); });
+}
+
+function bindTap(el, toggleFn) {
+  if (!el || canHover()) return;
+  el.addEventListener("click", (e) => {
+    if (e.target.closest("button")) return;
+    toggleFn();
+  });
 }
 
 function renderEntry(id) {
@@ -256,7 +268,9 @@ function renderEntry(id) {
   document.body.className = "entry";
   const loreBtn = hasLore ? ' <button class="more" id="toggle" type="button">+</button>' : "";
   const loreBox = hasLore
-    ? '<div class="lore" id="lore">' + loreBits.map((p) => '<p>' + escapeHtml(p) + '</p>').join("") + '</div>'
+    ? '<div class="lore" id="lore">' + loreBits.map((p, i) =>
+        '<p' + (i === 0 ? ' class="say"' : '') + '>' + escapeHtml(p) + '</p>'
+      ).join("") + '</div>'
     : "";
   const lifeUi = bioBits.length
     ? '<div class="life-dock" id="lifedock">' +
@@ -273,19 +287,21 @@ function renderEntry(id) {
     '<a class="arrow prev" href="#/' + prev.id + '">&#8249;</a>' +
     '<a class="arrow next" href="#/' + next.id + '">&#8250;</a>' +
     '</nav>' +
-    '<div class="dock"><div class="title-block" id="titleblock">' +
+    '<div class="dock" id="dock"><div class="title-block" id="titleblock">' +
     '<h1>' + escapeHtml(entry.title) + '</h1>' +
     '<p class="caption">' + escapeHtml(entry.caption || "") + loreBtn + '</p>' +
     loreBox + '</div></div>' + lifeUi;
 
   const lore = document.querySelector("#lore");
   const toggle = document.querySelector("#toggle");
+  const dock = document.querySelector("#dock");
   const titleblock = document.querySelector("#titleblock");
   const life = document.querySelector("#life");
   const lifeToggle = document.querySelector("#life-toggle");
   const lifedock = document.querySelector("#lifedock");
   const open = () => { if (!lore) return; lore.classList.add("open"); if (toggle) toggle.textContent = "-"; };
   const shut = () => { if (!lore) return; lore.classList.remove("open"); if (toggle) toggle.textContent = "+"; };
+  const flipLore = () => { if (!lore) return; lore.classList.contains("open") ? shut() : open(); };
   const openLife = () => {
     if (!life) return;
     life.classList.add("open");
@@ -296,20 +312,23 @@ function renderEntry(id) {
     life.classList.remove("open");
     if (lifeToggle) lifeToggle.textContent = "Lore +";
   };
+  const flipLife = () => { if (!life) return; life.classList.contains("open") ? shutLife() : openLife(); };
   if (toggle) {
     toggle.addEventListener("click", (e) => {
       e.stopPropagation();
-      lore.classList.contains("open") ? shut() : open();
+      flipLore();
     });
   }
   if (lifeToggle) {
     lifeToggle.addEventListener("click", (e) => {
       e.stopPropagation();
-      life.classList.contains("open") ? shutLife() : openLife();
+      flipLife();
     });
   }
   bindHover(titleblock, open, shut);
   bindHover(lifedock, openLife, shutLife);
+  bindTap(dock, flipLore);
+  bindTap(lifedock, flipLife);
   if (window._keys) document.removeEventListener("keydown", window._keys);
   window._keys = (e) => {
     if (e.key === "Escape") {
