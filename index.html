@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=85">
+  <link rel="stylesheet" href="styles.css?v=86">
   <style>
     .entry:has(.lore.open) .pager,
     .entry:has(.life-sheet.open) .pager,
@@ -21,6 +21,16 @@
       display: inline-flex;
       align-items: flex-start;
       padding: 28px;
+    }
+    .mast,
+    .room .topbar,
+    .atlas-page .topbar,
+    .journal-page .topbar {
+      background: #070707 !important;
+      box-shadow: 0 -160px 0 160px #070707;
+    }
+    .journal-page .topbar {
+      text-shadow: none;
     }
     .entry:has(.lore.open)::before,
     .entry:has(.life-sheet.open)::before {
@@ -118,8 +128,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=85"></script>
-  <script src="journal.js?v=85"></script>
-  <script src="app.js?v=85"></script>
+  <script src="entries.js?v=86"></script>
+  <script src="journal.js?v=86"></script>
+  <script src="app.js?v=86"></script>
 </body>
 </html>
