@@ -39,17 +39,39 @@ function rooms(current) {
     .join('<span class="dot">&middot;</span>');
 }
 
+function scroller() {
+  return document.querySelector(".wall") ||
+    document.querySelector(".sheet") ||
+    document.querySelector(".index-list") ||
+    window;
+}
+
 function onPlaceScroll() {
-  place.scroll = window.scrollY;
+  const el = window._scrollEl || scroller();
+  place.scroll = el === window ? window.scrollY : el.scrollTop;
 }
 
 function bindPlaceScroll() {
-  window.removeEventListener("scroll", onPlaceScroll);
-  window.addEventListener("scroll", onPlaceScroll, { passive: true });
+  dropPlaceScroll();
+  const el = scroller();
+  window._scrollEl = el;
+  el.addEventListener("scroll", onPlaceScroll, { passive: true });
 }
 
 function dropPlaceScroll() {
+  if (window._scrollEl) {
+    window._scrollEl.removeEventListener("scroll", onPlaceScroll);
+    window._scrollEl = null;
+  }
   window.removeEventListener("scroll", onPlaceScroll);
+}
+
+function restoreScroll(keep) {
+  const el = scroller();
+  const y = keep ? place.scroll : 0;
+  if (el === window) window.scrollTo(0, y);
+  else el.scrollTop = y;
+  if (!keep) place.scroll = 0;
 }
 
 function zoneOpen(lore, life) {
@@ -98,10 +120,7 @@ function renderWall(tag) {
   place.tag = tag;
   place.hash = backTo;
   bindPlaceScroll();
-  requestAnimationFrame(() => {
-    window.scrollTo(0, keepScroll ? place.scroll : 0);
-    if (!keepScroll) place.scroll = 0;
-  });
+  requestAnimationFrame(() => restoreScroll(keepScroll));
 }
 
 function galleryFilters(current) {
@@ -194,6 +213,7 @@ function renderJournal(id) {
     '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
     '<header class="topbar journal-bar"><a href="#/">Elorae</a><nav class="filters">' +
     rooms("journal") + '</nav></header>' +
+    '<div class="sheet">' +
     '<nav class="chapter-tabs">' +
     chapters.map((c) => {
       const on = c.id === current.id ? " active" : "";
@@ -203,13 +223,10 @@ function renderJournal(id) {
     '</nav><article class="journal-read">' +
     '<h2>' + escapeHtml(current.title) + '</h2>' +
     current.blocks.map(journalBlock).join("") +
-    '</article>';
+    '</article></div>';
 
   bindPlaceScroll();
-  requestAnimationFrame(() => {
-    window.scrollTo(0, keepScroll ? place.scroll : 0);
-    if (!keepScroll) place.scroll = 0;
-  });
+  requestAnimationFrame(() => restoreScroll(keepScroll));
 
   if (window._keys) document.removeEventListener("keydown", window._keys);
   const i = chapters.findIndex((c) => c.id === current.id);
@@ -286,7 +303,7 @@ function renderEntry(id) {
     location.hash = place.hash || "#/gallery";
     return;
   }
-  place.scroll = window.scrollY || place.scroll;
+  onPlaceScroll();
   dropPlaceScroll();
   document.body.style.backgroundImage = "";
   document.body.style.backgroundColor = "";
