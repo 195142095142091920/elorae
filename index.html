@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=86">
+  <link rel="stylesheet" href="styles.css?v=87">
   <style>
     .entry:has(.lore.open) .pager,
     .entry:has(.life-sheet.open) .pager,
@@ -23,14 +23,43 @@
       padding: 28px;
     }
     .mast,
-    .room .topbar,
-    .atlas-page .topbar,
-    .journal-page .topbar {
+    .room:not(.journal-page) .topbar,
+    .atlas-page .topbar {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
       background: #070707 !important;
-      box-shadow: 0 -160px 0 160px #070707;
+      box-shadow: none;
+    }
+    body:has(.mast) {
+      padding-top: 102px;
+    }
+    body.room:not(.journal-page),
+    body.atlas-page {
+      padding-top: 64px;
     }
     .journal-page .topbar {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      background: #070707 !important;
       text-shadow: none;
+      box-shadow: none;
+    }
+    body.journal-page::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: #070707;
+      z-index: 39;
+      pointer-events: none;
     }
     .entry:has(.lore.open)::before,
     .entry:has(.life-sheet.open)::before {
@@ -72,6 +101,16 @@
       ) !important;
     }
     @media (max-width: 800px) {
+      body:has(.mast) {
+        padding-top: 92px;
+      }
+      body.room:not(.journal-page),
+      body.atlas-page {
+        padding-top: 52px;
+      }
+      body.journal-page::before {
+        height: 52px;
+      }
       .entry::before {
         height: 36vh;
         background: linear-gradient(
@@ -128,8 +167,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=86"></script>
-  <script src="journal.js?v=86"></script>
-  <script src="app.js?v=86"></script>
+  <script src="entries.js?v=87"></script>
+  <script src="journal.js?v=87"></script>
+  <script src="app.js?v=87"></script>
 </body>
 </html>
