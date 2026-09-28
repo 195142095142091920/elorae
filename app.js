@@ -2,6 +2,10 @@ const COVER = "assets/Godtree.png";
 const ATLAS = "assets/EloraeLowRes.png";
 const ATLAS_BG = "assets/Cartographer.png";
 
+const ALIASES = {
+  "galands-first-flight": "galand-helviath",
+};
+
 const place = {
   hash: "#/gallery",
   scroll: 0,
@@ -226,6 +230,10 @@ function neighbors(id) {
 }
 
 function renderEntry(id) {
+  if (ALIASES[id]) {
+    location.hash = "#/" + ALIASES[id];
+    return;
+  }
   const entry = window.ENTRIES.find((e) => e.id === id);
   if (!entry) {
     location.hash = place.hash || "#/gallery";
@@ -234,12 +242,18 @@ function renderEntry(id) {
   place.scroll = window.scrollY || place.scroll;
   dropPlaceScroll();
   const { prev, next } = neighbors(id);
-  const hasLore = (entry.lore || []).length > 0;
+  const loreBits = entry.lore || [];
+  const bioBits = entry.bio || [];
+  const hasLore = loreBits.length > 0 || bioBits.length > 0;
   document.title = entry.title + " - Elorae";
   document.body.className = "entry";
   const loreBtn = hasLore ? ' <button class="more" id="toggle" type="button">+</button>' : "";
+  let loreInner = loreBits.map((p) => '<p>' + escapeHtml(p) + '</p>').join("");
+  if (bioBits.length) {
+    loreInner += '<div class="bio">' + bioBits.map((p) => '<p>' + escapeHtml(p) + '</p>').join("") + '</div>';
+  }
   const loreBox = hasLore
-    ? '<div class="lore" id="lore">' + (entry.lore || []).map((p) => '<p>' + escapeHtml(p) + '</p>').join("") + '</div>'
+    ? '<div class="lore' + (bioBits.length ? ' has-bio' : '') + '" id="lore">' + loreInner + '</div>'
     : "";
   document.body.innerHTML =
     '<div class="hero"><img src="' + encodeURI(entry.image) + '" alt="' + escapeHtml(entry.title) +
@@ -263,7 +277,7 @@ function renderEntry(id) {
       lore.classList.contains("open") ? shut() : open();
     });
   }
-  if (window.matchMedia("(hover: hover)").matches && hasLore) {
+  if (window.matchMedia("(hover: hover)").matches && hasLore && !bioBits.length) {
     let leave;
     titleblock.addEventListener("mouseenter", () => { clearTimeout(leave); open(); });
     titleblock.addEventListener("mouseleave", () => { leave = setTimeout(shut, 180); });
