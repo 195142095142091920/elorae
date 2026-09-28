@@ -526,22 +526,36 @@ body::after {
   .subbar { gap: 10px; letter-spacing: 0.12em; padding-bottom: 12px; }
   .cover-mark { top: 22px; letter-spacing: 0.22em; }
   .cover-nav { gap: 10px; font-size: 11px; letter-spacing: 0.16em; bottom: 22px; }
+  .dock {
+    display: flex;
+    flex-direction: column;
+  }
+  .dock .lore { order: -1; }
   .dock,
   .life-dock {
     width: 38vw;
     padding: 36px 12px 84px;
-    transition: width 220ms ease;
+    transition: width 220ms ease, opacity 180ms ease;
   }
   .dock:has(.lore.open),
   .life-dock:has(.life-sheet.open) {
     width: calc(100vw - 20px);
   }
+  .entry:has(.lore.open) .life-dock,
+  .entry:has(.life-sheet.open) .dock {
+    opacity: 0;
+    pointer-events: none;
+  }
   .dock .lore,
   .life-dock .life-sheet { max-width: none; }
+  .lore.open {
+    max-height: 46vh;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+  .life-sheet.open { max-height: 50vh; }
   .pager { bottom: 12px; gap: 44px; z-index: 12; }
   .arrow { width: 44px; height: 44px; font-size: 34px; }
-  .lore.open { max-height: 34vh; }
-  .life-sheet.open { max-height: 46vh; }
   .index-row { grid-template-columns: 1fr; gap: 4px; }
   .journal-read { margin: 0 12px 48px; padding: 24px 18px 40px; }
   .journal-read::before { inset: -40px -24px; }
