@@ -24,6 +24,14 @@ function route() {
   else renderEntry(hash);
 }
 
+function paintBleed(src, position) {
+  document.body.style.backgroundImage = src ? "url(\"" + src + "\")" : "";
+  document.body.style.backgroundSize = src ? "cover" : "";
+  document.body.style.backgroundPosition = src ? (position || "center") : "";
+  document.body.style.backgroundRepeat = src ? "no-repeat" : "";
+  document.body.style.backgroundAttachment = src ? "fixed" : "";
+}
+
 function rooms(current) {
   const items = [
     ["atlas", "Atlas"],
@@ -56,6 +64,7 @@ function renderCover() {
   dropPlaceScroll();
   document.title = "Elorae";
   document.body.className = "cover";
+  paintBleed(COVER, "center 45%");
   document.body.innerHTML =
     '<div class="hero cover-hero"><img src="' + encodeURI(COVER) + '" alt="Elorae"></div>' +
     '<p class="cover-mark">Elorae</p>' +
@@ -69,6 +78,7 @@ function matchesTag(entry, tag) {
 }
 
 function renderWall(tag) {
+  paintBleed("");
   const entries = window.ENTRIES.filter((e) => matchesTag(e, tag));
   document.title = "Gallery - Elorae";
   document.body.className = "";
@@ -111,6 +121,7 @@ function tile(entry) {
 }
 
 function renderIndex() {
+  paintBleed("");
   dropPlaceScroll();
   place.hash = "#/index";
   place.scroll = 0;
@@ -131,6 +142,7 @@ function renderIndex() {
 }
 
 function renderAtlas() {
+  paintBleed("");
   dropPlaceScroll();
   place.hash = "#/atlas";
   place.scroll = 0;
@@ -145,6 +157,7 @@ function renderAtlas() {
 }
 
 function renderRoom(id, title, empty) {
+  paintBleed("");
   dropPlaceScroll();
   place.hash = "#/" + id;
   place.scroll = 0;
@@ -160,6 +173,7 @@ function flattenJournal() {
 }
 
 function renderJournal(id) {
+  paintBleed("");
   const chapters = flattenJournal();
   const current = chapters.find((c) => c.id === id) || chapters[0];
   if (!current) {
@@ -276,6 +290,7 @@ function renderEntry(id) {
   const hasLore = loreBits.length > 0;
   document.title = entry.title + " - Elorae";
   document.body.className = "entry";
+  paintBleed(entry.image, entry.position || "center");
   const loreBtn = hasLore ? '<button class="more" id="toggle" type="button">+</button>' : "";
   const loreBox = hasLore
     ? '<div class="lore" id="lore">' + loreBits.map((p, i) =>
