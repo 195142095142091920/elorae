@@ -1,4 +1,5 @@
 const COVER = "assets/Godtree.png";
+const ATLAS = "assets/EloraeLowRes.png";
 
 const place = {
   hash: "#/gallery",
@@ -11,7 +12,7 @@ function route() {
   if (!hash) renderCover();
   else if (hash === "gallery") renderWall("all");
   else if (hash.startsWith("gallery/")) renderWall(hash.slice(8));
-  else if (hash === "atlas") renderRoom("atlas", "Atlas", "Not yet drawn.");
+  else if (hash === "atlas") renderAtlas();
   else if (hash === "index") renderIndex();
   else if (hash === "journal") renderJournal();
   else if (hash.startsWith("journal/")) renderJournal(hash.slice(8));
@@ -113,6 +114,18 @@ function renderIndex() {
       '<span class="index-cap">' + escapeHtml(e.caption || "") + '</span></a>'
     ).join("") +
     '</main>';
+}
+
+function renderAtlas() {
+  dropPlaceScroll();
+  place.hash = "#/atlas";
+  place.scroll = 0;
+  document.title = "Atlas - Elorae";
+  document.body.className = "atlas-page";
+  document.body.innerHTML =
+    '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' +
+    rooms("atlas") + '</nav></header>' +
+    '<main class="atlas-stage"><img src="' + encodeURI(ATLAS) + '" alt="Elorae"></main>';
 }
 
 function renderRoom(id, title, empty) {
