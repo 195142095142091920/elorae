@@ -1,5 +1,6 @@
 const COVER = "assets/Godtree.png";
 const ATLAS = "assets/EloraeLowRes.png";
+const ATLAS_BG = "assets/Cartographer.png";
 
 const place = {
   hash: "#/gallery",
@@ -132,6 +133,7 @@ function renderAtlas() {
   document.title = "Atlas - Elorae";
   document.body.className = "atlas-page";
   document.body.innerHTML =
+    '<div class="atlas-bg"><img src="' + encodeURI(ATLAS_BG) + '" alt=""></div>' +
     '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' +
     rooms("atlas") + '</nav></header>' +
     '<main class="atlas-stage"><img src="' + encodeURI(ATLAS) + '" alt="Elorae"></main>';
