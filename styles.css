@@ -610,6 +610,16 @@ body::after {
 @media (max-width: 800px) {
   .wall { grid-template-columns: 1fr 1fr; padding: 0 12px 12px; }
   .topbar { padding: 16px 12px; letter-spacing: 0.16em; }
+  .entry .topbar {
+    padding: 0;
+    min-height: 64px;
+  }
+  .entry .topbar a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 64px;
+    padding: 18px 22px 14px;
+  }
   .filters { gap: 12px; }
   .subbar { gap: 10px; letter-spacing: 0.12em; padding-bottom: 12px; }
   .cover-mark { top: 22px; letter-spacing: 0.22em; }
@@ -621,9 +631,9 @@ body::after {
   }
   .dock,
   .life-dock {
-    width: 42vw;
-    min-height: 28vh;
-    padding: 28px 12px 16px;
+    width: 46vw;
+    min-height: 30vh;
+    padding: 36px 14px 18px;
     pointer-events: auto;
     transition: width 220ms ease, opacity 180ms ease;
   }
@@ -644,6 +654,8 @@ body::after {
     font-size: 11px;
     line-height: 1.35;
     letter-spacing: 0.04em;
+    min-height: 32px;
+    padding: 6px 4px;
   }
   .life-dock:not(:has(.life-sheet.open)) .life-toggle {
     position: static;
@@ -730,14 +742,14 @@ body::after {
   }
   .arrow {
     position: absolute;
-    top: 46%;
-    width: 44px;
-    height: 64px;
-    font-size: 34px;
+    top: 34%;
+    width: 72px;
+    height: 140px;
+    font-size: 36px;
     pointer-events: auto;
   }
-  .arrow.prev { left: 2px; }
-  .arrow.next { right: 2px; }
+  .arrow.prev { left: 0; }
+  .arrow.next { right: 0; }
   .entry:has(.lore.open) .pager,
   .entry:has(.life-sheet.open) .pager {
     opacity: 0;
