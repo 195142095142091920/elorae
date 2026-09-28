@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=84">
+  <link rel="stylesheet" href="styles.css?v=85">
   <style>
     .entry:has(.lore.open) .pager,
     .entry:has(.life-sheet.open) .pager,
@@ -104,12 +104,22 @@
           rgba(0,0,0,0.40) 100%
         ) !important;
       }
+      .life-dock:has(.life-sheet.open) {
+        padding-right: 0;
+      }
+      .life-sheet.open {
+        padding-right: 12px;
+        padding-left: 4px;
+      }
+      .life-sheet::-webkit-scrollbar {
+        width: 2px;
+      }
     }
   </style>
 </head>
 <body>
-  <script src="entries.js?v=84"></script>
-  <script src="journal.js?v=84"></script>
-  <script src="app.js?v=84"></script>
+  <script src="entries.js?v=85"></script>
+  <script src="journal.js?v=85"></script>
+  <script src="app.js?v=85"></script>
 </body>
 </html>
