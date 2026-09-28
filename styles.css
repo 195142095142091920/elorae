@@ -235,13 +235,21 @@ body::after {
     rgba(0,0,0,0) 74%
   );
 }
+.life-dock:has(.life-sheet.open) {
+  top: 0;
+  bottom: 0;
+  padding-top: 52px;
+}
 .life-dock:has(.life-sheet.open)::after {
-  background: radial-gradient(
-    ellipse at 72% 55%,
-    rgba(0,0,0,0.72) 0%,
-    rgba(0,0,0,0.38) 42%,
-    rgba(0,0,0,0) 74%
-  );
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.22) 22%, rgba(0,0,0,0.12) 70%, rgba(0,0,0,0) 100%),
+    radial-gradient(
+      ellipse at 72% 28%,
+      rgba(0,0,0,0.7) 0%,
+      rgba(0,0,0,0.32) 50%,
+      rgba(0,0,0,0) 76%
+    );
 }
 .dock .title-block,
 .life-dock .life-toggle,
@@ -341,16 +349,17 @@ body::after {
   transition: max-height 280ms ease, opacity 220ms ease, margin-bottom 280ms ease;
 }
 .life-sheet.open {
-  max-height: 58vh;
+  flex: 1 1 auto;
+  max-height: none;
   overflow: auto;
   opacity: 1;
   pointer-events: auto;
   margin-bottom: 14px;
   background: none;
   box-shadow: none;
-  padding: 28px 0 32px;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 36px, #000 calc(100% - 40px), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 36px, #000 calc(100% - 40px), transparent 100%);
+  padding: 36px 0 32px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 48px, #000 calc(100% - 44px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 48px, #000 calc(100% - 44px), transparent 100%);
 }
 .life-sheet p {
   font-size: 15px;
@@ -595,7 +604,14 @@ body::after {
     padding: 36px 12px 84px;
     transition: width 220ms ease, opacity 180ms ease;
   }
-  .dock:has(.lore.open),
+  .dock:has(.lore.open) {
+    top: auto;
+    bottom: 68px;
+    width: calc(100vw - 16px);
+    padding: 16px 16px 4px;
+    height: auto;
+    align-items: stretch;
+  }
   .life-dock:has(.life-sheet.open) {
     top: 0;
     bottom: 68px;
@@ -604,7 +620,6 @@ body::after {
     height: auto;
     align-items: stretch;
   }
-  .entry:has(.lore.open) .topbar,
   .entry:has(.life-sheet.open) .topbar {
     opacity: 0;
     pointer-events: none;
@@ -616,17 +631,20 @@ body::after {
   }
   .dock .lore,
   .life-dock .life-sheet { max-width: none; }
-  .lore.open,
+  .lore.open {
+    flex: 0 1 auto;
+    max-height: 42vh;
+    height: auto;
+    margin: 0 0 10px;
+    padding: 28px 0 28px;
+  }
   .life-sheet.open {
     flex: 1 1 auto;
     max-height: none;
     height: 100%;
     margin: 0 0 10px;
     padding: 48px 0 40px;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 56px, #000 calc(100% - 52px), transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 56px, #000 calc(100% - 52px), transparent 100%);
   }
-  .dock:has(.lore.open)::after,
   .life-dock:has(.life-sheet.open)::after {
     inset: 0;
     background:
