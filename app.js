@@ -42,6 +42,7 @@ function renderCover() {
     <div class="hero cover-hero">
       <img src="${encodeURI(COVER)}" alt="Elorae">
     </div>
+    <p class="cover-mark">Elorae</p>
     <nav class="cover-nav">${rooms("")}</nav>
   `;
 }
