@@ -356,6 +356,7 @@ body::after {
   order: -1;
   background: none;
   box-shadow: none;
+  scrollbar-width: none;
   transition: max-height 280ms ease, opacity 220ms ease, margin-bottom 280ms ease;
 }
 .life-sheet.open {
@@ -371,6 +372,24 @@ body::after {
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 48px, #000 calc(100% - 44px), transparent 100%);
   mask-image: linear-gradient(to bottom, transparent 0, #000 48px, #000 calc(100% - 44px), transparent 100%);
 }
+.life-sheet.show-bar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(207,198,184,0.45) transparent;
+}
+.life-sheet::-webkit-scrollbar {
+  width: 3px;
+}
+.life-sheet::-webkit-scrollbar-track {
+  background: transparent;
+}
+.life-sheet::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+  transition: background 700ms ease;
+}
+.life-sheet.show-bar::-webkit-scrollbar-thumb {
+  background: rgba(207,198,184,0.45);
+}
 .life-sheet p {
   font-size: 15px;
   line-height: 1.62;
@@ -382,20 +401,16 @@ body::after {
 }
 .life-sheet p + p { margin-top: 12px; }
 
-.life-sheet,
 .journal-read {
   scrollbar-width: thin;
   scrollbar-color: rgba(207,198,184,0.38) transparent;
 }
-.life-sheet::-webkit-scrollbar,
 .journal-read::-webkit-scrollbar {
   width: 3px;
 }
-.life-sheet::-webkit-scrollbar-track,
 .journal-read::-webkit-scrollbar-track {
   background: transparent;
 }
-.life-sheet::-webkit-scrollbar-thumb,
 .journal-read::-webkit-scrollbar-thumb {
   background: rgba(207,198,184,0.4);
   border-radius: 99px;
