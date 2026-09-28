@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=83">
+  <link rel="stylesheet" href="styles.css?v=84">
   <style>
     .entry:has(.lore.open) .pager,
     .entry:has(.life-sheet.open) .pager,
@@ -42,6 +42,25 @@
         rgba(0,0,0,0) 100%
       ) !important;
     }
+    .entry:has(.life-sheet.open)::before {
+      height: 100% !important;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.62) 0%,
+        rgba(0,0,0,0.40) 18%,
+        rgba(0,0,0,0.26) 48%,
+        rgba(0,0,0,0.38) 100%
+      ) !important;
+    }
+    .life-dock:has(.life-sheet.open)::after {
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.38) 0%,
+        rgba(0,0,0,0.16) 28%,
+        rgba(0,0,0,0.10) 70%,
+        rgba(0,0,0,0.22) 100%
+      ) !important;
+    }
     @media (max-width: 800px) {
       .entry::before {
         height: 36vh;
@@ -65,8 +84,7 @@
         min-height: 52px;
         padding: 14px;
       }
-      .entry:has(.lore.open)::before,
-      .entry:has(.life-sheet.open)::before {
+      .entry:has(.lore.open)::before {
         height: 78vh;
         background: linear-gradient(
           to top,
@@ -76,12 +94,22 @@
           rgba(0,0,0,0) 100%
         ) !important;
       }
+      .entry:has(.life-sheet.open)::before {
+        height: 100% !important;
+        background: linear-gradient(
+          to bottom,
+          rgba(0,0,0,0.64) 0%,
+          rgba(0,0,0,0.42) 16%,
+          rgba(0,0,0,0.26) 46%,
+          rgba(0,0,0,0.40) 100%
+        ) !important;
+      }
     }
   </style>
 </head>
 <body>
-  <script src="entries.js?v=83"></script>
-  <script src="journal.js?v=83"></script>
-  <script src="app.js?v=83"></script>
+  <script src="entries.js?v=84"></script>
+  <script src="journal.js?v=84"></script>
+  <script src="app.js?v=84"></script>
 </body>
 </html>
