@@ -187,8 +187,8 @@ body::after {
 .entry .topbar {
   position: fixed;
   top: 0; left: 0; right: 0;
-  z-index: 3;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent);
+  z-index: 20;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.52), rgba(0,0,0,0.18) 62%, transparent);
 }
 
 .pager {
@@ -281,9 +281,9 @@ body::after {
   overflow: auto;
   background: none;
   box-shadow: none;
-  padding: 28px 0 32px;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 36px, #000 calc(100% - 40px), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 36px, #000 calc(100% - 40px), transparent 100%);
+  padding: 16px 0 8px;
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 .lore p {
   line-height: 1.55;
@@ -593,12 +593,12 @@ body::after {
     transition: width 220ms ease, opacity 180ms ease;
   }
   .dock:has(.lore.open) {
-    left: 8px;
-    right: 8px;
+    left: 0;
+    right: 0;
     top: auto;
     bottom: 72px;
-    width: auto;
-    padding: 16px 16px 8px;
+    width: 100%;
+    padding: 20px 18px 10px;
     height: auto;
     align-items: stretch;
   }
@@ -625,10 +625,12 @@ body::after {
   .life-dock .life-sheet { max-width: none; }
   .lore.open {
     flex: 0 1 auto;
-    max-height: 34vh;
+    max-height: none;
     height: auto;
     margin: 0 0 8px;
-    padding: 20px 0 16px;
+    padding: 8px 0 12px;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
   .life-sheet.open {
     flex: 1 1 auto;
@@ -639,11 +641,22 @@ body::after {
   }
   .dock:has(.lore.open)::after {
     inset: 0;
-    background: rgba(0,0,0,0.22);
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0,0,0,0.08) 10%,
+      rgba(0,0,0,0.24) 32%,
+      rgba(0,0,0,0.30) 100%
+    );
   }
   .life-dock:has(.life-sheet.open)::after {
     inset: 0;
-    background: rgba(0,0,0,0.22);
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0,0,0,0.16) 12%,
+      rgba(0,0,0,0.26) 100%
+    );
   }
   .pager { bottom: 12px; gap: 44px; z-index: 12; }
   .arrow { width: 44px; height: 44px; font-size: 34px; }
