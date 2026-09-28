@@ -136,7 +136,8 @@ function renderAtlas() {
     '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' +
     rooms("atlas") + '</nav></header>' +
     '<div class="journal-bg atlas-bg"><img src="' + encodeURI(ATLAS_BG) + '" alt=""></div>' +
-    '<main class="atlas-stage"><img src="' + encodeURI(ATLAS) + '" alt="Elorae"></main>';
+    '<main class="atlas-stage"><figure class="atlas-plate"><img src="' +
+    encodeURI(ATLAS) + '" alt="Elorae"></figure></main>';
 }
 
 function renderRoom(id, title, empty) {
