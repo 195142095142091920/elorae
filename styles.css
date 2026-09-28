@@ -45,6 +45,31 @@ body::after {
   background: var(--bg);
 }
 
+.mast {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+}
+.mast .topbar {
+  position: relative;
+  background: transparent;
+}
+.subbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 0 var(--pad) 16px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+.subbar a.active,
+.subbar a:hover { color: #f3eee6; }
+
 .journal-page .topbar {
   position: fixed;
   top: 0;
@@ -367,6 +392,7 @@ body::after {
   .wall { grid-template-columns: 1fr 1fr; padding: 0 12px 12px; }
   .topbar { padding: 16px 12px; letter-spacing: 0.16em; }
   .filters { gap: 12px; }
+  .subbar { gap: 10px; letter-spacing: 0.12em; padding-bottom: 12px; }
   .cover-mark { top: 22px; letter-spacing: 0.22em; }
   .cover-nav { gap: 10px; font-size: 11px; letter-spacing: 0.16em; bottom: 22px; }
   .arrow { width: 40px; height: 40px; font-size: 32px; }
