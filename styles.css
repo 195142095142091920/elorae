@@ -224,7 +224,10 @@ body::after {
   bottom: 0;
   z-index: 4;
   width: min(46vw, 560px);
-  padding: 72px var(--pad) 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px var(--pad) 28px;
   background: none;
 }
 .dock:has(.lore.open)::after,
@@ -272,7 +275,6 @@ body::after {
   color: var(--muted);
 }
 .title-block .lore { order: 2; }
-.title-block:has(.lore.open) .lore { order: -1; }
 
 .more {
   display: inline;
@@ -294,16 +296,16 @@ body::after {
   opacity: 0;
   background: none;
   box-shadow: none;
-  transition: max-height 280ms ease, opacity 220ms ease, margin-top 280ms ease;
+  transition: max-height 280ms ease, opacity 220ms ease, margin-top 280ms ease, padding 280ms ease;
 }
 .lore.open {
-  max-height: 28vh;
+  max-height: 32vh;
   opacity: 1;
   margin-top: 14px;
   overflow: auto;
   background: none;
   box-shadow: none;
-  padding: 16px 0 8px;
+  padding: 4px 0 8px;
   -webkit-mask-image: none;
   mask-image: none;
 }
@@ -651,6 +653,7 @@ body::after {
   .dock:has(.lore.open) {
     top: auto;
     padding: 20px 18px 76px;
+    justify-content: flex-end;
   }
   .life-dock:has(.life-sheet.open) {
     top: 0;
@@ -669,9 +672,9 @@ body::after {
   .life-dock .life-sheet { max-width: none; }
   .lore.open {
     flex: 0 1 auto;
-    max-height: none;
+    max-height: 42vh;
     height: auto;
-    margin: 0 0 8px;
+    margin: 10px 0 0;
     padding: 8px 0 12px;
     -webkit-mask-image: none;
     mask-image: none;
