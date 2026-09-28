@@ -183,6 +183,11 @@ body::after {
   pointer-events: none;
   background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.52) 48%, rgba(0,0,0,0) 100%);
 }
+.entry:has(.lore.open)::before,
+.entry:has(.life-sheet.open)::before {
+  height: 32vh;
+  background: linear-gradient(to top, rgba(0,0,0,0.56) 0%, rgba(0,0,0,0.56) 70%, transparent 100%);
+}
 
 .entry .topbar {
   position: fixed;
@@ -594,25 +599,22 @@ body::after {
     padding: 36px 12px 84px;
     transition: width 220ms ease, opacity 180ms ease;
   }
-  .dock:has(.lore.open) {
-    left: 0;
-    right: 0;
-    top: auto;
-    bottom: 72px;
-    width: 100%;
-    padding: 20px 18px 10px;
-    height: auto;
-    align-items: stretch;
-  }
+  .dock:has(.lore.open),
   .life-dock:has(.life-sheet.open) {
     left: 0;
     right: 0;
-    top: 0;
-    bottom: 68px;
     width: 100%;
-    padding: 12px 18px 4px;
+    bottom: 0;
     height: auto;
     align-items: stretch;
+  }
+  .dock:has(.lore.open) {
+    top: auto;
+    padding: 20px 18px 76px;
+  }
+  .life-dock:has(.life-sheet.open) {
+    top: 0;
+    padding: 12px 18px 76px;
   }
   .entry:has(.life-sheet.open) .topbar {
     opacity: 0;
@@ -649,8 +651,13 @@ body::after {
       transparent 0%,
       rgba(0,0,0,0.36) 6%,
       rgba(0,0,0,0.54) 16%,
-      rgba(0,0,0,0.60) 100%
+      rgba(0,0,0,0.56) 100%
     );
+  }
+  .entry:has(.lore.open)::before,
+  .entry:has(.life-sheet.open)::before {
+    height: 28vh;
+    background: rgba(0,0,0,0.56);
   }
   .pager { bottom: 12px; gap: 44px; z-index: 12; }
   .arrow { width: 44px; height: 44px; font-size: 34px; }
