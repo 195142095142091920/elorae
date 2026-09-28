@@ -25,11 +25,15 @@ function route() {
 }
 
 function paintBleed(src, position) {
-  document.body.style.backgroundImage = src ? "url(\"" + src + "\")" : "";
-  document.body.style.backgroundSize = src ? "cover" : "";
-  document.body.style.backgroundPosition = src ? (position || "center") : "";
-  document.body.style.backgroundRepeat = src ? "no-repeat" : "";
-  document.body.style.backgroundAttachment = src ? "fixed" : "";
+  const roots = [document.documentElement, document.body];
+  roots.forEach((el) => {
+    el.style.backgroundImage = src ? "url(\"" + src + "\")" : "";
+    el.style.backgroundSize = src ? "cover" : "";
+    el.style.backgroundPosition = src ? (position || "center") : "";
+    el.style.backgroundRepeat = src ? "no-repeat" : "";
+    el.style.backgroundAttachment = src ? "fixed" : "";
+    el.style.backgroundColor = src ? "transparent" : "";
+  });
 }
 
 function rooms(current) {
