@@ -243,8 +243,14 @@ body::after {
   height: auto;
   object-fit: contain;
   display: block;
-  -webkit-mask-image: radial-gradient(ellipse at center, #000 52%, rgba(0,0,0,0.55) 72%, transparent 92%);
-  mask-image: radial-gradient(ellipse at center, #000 52%, rgba(0,0,0,0.55) 72%, transparent 92%);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+  mask-composite: intersect;
 }
 
 .journal-page {
