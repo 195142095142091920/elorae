@@ -266,7 +266,7 @@ function renderEntry(id) {
   const hasLore = loreBits.length > 0;
   document.title = entry.title + " - Elorae";
   document.body.className = "entry";
-  const loreBtn = hasLore ? ' <button class="more" id="toggle" type="button">+</button>' : "";
+  const loreBtn = hasLore ? '<button class="more" id="toggle" type="button">+</button>' : "";
   const loreBox = hasLore
     ? '<div class="lore" id="lore">' + loreBits.map((p, i) =>
         '<p' + (i === 0 ? ' class="say"' : '') + '>' + escapeHtml(p) + '</p>'
@@ -274,7 +274,7 @@ function renderEntry(id) {
     : "";
   const lifeUi = bioBits.length
     ? '<div class="life-dock" id="lifedock">' +
-      '<button class="life-toggle" id="life-toggle" type="button">Lore +</button>' +
+      '<button class="life-toggle" id="life-toggle" type="button">+ Lore</button>' +
       '<aside class="life-sheet" id="life">' +
       bioBits.map((p) => '<p>' + escapeHtml(p) + '</p>').join("") +
       '</aside></div>'
@@ -289,7 +289,7 @@ function renderEntry(id) {
     '</nav>' +
     '<div class="dock" id="dock"><div class="title-block" id="titleblock">' +
     '<h1>' + escapeHtml(entry.title) + '</h1>' +
-    '<p class="caption">' + escapeHtml(entry.caption || "") + loreBtn + '</p>' +
+    '<p class="caption">' + escapeHtml(entry.caption || "") + ' ' + loreBtn + '</p>' +
     loreBox + '</div></div>' + lifeUi;
 
   const lore = document.querySelector("#lore");
@@ -304,12 +304,12 @@ function renderEntry(id) {
   const openLife = () => {
     if (!life) return;
     life.classList.add("open");
-    if (lifeToggle) lifeToggle.textContent = "Lore -";
+    if (lifeToggle) lifeToggle.textContent = "- Lore";
   };
   const shutLife = () => {
     if (!life) return;
     life.classList.remove("open");
-    if (lifeToggle) lifeToggle.textContent = "Lore +";
+    if (lifeToggle) lifeToggle.textContent = "+ Lore";
   };
   const flipLore = () => {
     if (!lore) return;
