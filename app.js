@@ -301,7 +301,6 @@ function renderEntry(id) {
   const lifedock = document.querySelector("#lifedock");
   const open = () => { if (!lore) return; lore.classList.add("open"); if (toggle) toggle.textContent = "-"; };
   const shut = () => { if (!lore) return; lore.classList.remove("open"); if (toggle) toggle.textContent = "+"; };
-  const flipLore = () => { if (!lore) return; lore.classList.contains("open") ? shut() : open(); };
   const openLife = () => {
     if (!life) return;
     life.classList.add("open");
@@ -312,7 +311,22 @@ function renderEntry(id) {
     life.classList.remove("open");
     if (lifeToggle) lifeToggle.textContent = "Lore +";
   };
-  const flipLife = () => { if (!life) return; life.classList.contains("open") ? shutLife() : openLife(); };
+  const flipLore = () => {
+    if (!lore) return;
+    if (lore.classList.contains("open")) shut();
+    else {
+      if (!canHover()) shutLife();
+      open();
+    }
+  };
+  const flipLife = () => {
+    if (!life) return;
+    if (life.classList.contains("open")) shutLife();
+    else {
+      if (!canHover()) shut();
+      openLife();
+    }
+  };
   if (toggle) {
     toggle.addEventListener("click", (e) => {
       e.stopPropagation();
