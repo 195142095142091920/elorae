@@ -179,29 +179,35 @@ body::after {
   background: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent);
 }
 
-.arrow {
+.pager {
   position: fixed;
-  top: 50%;
+  left: 50%;
+  bottom: 22px;
   z-index: 6;
-  transform: translateY(-50%);
-  width: 56px;
-  height: 56px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.arrow {
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
-  font-size: 42px;
+  font-size: 36px;
   color: #efe8dc;
-  opacity: 0.35;
+  opacity: 0.4;
 }
 .arrow:hover { opacity: 1; }
-.arrow.prev { left: 12px; }
-.arrow.next { right: 12px; }
 
 .dock {
   position: fixed;
-  left: 0; right: 0; bottom: 0;
+  left: 0;
+  bottom: 0;
   z-index: 4;
+  width: min(46vw, 560px);
   padding: 72px var(--pad) 28px;
-  background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0) 100%);
 }
 
 .title-block h1 { font-weight: 400; font-size: clamp(28px, 4vw, 42px); }
@@ -224,7 +230,7 @@ body::after {
 }
 
 .lore {
-  max-width: 62ch;
+  max-width: 42ch;
   max-height: 0;
   overflow: hidden;
   opacity: 0;
@@ -234,11 +240,19 @@ body::after {
 .lore p { line-height: 1.55; font-size: 16px; color: #e7dfd3; }
 .lore p + p { margin-top: 12px; }
 
-.life-toggle {
+.life-dock {
   position: fixed;
-  right: 28px;
-  bottom: 28px;
+  right: 0;
+  bottom: 0;
   z-index: 8;
+  width: min(42vw, 480px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 72px var(--pad) 28px;
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.32) 55%, rgba(0,0,0,0) 100%);
+}
+.life-toggle {
   border: 0;
   background: none;
   color: #cfc6b8;
@@ -250,22 +264,20 @@ body::after {
   text-shadow: 0 1px 10px rgba(0,0,0,0.8);
 }
 .life-sheet {
-  position: fixed;
-  right: 28px;
-  bottom: 56px;
-  z-index: 8;
-  width: min(42ch, calc(100vw - 40px));
+  width: 100%;
   max-height: 0;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  transition: max-height 280ms ease, opacity 220ms ease;
+  order: -1;
+  transition: max-height 280ms ease, opacity 220ms ease, margin-bottom 280ms ease;
 }
 .life-sheet.open {
   max-height: 58vh;
   overflow: auto;
   opacity: 1;
   pointer-events: auto;
+  margin-bottom: 14px;
 }
 .life-sheet p {
   font-size: 15px;
@@ -496,11 +508,12 @@ body::after {
   .subbar { gap: 10px; letter-spacing: 0.12em; padding-bottom: 12px; }
   .cover-mark { top: 22px; letter-spacing: 0.22em; }
   .cover-nav { gap: 10px; font-size: 11px; letter-spacing: 0.16em; bottom: 22px; }
+  .dock,
+  .life-dock { width: calc(50vw - 8px); padding: 48px 12px 64px; }
+  .pager { bottom: 10px; gap: 18px; }
   .arrow { width: 40px; height: 40px; font-size: 32px; }
-  .lore.open { max-height: 32vh; }
-  .life-toggle { right: 14px; bottom: 18px; }
-  .life-sheet { right: 14px; bottom: 44px; max-width: calc(100vw - 28px); }
-  .life-sheet.open { max-height: 48vh; }
+  .lore.open { max-height: 28vh; }
+  .life-sheet.open { max-height: 42vh; }
   .index-row { grid-template-columns: 1fr; gap: 4px; }
   .journal-read { margin: 0 12px 48px; padding: 24px 18px 40px; }
   .journal-read::before { inset: -40px -24px; }
