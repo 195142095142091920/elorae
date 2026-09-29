@@ -6,12 +6,22 @@
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=119">
+  <link rel="stylesheet" href="styles.css?v=120">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
     .seal-page .topbar { background: #070707; }
     .seal-page .seal-kicker { display: none; }
+    .index-list, .sheet { scrollbar-width: none; }
+    .index-list.show-bar, .sheet.show-bar {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(207,198,184,0.45) transparent;
+    }
+    .index-list::-webkit-scrollbar, .sheet::-webkit-scrollbar { width: 3px; }
+    .index-list::-webkit-scrollbar-track, .sheet::-webkit-scrollbar-track { background: transparent; }
+    .index-list::-webkit-scrollbar-thumb, .sheet::-webkit-scrollbar-thumb { background: transparent; border-radius: 99px; }
+    .index-list.show-bar::-webkit-scrollbar-thumb,
+    .sheet.show-bar::-webkit-scrollbar-thumb { background: rgba(207,198,184,0.45); }
     .seal-card {
       position: fixed;
       inset: 0;
@@ -194,10 +204,10 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=119"></script>
-  <script src="journal.js?v=119"></script>
-  <script src="vault.js?v=119"></script>
-  <script src="app.js?v=119"></script>
+  <script src="entries.js?v=120"></script>
+  <script src="journal.js?v=120"></script>
+  <script src="vault.js?v=120"></script>
+  <script src="app.js?v=120"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
