@@ -7,8 +7,8 @@
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=132">
-  <link rel="stylesheet" href="figure-lore.css?v=133">
+  <link rel="stylesheet" href="styles.css?v=134">
+  <link rel="stylesheet" href="figure-lore.css?v=134">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -190,6 +190,19 @@
         height: 36vh;
         background: linear-gradient(to top, rgba(0,0,0, calc(0.28 + var(--veil-amt, 0.35) * 0.50)) 0%, rgba(0,0,0, calc(0.14 + var(--veil-amt, 0.35) * 0.32)) 42%, rgba(0,0,0, 0) 100%);
         transition: none !important;
+      }
+      .entry:has(.lore.open)::before,
+      .entry:has(.life-sheet.open)::before {
+        height: 100% !important;
+        background: rgba(0,0,0,0.74) !important;
+      }
+      .dock:has(.lore.open)::after,
+      .life-dock:has(.life-sheet.open)::after {
+        background: rgba(0,0,0,0.74) !important;
+      }
+      .life-sheet.open {
+        -webkit-mask-image: none !important;
+        mask-image: none !important;
       }
       .entry .topbar {
         background: linear-gradient(to bottom, rgba(0,0,0,0.56) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0) 100%);
