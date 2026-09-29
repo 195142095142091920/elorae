@@ -331,7 +331,8 @@ function renderEntry(id) {
   document.body.innerHTML =
     '<div class="hero"><img src="' + encodeURI(entry.image) + '" alt="' + escapeHtml(entry.title) +
     '" style="object-fit:' + (entry.fit || "cover") + ';object-position:' + (entry.position || "center") + '"></div>' +
-    '<header class="topbar"><a href="' + (place.hash || "#/gallery") + '">Back</a></header>' +
+    '<header class="topbar"><a href="' + (place.hash || "#/gallery") + '">Back</a>' +
+    '<button class="fit-toggle" id="fit" type="button">Full</button></header>' +
     '<nav class="pager">' +
     '<a class="arrow prev" href="#/' + prev.id + '">&#8249;</a>' +
     '<a class="arrow next" href="#/' + next.id + '">&#8250;</a>' +
@@ -348,6 +349,8 @@ function renderEntry(id) {
   const life = document.querySelector("#life");
   const lifeToggle = document.querySelector("#life-toggle");
   const lifedock = document.querySelector("#lifedock");
+  const hero = document.querySelector(".hero");
+  const fitBtn = document.querySelector("#fit");
   const open = () => { if (!lore) return; lore.classList.add("open"); if (toggle) toggle.textContent = "-"; };
   const shut = () => { if (!lore) return; lore.classList.remove("open"); if (toggle) toggle.textContent = "+"; };
   const openLife = () => {
@@ -387,6 +390,13 @@ function renderEntry(id) {
     lifeToggle.addEventListener("click", (e) => {
       e.stopPropagation();
       flipLife();
+    });
+  }
+  if (fitBtn && hero) {
+    fitBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const on = hero.classList.toggle("full");
+      fitBtn.textContent = on ? "Crop" : "Full";
     });
   }
   bindHover(titleblock, open, shut);
