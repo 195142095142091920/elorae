@@ -189,6 +189,7 @@ function renderIndex() {
     list.map((e) => '<a class="index-row" href="#/' + e.id + '"><span class="index-name">' +
       escapeHtml(e.title) + '</span><span class="index-cap">' + escapeHtml(e.caption || "") + '</span></a>').join("") +
     '</main>';
+  bindIdleScrollbar(document.querySelector(".index-list"));
 }
 
 function renderAtlas() {
@@ -243,6 +244,7 @@ function renderJournal(id) {
     '</nav><article class="journal-read"><h2>' + escapeHtml(current.title) + '</h2>' +
     current.blocks.map(journalBlock).join("") + '</article></div>';
   bindPlaceScroll();
+  bindIdleScrollbar(document.querySelector(".sheet"));
   requestAnimationFrame(() => restoreScroll(keepScroll));
   if (window._keys) document.removeEventListener("keydown", window._keys);
   const i = chapters.findIndex((c) => c.id === current.id);
