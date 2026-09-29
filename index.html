@@ -6,7 +6,7 @@
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=118">
+  <link rel="stylesheet" href="styles.css?v=119">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -194,10 +194,10 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=118"></script>
-  <script src="journal.js?v=118"></script>
-  <script src="vault.js?v=118"></script>
-  <script src="app.js?v=118"></script>
+  <script src="entries.js?v=119"></script>
+  <script src="journal.js?v=119"></script>
+  <script src="vault.js?v=119"></script>
+  <script src="app.js?v=119"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
@@ -205,13 +205,21 @@
       }
       window._from = window._from || "#/gallery";
       function backTo() { return window._from || "#/gallery"; }
+      function openPhrase() {
+        if (location.hash === "#/seal") {
+          location.hash = "#/gallery";
+          setTimeout(function () { location.hash = "#/seal"; }, 0);
+        } else {
+          location.hash = "#/seal";
+        }
+      }
       document.addEventListener("click", function (e) {
         const leave = e.target.closest("#leave");
         if (leave) {
           e.preventDefault();
           e.stopPropagation();
           try { localStorage.removeItem("elorae-seal"); } catch (err) {}
-          location.hash = backTo();
+          openPhrase();
           return;
         }
         const a = e.target.closest(".topbar a");
