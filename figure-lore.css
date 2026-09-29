@@ -1,0 +1,35 @@
+.life-quote { margin: 0 0 20px; }
+.life-quote p {
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #f0e9de;
+}
+.life-quote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #b7b0a4;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+}
+.life-facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0 0 22px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid rgba(243,238,230,0.16);
+}
+.life-facts li {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #cfc6b8;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+}
