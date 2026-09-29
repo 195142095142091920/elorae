@@ -7,261 +7,29 @@
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=139">
-  <link rel="stylesheet" href="figure-lore.css?v=139">
-  <style>
-    html { background: #070707; }
-    .cover-seal { display: none !important; }
-    .seal-page .topbar { background: #070707; }
-    .seal-page .seal-kicker { display: none; }
-    .index-list, .sheet { scrollbar-width: none; }
-    .index-list.show-bar, .sheet.show-bar {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(207,198,184,0.45) transparent;
-    }
-    .index-list::-webkit-scrollbar, .sheet::-webkit-scrollbar { width: 3px; }
-    .index-list::-webkit-scrollbar-track, .sheet::-webkit-scrollbar-track { background: transparent; }
-    .index-list::-webkit-scrollbar-thumb, .sheet::-webkit-scrollbar-thumb { background: transparent; border-radius: 99px; }
-    .index-list.show-bar::-webkit-scrollbar-thumb,
-    .sheet.show-bar::-webkit-scrollbar-thumb { background: rgba(207,198,184,0.45); }
-    .seal-card {
-      position: fixed;
-      inset: 0;
-      max-width: none;
-      margin: 0;
-      padding: 0 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .seal-kicker {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 11px;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: #8f8a82;
-      margin-bottom: 22px;
-    }
-    .seal-card h1 { font-weight: 400; font-size: 36px; margin-bottom: 16px; }
-    .seal-note { color: #b7b0a4; line-height: 1.5; margin-bottom: 0; max-width: 28ch; }
-    #seal-form { display: flex; flex-direction: column; align-items: center; gap: 18px; }
-    #seal-code {
-      width: min(280px, 72vw);
-      border: 0;
-      border-bottom: 1px solid #3a3732;
-      background: transparent;
-      color: #f3eee6;
-      font: inherit;
-      font-size: 18px;
-      text-align: center;
-      padding: 8px 4px;
-      outline: none;
-    }
-    #seal-form button,
-    .seal-leave {
-      border: 0;
-      background: none;
-      color: #cfc6b8;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 11px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
-    #seal-form button { padding: 4px 8px; }
-    .seal-leave {
-      position: fixed !important;
-      left: 50%;
-      bottom: 22px;
-      width: 220px; height: 52px;
-      margin: 0;
-      transform: translateX(-50%);
-      z-index: 80;
-      opacity: 0 !important;
-      pointer-events: auto !important;
-      transition: opacity 200ms ease;
-    }
-    .seal-leave:hover { opacity: 0.65 !important; }
-    .seal-err {
-      margin-top: 18px;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 12px;
-      color: #8f8a82;
-    }
-    .entry:has(.lore.open) .arrow,
-    .entry:has(.life-sheet.open) .arrow,
-    .entry:has(.lore.open) .fit-mark,
-    .entry:has(.life-sheet.open) .fit-mark {
-      opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
-    }
-    .entry:has(.lore.open) .pager::before,
-    .entry:has(.life-sheet.open) .pager::before { opacity: 0 !important; }
-    .entry:has(.hero.full) .arrow,
-    .entry:has(.hero.full) .dock,
-    .entry:has(.hero.full) .life-dock {
-      opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
-    }
-    .entry:has(.hero.full)::before { opacity: 0 !important; }
-    .entry .topbar { padding: 0; justify-content: space-between; }
-    .entry .topbar a { display: inline-flex; align-items: flex-start; padding: 28px; }
-    .fit-toggle {
-      border: 0; background: none; color: #e8e2d8;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
-      cursor: pointer; opacity: 0.72; z-index: 6;
-    }
-    .fit-toggle:hover { opacity: 1; }
-    .fit-mark svg {
-      width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.7;
-      fill: none; stroke-linecap: square; transform: translateY(6px);
-    }
-    .hero.full img { object-fit: contain !important; }
-    .entry::before, .dock::after, .life-dock::after { transition: none !important; }
-    body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
-      overflow: hidden; height: 100dvh;
-    }
-    .mast {
-      position: fixed !important; top: 0; left: 0; right: 0; z-index: 50;
-      background: #070707 !important;
-    }
-    .wall {
-      position: fixed !important; top: 96px; left: 0; right: 0; bottom: 0;
-      overflow-y: auto; -webkit-overflow-scrolling: touch; z-index: 1;
-      padding-top: 0 !important; align-content: start; grid-auto-rows: min-content;
-    }
-    .tile { aspect-ratio: 4 / 3 !important; height: auto !important; align-self: start; }
-    .room:not(.journal-page) .topbar,
-    .atlas-page .topbar {
-      position: fixed !important; top: 0; left: 0; right: 0; z-index: 50;
-      background: #070707 !important;
-    }
-    .index-list, .room-body, .atlas-stage {
-      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
-      overflow-y: auto; -webkit-overflow-scrolling: touch; z-index: 2;
-    }
-    .journal-page .topbar {
-      position: fixed !important; top: 0; left: 0; right: 0; z-index: 50;
-      background: #070707 !important; text-shadow: none;
-    }
-    .sheet {
-      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
-      overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; z-index: 2;
-    }
-    .journal-page .chapter-tabs { padding-top: 8px !important; }
-    .entry:has(.lore.open)::before,
-    .entry:has(.life-sheet.open)::before { height: 100%; }
-    @media (min-width: 801px) {
-      .topbar .fit-toggle { display: none; }
-      .pager { gap: 4px; isolation: isolate; }
-      .pager::before {
-        content: ""; position: absolute; left: 50%; top: 50%; width: 280px; height: 110px;
-        transform: translate(-50%, -50%); pointer-events: none; z-index: -1;
-        background: radial-gradient(ellipse at center, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.48) 36%, rgba(0,0,0,0.20) 58%, rgba(0,0,0,0) 76%);
-      }
-      .fit-mark {
-        position: static; transform: none; left: auto; bottom: auto;
-        display: flex; align-items: center; justify-content: center;
-        width: 40px; height: 48px; padding: 0;
-      }
-    }
-    @media (max-width: 800px) {
-      .fit-mark { display: none; }
-      .wall { top: 88px; }
-      .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
-      .sheet { overflow-x: hidden; width: 100%; }
-      .journal-read {
-        max-width: 100% !important; margin-left: 0 !important; margin-right: 0 !important;
-        padding-left: 18px !important; padding-right: 18px !important; box-sizing: border-box;
-      }
-      .journal-read::before { inset: -24px 0 !important; }
-      .journal-fig img { max-width: 100%; height: auto; }
-      .dock, .life-dock { transition: opacity 240ms ease !important; }
-      .lore, .life-sheet {
-        transform: translateY(8px);
-        transition: opacity 280ms ease, transform 280ms ease !important;
-      }
-      .lore.open, .life-sheet.open { transform: translateY(0); }
-      .entry::before {
-        height: 36vh;
-        background: linear-gradient(to top, rgba(0,0,0, calc(0.28 + var(--veil-amt, 0.35) * 0.50)) 0%, rgba(0,0,0, calc(0.14 + var(--veil-amt, 0.35) * 0.32)) 42%, rgba(0,0,0, 0) 100%);
-        transition: none !important;
-      }
-      .entry:has(.lore.open)::before,
-      .entry:has(.life-sheet.open)::before {
-        height: 100% !important;
-        background: rgba(0,0,0,0.58) !important;
-      }
-      .dock:has(.lore.open)::after,
-      .life-dock:has(.life-sheet.open)::after { background: none !important; }
-      .life-sheet.open {
-        -webkit-mask-image: none !important;
-        mask-image: none !important;
-      }
-      .entry .topbar {
-        background: linear-gradient(to bottom, rgba(0,0,0,0.56) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0) 100%);
-      }
-      .entry .topbar a, .topbar .fit-toggle { min-height: 52px; padding: 14px; }
-      .life-dock:has(.life-sheet.open) { padding-right: 0; }
-      .life-sheet.open { padding-right: 12px; padding-left: 4px; }
-      .life-sheet::-webkit-scrollbar { width: 2px; }
-      .seal-leave:active { opacity: 0.55 !important; }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css?v=140">
+  <link rel="stylesheet" href="figure-lore.css?v=140">
 </head>
 <body>
   <script src="entries.js?v=132"></script>
   <script src="journal.js?v=132"></script>
-  <script src="codex.js?v=139"></script>
+  <script src="codex.js?v=140"></script>
+  <script src="codex-souls.js?v=140"></script>
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
-  <script src="codex-ui.js?v=139"></script>
+  <script src="codex-ui.js?v=140"></script>
   <script>
     (function () {
-      if (!location.hash || location.hash === "#" || location.hash === "#/") {
-        location.replace("#/gallery");
-      }
+      if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
       window._from = window._from || "#/gallery";
-      function backTo() { return window._from || "#/gallery"; }
       document.addEventListener("click", function (e) {
         const a = e.target.closest(".topbar a");
-        if (!a) return;
-        if (a.textContent.trim() !== "Elorae") return;
+        if (!a || a.textContent.trim() !== "Elorae") return;
         e.preventDefault();
         if (location.hash && location.hash !== "#/seal") window._from = location.hash;
         location.hash = "#/seal";
       }, true);
-      document.addEventListener("submit", function (e) {
-        if (!e.target || e.target.id !== "seal-form") return;
-        setTimeout(function () {
-          if (location.hash !== "#/seal") location.hash = "#/seal";
-        }, 0);
-      }, true);
-      document.addEventListener("keydown", function (e) {
-        if (e.key !== "Escape") return;
-        if (document.body.classList.contains("entry")) return;
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        if (document.body.classList.contains("seal-page")) location.hash = backTo();
-      }, true);
-      function paintSealPage() {
-        if (!document.body.classList.contains("seal-page")) return;
-        const a = document.querySelector(".topbar a");
-        if (a) {
-          a.textContent = "Back";
-          a.setAttribute("href", backTo());
-        }
-        const note = document.querySelector(".seal-note");
-        const copy = "You may now view your private material.";
-        if (note && note.textContent !== copy) note.textContent = copy;
-        const err = document.querySelector("#seal-err");
-        if (err && err.textContent !== "Try again.") err.textContent = "Try again.";
-      }
-      window.addEventListener("hashchange", function () { setTimeout(paintSealPage, 40); });
-      setInterval(paintSealPage, 250);
-      setTimeout(paintSealPage, 40);
     })();
   </script>
 </body>
