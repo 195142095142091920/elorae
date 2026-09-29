@@ -107,9 +107,10 @@ function renderSeal() {
       '<main class="seal-card"><p class="seal-kicker">Unsealed</p><h1>' + escapeHtml(v.name) + '</h1>' +
       '<p class="seal-note">Private pieces and letters for this name now sit in Gallery and Journal.</p>' +
       '<button class="seal-leave" id="leave" type="button">Close the seal</button></main>';
-    document.querySelector("#leave").addEventListener("click", () => {
+    document.querySelector("#leave").addEventListener("click", (e) => {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
       closeSeal();
-      location.hash = "#/gallery";
+      renderSeal();
     });
     return;
   }
