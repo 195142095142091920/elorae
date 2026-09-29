@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=110">
+  <link rel="stylesheet" href="styles.css?v=111">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -209,28 +209,31 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=110"></script>
-  <script src="journal.js?v=110"></script>
-  <script src="vault.js?v=110"></script>
-  <script src="app.js?v=110"></script>
+  <script src="entries.js?v=111"></script>
+  <script src="journal.js?v=111"></script>
+  <script src="vault.js?v=111"></script>
+  <script src="app.js?v=111"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
         location.replace("#/gallery");
       }
+      window._from = window._from || "#/gallery";
       document.addEventListener("click", function (e) {
         const a = e.target.closest(".topbar a");
         if (!a) return;
         if (a.textContent.trim() !== "Elorae") return;
         e.preventDefault();
+        if (location.hash && location.hash !== "#/seal") window._from = location.hash;
         location.hash = "#/seal";
       }, true);
       function paintSealPage() {
         if (!document.body.classList.contains("seal-page")) return;
         const a = document.querySelector(".topbar a");
-        if (a && a.textContent.trim() !== "Back") {
+        const backTo = window._from || "#/gallery";
+        if (a) {
           a.textContent = "Back";
-          a.setAttribute("href", "#/gallery");
+          a.setAttribute("href", backTo);
         }
         const note = document.querySelector(".seal-note");
         const copy = "You may now view your private material.";
