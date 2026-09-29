@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=120">
+  <link rel="stylesheet" href="styles.css?v=130">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -73,12 +74,13 @@
       position: fixed !important;
       left: 50%;
       bottom: 22px;
-      width: 200px;
-      height: 44px;
+      width: 220px;
+      height: 52px;
       margin: 0;
       transform: translateX(-50%);
       z-index: 80;
       opacity: 0 !important;
+      pointer-events: auto !important;
       transition: opacity 200ms ease;
     }
     .seal-leave:hover { opacity: 0.65 !important; }
@@ -200,14 +202,15 @@
       .life-dock:has(.life-sheet.open) { padding-right: 0; }
       .life-sheet.open { padding-right: 12px; padding-left: 4px; }
       .life-sheet::-webkit-scrollbar { width: 2px; }
+      .seal-leave:active { opacity: 0.55 !important; }
     }
   </style>
 </head>
 <body>
-  <script src="entries.js?v=120"></script>
-  <script src="journal.js?v=120"></script>
-  <script src="vault.js?v=120"></script>
-  <script src="app.js?v=120"></script>
+  <script src="entries.js?v=130"></script>
+  <script src="journal.js?v=130"></script>
+  <script src="vault.js?v=130"></script>
+  <script src="app.js?v=130"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
@@ -215,23 +218,7 @@
       }
       window._from = window._from || "#/gallery";
       function backTo() { return window._from || "#/gallery"; }
-      function openPhrase() {
-        if (location.hash === "#/seal") {
-          location.hash = "#/gallery";
-          setTimeout(function () { location.hash = "#/seal"; }, 0);
-        } else {
-          location.hash = "#/seal";
-        }
-      }
       document.addEventListener("click", function (e) {
-        const leave = e.target.closest("#leave");
-        if (leave) {
-          e.preventDefault();
-          e.stopPropagation();
-          try { localStorage.removeItem("elorae-seal"); } catch (err) {}
-          openPhrase();
-          return;
-        }
         const a = e.target.closest(".topbar a");
         if (!a) return;
         if (a.textContent.trim() !== "Elorae") return;
@@ -262,8 +249,11 @@
         const note = document.querySelector(".seal-note");
         const copy = "You may now view your private material.";
         if (note && note.textContent !== copy) note.textContent = copy;
+        const err = document.querySelector("#seal-err");
+        if (err && err.textContent !== "Try again.") err.textContent = "Try again.";
       }
       window.addEventListener("hashchange", function () { setTimeout(paintSealPage, 40); });
+      setInterval(paintSealPage, 250);
       setTimeout(paintSealPage, 40);
     })();
   </script>
