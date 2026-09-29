@@ -160,7 +160,8 @@ function galleryFilters(current) {
 function filterLink(name, current) {
   const on = current === name ? " active" : "";
   const href = name === "all" ? "#/gallery" : "#/gallery/" + name;
-  return '<a class="' + on + '" href="' + href + '">' + name + '</a>';
+  const label = name === "sealed" ? "Private" : name;
+  return '<a class="' + on + '" href="' + href + '">' + label + '</a>';
 }
 function tile(entry) {
   return '<a class="tile" href="#/' + entry.id + '"><img src="' + encodeURI(entry.image) + '" alt="' +
