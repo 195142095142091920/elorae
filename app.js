@@ -260,11 +260,13 @@ function neighbors(id) {
   return { prev: list[(i - 1 + list.length) % list.length], next: list[(i + 1) % list.length] };
 }
 function canHover() { return window.matchMedia("(hover: hover)").matches; }
-function bindHover(el, openFn, shutFn) {
+function bindHover(el, openFn, shutFn, pinnedFn) {
   if (!el || !canHover()) return;
   let leave;
   el.addEventListener("mouseenter", () => { clearTimeout(leave); openFn(); });
-  el.addEventListener("mouseleave", () => { leave = setTimeout(shutFn, 180); });
+  el.addEventListener("mouseleave", () => {
+    leave = setTimeout(() => { if (pinnedFn && pinnedFn()) return; shutFn(); }, 180);
+  });
 }
 function bindTap(el, toggleFn) {
   if (!el || canHover()) return;
@@ -327,17 +329,30 @@ function renderEntry(id) {
   const lifedock = document.querySelector("#lifedock");
   const hero = document.querySelector(".hero");
   const flipFit = (e) => { if (e) e.stopPropagation(); if (!hero) return; paintFit(hero.classList.toggle("full")); };
+  let pinLore = false, pinLife = false;
   const open = () => { if (!lore) return; lore.classList.add("open"); if (toggle) toggle.textContent = "-"; };
-  const shut = () => { if (!lore) return; lore.classList.remove("open"); if (toggle) toggle.textContent = "+"; };
+  const shut = () => { if (!lore) return; pinLore = false; lore.classList.remove("open"); if (toggle) toggle.textContent = "+"; };
   const openLife = () => { if (!life) return; life.classList.add("open"); if (lifeToggle) lifeToggle.textContent = "- Lore"; };
-  const shutLife = () => { if (!life) return; life.classList.remove("open"); life.classList.remove("show-bar"); if (lifeToggle) lifeToggle.textContent = "+ Lore"; };
-  const flipLore = () => { if (!lore) return; if (lore.classList.contains("open")) shut(); else { if (!canHover()) shutLife(); open(); } };
-  const flipLife = () => { if (!life) return; if (life.classList.contains("open")) shutLife(); else { if (!canHover()) shut(); openLife(); } };
+  const shutLife = () => { if (!life) return; pinLife = false; life.classList.remove("open"); life.classList.remove("show-bar"); if (lifeToggle) lifeToggle.textContent = "+ Lore"; };
+  const flipLore = () => {
+    if (!lore) return;
+    if (lore.classList.contains("open") && (pinLore || !canHover())) shut();
+    else { if (!canHover()) shutLife(); pinLore = canHover(); pinLife = false; open(); }
+  };
+  const flipLife = () => {
+    if (!life) return;
+    if (life.classList.contains("open") && (pinLife || !canHover())) shutLife();
+    else { if (!canHover()) shut(); pinLife = canHover(); pinLore = false; openLife(); }
+  };
   if (toggle) toggle.addEventListener("click", (e) => { e.stopPropagation(); flipLore(); });
   if (lifeToggle) lifeToggle.addEventListener("click", (e) => { e.stopPropagation(); flipLife(); });
   document.querySelectorAll(".fit-toggle").forEach((btn) => btn.addEventListener("click", flipFit));
-  bindHover(titleblock, open, shut);
-  bindHover(lifedock, openLife, shutLife);
+  bindHover(titleblock, open, shut, () => pinLore);
+  bindHover(lifedock, openLife, shutLife, () => pinLife);
+  if (canHover()) {
+    if (titleblock) titleblock.addEventListener("click", (e) => { e.stopPropagation(); flipLore(); });
+    if (lifedock) lifedock.addEventListener("click", (e) => { e.stopPropagation(); flipLife(); });
+  }
   bindTap(dock, flipLore);
   bindTap(lifedock, flipLife);
   bindIdleScrollbar(life);
