@@ -4,16 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=93">
+  <link rel="stylesheet" href="styles.css?v=94">
   <style>
     html { background: #070707; }
     .entry:has(.lore.open) .pager,
     .entry:has(.life-sheet.open) .pager,
     .entry:has(.lore.open) .arrow,
-    .entry:has(.life-sheet.open) .arrow {
+    .entry:has(.life-sheet.open) .arrow,
+    .entry:has(.hero.full) .pager,
+    .entry:has(.hero.full) .arrow,
+    .entry:has(.hero.full) .dock,
+    .entry:has(.hero.full) .life-dock {
       opacity: 0 !important;
       visibility: hidden !important;
       pointer-events: none !important;
+    }
+    .entry:has(.hero.full)::before {
+      opacity: 0 !important;
     }
     .entry .topbar {
       padding: 0;
@@ -35,6 +42,7 @@
       text-transform: uppercase;
       cursor: pointer;
       opacity: 0.72;
+      z-index: 6;
     }
     .fit-toggle:hover,
     .hero.full + .topbar .fit-toggle {
@@ -168,8 +176,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=93"></script>
-  <script src="journal.js?v=93"></script>
-  <script src="app.js?v=93"></script>
+  <script src="entries.js?v=94"></script>
+  <script src="journal.js?v=94"></script>
+  <script src="app.js?v=94"></script>
 </body>
 </html>
