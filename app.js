@@ -1,6 +1,7 @@
 const COVER = "assets/Godtree.png";
 const ATLAS = "assets/EloraeLowRes.png";
 const ATLAS_BG = "assets/Cartographer.png";
+const SEAL_KEY = "elorae-seal";
 
 const ALIASES = {
   "galands-first-flight": "galand-helviath",
@@ -24,6 +25,7 @@ function route() {
   else if (hash === "index") renderIndex();
   else if (hash === "journal") renderJournal();
   else if (hash.startsWith("journal/")) renderJournal(hash.slice(8));
+  else if (hash === "seal") renderSeal();
   else renderEntry(hash);
 }
 
@@ -40,6 +42,48 @@ function rooms(current) {
       return '<a class="' + on + '" href="#/' + id + '">' + label + '</a>';
     })
     .join('<span class="dot">&middot;</span>');
+}
+
+function normCode(s) {
+  return String(s || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function sealId() {
+  try { return localStorage.getItem(SEAL_KEY) || ""; }
+  catch (e) { return ""; }
+}
+
+function vaultOf() {
+  const id = sealId();
+  return (window.VAULT || []).find((v) => v.id === id) || null;
+}
+
+function catalog() {
+  const base = window.ENTRIES || [];
+  const v = vaultOf();
+  return v && v.entries && v.entries.length ? base.concat(v.entries) : base;
+}
+
+function hiddenEntry(id) {
+  return (window.VAULT || []).some((v) =>
+    (v.entries || []).some((e) => e.id === id)
+  );
+}
+
+function openSeal(id) {
+  try { localStorage.setItem(SEAL_KEY, id); } catch (e) {}
+}
+
+function closeSeal() {
+  try { localStorage.removeItem(SEAL_KEY); } catch (e) {}
+}
+
+function matchSeal(code) {
+  const needle = normCode(code);
+  if (!needle) return null;
+  return (window.VAULT || []).find((v) =>
+    (v.codes || []).some((c) => normCode(c) === needle)
+  ) || null;
 }
 
 function scroller() {
@@ -92,7 +136,60 @@ function renderCover() {
   document.body.innerHTML =
     '<div class="hero cover-hero"><img src="' + encodeURI(COVER) + '" alt="Elorae"></div>' +
     '<p class="cover-mark">Elorae</p>' +
-    '<nav class="cover-nav">' + rooms("") + '</nav>';
+    '<nav class="cover-nav">' + rooms("") + '</nav>' +
+    '<a class="cover-seal" href="#/seal">Seal</a>';
+}
+
+function renderSeal() {
+  dropPlaceScroll();
+  document.title = "Seal - Elorae";
+  document.body.className = "seal-page";
+  document.body.style.backgroundImage = "";
+  document.body.style.backgroundColor = "";
+  const v = vaultOf();
+  if (v) {
+    document.body.innerHTML =
+      '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' +
+      rooms("") + '</nav></header>' +
+      '<main class="seal-card">' +
+      '<p class="seal-kicker">Unsealed</p>' +
+      '<h1>' + escapeHtml(v.name) + '</h1>' +
+      '<p class="seal-note">Private pieces and letters for this name now sit in Gallery and Journal.</p>' +
+      '<button class="seal-leave" id="leave" type="button">Close the seal</button>' +
+      '</main>';
+    document.querySelector("#leave").addEventListener("click", () => {
+      closeSeal();
+      location.hash = "#/";
+    });
+    return;
+  }
+  document.body.innerHTML =
+    '<header class="topbar"><a href="#/">Elorae</a><nav class="filters">' +
+    rooms("") + '</nav></header>' +
+    '<main class="seal-card">' +
+    '<p class="seal-kicker">Seal</p>' +
+    '<form id="seal-form">' +
+    '<input id="seal-code" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">' +
+    '<button type="submit">Enter</button>' +
+    '</form>' +
+    '<p class="seal-err" id="seal-err" hidden>That phrase does not open a door.</p>' +
+    '</main>';
+  const form = document.querySelector("#seal-form");
+  const input = document.querySelector("#seal-code");
+  const err = document.querySelector("#seal-err");
+  input.focus();
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const hit = matchSeal(input.value);
+    if (!hit) {
+      err.hidden = false;
+      input.value = "";
+      input.focus();
+      return;
+    }
+    openSeal(hit.id);
+    location.hash = "#/gallery";
+  });
 }
 
 function matchesTag(entry, tag) {
@@ -106,7 +203,7 @@ function renderWall(tag) {
   document.body.style.backgroundColor = "";
   document.documentElement.style.backgroundImage = "";
   document.documentElement.style.backgroundColor = "";
-  const entries = window.ENTRIES.filter((e) => matchesTag(e, tag));
+  const entries = catalog().filter((e) => matchesTag(e, tag));
   document.title = "Gallery - Elorae";
   document.body.className = "";
   document.body.innerHTML =
@@ -127,9 +224,10 @@ function renderWall(tag) {
 }
 
 function galleryFilters(current) {
-  return ["all", "figures", "places", "scenes"]
-    .map((name) => filterLink(name, current))
-    .join('<span class="dot">&middot;</span>');
+  const names = ["all", "figures", "places", "scenes"];
+  const v = vaultOf();
+  if (v && (v.entries || []).length) names.push("sealed");
+  return names.map((name) => filterLink(name, current)).join('<span class="dot">&middot;</span>');
 }
 
 function filterLink(name, current) {
@@ -150,7 +248,7 @@ function renderIndex() {
   dropPlaceScroll();
   place.hash = "#/index";
   place.scroll = 0;
-  const list = [...window.ENTRIES].sort((a, b) =>
+  const list = [...catalog()].sort((a, b) =>
     a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
   );
   document.title = "Index - Elorae";
@@ -194,7 +292,9 @@ function renderRoom(id, title, empty) {
 }
 
 function flattenJournal() {
-  return window.JOURNAL || [];
+  const pub = window.JOURNAL || [];
+  const v = vaultOf();
+  return v && v.journal && v.journal.length ? pub.concat(v.journal) : pub;
 }
 
 function renderJournal(id) {
@@ -242,7 +342,7 @@ function renderJournal(id) {
 }
 
 function galleryIdFor(src) {
-  const hit = (window.ENTRIES || []).find((e) => e.image === src);
+  const hit = catalog().find((e) => e.image === src);
   return hit ? hit.id : "";
 }
 
@@ -260,7 +360,7 @@ function journalBlock(block) {
 }
 
 function neighbors(id) {
-  const list = window.ENTRIES;
+  const list = catalog();
   const i = list.findIndex((e) => e.id === id);
   const prev = list[(i - 1 + list.length) % list.length];
   const next = list[(i + 1) % list.length];
@@ -308,9 +408,9 @@ function renderEntry(id) {
     location.hash = "#/" + ALIASES[id];
     return;
   }
-  const entry = window.ENTRIES.find((e) => e.id === id);
+  const entry = catalog().find((e) => e.id === id);
   if (!entry) {
-    location.hash = place.hash || "#/gallery";
+    location.hash = hiddenEntry(id) ? "#/seal" : (place.hash || "#/gallery");
     return;
   }
   onPlaceScroll();
