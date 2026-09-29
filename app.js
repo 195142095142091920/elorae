@@ -119,7 +119,7 @@ function renderSeal() {
     '<main class="seal-card"><p class="seal-kicker">Seal</p><form id="seal-form">' +
     '<input id="seal-code" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">' +
     '<button type="submit">Enter</button></form>' +
-    '<p class="seal-err" id="seal-err" hidden>That phrase does not open a door.</p></main>';
+    '<p class="seal-err" id="seal-err" hidden>Try again.</p></main>';
   const form = document.querySelector("#seal-form");
   const input = document.querySelector("#seal-code");
   const err = document.querySelector("#seal-err");
