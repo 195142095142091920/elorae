@@ -22,7 +22,6 @@ window.ENTRIES = [
   {id:"hesk", title:"Hesk", caption:"", image:"assets/Hesk.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"horde-of-olesh", title:"Horde of Olesh", caption:"", image:"assets/Horde of Olesh.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"imani-valash", title:"Imani Valash", caption:"", image:"assets/Imani Valash.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
-  {id:"ito-gangara", title:"Ito Gangara", caption:"", image:"assets/Ito Gangara.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"karanaro-tenbu", title:"Karanaro Tenbu", caption:"", image:"assets/Karanaro Tenbu.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"kojin-redroot", title:"Kojin, in Redroot Village", caption:"", image:"assets/Kojin, in Redroot Village.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"kojin", title:"Kojin", caption:"", image:"assets/Kojin.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
