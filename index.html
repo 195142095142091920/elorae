@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=122">
+  <link rel="stylesheet" href="styles.css?v=130">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -206,10 +207,10 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=122"></script>
-  <script src="journal.js?v=122"></script>
-  <script src="vault.js?v=122"></script>
-  <script src="app.js?v=122"></script>
+  <script src="entries.js?v=130"></script>
+  <script src="journal.js?v=130"></script>
+  <script src="vault.js?v=130"></script>
+  <script src="app.js?v=130"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
@@ -248,8 +249,11 @@
         const note = document.querySelector(".seal-note");
         const copy = "You may now view your private material.";
         if (note && note.textContent !== copy) note.textContent = copy;
+        const err = document.querySelector("#seal-err");
+        if (err && err.textContent !== "Try again.") err.textContent = "Try again.";
       }
       window.addEventListener("hashchange", function () { setTimeout(paintSealPage, 40); });
+      setInterval(paintSealPage, 250);
       setTimeout(paintSealPage, 40);
     })();
   </script>
