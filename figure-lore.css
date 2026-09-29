@@ -79,33 +79,33 @@
   .entry:has(.life-sheet.open)::before {
     height: 100% !important;
     background: linear-gradient(to left,
-      rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.18)) 0%,
-      rgba(0,0,0, calc(0.66 + var(--veil-amt) * 0.16)) 18%,
-      rgba(0,0,0, calc(0.42 + var(--veil-amt) * 0.16)) 34%,
-      rgba(0,0,0, calc(0.16 + var(--veil-amt) * 0.10)) 52%,
-      rgba(0,0,0, calc(0.04 + var(--veil-amt) * 0.04)) 68%,
-      rgba(0,0,0, 0) 86%) !important;
+      rgba(0,0,0, calc(0.88 + var(--veil-amt) * 0.12)) 0%,
+      rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.14)) 20%,
+      rgba(0,0,0, calc(0.54 + var(--veil-amt) * 0.16)) 38%,
+      rgba(0,0,0, calc(0.24 + var(--veil-amt) * 0.12)) 56%,
+      rgba(0,0,0, calc(0.08 + var(--veil-amt) * 0.06)) 72%,
+      rgba(0,0,0, 0) 88%) !important;
   }
   .entry:has(.lore.open)::before {
     height: 100% !important;
     background: linear-gradient(to right,
-      rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.18)) 0%,
-      rgba(0,0,0, calc(0.66 + var(--veil-amt) * 0.16)) 18%,
-      rgba(0,0,0, calc(0.42 + var(--veil-amt) * 0.16)) 34%,
-      rgba(0,0,0, calc(0.16 + var(--veil-amt) * 0.10)) 52%,
-      rgba(0,0,0, calc(0.04 + var(--veil-amt) * 0.04)) 68%,
-      rgba(0,0,0, 0) 86%) !important;
+      rgba(0,0,0, calc(0.88 + var(--veil-amt) * 0.12)) 0%,
+      rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.14)) 20%,
+      rgba(0,0,0, calc(0.54 + var(--veil-amt) * 0.16)) 38%,
+      rgba(0,0,0, calc(0.24 + var(--veil-amt) * 0.12)) 56%,
+      rgba(0,0,0, calc(0.08 + var(--veil-amt) * 0.06)) 72%,
+      rgba(0,0,0, 0) 88%) !important;
   }
   .entry:has(.lore.open):has(.life-sheet.open)::before {
     background:
       linear-gradient(to left,
-        rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.16)) 0%,
-        rgba(0,0,0, calc(0.40 + var(--veil-amt) * 0.12)) 28%,
-        rgba(0,0,0, 0) 52%),
+        rgba(0,0,0, calc(0.88 + var(--veil-amt) * 0.12)) 0%,
+        rgba(0,0,0, calc(0.50 + var(--veil-amt) * 0.12)) 32%,
+        rgba(0,0,0, 0) 54%),
       linear-gradient(to right,
-        rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.16)) 0%,
-        rgba(0,0,0, calc(0.40 + var(--veil-amt) * 0.12)) 28%,
-        rgba(0,0,0, 0) 52%) !important;
+        rgba(0,0,0, calc(0.88 + var(--veil-amt) * 0.12)) 0%,
+        rgba(0,0,0, calc(0.50 + var(--veil-amt) * 0.12)) 32%,
+        rgba(0,0,0, 0) 54%) !important;
   }
 }
 
