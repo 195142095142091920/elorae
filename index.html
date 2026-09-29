@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=88">
+  <link rel="stylesheet" href="styles.css?v=89">
   <style>
     html { background: #070707; }
     .entry:has(.lore.open) .pager,
@@ -42,6 +42,13 @@
       -webkit-overflow-scrolling: touch;
       z-index: 1;
       padding-top: 0 !important;
+      align-content: start;
+      grid-auto-rows: min-content;
+    }
+    .tile {
+      aspect-ratio: 4 / 3 !important;
+      height: auto !important;
+      align-self: start;
     }
     .room:not(.journal-page) .topbar,
     .atlas-page .topbar {
@@ -111,8 +118,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=88"></script>
-  <script src="journal.js?v=88"></script>
-  <script src="app.js?v=88"></script>
+  <script src="entries.js?v=89"></script>
+  <script src="journal.js?v=89"></script>
+  <script src="app.js?v=89"></script>
 </body>
 </html>
