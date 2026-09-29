@@ -7,8 +7,8 @@
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=138">
-  <link rel="stylesheet" href="figure-lore.css?v=138">
+  <link rel="stylesheet" href="styles.css?v=139">
+  <link rel="stylesheet" href="figure-lore.css?v=139">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -75,8 +75,7 @@
       position: fixed !important;
       left: 50%;
       bottom: 22px;
-      width: 220px;
-      height: 52px;
+      width: 220px; height: 52px;
       margin: 0;
       transform: translateX(-50%);
       z-index: 80;
@@ -152,9 +151,7 @@
     }
     .journal-page .chapter-tabs { padding-top: 8px !important; }
     .entry:has(.lore.open)::before,
-    .entry:has(.life-sheet.open)::before {
-      height: 100%;
-    }
+    .entry:has(.life-sheet.open)::before { height: 100%; }
     @media (min-width: 801px) {
       .topbar .fit-toggle { display: none; }
       .pager { gap: 4px; isolation: isolate; }
@@ -197,9 +194,7 @@
         background: rgba(0,0,0,0.58) !important;
       }
       .dock:has(.lore.open)::after,
-      .life-dock:has(.life-sheet.open)::after {
-        background: none !important;
-      }
+      .life-dock:has(.life-sheet.open)::after { background: none !important; }
       .life-sheet.open {
         -webkit-mask-image: none !important;
         mask-image: none !important;
@@ -218,11 +213,11 @@
 <body>
   <script src="entries.js?v=132"></script>
   <script src="journal.js?v=132"></script>
-  <script src="codex.js?v=138"></script>
+  <script src="codex.js?v=139"></script>
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
-  <script src="codex-ui.js?v=138"></script>
+  <script src="codex-ui.js?v=139"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
