@@ -3,7 +3,9 @@ window.VAULT = [
     id: "jack",
     name: "Jack",
     codes: ["light"],
-    entries: [],
+    entries: [
+      {id:"ito-gangara", title:"Ito Gangara", caption:"", image:"assets/Ito Gangara.png", tags:["figures", "sealed"], fit:"cover", position:"center", lore:[]}
+    ],
     journal: []
   },
   {
