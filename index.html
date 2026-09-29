@@ -4,22 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=102">
+  <link rel="stylesheet" href="styles.css?v=103">
   <style>
     html { background: #070707; }
-    .cover-seal {
-      position: fixed;
-      right: 22px;
-      bottom: max(22px, env(safe-area-inset-bottom));
-      z-index: 7;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 10px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: #fff;
-      opacity: 0.35;
-    }
-    .cover-seal:hover { opacity: 0.8; }
+    .cover-seal { display: none !important; }
     .seal-page .topbar { background: #070707; }
     .seal-card {
       max-width: 420px;
@@ -290,9 +278,21 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=102"></script>
-  <script src="journal.js?v=102"></script>
-  <script src="vault.js?v=102"></script>
-  <script src="app.js?v=102"></script>
+  <script src="entries.js?v=103"></script>
+  <script src="journal.js?v=103"></script>
+  <script src="vault.js?v=103"></script>
+  <script src="app.js?v=103"></script>
+  <script>
+    (function () {
+      if (!location.hash || location.hash === "#") location.replace("#/gallery");
+      document.addEventListener("click", function (e) {
+        const a = e.target.closest(".topbar a");
+        if (!a) return;
+        if (a.textContent.trim() !== "Elorae") return;
+        e.preventDefault();
+        location.hash = "#/seal";
+      }, true);
+    })();
+  </script>
 </body>
 </html>
