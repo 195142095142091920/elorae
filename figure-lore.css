@@ -6,6 +6,7 @@
   margin: 0 0 28px;
   padding: 0;
   border: 0;
+  text-align: center;
 }
 .life-sheet .life-quote p {
   margin: 0;
@@ -17,6 +18,8 @@
   color: #f3eee6;
   text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 18px rgba(0,0,0,0.7);
 }
+.life-sheet .life-quote p::before { content: "\201C"; }
+.life-sheet .life-quote p::after { content: "\201D"; }
 .life-sheet .life-quote cite {
   display: block;
   margin: 14px 0 0;
@@ -27,8 +30,10 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #9a948a;
+  text-align: center;
   text-shadow: 0 1px 8px rgba(0,0,0,0.7);
 }
+.life-sheet .life-quote cite::before { content: "- "; letter-spacing: 0.08em; }
 .life-sheet .life-facts {
   list-style: none;
   display: flex;
