@@ -320,8 +320,9 @@ function renderEntry(id) {
   const quote = entry.quote || "";
   const quoteBy = entry.quoteBy || "";
   const facts = entry.facts || [];
-  const hasLore = loreBits.length > 0;
-  const hasLife = bioBits.length > 0 || quote || facts.length;
+  const isFigure = (entry.tags || []).includes("figures");
+  const hasLore = loreBits.length > 0 || isFigure;
+  const hasLife = bioBits.length > 0 || !!quote || facts.length > 0 || isFigure;
   document.title = entry.title + " - Elorae";
   document.body.className = "entry";
   const loreBtn = hasLore ? '<button class="more" id="toggle" type="button">+</button>' : "";
