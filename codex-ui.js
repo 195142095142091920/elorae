@@ -1,4 +1,11 @@
 (function () {
+  function codexMenu(currentId) {
+    return (window.CODEX || []).map(function (c) {
+      return '<a class="' + (c.id === currentId ? " active" : "") + '" href="#/codex/' + c.id + '">' +
+        escapeHtml(c.title) + '</a>';
+    }).join("");
+  }
+
   window.renderCodex = function (id) {
     const pages = window.CODEX || [];
     const current = pages.find(function (c) { return c.id === id; }) || pages[0];
@@ -21,15 +28,36 @@
   };
 
   rooms = function (current) {
-    return [["atlas","Atlas"],["gallery","Gallery"],["index","Index"],["journal","Journal"],["codex","Codex"]]
+    const hash = (location.hash || "").replace(/^#\/?/, "");
+    const pageId = hash.indexOf("codex/") === 0 ? hash.slice(6) : "";
+    const main = [["atlas","Atlas"],["gallery","Gallery"],["index","Index"],["journal","Journal"]]
       .map(function (pair) {
         return '<a class="' + (current === pair[0] ? " active" : "") + '" href="#/' + pair[0] + '">' + pair[1] + '</a>';
       })
       .join('<span class="dot">&middot;</span>');
+    const on = current === "codex" ? " active" : "";
+    return main +
+      '<span class="dot">&middot;</span>' +
+      '<span class="nav-drop">' +
+        '<a class="' + on + '" href="#/codex">Codex</a>' +
+        '<span class="nav-menu">' + codexMenu(pageId) + '</span>' +
+      '</span>';
   };
 
   document.addEventListener("click", function (e) {
+    const drop = e.target.closest(".nav-drop");
     const a = e.target.closest('a[href^="#/codex"]');
+    const touch = !window.matchMedia("(hover: hover)").matches;
+    if (a && a.getAttribute("href") === "#/codex" && touch) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      document.querySelectorAll(".nav-drop.open").forEach(function (el) {
+        if (el !== drop) el.classList.remove("open");
+      });
+      if (drop) drop.classList.toggle("open");
+      return;
+    }
+    if (!drop) document.querySelectorAll(".nav-drop.open").forEach(function (el) { el.classList.remove("open"); });
     if (!a) return;
     e.preventDefault();
     e.stopImmediatePropagation();
@@ -41,8 +69,12 @@
 
   function paintNav() {
     const nav = document.querySelector(".filters");
-    if (!nav || nav.querySelector('a[href="#/codex"]')) return;
-    nav.insertAdjacentHTML("beforeend", '<span class="dot">&middot;</span><a href="#/codex">Codex</a>');
+    if (!nav || nav.querySelector(".nav-drop")) return;
+    const lone = nav.querySelector('a[href="#/codex"]');
+    if (lone) lone.remove();
+    nav.insertAdjacentHTML("beforeend",
+      '<span class="dot">&middot;</span><span class="nav-drop"><a href="#/codex">Codex</a><span class="nav-menu">' +
+      codexMenu("") + '</span></span>');
   }
   paintNav();
   setInterval(paintNav, 400);
