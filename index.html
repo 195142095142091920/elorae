@@ -9,6 +9,37 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=140">
   <link rel="stylesheet" href="figure-lore.css?v=140">
+  <style>
+    html { background: #070707; }
+    .cover-seal { display: none !important; }
+    .seal-page .topbar { background: #070707; }
+    .seal-page .seal-kicker { display: none; }
+    .index-list, .sheet { scrollbar-width: none; }
+    .index-list.show-bar, .sheet.show-bar {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(207,198,184,0.45) transparent;
+    }
+    body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
+      overflow: hidden; height: 100dvh;
+    }
+    .mast, .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
+      position: fixed !important; top: 0; left: 0; right: 0; z-index: 50;
+      background: #070707 !important;
+    }
+    .wall {
+      position: fixed !important; top: 96px; left: 0; right: 0; bottom: 0;
+      overflow-y: auto; z-index: 1; align-content: start; grid-auto-rows: min-content;
+    }
+    .tile { aspect-ratio: 4 / 3 !important; height: auto !important; }
+    .sheet, .index-list, .room-body, .atlas-stage {
+      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+      overflow-y: auto; overflow-x: hidden; z-index: 2;
+    }
+    @media (max-width: 800px) {
+      .wall { top: 88px; }
+      .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
+    }
+  </style>
 </head>
 <body>
   <script src="entries.js?v=132"></script>
