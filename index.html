@@ -7,8 +7,8 @@
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=131">
-  <link rel="stylesheet" href="figure-lore.css?v=131">
+  <link rel="stylesheet" href="styles.css?v=132">
+  <link rel="stylesheet" href="figure-lore.css?v=132">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -154,11 +154,11 @@
     .entry:has(.lore.open)::before,
     .entry:has(.life-sheet.open)::before {
       height: 72vh;
-      background: linear-gradient(to top, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.34) 48%, rgba(0,0,0,0.10) 78%, rgba(0,0,0,0) 100%) !important;
+      background: linear-gradient(to top, rgba(0,0,0, calc(0.36 + var(--veil-amt, 0.35) * 0.50)) 0%, rgba(0,0,0, calc(0.20 + var(--veil-amt, 0.35) * 0.38)) 48%, rgba(0,0,0, calc(0.05 + var(--veil-amt, 0.35) * 0.18)) 78%, rgba(0,0,0, 0) 100%) !important;
     }
     .entry:has(.life-sheet.open)::before {
       height: 100% !important;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.40) 18%, rgba(0,0,0,0.26) 48%, rgba(0,0,0,0.38) 100%) !important;
+      background: linear-gradient(to bottom, rgba(0,0,0, calc(0.40 + var(--veil-amt, 0.35) * 0.40)) 0%, rgba(0,0,0, calc(0.24 + var(--veil-amt, 0.35) * 0.32)) 18%, rgba(0,0,0, calc(0.16 + var(--veil-amt, 0.35) * 0.24)) 48%, rgba(0,0,0, calc(0.22 + var(--veil-amt, 0.35) * 0.30)) 100%) !important;
     }
     @media (min-width: 801px) {
       .topbar .fit-toggle { display: none; }
@@ -193,7 +193,7 @@
       .lore.open, .life-sheet.open { transform: translateY(0); }
       .entry::before {
         height: 36vh;
-        background: linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.38) 42%, rgba(0,0,0,0.12) 72%, rgba(0,0,0,0) 100%);
+        background: linear-gradient(to top, rgba(0,0,0, calc(0.28 + var(--veil-amt, 0.35) * 0.50)) 0%, rgba(0,0,0, calc(0.14 + var(--veil-amt, 0.35) * 0.32)) 42%, rgba(0,0,0, 0) 100%);
         transition: none !important;
       }
       .entry .topbar {
@@ -208,10 +208,11 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=131"></script>
-  <script src="journal.js?v=131"></script>
-  <script src="vault.js?v=131"></script>
-  <script src="app.js?v=131"></script>
+  <script src="entries.js?v=132"></script>
+  <script src="journal.js?v=132"></script>
+  <script src="vault.js?v=132"></script>
+  <script src="app.js?v=132"></script>
+  <script src="veil.js?v=132"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
