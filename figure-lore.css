@@ -62,10 +62,21 @@
 
 .entry { --veil-amt: 0.35; }
 .entry::before {
+  height: 42vh;
   background: linear-gradient(to top,
-    rgba(0,0,0, calc(0.16 + var(--veil-amt) * 0.58)) 0%,
-    rgba(0,0,0, calc(0.07 + var(--veil-amt) * 0.34)) 46%,
+    rgba(0,0,0, calc(0.34 + var(--veil-amt) * 0.50)) 0%,
+    rgba(0,0,0, calc(0.18 + var(--veil-amt) * 0.32)) 42%,
+    rgba(0,0,0, calc(0.05 + var(--veil-amt) * 0.12)) 72%,
     rgba(0,0,0, 0) 100%) !important;
+}
+.entry .topbar {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.28) 52%, rgba(0,0,0,0) 100%) !important;
+}
+.entry .topbar a,
+.entry .life-toggle,
+.entry .title-block h1,
+.entry .caption {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
 }
 .entry[data-veil="hard"] .lore p,
 .entry[data-veil="hard"] .life-sheet p,
