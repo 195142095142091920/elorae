@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=116">
+  <link rel="stylesheet" href="styles.css?v=117">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -192,10 +192,10 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=116"></script>
-  <script src="journal.js?v=116"></script>
-  <script src="vault.js?v=116"></script>
-  <script src="app.js?v=116"></script>
+  <script src="entries.js?v=117"></script>
+  <script src="journal.js?v=117"></script>
+  <script src="vault.js?v=117"></script>
+  <script src="app.js?v=117"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
@@ -227,11 +227,10 @@
       }, true);
       document.addEventListener("keydown", function (e) {
         if (e.key !== "Escape") return;
-        if (!document.body.classList.contains("seal-page")) return;
-        if (!document.querySelector("#leave") && !document.querySelector(".seal-note")) return;
+        if (document.body.classList.contains("entry")) return;
         e.preventDefault();
         e.stopImmediatePropagation();
-        location.hash = backTo();
+        if (document.body.classList.contains("seal-page")) location.hash = backTo();
       }, true);
       function paintSealPage() {
         if (!document.body.classList.contains("seal-page")) return;
