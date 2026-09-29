@@ -46,7 +46,12 @@ function vaultOf() {
 function catalog() {
   const base = window.ENTRIES || [];
   const v = vaultOf();
-  return v && v.entries && v.entries.length ? base.concat(v.entries) : base;
+  if (!v) return base;
+  if (v.id === "devin") {
+    const extra = (window.VAULT || []).flatMap((x) => x.entries || []);
+    return extra.length ? base.concat(extra) : base;
+  }
+  return v.entries && v.entries.length ? base.concat(v.entries) : base;
 }
 function hiddenEntry(id) {
   return (window.VAULT || []).some((v) => (v.entries || []).some((e) => e.id === id));
@@ -154,7 +159,10 @@ function renderWall(tag) {
 function galleryFilters(current) {
   const names = ["all", "figures", "places", "scenes"];
   const v = vaultOf();
-  if (v && (v.entries || []).length) names.push("sealed");
+  const hasPrivate = v && (v.id === "devin"
+    ? (window.VAULT || []).some((x) => (x.entries || []).length)
+    : (v.entries || []).length);
+  if (hasPrivate) names.push("sealed");
   return names.map((name) => filterLink(name, current)).join('<span class="dot">&middot;</span>');
 }
 function filterLink(name, current) {
@@ -209,7 +217,12 @@ function renderRoom(id, title, empty) {
 function flattenJournal() {
   const pub = window.JOURNAL || [];
   const v = vaultOf();
-  return v && v.journal && v.journal.length ? pub.concat(v.journal) : pub;
+  if (!v) return pub;
+  if (v.id === "devin") {
+    const extra = (window.VAULT || []).flatMap((x) => x.journal || []);
+    return extra.length ? pub.concat(extra) : pub;
+  }
+  return v.journal && v.journal.length ? pub.concat(v.journal) : pub;
 }
 
 function renderJournal(id) {
