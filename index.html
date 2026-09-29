@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=90">
+  <link rel="stylesheet" href="styles.css?v=91">
   <style>
     html { background: #070707; }
     .entry:has(.lore.open) .pager,
@@ -120,9 +120,23 @@
         max-width: 100%;
         height: auto;
       }
+      .dock,
+      .life-dock {
+        transition: opacity 240ms ease !important;
+      }
+      .lore,
+      .life-sheet {
+        transform: translateY(8px);
+        transition: opacity 280ms ease, transform 280ms ease !important;
+      }
+      .lore.open,
+      .life-sheet.open {
+        transform: translateY(0);
+      }
       .entry::before {
         height: 36vh;
         background: linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.38) 42%, rgba(0,0,0,0.12) 72%, rgba(0,0,0,0) 100%);
+        transition: background 280ms ease, height 280ms ease;
       }
       .entry .topbar {
         background: linear-gradient(to bottom, rgba(0,0,0,0.56) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0) 100%);
@@ -138,8 +152,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=90"></script>
-  <script src="journal.js?v=90"></script>
-  <script src="app.js?v=90"></script>
+  <script src="entries.js?v=91"></script>
+  <script src="journal.js?v=91"></script>
+  <script src="app.js?v=91"></script>
 </body>
 </html>
