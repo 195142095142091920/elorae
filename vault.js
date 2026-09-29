@@ -1,5 +1,12 @@
 window.VAULT = [
   {
+    id: "devin",
+    name: "Devin",
+    codes: ["fatalis"],
+    entries: [],
+    journal: []
+  },
+  {
     id: "jack",
     name: "Jack",
     codes: ["light"],
