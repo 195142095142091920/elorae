@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=106">
+  <link rel="stylesheet" href="styles.css?v=107">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -300,10 +300,10 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=106"></script>
-  <script src="journal.js?v=106"></script>
-  <script src="vault.js?v=106"></script>
-  <script src="app.js?v=106"></script>
+  <script src="entries.js?v=107"></script>
+  <script src="journal.js?v=107"></script>
+  <script src="vault.js?v=107"></script>
+  <script src="app.js?v=107"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
@@ -314,12 +314,18 @@
         e.preventDefault();
         location.hash = "#/seal";
       }, true);
-      function paintSealCopy() {
+      function paintSealPage() {
+        if (!document.body.classList.contains("seal-page")) return;
+        const a = document.querySelector(".topbar > a");
+        if (a) {
+          a.textContent = "Back";
+          a.setAttribute("href", "#/gallery");
+        }
         const note = document.querySelector(".seal-note");
         if (note) note.textContent = "You may now view your private material.";
       }
-      paintSealCopy();
-      window.addEventListener("hashchange", function () { setTimeout(paintSealCopy, 0); });
+      paintSealPage();
+      window.addEventListener("hashchange", function () { setTimeout(paintSealPage, 0); });
     })();
   </script>
 </body>
