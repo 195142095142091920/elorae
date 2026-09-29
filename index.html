@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=89">
+  <link rel="stylesheet" href="styles.css?v=90">
   <style>
     html { background: #070707; }
     .entry:has(.lore.open) .pager,
@@ -78,6 +78,7 @@
       position: fixed;
       top: 56px;
       left: 0; right: 0; bottom: 0;
+      overflow-x: hidden;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       z-index: 2;
@@ -100,6 +101,25 @@
       .index-list,
       .room-body,
       .atlas-stage { top: 48px; }
+      .sheet {
+        overflow-x: hidden;
+        width: 100%;
+      }
+      .journal-read {
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+        box-sizing: border-box;
+      }
+      .journal-read::before {
+        inset: -24px 0 !important;
+      }
+      .journal-fig img {
+        max-width: 100%;
+        height: auto;
+      }
       .entry::before {
         height: 36vh;
         background: linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.38) 42%, rgba(0,0,0,0.12) 72%, rgba(0,0,0,0) 100%);
@@ -118,8 +138,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=89"></script>
-  <script src="journal.js?v=89"></script>
-  <script src="app.js?v=89"></script>
+  <script src="entries.js?v=90"></script>
+  <script src="journal.js?v=90"></script>
+  <script src="app.js?v=90"></script>
 </body>
 </html>
