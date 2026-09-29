@@ -1,34 +1,30 @@
 window.VAULT = [
   {
-    id: "guest",
-    name: "Guest",
-    codes: ["elorae"],
-    entries: [
-      /*
-      {
-        id: "private-piece",
-        title: "Title",
-        caption: "",
-        image: "assets/YourFile.png",
-        tags: ["figures", "sealed"],
-        lore: [],
-        bio: []
-      }
-      */
-    ],
-    journal: [
-      /*
-      {
-        id: "letter-one",
-        act: "Letter",
-        chapter: "I",
-        title: "A private page",
-        banner: "assets/Godtree.png",
-        blocks: [
-          { type: "text", text: "Only this friend sees this chapter." }
-        ]
-      }
-      */
-    ]
+    id: "jack",
+    name: "Jack",
+    codes: ["light"],
+    entries: [],
+    journal: []
+  },
+  {
+    id: "jon",
+    name: "Jon",
+    codes: ["arcana"],
+    entries: [],
+    journal: []
+  },
+  {
+    id: "julie",
+    name: "Julie",
+    codes: ["succor"],
+    entries: [],
+    journal: []
+  },
+  {
+    id: "sawyer",
+    name: "Sawyer",
+    codes: ["vigor"],
+    entries: [],
+    journal: []
   }
 ];
