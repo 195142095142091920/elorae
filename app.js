@@ -6,6 +6,9 @@ const ALIASES = {
   "galands-first-flight": "galand-helviath",
 };
 
+const FIT_OUT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg>';
+const FIT_IN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8H3M8 8V3M16 8h5M16 8V3M8 16H3M8 16v5M16 16h5M16 16v5"/></svg>';
+
 const place = {
   hash: "#/gallery",
   scroll: 0,
@@ -293,6 +296,13 @@ function bindIdleScrollbar(el) {
   }, { passive: true });
 }
 
+function paintFit(on) {
+  const word = document.querySelector("#fit");
+  const mark = document.querySelector("#fitmark");
+  if (word) word.textContent = on ? "Crop" : "Full";
+  if (mark) mark.innerHTML = on ? FIT_IN : FIT_OUT;
+}
+
 function renderEntry(id) {
   if (ALIASES[id]) {
     location.hash = "#/" + ALIASES[id];
@@ -335,6 +345,7 @@ function renderEntry(id) {
     '<button class="fit-toggle" id="fit" type="button">Full</button></header>' +
     '<nav class="pager">' +
     '<a class="arrow prev" href="#/' + prev.id + '">&#8249;</a>' +
+    '<button class="fit-toggle fit-mark" id="fitmark" type="button" aria-label="Full">' + FIT_OUT + '</button>' +
     '<a class="arrow next" href="#/' + next.id + '">&#8250;</a>' +
     '</nav>' +
     '<div class="dock" id="dock"><div class="title-block" id="titleblock">' +
@@ -350,7 +361,11 @@ function renderEntry(id) {
   const lifeToggle = document.querySelector("#life-toggle");
   const lifedock = document.querySelector("#lifedock");
   const hero = document.querySelector(".hero");
-  const fitBtn = document.querySelector("#fit");
+  const flipFit = (e) => {
+    if (e) e.stopPropagation();
+    if (!hero) return;
+    paintFit(hero.classList.toggle("full"));
+  };
   const open = () => { if (!lore) return; lore.classList.add("open"); if (toggle) toggle.textContent = "-"; };
   const shut = () => { if (!lore) return; lore.classList.remove("open"); if (toggle) toggle.textContent = "+"; };
   const openLife = () => {
@@ -392,13 +407,9 @@ function renderEntry(id) {
       flipLife();
     });
   }
-  if (fitBtn && hero) {
-    fitBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const on = hero.classList.toggle("full");
-      fitBtn.textContent = on ? "Crop" : "Full";
-    });
-  }
+  document.querySelectorAll(".fit-toggle").forEach((btn) => {
+    btn.addEventListener("click", flipFit);
+  });
   bindHover(titleblock, open, shut);
   bindHover(lifedock, openLife, shutLife);
   bindTap(dock, flipLore);
@@ -406,7 +417,7 @@ function renderEntry(id) {
   bindIdleScrollbar(life);
   document.querySelectorAll(".arrow").forEach((a) => {
     a.addEventListener("click", (e) => {
-      if (zoneOpen(lore, life)) {
+      if (zoneOpen(lore, life) || (hero && hero.classList.contains("full"))) {
         e.preventDefault();
         e.stopPropagation();
       }
@@ -416,12 +427,13 @@ function renderEntry(id) {
   window._keys = (e) => {
     if (e.key === "Escape") {
       e.preventDefault();
+      if (hero && hero.classList.contains("full")) { hero.classList.remove("full"); paintFit(false); return; }
       if (life && life.classList.contains("open")) { shutLife(); return; }
       if (lore && lore.classList.contains("open")) { shut(); return; }
       location.hash = place.hash || "#/gallery";
       return;
     }
-    if (zoneOpen(lore, life)) return;
+    if (zoneOpen(lore, life) || (hero && hero.classList.contains("full"))) return;
     if (e.key === "ArrowLeft") location.hash = "#/" + prev.id;
     if (e.key === "ArrowRight") location.hash = "#/" + next.id;
   };
