@@ -37,9 +37,7 @@ window.ENTRIES = [
   {id:"sthistu", title:"Sthistu", caption:"", image:"assets/Sthistu.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"vaerek-at-ease", title:"Vaerek, At Ease", caption:"", image:"assets/Vaerek, At Ease.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"vaerek-heldranc", title:"Vaerek, Vessel of Heldranc", caption:"", image:"assets/Vaerek, Vessel of Heldranc.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
-  {id:"vallorca", title:"Vallorca", caption:"", image:"assets/Vallorca.png", tags:["places"], fit:"cover", position:"center", lore:[]},
   {id:"vehem-adahr", title:"Vehem Adahr", caption:"", image:"assets/Vehem Adahr.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"vorn", title:"Vorn", caption:"", image:"assets/Vorn.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
-  {id:"yena", title:"Yena", caption:"", image:"assets/Yena.png", tags:["figures"], fit:"cover", position:"center", lore:[]},
   {id:"yuo-nanaga", title:"Yuo Nanaga", caption:"", image:"assets/Yuo Nanaga.png", tags:["figures"], fit:"cover", position:"center", lore:[]}
 ];
