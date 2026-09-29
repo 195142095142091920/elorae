@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=92">
+  <link rel="stylesheet" href="styles.css?v=93">
   <style>
     html { background: #070707; }
     .entry:has(.lore.open) .pager,
@@ -15,11 +15,33 @@
       visibility: hidden !important;
       pointer-events: none !important;
     }
-    .entry .topbar { padding: 0; }
-    .entry .topbar a {
+    .entry .topbar {
+      padding: 0;
+      justify-content: space-between;
+    }
+    .entry .topbar a,
+    .fit-toggle {
       display: inline-flex;
       align-items: flex-start;
       padding: 28px;
+    }
+    .fit-toggle {
+      border: 0;
+      background: none;
+      color: #e8e2d8;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      cursor: pointer;
+      opacity: 0.72;
+    }
+    .fit-toggle:hover,
+    .hero.full + .topbar .fit-toggle {
+      opacity: 1;
+    }
+    .hero.full img {
+      object-fit: contain !important;
     }
     .entry::before,
     .dock::after,
@@ -106,10 +128,7 @@
       .index-list,
       .room-body,
       .atlas-stage { top: 48px; }
-      .sheet {
-        overflow-x: hidden;
-        width: 100%;
-      }
+      .sheet { overflow-x: hidden; width: 100%; }
       .journal-read {
         max-width: 100% !important;
         margin-left: 0 !important;
@@ -118,26 +137,17 @@
         padding-right: 18px !important;
         box-sizing: border-box;
       }
-      .journal-read::before {
-        inset: -24px 0 !important;
-      }
-      .journal-fig img {
-        max-width: 100%;
-        height: auto;
-      }
+      .journal-read::before { inset: -24px 0 !important; }
+      .journal-fig img { max-width: 100%; height: auto; }
       .dock,
-      .life-dock {
-        transition: opacity 240ms ease !important;
-      }
+      .life-dock { transition: opacity 240ms ease !important; }
       .lore,
       .life-sheet {
         transform: translateY(8px);
         transition: opacity 280ms ease, transform 280ms ease !important;
       }
       .lore.open,
-      .life-sheet.open {
-        transform: translateY(0);
-      }
+      .life-sheet.open { transform: translateY(0); }
       .entry::before {
         height: 36vh;
         background: linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.38) 42%, rgba(0,0,0,0.12) 72%, rgba(0,0,0,0) 100%);
@@ -146,7 +156,8 @@
       .entry .topbar {
         background: linear-gradient(to bottom, rgba(0,0,0,0.56) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0) 100%);
       }
-      .entry .topbar a {
+      .entry .topbar a,
+      .fit-toggle {
         min-height: 52px;
         padding: 14px;
       }
@@ -157,8 +168,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=92"></script>
-  <script src="journal.js?v=92"></script>
-  <script src="app.js?v=92"></script>
+  <script src="entries.js?v=93"></script>
+  <script src="journal.js?v=93"></script>
+  <script src="app.js?v=93"></script>
 </body>
 </html>
