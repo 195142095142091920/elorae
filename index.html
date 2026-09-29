@@ -4,9 +4,81 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=100">
+  <link rel="stylesheet" href="styles.css?v=101">
   <style>
     html { background: #070707; }
+    .cover-seal {
+      position: fixed;
+      right: 22px;
+      bottom: max(22px, env(safe-area-inset-bottom));
+      z-index: 7;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #fff;
+      opacity: 0.35;
+    }
+    .cover-seal:hover { opacity: 0.8; }
+    .seal-page .topbar { background: #070707; }
+    .seal-card {
+      max-width: 420px;
+      margin: 18vh auto 0;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .seal-kicker {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #8f8a82;
+      margin-bottom: 18px;
+    }
+    .seal-card h1 {
+      font-weight: 400;
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+    .seal-note {
+      color: #b7b0a4;
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+    #seal-form {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    #seal-code {
+      width: min(260px, 70vw);
+      border: 0;
+      border-bottom: 1px solid #3a3732;
+      background: transparent;
+      color: #f3eee6;
+      font: inherit;
+      font-size: 18px;
+      text-align: center;
+      padding: 8px 4px;
+      outline: none;
+    }
+    #seal-form button,
+    .seal-leave {
+      border: 0;
+      background: none;
+      color: #cfc6b8;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .seal-err {
+      margin-top: 18px;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 12px;
+      color: #8f8a82;
+    }
     .entry:has(.lore.open) .arrow,
     .entry:has(.life-sheet.open) .arrow,
     .entry:has(.lore.open) .fit-mark,
@@ -218,8 +290,9 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=100"></script>
-  <script src="journal.js?v=100"></script>
-  <script src="app.js?v=100"></script>
+  <script src="entries.js?v=101"></script>
+  <script src="journal.js?v=101"></script>
+  <script src="vault.js?v=101"></script>
+  <script src="app.js?v=101"></script>
 </body>
 </html>
