@@ -4,17 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=103">
+  <link rel="stylesheet" href="styles.css?v=104">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
     .seal-page .topbar { background: #070707; }
     .seal-card {
-      max-width: 420px;
-      margin: 18vh auto 0;
+      position: fixed;
+      inset: 0;
+      max-width: none;
+      margin: 0;
       padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
+      pointer-events: none;
     }
+    .seal-card > * { pointer-events: auto; }
     .seal-kicker {
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-size: 11px;
@@ -31,7 +39,8 @@
     .seal-note {
       color: #b7b0a4;
       line-height: 1.5;
-      margin-bottom: 28px;
+      margin-bottom: 0;
+      max-width: 28ch;
     }
     #seal-form {
       display: flex;
@@ -60,6 +69,19 @@
       letter-spacing: 0.22em;
       text-transform: uppercase;
       cursor: pointer;
+    }
+    .seal-leave {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 28px;
+      opacity: 0;
+      transition: opacity 220ms ease;
+      pointer-events: auto;
+    }
+    .seal-leave:hover,
+    body.seal-page:hover .seal-leave {
+      opacity: 0.55;
     }
     .seal-err {
       margin-top: 18px;
@@ -278,13 +300,13 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=103"></script>
-  <script src="journal.js?v=103"></script>
-  <script src="vault.js?v=103"></script>
-  <script src="app.js?v=103"></script>
+  <script src="entries.js?v=104"></script>
+  <script src="journal.js?v=104"></script>
+  <script src="vault.js?v=104"></script>
+  <script src="app.js?v=104"></script>
   <script>
     (function () {
-      if (!location.hash || location.hash === "#") location.replace("#/gallery");
+      if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
       document.addEventListener("click", function (e) {
         const a = e.target.closest(".topbar a");
         if (!a) return;
@@ -292,6 +314,12 @@
         e.preventDefault();
         location.hash = "#/seal";
       }, true);
+      function paintSealCopy() {
+        const note = document.querySelector(".seal-note");
+        if (note) note.textContent = "You may now view your private material.";
+      }
+      paintSealCopy();
+      window.addEventListener("hashchange", function () { setTimeout(paintSealCopy, 0); });
     })();
   </script>
 </body>
