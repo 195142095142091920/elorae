@@ -16,7 +16,7 @@
   font-weight: 400;
   line-height: 1.55;
   color: #f3eee6;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 18px rgba(0,0,0,0.7);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.95), 0 0 22px rgba(0,0,0,0.85);
 }
 .life-sheet .life-quote p::before { content: "\201C"; }
 .life-sheet .life-quote p::after { content: "\201D"; }
@@ -31,7 +31,7 @@
   text-transform: uppercase;
   color: #9a948a;
   text-align: center;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8);
 }
 .life-sheet .life-quote cite::before { content: "- "; letter-spacing: 0.08em; }
 .life-sheet .life-facts {
@@ -54,7 +54,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #b7b0a4;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8);
 }
 .life-sheet .life-facts + p {
   margin-top: 6px;
@@ -67,18 +67,55 @@
     rgba(0,0,0, calc(0.07 + var(--veil-amt) * 0.34)) 46%,
     rgba(0,0,0, 0) 100%) !important;
 }
-.entry:has(.lore.open)::before,
-.entry:has(.life-sheet.open)::before {
-  background: linear-gradient(to top,
-    rgba(0,0,0, calc(0.36 + var(--veil-amt) * 0.50)) 0%,
-    rgba(0,0,0, calc(0.20 + var(--veil-amt) * 0.38)) 48%,
-    rgba(0,0,0, calc(0.05 + var(--veil-amt) * 0.18)) 78%,
-    rgba(0,0,0, 0) 100%) !important;
-}
 .entry[data-veil="hard"] .lore p,
 .entry[data-veil="hard"] .life-sheet p,
 .entry[data-veil="hard"] .life-sheet .life-quote p,
 .entry[data-veil="hard"] .caption,
 .entry[data-veil="hard"] .title-block h1 {
   text-shadow: 0 1px 2px rgba(0,0,0,0.95), 0 0 16px rgba(0,0,0,0.88), 0 0 32px rgba(0,0,0,0.65);
+}
+
+@media (min-width: 801px) {
+  .entry:has(.life-sheet.open)::before {
+    height: 100% !important;
+    background: linear-gradient(to left,
+      rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.18)) 0%,
+      rgba(0,0,0, calc(0.66 + var(--veil-amt) * 0.16)) 18%,
+      rgba(0,0,0, calc(0.42 + var(--veil-amt) * 0.16)) 34%,
+      rgba(0,0,0, calc(0.16 + var(--veil-amt) * 0.10)) 52%,
+      rgba(0,0,0, calc(0.04 + var(--veil-amt) * 0.04)) 68%,
+      rgba(0,0,0, 0) 86%) !important;
+  }
+  .entry:has(.lore.open)::before {
+    height: 100% !important;
+    background: linear-gradient(to right,
+      rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.18)) 0%,
+      rgba(0,0,0, calc(0.66 + var(--veil-amt) * 0.16)) 18%,
+      rgba(0,0,0, calc(0.42 + var(--veil-amt) * 0.16)) 34%,
+      rgba(0,0,0, calc(0.16 + var(--veil-amt) * 0.10)) 52%,
+      rgba(0,0,0, calc(0.04 + var(--veil-amt) * 0.04)) 68%,
+      rgba(0,0,0, 0) 86%) !important;
+  }
+  .entry:has(.lore.open):has(.life-sheet.open)::before {
+    background:
+      linear-gradient(to left,
+        rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.16)) 0%,
+        rgba(0,0,0, calc(0.40 + var(--veil-amt) * 0.12)) 28%,
+        rgba(0,0,0, 0) 52%),
+      linear-gradient(to right,
+        rgba(0,0,0, calc(0.78 + var(--veil-amt) * 0.16)) 0%,
+        rgba(0,0,0, calc(0.40 + var(--veil-amt) * 0.12)) 28%,
+        rgba(0,0,0, 0) 52%) !important;
+  }
+}
+
+@media (max-width: 800px) {
+  .entry:has(.lore.open)::before,
+  .entry:has(.life-sheet.open)::before {
+    background: linear-gradient(to top,
+      rgba(0,0,0, calc(0.42 + var(--veil-amt) * 0.46)) 0%,
+      rgba(0,0,0, calc(0.24 + var(--veil-amt) * 0.34)) 48%,
+      rgba(0,0,0, calc(0.06 + var(--veil-amt) * 0.16)) 78%,
+      rgba(0,0,0, 0) 100%) !important;
+  }
 }
