@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=107">
+  <link rel="stylesheet" href="styles.css?v=108">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -300,10 +300,10 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=107"></script>
-  <script src="journal.js?v=107"></script>
-  <script src="vault.js?v=107"></script>
-  <script src="app.js?v=107"></script>
+  <script src="entries.js?v=108"></script>
+  <script src="journal.js?v=108"></script>
+  <script src="vault.js?v=108"></script>
+  <script src="app.js?v=108"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
@@ -316,8 +316,8 @@
       }, true);
       function paintSealPage() {
         if (!document.body.classList.contains("seal-page")) return;
-        const a = document.querySelector(".topbar > a");
-        if (a) {
+        const a = document.querySelector(".topbar a");
+        if (a && a.textContent.trim() !== "Back") {
           a.textContent = "Back";
           a.setAttribute("href", "#/gallery");
         }
@@ -325,7 +325,8 @@
         if (note) note.textContent = "You may now view your private material.";
       }
       paintSealPage();
-      window.addEventListener("hashchange", function () { setTimeout(paintSealPage, 0); });
+      window.addEventListener("hashchange", function () { setTimeout(paintSealPage, 30); });
+      new MutationObserver(paintSealPage).observe(document.body, { childList: true, subtree: true });
     })();
   </script>
 </body>
