@@ -4,14 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=94">
+  <link rel="stylesheet" href="styles.css?v=95">
   <style>
     html { background: #070707; }
-    .entry:has(.lore.open) .pager,
-    .entry:has(.life-sheet.open) .pager,
     .entry:has(.lore.open) .arrow,
     .entry:has(.life-sheet.open) .arrow,
-    .entry:has(.hero.full) .pager,
+    .entry:has(.lore.open) .fit-mark,
+    .entry:has(.life-sheet.open) .fit-mark {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
     .entry:has(.hero.full) .arrow,
     .entry:has(.hero.full) .dock,
     .entry:has(.hero.full) .life-dock {
@@ -19,15 +22,12 @@
       visibility: hidden !important;
       pointer-events: none !important;
     }
-    .entry:has(.hero.full)::before {
-      opacity: 0 !important;
-    }
+    .entry:has(.hero.full)::before { opacity: 0 !important; }
     .entry .topbar {
       padding: 0;
       justify-content: space-between;
     }
-    .entry .topbar a,
-    .fit-toggle {
+    .entry .topbar a {
       display: inline-flex;
       align-items: flex-start;
       padding: 28px;
@@ -44,18 +44,32 @@
       opacity: 0.72;
       z-index: 6;
     }
-    .fit-toggle:hover,
-    .hero.full + .topbar .fit-toggle {
-      opacity: 1;
+    .fit-toggle:hover { opacity: 1; }
+    .fit-mark {
+      position: absolute;
+      left: 50%;
+      bottom: 36px;
+      transform: translateX(-50%);
+      width: 52px;
+      height: 52px;
+      padding: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
     }
-    .hero.full img {
-      object-fit: contain !important;
+    .fit-mark svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      fill: none;
+      stroke-linecap: square;
     }
+    .hero.full img { object-fit: contain !important; }
     .entry::before,
     .dock::after,
-    .life-dock::after {
-      transition: none !important;
-    }
+    .life-dock::after { transition: none !important; }
     body:has(.mast),
     body.journal-page,
     body.atlas-page,
@@ -118,9 +132,7 @@
       -webkit-overflow-scrolling: touch;
       z-index: 2;
     }
-    .journal-page .chapter-tabs {
-      padding-top: 8px !important;
-    }
+    .journal-page .chapter-tabs { padding-top: 8px !important; }
     .entry:has(.lore.open)::before,
     .entry:has(.life-sheet.open)::before {
       height: 72vh;
@@ -129,6 +141,10 @@
     .entry:has(.life-sheet.open)::before {
       height: 100% !important;
       background: linear-gradient(to bottom, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.40) 18%, rgba(0,0,0,0.26) 48%, rgba(0,0,0,0.38) 100%) !important;
+    }
+    @media (min-width: 801px) {
+      .topbar .fit-toggle { display: none; }
+      .fit-mark { display: flex; }
     }
     @media (max-width: 800px) {
       .wall { top: 88px; }
@@ -165,7 +181,7 @@
         background: linear-gradient(to bottom, rgba(0,0,0,0.56) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0) 100%);
       }
       .entry .topbar a,
-      .fit-toggle {
+      .topbar .fit-toggle {
         min-height: 52px;
         padding: 14px;
       }
@@ -176,8 +192,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=94"></script>
-  <script src="journal.js?v=94"></script>
-  <script src="app.js?v=94"></script>
+  <script src="entries.js?v=95"></script>
+  <script src="journal.js?v=95"></script>
+  <script src="app.js?v=95"></script>
 </body>
 </html>
