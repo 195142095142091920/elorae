@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=96">
+  <link rel="stylesheet" href="styles.css?v=97">
   <style>
     html { background: #070707; }
     .entry:has(.lore.open) .arrow,
@@ -45,24 +45,9 @@
       z-index: 6;
     }
     .fit-toggle:hover { opacity: 1; }
-    .arrow.prev { left: 18px; }
-    .arrow.next { right: 18px; }
-    .fit-mark {
-      position: absolute;
-      left: 50%;
-      bottom: 36px;
-      transform: translateX(-50%);
-      width: 64px;
-      height: 72px;
-      padding: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      pointer-events: auto;
-    }
     .fit-mark svg {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       stroke: currentColor;
       stroke-width: 1.6;
       fill: none;
@@ -146,9 +131,22 @@
     }
     @media (min-width: 801px) {
       .topbar .fit-toggle { display: none; }
-      .fit-mark { display: flex; }
+      .pager { gap: 8px; }
+      .fit-mark {
+        position: static;
+        transform: none;
+        left: auto;
+        bottom: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        padding: 0;
+      }
     }
     @media (max-width: 800px) {
+      .fit-mark { display: none; }
       .wall { top: 88px; }
       .sheet,
       .index-list,
@@ -194,8 +192,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=96"></script>
-  <script src="journal.js?v=96"></script>
-  <script src="app.js?v=96"></script>
+  <script src="entries.js?v=97"></script>
+  <script src="journal.js?v=97"></script>
+  <script src="app.js?v=97"></script>
 </body>
 </html>
