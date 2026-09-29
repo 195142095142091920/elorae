@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=111">
+  <link rel="stylesheet" href="styles.css?v=112">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -29,23 +29,9 @@
       color: #8f8a82;
       margin-bottom: 22px;
     }
-    .seal-card h1 {
-      font-weight: 400;
-      font-size: 36px;
-      margin-bottom: 16px;
-    }
-    .seal-note {
-      color: #b7b0a4;
-      line-height: 1.5;
-      margin-bottom: 0;
-      max-width: 28ch;
-    }
-    #seal-form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-    }
+    .seal-card h1 { font-weight: 400; font-size: 36px; margin-bottom: 16px; }
+    .seal-note { color: #b7b0a4; line-height: 1.5; margin-bottom: 0; max-width: 28ch; }
+    #seal-form { display: flex; flex-direction: column; align-items: center; gap: 18px; }
     #seal-code {
       width: min(280px, 72vw);
       border: 0;
@@ -93,18 +79,14 @@
     .entry:has(.life-sheet.open) .arrow,
     .entry:has(.lore.open) .fit-mark,
     .entry:has(.life-sheet.open) .fit-mark {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
+      opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
     }
     .entry:has(.lore.open) .pager::before,
     .entry:has(.life-sheet.open) .pager::before { opacity: 0 !important; }
     .entry:has(.hero.full) .arrow,
     .entry:has(.hero.full) .dock,
     .entry:has(.hero.full) .life-dock {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
+      opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
     }
     .entry:has(.hero.full)::before { opacity: 0 !important; }
     .entry .topbar { padding: 0; justify-content: space-between; }
@@ -209,17 +191,26 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=111"></script>
-  <script src="journal.js?v=111"></script>
-  <script src="vault.js?v=111"></script>
-  <script src="app.js?v=111"></script>
+  <script src="entries.js?v=112"></script>
+  <script src="journal.js?v=112"></script>
+  <script src="vault.js?v=112"></script>
+  <script src="app.js?v=112"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
         location.replace("#/gallery");
       }
       window._from = window._from || "#/gallery";
+      function backTo() { return window._from || "#/gallery"; }
       document.addEventListener("click", function (e) {
+        const leave = e.target.closest("#leave");
+        if (leave) {
+          e.preventDefault();
+          e.stopPropagation();
+          try { localStorage.removeItem("elorae-seal"); } catch (err) {}
+          location.hash = backTo();
+          return;
+        }
         const a = e.target.closest(".topbar a");
         if (!a) return;
         if (a.textContent.trim() !== "Elorae") return;
@@ -227,13 +218,20 @@
         if (location.hash && location.hash !== "#/seal") window._from = location.hash;
         location.hash = "#/seal";
       }, true);
+      document.addEventListener("submit", function () {
+        setTimeout(function () {
+          if (location.hash === "#/gallery" || location.hash === "#/" ) {
+            const dest = backTo();
+            if (dest && dest !== location.hash) location.hash = dest;
+          }
+        }, 0);
+      }, true);
       function paintSealPage() {
         if (!document.body.classList.contains("seal-page")) return;
         const a = document.querySelector(".topbar a");
-        const backTo = window._from || "#/gallery";
         if (a) {
           a.textContent = "Back";
-          a.setAttribute("href", backTo);
+          a.setAttribute("href", backTo());
         }
         const note = document.querySelector(".seal-note");
         const copy = "You may now view your private material.";
