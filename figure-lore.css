@@ -140,23 +140,33 @@
 .nav-drop {
   position: relative;
   display: inline-block;
+  padding-bottom: 0;
 }
 .nav-menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  min-width: 7.5em;
-  padding: 14px 18px 16px;
+  min-width: 8em;
+  padding: 18px 20px 20px;
+  margin-top: 0;
   opacity: 0;
   pointer-events: none;
   z-index: 80;
   background: linear-gradient(to bottom, rgba(7,7,7,0.94) 0%, rgba(7,7,7,0.78) 70%, rgba(7,7,7,0) 100%);
-  transition: opacity 160ms ease;
+  transition: opacity 120ms ease;
+}
+.nav-drop::after {
+  content: "";
+  position: absolute;
+  left: -12px;
+  right: -12px;
+  top: 100%;
+  height: 22px;
 }
 .nav-menu a {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
