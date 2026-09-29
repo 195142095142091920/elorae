@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=97">
+  <link rel="stylesheet" href="styles.css?v=98">
   <style>
     html { background: #070707; }
     .entry:has(.lore.open) .arrow,
@@ -46,12 +46,13 @@
     }
     .fit-toggle:hover { opacity: 1; }
     .fit-mark svg {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       stroke: currentColor;
-      stroke-width: 1.6;
+      stroke-width: 1.7;
       fill: none;
       stroke-linecap: square;
+      transform: translateY(6px);
     }
     .hero.full img { object-fit: contain !important; }
     .entry::before,
@@ -131,7 +132,7 @@
     }
     @media (min-width: 801px) {
       .topbar .fit-toggle { display: none; }
-      .pager { gap: 8px; }
+      .pager { gap: 4px; }
       .fit-mark {
         position: static;
         transform: none;
@@ -140,7 +141,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 48px;
+        width: 40px;
         height: 48px;
         padding: 0;
       }
@@ -192,8 +193,8 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=97"></script>
-  <script src="journal.js?v=97"></script>
-  <script src="app.js?v=97"></script>
+  <script src="entries.js?v=98"></script>
+  <script src="journal.js?v=98"></script>
+  <script src="app.js?v=98"></script>
 </body>
 </html>
