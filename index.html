@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=114">
+  <link rel="stylesheet" href="styles.css?v=115">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -192,10 +192,10 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=114"></script>
-  <script src="journal.js?v=114"></script>
-  <script src="vault.js?v=114"></script>
-  <script src="app.js?v=114"></script>
+  <script src="entries.js?v=115"></script>
+  <script src="journal.js?v=115"></script>
+  <script src="vault.js?v=115"></script>
+  <script src="app.js?v=115"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") {
@@ -219,12 +219,10 @@
         if (location.hash && location.hash !== "#/seal") window._from = location.hash;
         location.hash = "#/seal";
       }, true);
-      document.addEventListener("submit", function () {
+      document.addEventListener("submit", function (e) {
+        if (!e.target || e.target.id !== "seal-form") return;
         setTimeout(function () {
-          if (location.hash === "#/gallery" || location.hash === "#/" ) {
-            const dest = backTo();
-            if (dest && dest !== location.hash) location.hash = dest;
-          }
+          if (location.hash !== "#/seal") location.hash = "#/seal";
         }, 0);
       }, true);
       function paintSealPage() {
