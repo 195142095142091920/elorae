@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elorae</title>
-  <link rel="stylesheet" href="styles.css?v=108">
+  <link rel="stylesheet" href="styles.css?v=109">
   <style>
     html { background: #070707; }
     .cover-seal { display: none !important; }
@@ -27,7 +27,7 @@
       letter-spacing: 0.32em;
       text-transform: uppercase;
       color: #8f8a82;
-      margin-bottom: 18px;
+      margin-bottom: 22px;
     }
     .seal-card h1 {
       font-weight: 400;
@@ -42,11 +42,12 @@
     }
     #seal-form {
       display: flex;
-      gap: 10px;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
     }
     #seal-code {
-      width: min(260px, 70vw);
+      width: min(280px, 72vw);
       border: 0;
       border-bottom: 1px solid #3a3732;
       background: transparent;
@@ -68,6 +69,7 @@
       text-transform: uppercase;
       cursor: pointer;
     }
+    #seal-form button { padding: 4px 8px; }
     .seal-leave {
       position: fixed !important;
       left: 50%;
@@ -300,10 +302,10 @@
   </style>
 </head>
 <body>
-  <script src="entries.js?v=108"></script>
-  <script src="journal.js?v=108"></script>
-  <script src="vault.js?v=108"></script>
-  <script src="app.js?v=108"></script>
+  <script src="entries.js?v=109"></script>
+  <script src="journal.js?v=109"></script>
+  <script src="vault.js?v=109"></script>
+  <script src="app.js?v=109"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
