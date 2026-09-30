@@ -53,6 +53,10 @@
     .nav-drop.open .nav-menu {
       display: flex;
     }
+    body.on-codex .nav-drop:has(> a[href="#/codex"]) .nav-menu,
+    body.on-atlas .nav-drop:has(> a[href="#/atlas"]) .nav-menu {
+      display: none !important;
+    }
     .nav-menu a {
       display: block;
       padding: 5px 0;
@@ -79,7 +83,7 @@
     .journal-page .journal-bg::after {
       content: "";
       position: fixed;
-      top: 56px;
+      top: var(--chrome-bottom, 96px);
       bottom: 0;
       left: 50%;
       width: min(1240px, 86vw);
@@ -95,7 +99,6 @@
       z-index: 2;
       pointer-events: none;
     }
-    .journal-page:has(.chapter-tabs) .journal-bg::after { top: 96px; }
     .journal-page .sheet {
       z-index: 3;
       -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 100%);
@@ -195,7 +198,7 @@
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
       .journal-page .journal-bg::after {
-        top: 48px;
+        top: var(--chrome-bottom, 88px);
         left: 0;
         width: 100%;
         transform: none;
@@ -206,7 +209,7 @@
       .journal-page .chapter-tabs {
         gap: 12px !important;
         letter-spacing: 0.12em !important;
-        padding: 10px 12px 8px !important;
+        padding: 8px 12px 8px !important;
         min-height: 36px;
       }
       .atlas-page .atlas-tabs,
@@ -232,7 +235,7 @@
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
-  <script src="codex-ui.js?v=186"></script>
+  <script src="codex-ui.js?v=191"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
@@ -253,6 +256,10 @@
         if (bar && tabs) {
           const top = Math.round(bar.getBoundingClientRect().bottom);
           tabs.style.setProperty("top", top + "px", "important");
+        }
+        const chrome = tabs || bar;
+        if (chrome) {
+          document.documentElement.style.setProperty("--chrome-bottom", Math.round(chrome.getBoundingClientRect().bottom) + "px");
         }
         if (!rail || !tabs) return;
         const top = Math.round(tabs.getBoundingClientRect().bottom);
