@@ -1,0 +1,15 @@
+@media (min-width: 801px) {
+  .topbar,
+  .mast .topbar,
+  .filters {
+    font-size: 14.3px !important;
+  }
+  .subbar,
+  .atlas-page .atlas-tabs,
+  .journal-page .chapter-tabs,
+  .chapter-tabs,
+  .atlas-tabs,
+  .nav-menu a {
+    font-size: 18px !important;
+  }
+}
