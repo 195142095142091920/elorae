@@ -28,11 +28,18 @@
       position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
       overflow-y: auto; overflow-x: hidden; z-index: 2;
     }
-    .journal-page .sheet {
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 56px, #000 100%);
-      mask-image: linear-gradient(to bottom, transparent 0, #000 56px, #000 100%);
+    .journal-page .sheet::before {
+      content: "";
+      position: sticky;
+      top: 0;
+      display: block;
+      height: 52px;
+      margin-bottom: -52px;
+      pointer-events: none;
+      z-index: 8;
+      background: linear-gradient(to bottom, #070707 0%, #070707 18%, rgba(7,7,7,0.55) 58%, transparent 100%);
     }
-    .journal-page .journal-read { padding-top: 20px; }
+    .journal-page .journal-read { padding-top: 24px; }
     .subbar,
     .atlas-page .atlas-tabs,
     .journal-page .chapter-tabs {
