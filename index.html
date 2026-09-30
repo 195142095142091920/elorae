@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=157">
+  <link rel="stylesheet" href="codex.css?v=158">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -28,22 +28,25 @@
       position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
       overflow-y: auto; overflow-x: hidden; z-index: 2;
     }
-    .atlas-page .atlas-tabs {
-      position: fixed;
-      top: 56px;
+    .atlas-page .atlas-tabs,
+    .journal-page .chapter-tabs {
+      position: fixed !important;
+      top: 56px !important;
       left: 0;
       right: 0;
       z-index: 40;
-      background: #070707;
-      padding-top: 8px;
-      padding-bottom: 14px;
+      background: #070707 !important;
+      padding: 8px 28px 14px !important;
     }
-    .atlas-page:has(.atlas-tabs) .atlas-stage { top: 96px; }
+    .atlas-page:has(.atlas-tabs) .atlas-stage,
+    .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
     @media (max-width: 800px) {
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
-      .atlas-page .atlas-tabs { top: 48px; }
-      .atlas-page:has(.atlas-tabs) .atlas-stage { top: 88px; }
+      .atlas-page .atlas-tabs,
+      .journal-page .chapter-tabs { top: 48px !important; }
+      .atlas-page:has(.atlas-tabs) .atlas-stage,
+      .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
     }
   </style>
 </head>
@@ -61,7 +64,7 @@
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
-  <script src="codex-ui.js?v=157"></script>
+  <script src="codex-ui.js?v=158"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
