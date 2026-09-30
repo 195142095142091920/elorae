@@ -34,6 +34,11 @@
   scroll-margin-top: 8px;
   text-align: center;
 }
+body.lore-page .journal-read > .codex-title:first-child {
+  margin-top: 0;
+  padding-top: 4px;
+  border-top: 0;
+}
 .journal-read .codex-toc + .codex-title,
 .journal-read .codex-h3 + .codex-title {
   margin-top: 28px;
@@ -153,9 +158,9 @@ body.lore-page::before {
   z-index: 8;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   overflow: visible;
-  padding: 28px 28px 28px 28px;
+  padding: 8px 28px 28px 28px;
   background: none;
   box-shadow: none;
   border: 0;
@@ -174,7 +179,7 @@ body.lore-page::before {
   margin: 0;
   flex: 0 1 auto;
   overflow-y: auto;
-  max-height: calc(100vh - 180px);
+  max-height: calc(100vh - 140px);
   scrollbar-width: thin;
   scrollbar-color: rgba(207,198,184,0.28) transparent;
 }
@@ -200,6 +205,7 @@ body.lore-page .journal-read {
   margin: 0 auto 72px;
   padding-left: 36px;
   padding-right: 36px;
+  padding-top: 8px;
 }
 .journal-read .codex-table-wrap {
   overflow-x: auto;
