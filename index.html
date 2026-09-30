@@ -7,18 +7,11 @@
   <title>Elorae</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#070707">
-  <link rel="stylesheet" href="styles.css?v=140">
-  <link rel="stylesheet" href="figure-lore.css?v=140">
+  <link rel="stylesheet" href="styles.css?v=141">
+  <link rel="stylesheet" href="figure-lore.css?v=141">
+  <link rel="stylesheet" href="codex.css?v=141">
   <style>
     html { background: #070707; }
-    .cover-seal { display: none !important; }
-    .seal-page .topbar { background: #070707; }
-    .seal-page .seal-kicker { display: none; }
-    .index-list, .sheet { scrollbar-width: none; }
-    .index-list.show-bar, .sheet.show-bar {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(207,198,184,0.45) transparent;
-    }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
       overflow: hidden; height: 100dvh;
     }
@@ -44,12 +37,15 @@
 <body>
   <script src="entries.js?v=132"></script>
   <script src="journal.js?v=132"></script>
-  <script src="codex.js?v=140"></script>
+  <script src="codex.js?v=141"></script>
+  <script src="codex-world-b.js?v=141"></script>
   <script src="codex-souls.js?v=140"></script>
+  <script src="codex-magics.js?v=141"></script>
+  <script src="codex-lore.js?v=141"></script>
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
-  <script src="codex-ui.js?v=140"></script>
+  <script src="codex-ui.js?v=141"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");

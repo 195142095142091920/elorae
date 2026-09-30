@@ -1,0 +1,80 @@
+.journal-read .codex-h {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  color: #f3eee6;
+  margin: 8px 0 22px;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.85);
+}
+.journal-read .codex-h + .codex-h,
+.journal-read p + .codex-h,
+.journal-read blockquote + .codex-h {
+  margin-top: 42px;
+}
+.journal-read .codex-h3 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #cfc6b8;
+  margin: 32px 0 12px;
+}
+.journal-read .codex-by {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9a948a;
+  margin: -8px 0 18px;
+}
+.journal-read .codex-quote {
+  margin: 0 0 28px;
+  padding: 0 0 0 18px;
+  border: 0;
+  border-left: 1px solid rgba(243,238,230,0.22);
+}
+.journal-read .codex-quote p {
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #f3eee6;
+  margin: 0;
+}
+.journal-read .codex-quote cite {
+  display: block;
+  margin-top: 12px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9a948a;
+}
+.journal-read .codex-cap {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-style: italic;
+  color: #9a948a;
+  margin: -6px 0 26px;
+}
+.chapter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  padding: 10px 16px 4px;
+}
+.chapter-tabs a {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  text-decoration: none;
+}
+.chapter-tabs a.active,
+.chapter-tabs a:hover { color: #f3eee6; }
