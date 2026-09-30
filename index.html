@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=158">
+  <link rel="stylesheet" href="codex.css?v=159">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -28,6 +28,23 @@
       position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
       overflow-y: auto; overflow-x: hidden; z-index: 2;
     }
+    .subbar,
+    .atlas-page .atlas-tabs,
+    .journal-page .chapter-tabs {
+      display: flex !important;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px !important;
+      min-height: 40px;
+      padding: 0 28px 16px !important;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 11px !important;
+      letter-spacing: 0.22em !important;
+      text-transform: uppercase;
+      color: #8f8a82;
+      background: #070707 !important;
+    }
     .atlas-page .atlas-tabs,
     .journal-page .chapter-tabs {
       position: fixed !important;
@@ -35,14 +52,33 @@
       left: 0;
       right: 0;
       z-index: 40;
-      background: #070707 !important;
-      padding: 8px 28px 14px !important;
     }
+    .atlas-page .atlas-tabs a,
+    .journal-page .chapter-tabs a,
+    .subbar a {
+      padding: 0 !important;
+      border: 0 !important;
+      color: #8f8a82;
+    }
+    .atlas-page .atlas-tabs a.active,
+    .atlas-page .atlas-tabs a:hover,
+    .journal-page .chapter-tabs a.active,
+    .journal-page .chapter-tabs a:hover,
+    .subbar a.active,
+    .subbar a:hover { color: #f3eee6; }
     .atlas-page:has(.atlas-tabs) .atlas-stage,
     .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
     @media (max-width: 800px) {
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
+      .subbar,
+      .atlas-page .atlas-tabs,
+      .journal-page .chapter-tabs {
+        gap: 10px !important;
+        letter-spacing: 0.12em !important;
+        padding: 0 12px 12px !important;
+        min-height: 36px;
+      }
       .atlas-page .atlas-tabs,
       .journal-page .chapter-tabs { top: 48px !important; }
       .atlas-page:has(.atlas-tabs) .atlas-stage,
