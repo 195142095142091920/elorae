@@ -1,6 +1,6 @@
 (function () {
-  const ATLAS_ORDER = ["world", "hesk", "cosm", "far-nybei", "essen-revir"];
-  const CODEX_TAB_ORDER = ["magics", "souls", "calendar", "lore"];
+  const ATLAS_ORDER = ["cosm", "essen-revir", "far-nybei", "hesk", "world"];
+  const CODEX_TAB_ORDER = ["calendar", "lore", "magics", "souls"];
 
   function pages() {
     (window.CODEX || []).forEach(function (p) {
@@ -22,11 +22,6 @@
   function codexTabPages() {
     const byId = byIdMap();
     return CODEX_TAB_ORDER.map(function (id) { return byId[id]; }).filter(Boolean);
-  }
-  function roots() {
-    return codexTabPages().map(function (c) {
-      return { section: sectionOf(c), id: c.id, title: c.tab || c.sectionTitle || c.title };
-    });
   }
   function atlasPages() {
     const byId = byIdMap();
@@ -123,10 +118,13 @@
   };
 
   function atlasTabs(currentId) {
-    const mapOn = !currentId || currentId === "map" ? " active" : "";
-    return '<a class="' + mapOn + '" href="#/atlas">Map</a>' + atlasPages().map(function (c) {
-      return '<a class="' + (c.id === currentId ? " active" : "") + '" href="#/atlas/' + c.id + '">' +
-        escapeHtml(c.tab || c.title) + '</a>';
+    const items = [{ id: "map", href: "#/atlas", label: "Map" }].concat(atlasPages().map(function (c) {
+      return { id: c.id, href: "#/atlas/" + c.id, label: c.tab || c.title };
+    }));
+    items.sort(function (a, b) { return a.label.localeCompare(b.label); });
+    return items.map(function (c) {
+      const on = (c.id === "map" && (!currentId || currentId === "map")) || c.id === currentId ? " active" : "";
+      return '<a class="' + on + '" href="' + c.href + '">' + escapeHtml(c.label) + '</a>';
     }).join("");
   }
 
@@ -143,6 +141,13 @@
 
   function codexMenu(currentId) {
     return codexTabs(currentId);
+  }
+
+  function currentRoom() {
+    const hash = (location.hash || "").replace(/^#\/?/, "");
+    if (hash === "atlas" || hash.startsWith("atlas/")) return "atlas";
+    if (hash === "codex" || hash.startsWith("codex/")) return "codex";
+    return hash.split("/")[0] || "gallery";
   }
 
   window.renderAtlasWorld = function (id) {
@@ -218,24 +223,14 @@
     const atlasId = hash.indexOf("atlas/") === 0 ? hash.slice(6) : (hash === "atlas" ? "map" : "");
     const pageId = hash.indexOf("codex/") === 0 ? hash.slice(6) : "";
     const atlasOn = current === "atlas" || hash === "atlas" || hash.startsWith("atlas/");
-    const main = [["atlas", "Atlas"], ["gallery", "Gallery"], ["index", "Index"], ["journal", "Journal"]]
-      .map(function (pair) {
-        if (pair[0] === "atlas") {
-          return '<span class="nav-drop">' +
-            '<a class="' + (atlasOn ? " active" : "") + '" href="#/atlas">Atlas</a>' +
-            '<span class="nav-menu">' + atlasMenu(atlasId) + '</span>' +
-            '</span>';
-        }
-        return '<a class="' + (current === pair[0] ? " active" : "") + '" href="#/' + pair[0] + '">' + pair[1] + '</a>';
-      })
-      .join('<span class="dot">&middot;</span>');
-    const on = current === "codex" ? " active" : "";
-    return main +
-      '<span class="dot">&middot;</span>' +
-      '<span class="nav-drop">' +
-        '<a class="' + on + '" href="#/codex">Codex</a>' +
-        '<span class="nav-menu">' + codexMenu(pageId) + '</span>' +
-      '</span>';
+    const codexOn = current === "codex" || hash === "codex" || hash.startsWith("codex/");
+    return [
+      { id: "atlas", html: '<span class="nav-drop"><a class="' + (atlasOn ? " active" : "") + '" href="#/atlas">Atlas</a><span class="nav-menu">' + atlasMenu(atlasId) + '</span></span>' },
+      { id: "codex", html: '<span class="nav-drop"><a class="' + (codexOn ? " active" : "") + '" href="#/codex">Codex</a><span class="nav-menu">' + codexMenu(pageId) + '</span></span>' },
+      { id: "gallery", html: '<a class="' + (current === "gallery" ? " active" : "") + '" href="#/gallery">Gallery</a>' },
+      { id: "index", html: '<a class="' + (current === "index" ? " active" : "") + '" href="#/index">Index</a>' },
+      { id: "journal", html: '<a class="' + (current === "journal" ? " active" : "") + '" href="#/journal">Journal</a>' }
+    ].map(function (item) { return item.html; }).join('<span class="dot">&middot;</span>');
   };
 
   document.addEventListener("click", function (e) {
@@ -311,16 +306,21 @@
     wrap.appendChild(menu);
   }
 
+  function navLabels(nav) {
+    return Array.from(nav.querySelectorAll(":scope > a, :scope > .nav-drop > a")).map(function (a) {
+      return a.textContent.trim();
+    });
+  }
+
   function paintNav() {
     const nav = document.querySelector(".filters");
     if (!nav) return;
     const hash = (location.hash || "").replace(/^#\/?/, "");
-    wrapLink(nav, "#/atlas", atlasMenu(hash.indexOf("atlas/") === 0 ? hash.slice(6) : "map"));
-    if (!nav.querySelector('a[href="#/codex"]')) {
-      nav.insertAdjacentHTML("beforeend",
-        '<span class="dot">&middot;</span><span class="nav-drop"><a href="#/codex">Codex</a><span class="nav-menu">' +
-        codexMenu("") + '</span></span>');
+    const labels = navLabels(nav);
+    if (labels.join() !== "Atlas,Codex,Gallery,Index,Journal") {
+      nav.innerHTML = rooms(currentRoom());
     } else {
+      wrapLink(nav, "#/atlas", atlasMenu(hash.indexOf("atlas/") === 0 ? hash.slice(6) : "map"));
       wrapLink(nav, "#/codex", codexMenu(hash.indexOf("codex/") === 0 ? hash.slice(6) : ""));
     }
     paintAtlasTabs();
