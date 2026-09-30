@@ -109,10 +109,13 @@
   display: flex;
   flex-direction: column;
   justify-content: safe center;
-  overflow-y: auto;
-  padding: 6px 14px 20px 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(207,198,184,0.28) transparent;
+  overflow: visible;
+  padding: 18px 16px 22px 10px;
+  background: rgba(0,0,0,0.42);
+  box-shadow:
+    0 0 48px 28px rgba(0,0,0,0.78),
+    0 0 110px 64px rgba(0,0,0,0.58),
+    0 18px 50px 12px rgba(0,0,0,0.7);
 }
 .lore-rail .codex-h3 {
   margin: 0 0 10px;
@@ -121,6 +124,10 @@
 .lore-rail .codex-toc {
   margin: 0;
   flex: 0 1 auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 160px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(207,198,184,0.28) transparent;
 }
 .lore-rail .codex-toc li {
   font-family: "Iowan Old Style", Palatino, serif;
@@ -144,6 +151,17 @@ body.lore-page .journal-read {
   margin: 0 auto 72px;
   padding-left: 28px;
   padding-right: 28px;
+}
+body.lore-page .journal-read::before {
+  inset: -70px -80px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0,0,0,0.96) 0%,
+    rgba(0,0,0,0.86) 28%,
+    rgba(0,0,0,0.58) 52%,
+    rgba(0,0,0,0.22) 70%,
+    rgba(0,0,0,0) 82%
+  );
 }
 .journal-read .codex-table-wrap {
   overflow-x: auto;
@@ -223,7 +241,10 @@ body.lore-page .journal-read {
     margin: 8px 16px 0;
     padding: 10px 12px 12px;
     justify-content: flex-start;
-    background: linear-gradient(to bottom, rgba(7,7,7,0.82), rgba(7,7,7,0.55));
+    background: rgba(0,0,0,0.55);
+    box-shadow:
+      0 0 40px 22px rgba(0,0,0,0.72),
+      0 0 90px 48px rgba(0,0,0,0.5);
   }
   body.lore-page .journal-read {
     max-width: 760px;
