@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=173">
+  <link rel="stylesheet" href="codex.css?v=174">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -28,6 +28,9 @@
       position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
       overflow-y: auto; overflow-x: hidden; z-index: 2;
     }
+    .journal-page .journal-bg {
+      z-index: 0 !important;
+    }
     body.journal-page::after {
       content: "";
       position: fixed;
@@ -42,7 +45,7 @@
     }
     body.journal-page:has(.chapter-tabs)::after { top: 96px; }
     .journal-page .sheet {
-      z-index: 2;
+      z-index: 3;
       -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 100%);
       mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 100%);
     }
