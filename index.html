@@ -215,6 +215,13 @@
         const a = e.target.closest(".topbar a, .mast a");
         if (!a) return;
         const label = a.textContent.trim();
+        if (label === "Atlas" && (a.getAttribute("href") === "#/atlas" || a.closest(".nav-drop"))) {
+          if (a.closest(".nav-menu, .chapter-tabs, .atlas-tabs")) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          location.hash = "#/atlas";
+          return;
+        }
         if (label !== "Elorae" && a.getAttribute("href") !== "#/seal") return;
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -282,13 +289,29 @@
           if (a.textContent.trim() !== label) a.textContent = label;
         });
       }
+      function fixAtlasOverview() {
+        const hash = (location.hash || "").replace(/^#\/?/, "");
+        if (hash !== "atlas" && hash.indexOf("atlas/") !== 0) return;
+        const tabs = document.querySelector(".atlas-tabs, body.atlas-page .chapter-tabs, body.on-atlas .chapter-tabs");
+        if (!tabs) return;
+        let ov = tabs.querySelector('a[href="#/atlas"]');
+        if (!ov) {
+          ov = document.createElement("a");
+          ov.setAttribute("href", "#/atlas");
+          tabs.insertBefore(ov, tabs.firstChild);
+        }
+        if (ov.textContent.trim() !== "Overview") ov.textContent = "Overview";
+        if (tabs.firstElementChild !== ov) tabs.insertBefore(ov, tabs.firstElementChild);
+        ov.classList.toggle("active", hash === "atlas");
+      }
       window.pinChrome = pinChrome;
       document.addEventListener("click", function () {
         requestAnimationFrame(pinChrome);
         requestAnimationFrame(fixJournalTabs);
+        requestAnimationFrame(fixAtlasOverview);
       });
       window.addEventListener("resize", pinChrome);
-      setInterval(function () { pinChrome(); fixJournalTabs(); }, 200);
+      setInterval(function () { pinChrome(); fixJournalTabs(); fixAtlasOverview(); }, 200);
     })();
   </script>
 </body>
