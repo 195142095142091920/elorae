@@ -17,7 +17,7 @@
   }
 
   function atlasItems() {
-    const ids = ["cosm", "eras", "essen-revir", "far-nybei", "hesk"];
+    const ids = ["cosm", "essen-revir", "far-nybei", "hesk"];
     const rest = ids.filter(function (id) { return byId(id); }).map(function (id) {
       const c = byId(id);
       return { id: id, href: "#/atlas/" + id, label: c.tab || c.title };
@@ -44,11 +44,12 @@
       if (menu) menu.innerHTML = html;
     });
     document.querySelectorAll("a").forEach(function (a) {
-      if (a.textContent.trim() === "Map") a.remove();
+      if (a.textContent.trim() === "Map" || a.textContent.trim() === "Eras") a.remove();
     });
   }
 
   window.renderAtlasWorld = function (id) {
+    if (id === "eras" || id === "map") id = "world";
     const current = byId(id) || byId("world");
     if (!current) return;
     if (window.place) window.place.hash = "#/atlas/" + current.id;
@@ -77,6 +78,7 @@
   };
 
   function openWorld(id) {
+    if (id === "eras" || id === "map") id = "world";
     const nid = id || "world";
     if (hashPath() !== "atlas/" + nid) history.replaceState(null, "", "#/atlas/" + nid);
     window.renderAtlasWorld(nid);
@@ -85,7 +87,8 @@
   function restoreHash() {
     const h = hashPath();
     if (h === "atlas" || h.indexOf("atlas/") === 0) {
-      openWorld(h === "atlas" ? "world" : (h.slice(6) || "world"));
+      const raw = h === "atlas" ? "world" : (h.slice(6) || "world");
+      openWorld(raw === "eras" || raw === "map" ? "world" : raw);
       return true;
     }
     if (h === "codex" || h.indexOf("codex/") === 0) {
@@ -110,7 +113,7 @@
     const inTabs = a.closest(".chapter-tabs, .atlas-tabs, .nav-menu, .subbar");
     const inTopAtlas = a.closest(".filters, .nav-drop") && !inTabs;
 
-    if (label === "Map" || href === "#/atlas") {
+    if (label === "Map" || label === "Eras" || href === "#/atlas" || href === "#/atlas/eras") {
       e.preventDefault();
       e.stopImmediatePropagation();
       openWorld("world");
@@ -140,7 +143,7 @@
     if (path.indexOf("atlas") === 0) {
       const id = path === "atlas" ? "world" : path.replace(/^atlas\/?/, "") || "world";
       if (!document.body.classList.contains("on-atlas")) restoreHash();
-      else retab(id);
+      else retab(id === "eras" || id === "map" ? "world" : id);
     }
   }, 400);
 })();
