@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=163">
+  <link rel="stylesheet" href="codex.css?v=164">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -28,6 +28,11 @@
       position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
       overflow-y: auto; overflow-x: hidden; z-index: 2;
     }
+    .journal-page .sheet {
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 56px, #000 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 56px, #000 100%);
+    }
+    .journal-page .journal-read { padding-top: 20px; }
     .subbar,
     .atlas-page .atlas-tabs,
     .journal-page .chapter-tabs {
