@@ -23,14 +23,15 @@
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
   font-weight: 400;
   font-style: italic;
-  font-size: 22px;
+  font-size: 24px;
   letter-spacing: 0.02em;
   color: #f3eee6;
-  margin: 96px 0 10px;
+  margin: 96px 0 8px;
   padding-top: 40px;
   border-top: 1px solid rgba(243,238,230,0.16);
   text-shadow: 0 1px 12px rgba(0,0,0,0.85);
   scroll-margin-top: 8px;
+  text-align: center;
 }
 .journal-read .codex-toc + .codex-title,
 .journal-read .codex-h3 + .codex-title {
@@ -48,23 +49,28 @@
 .journal-read .codex-by {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #9a948a;
-  margin: -8px 0 18px;
+  margin: 0 0 36px;
+  text-align: center;
 }
 .journal-read .codex-quote {
-  margin: 0 0 28px;
-  padding: 0 0 0 18px;
+  margin: 0 0 32px;
+  padding: 0 8px 0 0;
   border: 0;
-  border-left: 1px solid rgba(243,238,230,0.22);
+}
+.journal-read .codex-quote + .codex-quote {
+  margin-top: 8px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(243,238,230,0.08);
 }
 .journal-read .codex-quote p {
   font-family: "Iowan Old Style", Palatino, serif;
-  font-style: normal;
+  font-style: italic;
   font-size: 18px;
-  line-height: 1.6;
-  color: #f3eee6;
+  line-height: 1.72;
+  color: #e6dfd4;
   margin: 0;
 }
 .journal-read .codex-quote cite {
@@ -76,6 +82,10 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #9a948a;
+}
+.journal-read p {
+  line-height: 1.72;
+  color: #e8e2d8;
 }
 .journal-read .codex-cap {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
