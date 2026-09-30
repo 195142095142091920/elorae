@@ -19,19 +19,10 @@
     }
     .seal-page .filters { display: none !important; }
     .seal-card {
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 88px 24px 72px;
+      min-height: 100dvh; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; padding: 88px 24px 72px;
     }
-    .seal-card h1 {
-      font-weight: 400;
-      letter-spacing: 0.14em;
-      font-size: clamp(28px, 4vw, 40px);
-    }
+    .seal-card h1 { font-weight: 400; letter-spacing: 0.14em; font-size: clamp(28px, 4vw, 40px); }
     .seal-note { margin-top: 16px; max-width: 36ch; color: #cfc6b8; font-size: 16px; line-height: 1.5; }
     .seal-card form { display: flex; flex-direction: column; align-items: center; gap: 16px; }
     .seal-card input {
@@ -61,8 +52,12 @@
       position: fixed !important; top: 0; left: 0; right: 0; z-index: 200;
       background: #070707 !important; overflow: visible !important;
     }
+    .journal-page .topbar {
+      position: fixed !important; top: 0; left: 0; right: 0; z-index: 200;
+      background: #070707 !important;
+    }
     .mast .topbar,
-    .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
+    .room:not(.journal-page) .topbar, .atlas-page .topbar {
       position: relative !important; top: auto; left: auto; right: auto;
       background: #070707 !important; overflow: visible !important; z-index: 200;
     }
@@ -116,7 +111,7 @@
       color: #8f8a82; background: #070707 !important;
     }
     .atlas-page .atlas-tabs, .journal-page .chapter-tabs, body:has(.mast) .subbar {
-      position: fixed !important; top: var(--nav-h, 56px) !important; left: 0; right: 0; z-index: 20;
+      position: fixed !important; top: var(--nav-h, 56px) !important; left: 0; right: 0; z-index: 40;
     }
     .atlas-page .atlas-tabs a, .journal-page .chapter-tabs a, .subbar a {
       padding: 0 !important; border: 0 !important; color: #8f8a82;
@@ -135,6 +130,7 @@
         gap: 8px 14px !important; padding: 10px 10px 0 !important; overflow: visible !important;
         height: auto !important; min-height: 0; letter-spacing: 0.1em;
       }
+      .journal-page .topbar { position: fixed !important; top: 0; left: 0; right: 0; }
       .mast .filters, .journal-page .topbar .filters, .room .topbar .filters, .atlas-page .topbar .filters {
         display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
         gap: 8px 14px !important; font-size: 10px !important; letter-spacing: 0.1em !important;
@@ -147,7 +143,7 @@
       }
       .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs {
         gap: 12px !important; letter-spacing: 0.12em !important; padding: 8px 12px 8px !important; min-height: 36px;
-        top: var(--nav-h, 44px) !important; transition: top 140ms ease;
+        top: var(--nav-h, 44px) !important;
       }
       .atlas-page:has(.atlas-tabs) .atlas-stage, .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
       body.lore-page .sheet { top: 124px; }
@@ -236,7 +232,6 @@
       });
       if ((location.hash || "").replace(/^#\/?/, "") === "seal") drawSeal();
       function pinChrome() {
-        if (window.innerWidth > 980) return;
         if (document.body.classList.contains("seal-page")) return;
         const bar = document.querySelector(".mast .topbar") || document.querySelector(".topbar") || document.querySelector(".mast");
         const tabs = document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
@@ -257,10 +252,26 @@
           if (sheet) sheet.style.setProperty("top", (top + rail.offsetHeight) + "px", "important");
         }
       }
-      function labelJournalTabs() {
+      function fixJournalTabs() {
         const hash = (location.hash || "").replace(/^#\/?/, "");
         if (hash !== "journal" && hash.indexOf("journal/") !== 0) return;
-        const tabs = document.querySelector(".chapter-tabs");
+        const bar = document.querySelector(".topbar");
+        let tabs = document.querySelector(".chapter-tabs");
+        if (!tabs && bar && (window.JOURNAL || []).length) {
+          const first = window.JOURNAL[0];
+          bar.insertAdjacentHTML("afterend", '<nav class="chapter-tabs"></nav>');
+          tabs = document.querySelector(".chapter-tabs");
+          tabs.innerHTML = window.JOURNAL.map(function (j) {
+            const act = String(j.act || "").replace(/^act\s+/i, "").trim();
+            const chap = String(j.chapter || "").replace(/^chapter\s+/i, "").trim();
+            const label = act && chap ? act + ". " + chap : (chap || act || j.title || j.id);
+            const on = (hash === "journal/" + j.id || (!hash.slice(8) && j.id === first.id)) ? " active" : "";
+            return '<a class="' + on + '" href="#/journal/' + j.id + '">' + label + '</a>';
+          }).join("");
+        }
+        if (tabs && bar && tabs.parentElement !== document.body) {
+          bar.insertAdjacentElement("afterend", tabs);
+        }
         if (!tabs) return;
         (window.JOURNAL || []).forEach(function (j) {
           const a = tabs.querySelector('a[href="#/journal/' + j.id + '"]');
@@ -274,11 +285,10 @@
       window.pinChrome = pinChrome;
       document.addEventListener("click", function () {
         requestAnimationFrame(pinChrome);
-        requestAnimationFrame(labelJournalTabs);
+        requestAnimationFrame(fixJournalTabs);
       });
       window.addEventListener("resize", pinChrome);
-      setInterval(pinChrome, 200);
-      setInterval(labelJournalTabs, 200);
+      setInterval(function () { pinChrome(); fixJournalTabs(); }, 200);
     })();
   </script>
 </body>
