@@ -82,7 +82,8 @@
       background: #070707 !important;
     }
     .atlas-page .atlas-tabs,
-    .journal-page .chapter-tabs {
+    .journal-page .chapter-tabs,
+    body:has(.mast) .subbar {
       position: fixed !important;
       top: 56px !important;
       left: 0;
@@ -109,16 +110,17 @@
       .journal-page .topbar,
       .room:not(.journal-page) .topbar,
       .atlas-page .topbar {
-        display: flex;
+        display: flex !important;
         flex-wrap: wrap;
         align-items: center;
         justify-content: center;
-        gap: 6px 12px;
-        padding: 10px 10px 0;
+        gap: 8px 14px !important;
+        padding: 10px 10px 0 !important;
         overflow: visible;
         height: auto !important;
         min-height: 0;
       }
+      .mast .filters,
       .journal-page .topbar .filters,
       .room .topbar .filters,
       .atlas-page .topbar .filters {
@@ -126,13 +128,21 @@
         flex-wrap: wrap;
         justify-content: center;
         align-items: center;
-        gap: 8px 12px;
-        font-size: 10px;
-        letter-spacing: 0.1em;
+        gap: 8px 14px !important;
+        font-size: 10px !important;
+        letter-spacing: 0.1em !important;
       }
+      .mast .dot,
       .journal-page .topbar .dot,
       .room .topbar .dot,
-      .atlas-page .topbar .dot { display: none; }
+      .atlas-page .topbar .dot,
+      .subbar .dot { display: none !important; }
+      .mast .brand,
+      .mast > a:first-child,
+      .topbar .brand,
+      .topbar > a:first-child {
+        margin-right: 14px !important;
+      }
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
       .journal-page .journal-bg::after {
@@ -145,18 +155,17 @@
       .subbar,
       .atlas-page .atlas-tabs,
       .journal-page .chapter-tabs {
-        gap: 10px !important;
+        gap: 12px !important;
         letter-spacing: 0.12em !important;
         padding: 10px 12px 8px !important;
         min-height: 36px;
       }
       .atlas-page .atlas-tabs,
-      .journal-page .chapter-tabs { top: 40px !important; }
+      .journal-page .chapter-tabs,
+      body:has(.mast) .subbar { top: 40px !important; }
       .atlas-page:has(.atlas-tabs) .atlas-stage,
       .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
       body.lore-page .sheet { top: 124px; }
-      .journal-page .topbar .brand,
-      .journal-page .topbar a:first-child { margin-right: 0; }
     }
   </style>
 </head>
@@ -180,7 +189,7 @@
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
       window._from = window._from || "#/gallery";
       document.addEventListener("click", function (e) {
-        const a = e.target.closest(".topbar a");
+        const a = e.target.closest(".topbar a, .mast a");
         if (!a || a.textContent.trim() !== "Elorae") return;
         e.preventDefault();
         if (location.hash && location.hash !== "#/seal") window._from = location.hash;
@@ -188,18 +197,13 @@
       }, true);
       function pinChrome() {
         if (window.innerWidth > 980) return;
-        const bar = document.querySelector(".topbar");
+        const bar = document.querySelector(".topbar, .mast");
         const tabs = document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
         const rail = document.querySelector(".lore-rail");
         const sheet = document.querySelector(".sheet");
-        const veil = document.querySelector(".journal-bg");
         if (bar && tabs) {
           const top = Math.round(bar.getBoundingClientRect().bottom);
           tabs.style.setProperty("top", top + "px", "important");
-          if (veil) {
-            const afterTop = rail ? Math.round(rail.getBoundingClientRect().bottom) : Math.round(tabs.getBoundingClientRect().bottom);
-            document.documentElement.style.setProperty("--veil-top", afterTop + "px");
-          }
         }
         if (!rail || !tabs) return;
         const top = Math.round(tabs.getBoundingClientRect().bottom);
