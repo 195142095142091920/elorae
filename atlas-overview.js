@@ -1,14 +1,26 @@
 (function () {
+  if (!document.getElementById("atlas-map-style")) {
+    const s = document.createElement("style");
+    s.id = "atlas-map-style";
+    s.textContent =
+      ".journal-read .atlas-map{margin:48px 0 24px;}" +
+      ".journal-read .atlas-map img{max-height:none!important;width:100%;height:auto;object-fit:contain;border:1px solid #000;background:transparent;display:block;}";
+    document.head.appendChild(s);
+  }
+
   function hashPath() {
     return (location.hash || "").replace(/^#\/?/, "");
   }
 
+  function byId(id) {
+    return (window.CODEX || []).find(function (c) { return c.id === id; });
+  }
+
   function atlasItems() {
-    const byId = {};
-    (window.CODEX || []).forEach(function (c) { byId[c.id] = c; });
     const ids = ["cosm", "eras", "essen-revir", "far-nybei", "hesk"];
-    const rest = ids.filter(function (id) { return byId[id]; }).map(function (id) {
-      return { id: id, href: "#/atlas/" + id, label: byId[id].tab || byId[id].title };
+    const rest = ids.filter(function (id) { return byId(id); }).map(function (id) {
+      const c = byId(id);
+      return { id: id, href: "#/atlas/" + id, label: c.tab || c.title };
     }).sort(function (a, b) { return a.label.localeCompare(b.label); });
     return [{ id: "world", href: "#/atlas/world", label: "Overview" }].concat(rest);
   }
@@ -32,27 +44,38 @@
       if (menu) menu.innerHTML = html;
     });
     document.querySelectorAll("a").forEach(function (a) {
-      if (a.textContent.trim() === "Map" && (a.getAttribute("href") || "") === "#/atlas") a.remove();
+      if (a.textContent.trim() === "Map") a.remove();
     });
   }
 
+  window.renderAtlasWorld = function (id) {
+    const current = byId(id) || byId("world");
+    if (!current) return;
+    if (window.place) window.place.hash = "#/atlas/" + current.id;
+    document.title = (current.title || "Atlas") + " - Elorae";
+    document.body.className = "room journal-page on-atlas";
+    const tabs = '<nav class="chapter-tabs">' + paintItems(current.id) + '</nav>';
+    const heading = current.heading
+      ? '<h2 class="codex-h">' + escapeHtml(current.heading) + '</h2>'
+      : "";
+    document.body.innerHTML =
+      '<div class="journal-bg"><img src="' + encodeURI(current.banner || (window.COVER || "assets/Godtree.png")) + '" alt=""></div>' +
+      '<header class="topbar journal-bar">' + brand() + '<nav class="filters">' + rooms("atlas") + '</nav></header>' +
+      tabs +
+      '<div class="sheet">' +
+      '<article class="journal-read">' +
+      heading +
+      (current.blocks || []).map(journalBlock).join("") +
+      '</article></div>';
+    if (typeof bindPlaceScroll === "function") bindPlaceScroll();
+    if (typeof bindIdleScrollbar === "function") bindIdleScrollbar(document.querySelector(".sheet"));
+    retab(current.id);
+  };
+
   function openWorld(id) {
     const nid = id || "world";
-    if (typeof window.renderAtlasWorld === "function") {
-      if (hashPath() !== "atlas/" + nid) history.replaceState(null, "", "#/atlas/" + nid);
-      window.renderAtlasWorld(nid);
-      setTimeout(function () { retab(nid); }, 0);
-    } else {
-      location.hash = "#/atlas/" + nid;
-    }
-  }
-
-  const prev = window.renderAtlasWorld;
-  if (typeof prev === "function") {
-    window.renderAtlasWorld = function (id) {
-      prev(id);
-      setTimeout(function () { retab(id || "world"); }, 0);
-    };
+    if (hashPath() !== "atlas/" + nid) history.replaceState(null, "", "#/atlas/" + nid);
+    window.renderAtlasWorld(nid);
   }
 
   document.addEventListener("click", function (e) {
@@ -63,7 +86,7 @@
     const inTabs = a.closest(".chapter-tabs, .atlas-tabs, .nav-menu, .subbar");
     const inTopAtlas = a.closest(".filters, .nav-drop") && !inTabs;
 
-    if (label === "Map") {
+    if (label === "Map" || href === "#/atlas") {
       e.preventDefault();
       e.stopImmediatePropagation();
       openWorld("world");
@@ -75,13 +98,7 @@
       openWorld("world");
       return;
     }
-    if (href === "#/atlas") {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      openWorld("world");
-      return;
-    }
-    if (href.indexOf("#/atlas/") === 0 && inTabs) {
+    if (href.indexOf("#/atlas/") === 0) {
       e.preventDefault();
       e.stopImmediatePropagation();
       openWorld(href.replace(/^#\/atlas\/?/, "") || "world");
