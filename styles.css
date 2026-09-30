@@ -78,6 +78,18 @@ body::after {
 .subbar a.active,
 .subbar a:hover { color: #f3eee6; }
 
+@media (min-width: 801px) {
+  .topbar,
+  .mast .topbar,
+  .filters,
+  .subbar,
+  .chapter-tabs,
+  .atlas-tabs,
+  .nav-menu a {
+    font-size: 14.3px;
+  }
+}
+
 .journal-page .topbar {
   position: fixed;
   top: 0;
