@@ -3,7 +3,7 @@
     (window.CODEX || []).forEach(function (p) {
       if (p.section) return;
       if (p.id === "souls") { p.section = "souls"; p.sectionTitle = "Souls"; }
-      else if (p.id === "magics") { p.section = "magics"; p.sectionTitle = "Magics"; }
+      else if (p.id === "magics" || (p.id && p.id.indexOf("magics") === 0)) { p.section = "magics"; p.sectionTitle = "Magics"; }
       else if (p.id === "lore") { p.section = "lore"; p.sectionTitle = "Lore"; }
       else { p.section = "world"; p.sectionTitle = p.sectionTitle || "World"; }
     });
@@ -29,13 +29,36 @@
   window.journalBlock = function (block) {
     if (!block) return "";
     if (block.type === "h2") return '<h2 class="codex-h">' + escapeHtml(block.text || "") + '</h2>';
+    if (block.type === "h2i") return '<h2 class="codex-title">' + escapeHtml(block.text || "") + '</h2>';
     if (block.type === "h3") return '<h3 class="codex-h3">' + escapeHtml(block.text || "") + '</h3>';
     if (block.type === "by") return '<p class="codex-by">' + escapeHtml(block.text || "") + '</p>';
     if (block.type === "quote") {
-      return '<blockquote class="codex-quote"><p>' + escapeHtml(block.text || "") + '</p>' +
+      const body = escapeHtml(block.text || "").replace(/\n/g, "<br>");
+      return '<blockquote class="codex-quote"><p>' + body + '</p>' +
         (block.by ? '<cite>' + escapeHtml(block.by) + '</cite>' : '') + '</blockquote>';
     }
     if (block.type === "caption") return '<p class="codex-cap">' + escapeHtml(block.text || "") + '</p>';
+    if (block.type === "list") {
+      return '<ul class="codex-toc">' + (block.items || []).map(function (item) {
+        return '<li>' + escapeHtml(item) + '</li>';
+      }).join("") + '</ul>';
+    }
+    if (block.type === "table") {
+      const head = '<tr>' + (block.headers || []).map(function (h) {
+        return '<th>' + escapeHtml(h) + '</th>';
+      }).join("") + '</tr>';
+      const body = (block.rows || []).map(function (row) {
+        return '<tr>' + row.map(function (cell) {
+          return '<td>' + escapeHtml(cell) + '</td>';
+        }).join("") + '</tr>';
+      }).join("");
+      return '<div class="codex-table-wrap"><table class="codex-table"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>';
+    }
+    if (block.type === "school") {
+      return '<p class="codex-school"><span>' + escapeHtml(block.name || "") + '</span> ' +
+        escapeHtml(block.text || "") +
+        (block.note ? '<em>' + escapeHtml(block.note) + '</em>' : '') + '</p>';
+    }
     if (block.type === "image") {
       const id = galleryIdFor(block.src);
       const img = '<img src="' + encodeURI(block.src) + '" alt="' + escapeHtml(block.cap || "") + '">';
