@@ -287,7 +287,11 @@
         if (rail && tabs) {
           const top = Math.round(tabs.getBoundingClientRect().bottom);
           rail.style.setProperty("top", top + "px", "important");
-          if (sheet) sheet.style.setProperty("top", (top + rail.offsetHeight) + "px", "important");
+          if (sheet) {
+            const extra = (document.body.classList.contains("lore-page") && window.innerWidth <= 980)
+              ? rail.offsetHeight : 0;
+            sheet.style.setProperty("top", (top + extra) + "px", "important");
+          }
         }
       }
       function fixJournalTabs() {
@@ -329,5 +333,6 @@
       setInterval(function () { pinChrome(); fixJournalTabs(); }, 200);
     })();
   </script>
+  <script src="pin-lore.js?v=1"></script>
 </body>
 </html>
