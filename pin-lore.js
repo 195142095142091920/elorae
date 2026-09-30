@@ -1,4 +1,17 @@
 (function () {
+  if (!document.getElementById("drop-on-style")) {
+    const s = document.createElement("style");
+    s.id = "drop-on-style";
+    s.textContent =
+      "@media (min-width:801px){" +
+      "body.on-codex .nav-drop:has(> a[href^=\"#/codex\"]):hover .nav-menu," +
+      "body.on-codex .nav-drop:has(> a[href^=\"#/codex\"]).open .nav-menu," +
+      "body.on-atlas .nav-drop:has(> a[href=\"#/atlas\"]):hover .nav-menu," +
+      "body.on-atlas .nav-drop:has(> a[href=\"#/atlas\"]).open .nav-menu{" +
+      "display:flex!important}" +
+      "}";
+    document.head.appendChild(s);
+  }
   const old = window.pinChrome;
   window.pinChrome = function () {
     if (typeof old === "function") old();
