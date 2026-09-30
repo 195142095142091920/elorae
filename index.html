@@ -25,7 +25,6 @@
       background: #070707 !important; overflow: visible !important;
       z-index: 200;
     }
-    .mast .topbar { position: relative !important; }
     .filters { position: relative; z-index: 220; }
     .nav-drop { position: relative; display: inline-flex; z-index: 230; }
     .nav-menu {
@@ -76,7 +75,7 @@
       color: #8f8a82; background: #070707 !important;
     }
     .atlas-page .atlas-tabs, .journal-page .chapter-tabs, body:has(.mast) .subbar {
-      position: fixed !important; top: 56px !important; left: 0; right: 0; z-index: 20;
+      position: fixed !important; top: var(--nav-h, 56px) !important; left: 0; right: 0; z-index: 20;
     }
     .atlas-page .atlas-tabs a, .journal-page .chapter-tabs a, .subbar a {
       padding: 0 !important; border: 0 !important; color: #8f8a82;
@@ -108,8 +107,9 @@
       }
       .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs {
         gap: 12px !important; letter-spacing: 0.12em !important; padding: 8px 12px 8px !important; min-height: 36px;
+        top: var(--nav-h, 44px) !important;
+        transition: top 140ms ease;
       }
-      .atlas-page .atlas-tabs, .journal-page .chapter-tabs, body:has(.mast) .subbar { top: 40px !important; }
       .atlas-page:has(.atlas-tabs) .atlas-stage, .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
       body.lore-page .sheet { top: 124px; }
     }
@@ -147,9 +147,10 @@
         const tabs = document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
         const rail = document.querySelector(".lore-rail");
         const sheet = document.querySelector(".sheet");
-        if (bar && tabs) {
+        if (bar) {
           const top = Math.round(bar.getBoundingClientRect().bottom);
-          tabs.style.setProperty("top", top + "px", "important");
+          document.documentElement.style.setProperty("--nav-h", top + "px");
+          if (tabs) tabs.style.setProperty("top", top + "px", "important");
         }
         const chrome = tabs || bar;
         if (chrome) {
@@ -161,9 +162,11 @@
           if (sheet) sheet.style.setProperty("top", (top + rail.offsetHeight) + "px", "important");
         }
       }
+      window.pinChrome = pinChrome;
       document.addEventListener("click", function () { requestAnimationFrame(pinChrome); });
       window.addEventListener("resize", pinChrome);
-      setInterval(pinChrome, 300);
+      setInterval(pinChrome, 200);
+      pinChrome();
     })();
   </script>
 </body>
