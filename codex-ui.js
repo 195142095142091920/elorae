@@ -61,14 +61,17 @@
     works.sort(function (a, b) {
       return loreSortKey(a.title).localeCompare(loreSortKey(b.title));
     });
-    const out = preface.concat([
-      { type: "h3", text: "Table of Contents" },
-      { type: "list", items: works.map(function (w) { return w.title; }), jump: true }
-    ]);
-    works.forEach(function (w) {
-      out.push.apply(out, w.blocks);
-    });
-    return out;
+    const body = preface.slice();
+    works.forEach(function (w) { body.push.apply(body, w.blocks); });
+    return { titles: works.map(function (w) { return w.title; }), blocks: body };
+  }
+  function loreRail(titles) {
+    return '<aside class="lore-rail"><h3 class="codex-h3">Contents</h3><ul class="codex-toc">' +
+      (titles || []).map(function (item) {
+        const id = loreSlug(item);
+        return '<li><a href="#" data-lore-jump="' + id + '">' + escapeHtml(item) + '</a></li>';
+      }).join("") +
+      '</ul></aside>';
   }
 
   window.journalBlock = function (block) {
@@ -187,17 +190,20 @@
     const group = inSection(sectionOf(current));
     place.hash = "#/codex/" + current.id;
     document.title = current.title + " - Elorae";
-    document.body.className = "room journal-page";
+    document.body.className = "room journal-page" + (current.id === "lore" ? " lore-page" : "");
     const tabs = group.length > 1
       ? '<nav class="chapter-tabs">' + group.map(function (c) {
           return '<a class="' + (c.id === current.id ? " active" : "") + '" href="#/codex/' + c.id + '">' +
             escapeHtml(c.tab || c.title) + '</a>';
         }).join("") + '</nav>'
       : "";
-    const blocks = current.id === "lore" ? prepareLoreBlocks(current.blocks) : (current.blocks || []);
+    const prepared = current.id === "lore" ? prepareLoreBlocks(current.blocks) : null;
+    const blocks = prepared ? prepared.blocks : (current.blocks || []);
+    const rail = prepared ? loreRail(prepared.titles) : "";
     document.body.innerHTML =
       '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
       '<header class="topbar journal-bar">' + brand() + '<nav class="filters">' + rooms("codex") + '</nav></header>' +
+      rail +
       '<div class="sheet">' + tabs +
       '<article class="journal-read">' +
       (current.heading ? '<h2 class="codex-h">' + escapeHtml(current.heading) + '</h2>' : "") +
@@ -237,6 +243,8 @@
     if (jump) {
       e.preventDefault();
       e.stopImmediatePropagation();
+      document.querySelectorAll(".lore-rail a").forEach(function (a) { a.classList.remove("active"); });
+      jump.classList.add("active");
       const el = document.getElementById(jump.getAttribute("data-lore-jump"));
       const sheet = document.querySelector(".sheet");
       if (el && sheet) {
