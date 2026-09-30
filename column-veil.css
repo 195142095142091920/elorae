@@ -1,0 +1,18 @@
+@media (min-width: 801px) {
+  .journal-page .journal-bg::after {
+    width: min(1760px, 98vw) !important;
+    background: linear-gradient(
+      to right,
+      rgba(7,7,7,0) 0%,
+      rgba(7,7,7,0.18) 10%,
+      rgba(7,7,7,0.55) 20%,
+      rgba(7,7,7,0.88) 28%,
+      #070707 36%,
+      #070707 64%,
+      rgba(7,7,7,0.88) 72%,
+      rgba(7,7,7,0.55) 80%,
+      rgba(7,7,7,0.18) 90%,
+      rgba(7,7,7,0) 100%
+    ) !important;
+  }
+}
