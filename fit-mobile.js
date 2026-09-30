@@ -6,7 +6,7 @@
       ".hero.full{background:#000}" +
       ".hero.full img{object-fit:contain!important;object-position:center!important;background:#000}" +
       "@media (max-width:800px){" +
-      ".entry .topbar #fit{z-index:30;pointer-events:auto;color:#efe8dc}" +
+      ".entry .topbar #fit{z-index:40;pointer-events:auto;color:#efe8dc;position:relative}" +
       ".entry .topbar #fit svg{pointer-events:none;width:18px;height:18px;display:block}" +
       "}";
     document.head.appendChild(s);
@@ -34,20 +34,16 @@
     if (!document.body.classList.contains("entry")) return;
     const hero = document.querySelector(".hero");
     const on = !!(hero && hero.classList.contains("full"));
-    ["#fit", "#fitmark"].forEach(function (sel) {
-      const el = document.querySelector(sel);
-      if (!el) return;
-      if (!el.dataset.fitBound) {
-        el.dataset.fitBound = "1";
-        el.addEventListener("click", toggle, true);
-        el.addEventListener("touchend", function (e) { toggle(e); }, { passive: false });
-      }
-    });
     const fit = document.querySelector("#fit");
+    const mark = document.querySelector("#fitmark");
+    [fit, mark].forEach(function (el) {
+      if (!el || el.dataset.fitBound) return;
+      el.dataset.fitBound = "1";
+      el.addEventListener("click", toggle);
+    });
     if (fit && window.innerWidth <= 800 && (fit.dataset.glyph !== (on ? "in" : "out") || !fit.querySelector("svg"))) {
       setGlyphs(on);
     }
   }
-  setInterval(bind, 200);
-  document.addEventListener("click", function () { requestAnimationFrame(bind); });
+  setInterval(bind, 250);
 })();
