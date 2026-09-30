@@ -162,9 +162,11 @@ body.lore-page::before {
 }
 .lore-rail::before { display: none; }
 .lore-rail .codex-h3 {
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   flex: 0 0 auto;
-  font-size: 13px;
+  font-size: 18px;
+  letter-spacing: 0.18em;
+  color: #f3eee6;
 }
 .lore-rail .codex-toc {
   margin: 0;
