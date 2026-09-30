@@ -74,7 +74,7 @@
     const rail = document.querySelector(".lore-rail");
     const sheet = document.querySelector(".sheet");
     if (!rail || !sheet || !document.body.classList.contains("lore-page")) {
-      if (sheet) sheet.style.top = "";
+      if (sheet && !document.body.classList.contains("lore-page")) sheet.style.top = "";
       return;
     }
     if (window.innerWidth > 980) {
@@ -168,6 +168,18 @@
     return codexTabs(currentId);
   }
 
+  function journalEntries() {
+    return window.JOURNAL || [];
+  }
+
+  function journalTabs(currentId) {
+    return journalEntries().map(function (j) {
+      const label = j.chapter || j.title || j.id;
+      return '<a class="' + (j.id === currentId ? " active" : "") + '" href="#/journal/' + j.id + '">' +
+        escapeHtml(label) + '</a>';
+    }).join("");
+  }
+
   function currentRoom() {
     const hash = (location.hash || "").replace(/^#\/?/, "");
     if (hash === "atlas" || hash.startsWith("atlas/")) return "atlas";
@@ -208,6 +220,39 @@
     const bar = document.querySelector(".topbar");
     if (!bar) return;
     bar.insertAdjacentHTML("afterend", '<nav class="subbar atlas-tabs">' + atlasTabs("map") + '</nav>');
+  }
+
+  window.renderJournalEntry = function (id) {
+    const list = journalEntries();
+    const current = list.find(function (j) { return j.id === id; }) || list[0];
+    if (!current) return;
+    place.hash = "#/journal/" + current.id;
+    document.title = (current.title || "Journal") + " - Elorae";
+    document.body.className = "room journal-page on-journal";
+    document.body.innerHTML =
+      '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
+      '<header class="topbar journal-bar">' + brand() + '<nav class="filters">' + rooms("journal") + '</nav></header>' +
+      '<nav class="chapter-tabs">' + journalTabs(current.id) + '</nav>' +
+      '<div class="sheet">' +
+      '<article class="journal-read">' +
+      (current.title ? '<h2 class="codex-h">' + escapeHtml(current.title) + '</h2>' : "") +
+      (current.blocks || []).map(journalBlock).join("") +
+      '</article></div>';
+    bindPlaceScroll();
+    bindIdleScrollbar(document.querySelector(".sheet"));
+  };
+
+  function paintJournalTabs() {
+    const hash = (location.hash || "").replace(/^#\/?/, "");
+    if (hash !== "journal" && hash.indexOf("journal/") !== 0) return;
+    if (document.querySelector(".chapter-tabs")) return;
+    const list = journalEntries();
+    if (!list.length) return;
+    const id = hash.indexOf("journal/") === 0 ? hash.slice(8) : list[0].id;
+    const bar = document.querySelector(".topbar");
+    if (!bar) return;
+    bar.insertAdjacentHTML("afterend", '<nav class="chapter-tabs">' + journalTabs(id) + '</nav>');
+    document.body.classList.add("on-journal", "journal-page");
   }
 
   window.renderCodex = function (id) {
@@ -253,7 +298,7 @@
     const codexOn = current === "codex" || hash === "codex" || hash.startsWith("codex/");
     return [
       { id: "atlas", html: '<span class="nav-drop"><a class="' + (atlasOn ? " active" : "") + '" href="#/atlas">Atlas</a><span class="nav-menu">' + atlasMenu(atlasId) + '</span></span>' },
-      { id: "codex", html: '<span class="nav-drop"><a class="' + (codexOn ? " active" : "") + '" href="#/codex">Codex</a><span class="nav-menu">' + codexMenu(pageId) + '</span></span>' },
+      { id: "codex", html: '<span class="nav-drop"><a class="' + (codexOn ? " active" : "") + '" href="#/codex/calendar">Codex</a><span class="nav-menu">' + codexMenu(pageId) + '</span></span>' },
       { id: "gallery", html: '<a class="' + (current === "gallery" ? " active" : "") + '" href="#/gallery">Gallery</a>' },
       { id: "index", html: '<a class="' + (current === "index" ? " active" : "") + '" href="#/index">Index</a>' },
       { id: "journal", html: '<a class="' + (current === "journal" ? " active" : "") + '" href="#/journal">Journal</a>' }
@@ -294,24 +339,20 @@
       }
       return;
     }
+    const journalLink = e.target.closest('a[href^="#/journal/"]');
+    if (journalLink) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const jid = journalLink.getAttribute("href").replace(/^#\/journal\/?/, "");
+      window.renderJournalEntry(jid);
+      return;
+    }
     const drop = e.target.closest(".nav-drop");
     const a = e.target.closest('a[href^="#/codex"], a[href^="#/atlas"]');
     const touch = !window.matchMedia("(hover: hover)").matches;
-    if (a && drop && (a.getAttribute("href") === "#/codex" || a.getAttribute("href") === "#/atlas") && touch) {
-      const href = a.getAttribute("href");
-      const stay = (href === "#/codex" && document.body.classList.contains("on-codex")) ||
-        (href === "#/atlas" && document.body.classList.contains("on-atlas"));
-      if (stay) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        drop.classList.remove("open");
-        return;
-      }
+    if (a && drop && a.getAttribute("href") === "#/atlas" && touch && window.innerWidth > 800) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      document.querySelectorAll(".nav-drop.open").forEach(function (el) {
-        if (el !== drop) el.classList.remove("open");
-      });
       drop.classList.toggle("open");
       return;
     }
@@ -333,14 +374,14 @@
     e.preventDefault();
     e.stopImmediatePropagation();
     history.replaceState(null, "", href);
-    const nid = href === "#/codex" ? "" : href.replace(/^#\/codex\/?/, "");
+    const nid = href === "#/codex" ? "calendar" : href.replace(/^#\/codex\/?/, "") || "calendar";
     window.renderCodex(nid);
   }, true);
 
   function wrapLink(nav, href, menuHtml) {
     const existing = Array.from(nav.querySelectorAll(".nav-drop")).find(function (el) {
       const a = el.querySelector("a");
-      return a && a.getAttribute("href") === href;
+      return a && (a.getAttribute("href") === href || a.getAttribute("href").indexOf(href) === 0);
     });
     if (existing) {
       const menu = existing.querySelector(".nav-menu");
@@ -348,7 +389,7 @@
       return;
     }
     const lone = Array.from(nav.querySelectorAll("a")).find(function (a) {
-      return a.getAttribute("href") === href && !a.closest(".nav-drop");
+      return (a.getAttribute("href") === href || (href === "#/codex" && (a.getAttribute("href") || "").indexOf("#/codex") === 0)) && !a.closest(".nav-drop");
     });
     if (!lone) return;
     const wrap = document.createElement("span");
@@ -380,6 +421,7 @@
       wrapLink(nav, "#/codex", codexMenu(hash.indexOf("codex/") === 0 ? hash.slice(6) : ""));
     }
     paintAtlasTabs();
+    paintJournalTabs();
   }
   paintNav();
   setInterval(paintNav, 400);
@@ -392,7 +434,7 @@
       return true;
     }
     if (boot === "codex" || boot.startsWith("codex/")) {
-      const nid = boot === "codex" ? "" : boot.slice(6);
+      const nid = boot === "codex" || boot === "codex/" ? "calendar" : boot.slice(6);
       const page = pages().find(function (c) { return c.id === nid; });
       if (page && ATLAS_ORDER.indexOf(page.id) !== -1) {
         history.replaceState(null, "", "#/atlas/" + page.id);
@@ -400,6 +442,12 @@
         return true;
       }
       window.renderCodex(nid);
+      return true;
+    }
+    if (boot === "journal" || boot.startsWith("journal/")) {
+      const jid = boot === "journal" || boot === "journal/" ? "" : boot.slice(8);
+      paintJournalTabs();
+      if (jid) window.renderJournalEntry(jid);
       return true;
     }
     return false;
@@ -412,6 +460,13 @@
       window.renderAtlasWorld(h.slice(6));
     } else if (h === "atlas") {
       requestAnimationFrame(paintAtlasTabs);
+    } else if (h === "codex" || h.startsWith("codex/")) {
+      const nid = h === "codex" || h === "codex/" ? "calendar" : h.slice(6);
+      window.renderCodex(nid);
+    } else if (h === "journal" || h.startsWith("journal/")) {
+      const jid = h === "journal" || h === "journal/" ? ((journalEntries()[0] || {}).id) : h.slice(8);
+      if (jid) window.renderJournalEntry(jid);
+      else paintJournalTabs();
     }
   });
 
