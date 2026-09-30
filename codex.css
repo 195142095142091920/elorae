@@ -170,10 +170,10 @@ body.lore-page .journal-read {
   padding-left: 36px;
   padding-right: 36px;
 }
-body.lore-page .journal-read::before {
-  inset: -8px -12px;
-  background: #070707;
-  border-radius: 0;
+.journal-page .journal-read::before {
+  inset: -8px -12px !important;
+  background: #070707 !important;
+  border-radius: 0 !important;
 }
 .journal-read .codex-table-wrap {
   overflow-x: auto;
