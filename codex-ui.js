@@ -34,10 +34,49 @@
     return ATLAS_ORDER.map(function (id) { return byId[id]; }).filter(Boolean);
   }
 
+  function loreSlug(text) {
+    return "work-" + String(text || "").toLowerCase()
+      .replace(/^the\s+/, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+  function loreSortKey(text) {
+    return String(text || "").replace(/^the\s+/i, "").toLowerCase();
+  }
+  function prepareLoreBlocks(blocks) {
+    const preface = [];
+    const works = [];
+    let current = null;
+    (blocks || []).forEach(function (b) {
+      if (b.type === "h3" && /table of contents/i.test(b.text || "")) return;
+      if (b.type === "list") return;
+      if (b.type === "h2i") {
+        current = { title: b.text, blocks: [b] };
+        works.push(current);
+        return;
+      }
+      if (current) current.blocks.push(b);
+      else preface.push(b);
+    });
+    works.sort(function (a, b) {
+      return loreSortKey(a.title).localeCompare(loreSortKey(b.title));
+    });
+    const out = preface.concat([
+      { type: "h3", text: "Table of Contents" },
+      { type: "list", items: works.map(function (w) { return w.title; }), jump: true }
+    ]);
+    works.forEach(function (w) {
+      out.push.apply(out, w.blocks);
+    });
+    return out;
+  }
+
   window.journalBlock = function (block) {
     if (!block) return "";
     if (block.type === "h2") return '<h2 class="codex-h">' + escapeHtml(block.text || "") + '</h2>';
-    if (block.type === "h2i") return '<h2 class="codex-title">' + escapeHtml(block.text || "") + '</h2>';
+    if (block.type === "h2i") {
+      return '<h2 class="codex-title" id="' + loreSlug(block.text) + '">' + escapeHtml(block.text || "") + '</h2>';
+    }
     if (block.type === "h3") return '<h3 class="codex-h3">' + escapeHtml(block.text || "") + '</h3>';
     if (block.type === "by") return '<p class="codex-by">' + escapeHtml(block.text || "") + '</p>';
     if (block.type === "quote") {
@@ -48,6 +87,10 @@
     if (block.type === "caption") return '<p class="codex-cap">' + escapeHtml(block.text || "") + '</p>';
     if (block.type === "list") {
       return '<ul class="codex-toc">' + (block.items || []).map(function (item) {
+        if (block.jump) {
+          const id = loreSlug(item);
+          return '<li><a href="#" data-lore-jump="' + id + '">' + escapeHtml(item) + '</a></li>';
+        }
         return '<li>' + escapeHtml(item) + '</li>';
       }).join("") + '</ul>';
     }
@@ -151,13 +194,14 @@
             escapeHtml(c.tab || c.title) + '</a>';
         }).join("") + '</nav>'
       : "";
+    const blocks = current.id === "lore" ? prepareLoreBlocks(current.blocks) : (current.blocks || []);
     document.body.innerHTML =
       '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
       '<header class="topbar journal-bar">' + brand() + '<nav class="filters">' + rooms("codex") + '</nav></header>' +
       '<div class="sheet">' + tabs +
       '<article class="journal-read">' +
       (current.heading ? '<h2 class="codex-h">' + escapeHtml(current.heading) + '</h2>' : "") +
-      (current.blocks || []).map(journalBlock).join("") +
+      blocks.map(journalBlock).join("") +
       '</article></div>';
     bindPlaceScroll();
     bindIdleScrollbar(document.querySelector(".sheet"));
@@ -189,6 +233,18 @@
   };
 
   document.addEventListener("click", function (e) {
+    const jump = e.target.closest("a[data-lore-jump]");
+    if (jump) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const el = document.getElementById(jump.getAttribute("data-lore-jump"));
+      const sheet = document.querySelector(".sheet");
+      if (el && sheet) {
+        const top = el.getBoundingClientRect().top - sheet.getBoundingClientRect().top + sheet.scrollTop - 8;
+        sheet.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      }
+      return;
+    }
     const drop = e.target.closest(".nav-drop");
     const a = e.target.closest('a[href^="#/codex"], a[href^="#/atlas"]');
     const touch = !window.matchMedia("(hover: hover)").matches;
