@@ -287,7 +287,7 @@ body.lore-page .journal-read {
     z-index: 36;
     margin: 0;
     padding: 0;
-    background: #070707;
+    background: transparent;
   }
   .lore-rail .codex-h3 { display: none; }
   .lore-toc-toggle {
@@ -316,25 +316,14 @@ body.lore-page .journal-read {
     display: none;
     max-height: 46vh;
     overflow-y: auto;
-    padding: 0 18px 48px;
-    background: #070707;
+    padding: 0 18px 28px;
+    background: linear-gradient(to bottom, #070707 0%, #070707 62%, rgba(7,7,7,0.55) 82%, rgba(7,7,7,0) 100%);
     -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%);
   }
   .lore-rail.open .lore-toc-panel { display: block; }
-  .lore-rail.open::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 72px;
-    pointer-events: none;
-    background: linear-gradient(to bottom,
-      rgba(7,7,7,0) 0%,
-      rgba(7,7,7,0.55) 40%,
-      #070707 100%
-    );
-  }
+  .lore-rail.open::after { display: none; }
   .lore-rail .codex-toc {
     max-height: none;
   }
