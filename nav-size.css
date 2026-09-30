@@ -3,7 +3,7 @@
   .mast .topbar,
   .filters,
   .filters a {
-    font-size: 14.3px !important;
+    font-size: 16px !important;
   }
   nav.chapter-tabs,
   nav.chapter-tabs a,
@@ -17,7 +17,32 @@
   .atlas-page .atlas-tabs a,
   body .subbar,
   body .subbar a {
-    font-size: 20px !important;
+    font-size: 15px !important;
     letter-spacing: 0.16em !important;
+  }
+  .subbar,
+  .atlas-page .atlas-tabs,
+  .journal-page .chapter-tabs {
+    gap: 0 !important;
+  }
+  .subbar a,
+  .atlas-tabs a,
+  .chapter-tabs a {
+    padding: 0 18px !important;
+    position: relative;
+  }
+  .subbar a + a::before,
+  .atlas-tabs a + a::before,
+  .chapter-tabs a + a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 0.72em;
+    background: #5c5852;
+    opacity: 0.85;
+    pointer-events: none;
   }
 }
