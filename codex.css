@@ -23,6 +23,7 @@
   color: #f3eee6;
   margin: 72px 0 10px;
   text-shadow: 0 1px 12px rgba(0,0,0,0.85);
+  scroll-margin-top: 8px;
 }
 .journal-read .codex-toc + .codex-title,
 .journal-read .codex-h3 + .codex-title {
@@ -90,6 +91,13 @@
   color: #d8d1c6;
   padding: 4px 0;
   border-bottom: 1px solid rgba(243,238,230,0.08);
+}
+.journal-read .codex-toc a {
+  color: inherit;
+  text-decoration: none;
+}
+.journal-read .codex-toc a:hover {
+  color: #f3eee6;
 }
 .journal-read .codex-table-wrap {
   overflow-x: auto;
