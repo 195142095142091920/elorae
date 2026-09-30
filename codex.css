@@ -21,8 +21,12 @@
   font-size: 22px;
   letter-spacing: 0.02em;
   color: #f3eee6;
-  margin: 40px 0 10px;
+  margin: 72px 0 10px;
   text-shadow: 0 1px 12px rgba(0,0,0,0.85);
+}
+.journal-read .codex-toc + .codex-title,
+.journal-read .codex-h3 + .codex-title {
+  margin-top: 28px;
 }
 .journal-read .codex-h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -49,7 +53,7 @@
 }
 .journal-read .codex-quote p {
   font-family: "Iowan Old Style", Palatino, serif;
-  font-style: italic;
+  font-style: normal;
   font-size: 18px;
   line-height: 1.6;
   color: #f3eee6;
