@@ -164,6 +164,10 @@
     }).join("");
   }
 
+  function codexMenu(currentId) {
+    return codexTabs(currentId);
+  }
+
   function currentRoom() {
     const hash = (location.hash || "").replace(/^#\/?/, "");
     if (hash === "atlas" || hash.startsWith("atlas/")) return "atlas";
