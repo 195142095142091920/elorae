@@ -8,4 +8,5 @@
   }
   load("drop-float.js?v=2");
   load("chrome-guard.js?v=2");
+  load("soft-swap.js?v=1");
 })();
