@@ -234,6 +234,17 @@
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
+  <script>
+    document.addEventListener("click", function (e) {
+      if (window.innerWidth > 800) return;
+      const a = e.target.closest('.nav-drop > a[href="#/atlas"], .nav-drop > a[href="#/codex"]');
+      if (!a) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const href = a.getAttribute("href");
+      if (location.hash !== href) location.hash = href;
+    }, true);
+  </script>
   <script src="codex-ui.js?v=193"></script>
   <script>
     (function () {
