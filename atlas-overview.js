@@ -67,6 +67,10 @@
       heading +
       (current.blocks || []).map(journalBlock).join("") +
       '</article></div>';
+    document.querySelectorAll('.journal-read img[src*="EloraeLowRes"]').forEach(function (img) {
+      const fig = img.closest("figure");
+      if (fig) fig.classList.add("atlas-map");
+    });
     if (typeof bindPlaceScroll === "function") bindPlaceScroll();
     if (typeof bindIdleScrollbar === "function") bindIdleScrollbar(document.querySelector(".sheet"));
     retab(current.id);
