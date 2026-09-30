@@ -23,7 +23,7 @@
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
   font-weight: 400;
   font-style: italic;
-  font-size: 24px;
+  font-size: 26px;
   letter-spacing: 0.02em;
   color: #f3eee6;
   margin: 96px 0 8px;
@@ -68,9 +68,9 @@
 .journal-read .codex-quote p {
   font-family: "Iowan Old Style", Palatino, serif;
   font-style: italic;
-  font-size: 18px;
-  line-height: 1.72;
-  color: #e6dfd4;
+  font-size: 20px;
+  line-height: 1.7;
+  color: #ece6db;
   margin: 0;
 }
 .journal-read .codex-quote cite {
@@ -84,6 +84,7 @@
   color: #9a948a;
 }
 .journal-read p {
+  font-size: 18px;
   line-height: 1.72;
   color: #e8e2d8;
 }
@@ -122,14 +123,14 @@
   left: 0;
   bottom: auto;
   transform: translateY(-50%);
-  width: 260px;
+  width: 300px;
   max-height: calc(100vh - 120px);
   z-index: 8;
   display: flex;
   flex-direction: column;
   justify-content: center;
   overflow: visible;
-  padding: 28px 36px 28px 22px;
+  padding: 28px 28px 28px 28px;
   background: none;
   box-shadow: none;
   border: 0;
@@ -140,7 +141,7 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 300px;
+  width: 340px;
   z-index: -1;
   pointer-events: none;
   background: linear-gradient(to right,
@@ -153,8 +154,9 @@
   mask-image: linear-gradient(to bottom, transparent 0, #000 96px, #000 calc(100% - 48px), transparent 100%);
 }
 .lore-rail .codex-h3 {
-  margin: 0 0 10px;
+  margin: 0 0 14px;
   flex: 0 0 auto;
+  font-size: 13px;
 }
 .lore-rail .codex-toc {
   margin: 0;
@@ -167,11 +169,11 @@
 .lore-rail .codex-toc li {
   font-family: "Iowan Old Style", Palatino, serif;
   font-style: normal;
-  font-size: 13px;
-  line-height: 1.4;
-  color: #c4bdb2;
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(243,238,230,0.08);
+  font-size: 15px;
+  line-height: 1.45;
+  color: #d2cbc0;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(243,238,230,0.07);
 }
 .lore-rail .codex-toc a {
   color: inherit;
