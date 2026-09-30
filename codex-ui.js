@@ -156,7 +156,8 @@
     document.body.innerHTML =
       '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
       '<header class="topbar journal-bar">' + brand() + '<nav class="filters">' + rooms("atlas") + '</nav></header>' +
-      '<div class="sheet">' + tabs +
+      tabs +
+      '<div class="sheet">' +
       '<article class="journal-read">' +
       (current.heading ? '<h2 class="codex-h">' + escapeHtml(current.heading) + '</h2>' : "") +
       (current.blocks || []).map(journalBlock).join("") +
@@ -201,8 +202,9 @@
     document.body.innerHTML =
       '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
       '<header class="topbar journal-bar">' + brand() + '<nav class="filters">' + rooms("codex") + '</nav></header>' +
+      tabs +
       rail +
-      '<div class="sheet">' + tabs +
+      '<div class="sheet">' +
       '<article class="journal-read">' +
       heading +
       blocks.map(journalBlock).join("") +
