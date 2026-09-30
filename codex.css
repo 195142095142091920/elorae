@@ -9,8 +9,20 @@
 }
 .journal-read .codex-h + .codex-h,
 .journal-read p + .codex-h,
-.journal-read blockquote + .codex-h {
+.journal-read blockquote + .codex-h,
+.journal-read .codex-table-wrap + .codex-h,
+.journal-read ul + .codex-h {
   margin-top: 42px;
+}
+.journal-read .codex-title {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: #f3eee6;
+  margin: 40px 0 10px;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.85);
 }
 .journal-read .codex-h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -60,6 +72,69 @@
   font-style: italic;
   color: #9a948a;
   margin: -6px 0 26px;
+}
+.journal-read .codex-toc {
+  list-style: none;
+  margin: 0 0 36px;
+  padding: 0;
+}
+.journal-read .codex-toc li {
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #d8d1c6;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(243,238,230,0.08);
+}
+.journal-read .codex-table-wrap {
+  overflow-x: auto;
+  margin: 8px 0 28px;
+}
+.journal-read .codex-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.journal-read .codex-table th,
+.journal-read .codex-table td {
+  text-align: left;
+  padding: 8px 12px 8px 0;
+  vertical-align: top;
+}
+.journal-read .codex-table th {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9a948a;
+  font-weight: 400;
+  border-bottom: 1px solid rgba(243,238,230,0.18);
+}
+.journal-read .codex-table td {
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-size: 16px;
+  color: #e8e2d8;
+  border-bottom: 1px solid rgba(243,238,230,0.08);
+}
+.journal-read .codex-school {
+  margin: 0 0 22px;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.journal-read .codex-school span {
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-style: italic;
+  font-size: 20px;
+  color: #f3eee6;
+}
+.journal-read .codex-school em {
+  display: block;
+  margin-top: 6px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #9a948a;
 }
 .chapter-tabs {
   display: flex;
