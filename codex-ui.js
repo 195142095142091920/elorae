@@ -1,5 +1,6 @@
 (function () {
   const ATLAS_ORDER = ["world", "hesk", "cosm", "far-nybei", "essen-revir"];
+  const CODEX_TAB_ORDER = ["magics", "souls", "calendar", "lore"];
 
   function pages() {
     (window.CODEX || []).forEach(function (p) {
@@ -13,24 +14,22 @@
     return window.CODEX || [];
   }
   function sectionOf(page) { return (page && page.section) || "world"; }
-  function roots() {
-    const seen = {};
-    const out = [];
-    pages().forEach(function (c) {
-      const s = sectionOf(c);
-      if (s === "world" || seen[s]) return;
-      seen[s] = true;
-      const first = pages().find(function (p) { return sectionOf(p) === s; });
-      out.push({ section: s, id: first.id, title: first.sectionTitle || first.title });
-    });
-    return out;
-  }
-  function inSection(sec) {
-    return pages().filter(function (c) { return sectionOf(c) === sec; });
-  }
-  function atlasPages() {
+  function byIdMap() {
     const byId = {};
     pages().forEach(function (c) { byId[c.id] = c; });
+    return byId;
+  }
+  function codexTabPages() {
+    const byId = byIdMap();
+    return CODEX_TAB_ORDER.map(function (id) { return byId[id]; }).filter(Boolean);
+  }
+  function roots() {
+    return codexTabPages().map(function (c) {
+      return { section: sectionOf(c), id: c.id, title: c.tab || c.sectionTitle || c.title };
+    });
+  }
+  function atlasPages() {
+    const byId = byIdMap();
     return ATLAS_ORDER.map(function (id) { return byId[id]; }).filter(Boolean);
   }
 
@@ -135,13 +134,15 @@
     return atlasTabs(currentId);
   }
 
-  function codexMenu(currentId) {
-    const current = pages().find(function (c) { return c.id === currentId; });
-    const sec = sectionOf(current);
-    return roots().map(function (r) {
-      const on = r.section === sec ? " active" : "";
-      return '<a class="' + on + '" href="#/codex/' + r.id + '">' + escapeHtml(r.title) + '</a>';
+  function codexTabs(currentId) {
+    return codexTabPages().map(function (c) {
+      return '<a class="' + (c.id === currentId ? " active" : "") + '" href="#/codex/' + c.id + '">' +
+        escapeHtml(c.tab || c.title) + '</a>';
     }).join("");
+  }
+
+  function codexMenu(currentId) {
+    return codexTabs(currentId);
   }
 
   window.renderAtlasWorld = function (id) {
@@ -178,35 +179,32 @@
   }
 
   window.renderCodex = function (id) {
-    const all = pages();
-    const current = all.find(function (c) { return c.id === id; }) || all.find(function (c) {
-      return sectionOf(c) !== "world";
-    }) || all[0];
+    const tabsList = codexTabPages();
+    const current = tabsList.find(function (c) { return c.id === id; }) ||
+      pages().find(function (c) { return c.id === id; }) ||
+      tabsList[0];
     if (!current) return;
     if (ATLAS_ORDER.indexOf(current.id) !== -1) {
       window.renderAtlasWorld(current.id);
       return;
     }
-    const group = inSection(sectionOf(current));
     place.hash = "#/codex/" + current.id;
     document.title = current.title + " - Elorae";
     document.body.className = "room journal-page" + (current.id === "lore" ? " lore-page" : "");
-    const tabs = group.length > 1
-      ? '<nav class="chapter-tabs">' + group.map(function (c) {
-          return '<a class="' + (c.id === current.id ? " active" : "") + '" href="#/codex/' + c.id + '">' +
-            escapeHtml(c.tab || c.title) + '</a>';
-        }).join("") + '</nav>'
-      : "";
+    const tabs = '<nav class="chapter-tabs">' + codexTabs(current.id) + '</nav>';
     const prepared = current.id === "lore" ? prepareLoreBlocks(current.blocks) : null;
     const blocks = prepared ? prepared.blocks : (current.blocks || []);
     const rail = prepared ? loreRail(prepared.titles) : "";
+    const heading = current.heading && current.heading !== current.title && current.id !== "lore"
+      ? '<h2 class="codex-h">' + escapeHtml(current.heading) + '</h2>'
+      : "";
     document.body.innerHTML =
       '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
       '<header class="topbar journal-bar">' + brand() + '<nav class="filters">' + rooms("codex") + '</nav></header>' +
       rail +
       '<div class="sheet">' + tabs +
       '<article class="journal-read">' +
-      (current.heading ? '<h2 class="codex-h">' + escapeHtml(current.heading) + '</h2>' : "") +
+      heading +
       blocks.map(journalBlock).join("") +
       '</article></div>';
     bindPlaceScroll();
