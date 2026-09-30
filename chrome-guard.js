@@ -1,4 +1,17 @@
 (function () {
+  if (!document.getElementById("nav-grid-fix")) {
+    const s = document.createElement("style");
+    s.id = "nav-grid-fix";
+    s.textContent =
+      "@media (min-width:801px){" +
+      ".topbar,.mast .topbar{display:grid!important;grid-template-columns:auto 1fr auto!important;align-items:center;gap:12px}" +
+      ".topbar > a:first-child,.mast .topbar > a:first-child{grid-column:1!important;justify-self:start}" +
+      ".topbar .chapter-tabs,.topbar .atlas-tabs,.topbar .subbar{grid-column:2!important;justify-self:center}" +
+      ".topbar .filters,.mast .topbar .filters{grid-column:3!important;justify-self:end!important}" +
+      "}";
+    document.head.appendChild(s);
+  }
+
   const ATLAS = [
     ["Overview", "#/atlas/world"],
     ["Cosm", "#/atlas/cosm"],
@@ -33,10 +46,12 @@
       current = h === "codex" ? "#/codex/calendar" : "#/" + h;
     }
 
-    document.querySelectorAll(".chapter-tabs, .atlas-tabs, .subbar").forEach(function (el) {
-      if (!items && el.parentElement === bar) el.remove();
-    });
-    if (!items) return;
+    if (!items) {
+      bar.querySelectorAll(":scope > .chapter-tabs, :scope > .atlas-tabs, :scope > .subbar").forEach(function (el) {
+        el.remove();
+      });
+      return;
+    }
 
     let tabs = bar.querySelector(":scope > .chapter-tabs");
     if (!tabs) {
