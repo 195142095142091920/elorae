@@ -148,6 +148,7 @@
         top: auto !important;
         overflow: visible !important;
       }
+      .nav-drop.open .nav-menu, .nav-drop:hover .nav-menu { display: flex !important; }
     }
     @media (max-width: 980px), (hover: none) {
       .nav-menu, .nav-drop:hover .nav-menu, .nav-drop.open .nav-menu { display: none !important; }
@@ -211,6 +212,7 @@
   <script src="atlas-overview.js?v=5"></script>
   <script src="restore-hash.js?v=3"></script>
   <script src="atlas-nav-fix.js?v=2"></script>
+  <script src="persist-drop.js?v=1"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
