@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=186">
+  <link rel="stylesheet" href="codex.css?v=187">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -114,14 +114,14 @@
       .journal-page .chapter-tabs {
         gap: 10px !important;
         letter-spacing: 0.12em !important;
-        padding: 0 12px 12px !important;
+        padding: 0 12px 8px !important;
         min-height: 36px;
       }
       .atlas-page .atlas-tabs,
       .journal-page .chapter-tabs { top: 48px !important; }
       .atlas-page:has(.atlas-tabs) .atlas-stage,
       .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
-      body.lore-page .sheet { top: 128px; }
+      body.lore-page .sheet { top: 124px; }
       .journal-page .topbar .brand,
       .journal-page .topbar a:first-child { margin-right: 14px; }
     }
@@ -153,6 +153,18 @@
         if (location.hash && location.hash !== "#/seal") window._from = location.hash;
         location.hash = "#/seal";
       }, true);
+      function pinLoreRail() {
+        const rail = document.querySelector(".lore-rail");
+        const tabs = document.querySelector(".chapter-tabs");
+        const sheet = document.querySelector(".sheet");
+        if (!rail || !tabs || window.innerWidth > 980) return;
+        const top = Math.round(tabs.getBoundingClientRect().bottom);
+        rail.style.top = top + "px";
+        if (sheet) sheet.style.top = (top + rail.offsetHeight) + "px";
+      }
+      document.addEventListener("click", function () { requestAnimationFrame(pinLoreRail); });
+      window.addEventListener("resize", pinLoreRail);
+      setInterval(pinLoreRail, 500);
     })();
   </script>
 </body>
