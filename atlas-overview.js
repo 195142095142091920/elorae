@@ -82,6 +82,26 @@
     window.renderAtlasWorld(nid);
   }
 
+  function restoreHash() {
+    const h = hashPath();
+    if (h === "atlas" || h.indexOf("atlas/") === 0) {
+      openWorld(h === "atlas" ? "world" : (h.slice(6) || "world"));
+      return true;
+    }
+    if (h === "codex" || h.indexOf("codex/") === 0) {
+      const id = h === "codex" ? "calendar" : (h.slice(6) || "calendar");
+      if (typeof window.renderCodex === "function") window.renderCodex(id);
+      return true;
+    }
+    return false;
+  }
+
+  const prevRoute = window.route;
+  window.route = function () {
+    if (restoreHash()) return;
+    if (typeof prevRoute === "function") prevRoute();
+  };
+
   document.addEventListener("click", function (e) {
     const a = e.target.closest("a");
     if (!a) return;
@@ -110,14 +130,17 @@
   }, true);
 
   window.addEventListener("hashchange", function () {
-    if (hashPath() === "atlas") openWorld("world");
+    restoreHash();
   });
-  if (hashPath() === "atlas") setTimeout(function () { openWorld("world"); }, 0);
+  restoreHash();
+  setTimeout(restoreHash, 0);
+  setTimeout(restoreHash, 60);
   setInterval(function () {
     const path = hashPath();
     if (path.indexOf("atlas") === 0) {
       const id = path === "atlas" ? "world" : path.replace(/^atlas\/?/, "") || "world";
-      retab(id);
+      if (!document.body.classList.contains("on-atlas")) restoreHash();
+      else retab(id);
     }
   }, 400);
 })();
