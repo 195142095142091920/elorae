@@ -85,7 +85,7 @@
 }
 .journal-read .codex-toc li {
   font-family: "Iowan Old Style", Palatino, serif;
-  font-style: italic;
+  font-style: normal;
   font-size: 16px;
   line-height: 1.7;
   color: #d8d1c6;
@@ -149,7 +149,7 @@
 }
 .lore-rail .codex-toc li {
   font-family: "Iowan Old Style", Palatino, serif;
-  font-style: italic;
+  font-style: normal;
   font-size: 13px;
   line-height: 1.4;
   color: #c4bdb2;
