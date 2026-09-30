@@ -172,7 +172,7 @@ body.lore-page .journal-read {
 }
 body.lore-page .journal-read::before {
   inset: -8px -12px;
-  background: #000;
+  background: #070707;
   border-radius: 0;
 }
 .journal-read .codex-table-wrap {
