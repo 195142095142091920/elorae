@@ -154,6 +154,9 @@
     .atlas-page:has(.atlas-tabs) .atlas-stage,
     .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
     @media (max-width: 800px) {
+      .nav-menu,
+      .nav-drop:hover .nav-menu,
+      .nav-drop.open .nav-menu { display: none !important; }
       .mast,
       .journal-page .topbar,
       .room:not(.journal-page) .topbar,
@@ -190,10 +193,6 @@
       .topbar .brand,
       .topbar > a:first-child {
         margin-right: 14px !important;
-      }
-      .nav-menu {
-        min-width: 180px;
-        padding: 14px 18px 16px;
       }
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
@@ -235,7 +234,7 @@
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
-  <script src="codex-ui.js?v=192"></script>
+  <script src="codex-ui.js?v=193"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
