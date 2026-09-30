@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=179">
+  <link rel="stylesheet" href="codex.css?v=180">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -37,9 +37,16 @@
       top: 56px;
       bottom: 0;
       left: 50%;
-      width: min(832px, 92vw);
+      width: min(980px, 96vw);
       transform: translateX(-50%);
-      background: #070707;
+      background: linear-gradient(to right,
+        rgba(7,7,7,0) 0%,
+        rgba(7,7,7,0.45) 8%,
+        #070707 16%,
+        #070707 84%,
+        rgba(7,7,7,0.45) 92%,
+        rgba(7,7,7,0) 100%
+      );
       z-index: 2;
       pointer-events: none;
     }
