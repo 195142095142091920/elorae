@@ -135,8 +135,8 @@
   color: #f3eee6;
 }
 body.lore-page .journal-read {
-  margin-left: 268px;
-  margin-right: 28px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .journal-read .codex-table-wrap {
   overflow-x: auto;
@@ -218,7 +218,7 @@ body.lore-page .journal-read {
     background: linear-gradient(to bottom, rgba(7,7,7,0.82), rgba(7,7,7,0.55));
   }
   body.lore-page .journal-read {
-    margin-left: 12px;
-    margin-right: 12px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
