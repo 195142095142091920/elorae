@@ -27,8 +27,9 @@
   letter-spacing: 0.02em;
   color: #f3eee6;
   margin: 96px 0 8px;
-  padding-top: 0;
-  border-top: 0;
+  padding-top: 40px;
+  border-top: 1px solid rgba(243,238,230,0.16);
+  border-bottom: 0;
   text-shadow: 0 1px 12px rgba(0,0,0,0.85);
   scroll-margin-top: 8px;
   text-align: center;
@@ -54,6 +55,11 @@
   color: #9a948a;
   margin: 0 0 36px;
   text-align: center;
+  border: 0;
+}
+.journal-read .codex-title + .codex-by {
+  border-top: 0;
+  padding-top: 0;
 }
 .journal-read .codex-quote {
   margin: 0 0 32px;
