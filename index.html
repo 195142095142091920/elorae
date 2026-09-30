@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="styles.css?v=146">
   <link rel="stylesheet" href="figure-lore.css?v=146">
   <link rel="stylesheet" href="codex.css?v=190">
-  <link rel="stylesheet" href="nav-size.css?v=1">
+  <link rel="stylesheet" href="nav-size.css?v=2">
   <style>
     html { background: #070707; }
     .seal-page { background: #070707; min-height: 100dvh; }
@@ -124,8 +124,11 @@
     .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
     @media (min-width: 801px) {
       .topbar, .mast .topbar, .filters { font-size: 14.3px !important; }
-      .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs, .nav-menu a {
-        font-size: 18px !important;
+      .subbar, .subbar a,
+      .atlas-page .atlas-tabs, .atlas-page .atlas-tabs a,
+      .journal-page .chapter-tabs, .journal-page .chapter-tabs a {
+        font-size: 20px !important;
+        letter-spacing: 0.16em !important;
       }
     }
     @media (max-width: 980px), (hover: none) {
