@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=166">
+  <link rel="stylesheet" href="codex.css?v=167">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -17,7 +17,7 @@
     }
     .mast, .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
       position: fixed !important; top: 0; left: 0; right: 0; z-index: 50;
-      background: linear-gradient(to bottom, #070707 0%, #070707 72%, rgba(7,7,7,0)) !important;
+      background: #070707 !important;
     }
     .wall {
       position: fixed !important; top: 96px; left: 0; right: 0; bottom: 0;
@@ -36,11 +36,11 @@
       left: 50%;
       width: min(832px, 92vw);
       transform: translateX(-50%);
-      background: linear-gradient(to bottom, rgba(7,7,7,0) 0%, #070707 56px, #070707 100%);
+      background: #070707;
       z-index: 0;
       pointer-events: none;
     }
-    .journal-page:has(.chapter-tabs) .sheet::after { top: 72px; }
+    .journal-page:has(.chapter-tabs) .sheet::after { top: 96px; }
     .journal-page .journal-read {
       position: relative;
       z-index: 1;
@@ -58,13 +58,13 @@
       flex-wrap: wrap;
       gap: 16px !important;
       min-height: 40px;
-      padding: 0 28px 28px !important;
+      padding: 0 28px 16px !important;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
       font-size: 11px !important;
       letter-spacing: 0.22em !important;
       text-transform: uppercase;
       color: #8f8a82;
-      background: linear-gradient(to bottom, #070707 0%, #070707 42%, rgba(7,7,7,0) 100%) !important;
+      background: #070707 !important;
     }
     .atlas-page .atlas-tabs,
     .journal-page .chapter-tabs {
@@ -93,13 +93,13 @@
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
       .journal-page .sheet::after { top: 48px; width: 100%; }
-      .journal-page:has(.chapter-tabs) .sheet::after { top: 72px; }
+      .journal-page:has(.chapter-tabs) .sheet::after { top: 88px; }
       .subbar,
       .atlas-page .atlas-tabs,
       .journal-page .chapter-tabs {
         gap: 10px !important;
         letter-spacing: 0.12em !important;
-        padding: 0 12px 22px !important;
+        padding: 0 12px 12px !important;
         min-height: 36px;
       }
       .atlas-page .atlas-tabs,
