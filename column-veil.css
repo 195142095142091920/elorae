@@ -1,17 +1,39 @@
 @media (min-width: 801px) {
-  .journal-page .journal-bg::after {
-    width: min(1760px, 98vw) !important;
+  .journal-page .journal-read::before {
+    display: block !important;
+    content: "" !important;
+    position: absolute !important;
+    top: -140px !important;
+    bottom: -140px !important;
+    left: -340px !important;
+    right: -340px !important;
+    z-index: -1 !important;
+    pointer-events: none !important;
     background: linear-gradient(
       to right,
       rgba(7,7,7,0) 0%,
-      rgba(7,7,7,0.18) 10%,
-      rgba(7,7,7,0.55) 20%,
-      rgba(7,7,7,0.88) 28%,
-      #070707 36%,
-      #070707 64%,
-      rgba(7,7,7,0.88) 72%,
-      rgba(7,7,7,0.55) 80%,
-      rgba(7,7,7,0.18) 90%,
+      rgba(7,7,7,0.35) 12%,
+      rgba(7,7,7,0.78) 24%,
+      #070707 34%,
+      #070707 66%,
+      rgba(7,7,7,0.78) 76%,
+      rgba(7,7,7,0.35) 88%,
+      rgba(7,7,7,0) 100%
+    ) !important;
+  }
+  .journal-page .journal-bg::after {
+    width: min(1980px, 100vw) !important;
+    background: linear-gradient(
+      to right,
+      rgba(7,7,7,0) 0%,
+      rgba(7,7,7,0.2) 12%,
+      rgba(7,7,7,0.55) 22%,
+      rgba(7,7,7,0.9) 32%,
+      #070707 40%,
+      #070707 60%,
+      rgba(7,7,7,0.9) 68%,
+      rgba(7,7,7,0.55) 78%,
+      rgba(7,7,7,0.2) 88%,
       rgba(7,7,7,0) 100%
     ) !important;
   }
