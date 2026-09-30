@@ -1,7 +1,8 @@
+window.CODEX = window.CODEX || [];
 window.CODEX.push({
   id: "calendar",
-  section: "world",
-  sectionTitle: "World",
+  section: "calendar",
+  sectionTitle: "Calendar",
   tab: "Calendar",
   title: "Calendar",
   heading: "What does the calendar look like?",
