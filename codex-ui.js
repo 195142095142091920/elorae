@@ -5,6 +5,7 @@
     (window.CODEX || []).forEach(function (p) {
       if (p.section) return;
       if (p.id === "souls") { p.section = "souls"; p.sectionTitle = "Souls"; }
+      else if (p.id === "calendar") { p.section = "calendar"; p.sectionTitle = "Calendar"; }
       else if (p.id === "magics" || (p.id && p.id.indexOf("magics") === 0)) { p.section = "magics"; p.sectionTitle = "Magics"; }
       else if (p.id === "lore") { p.section = "lore"; p.sectionTitle = "Lore"; }
       else { p.section = "world"; p.sectionTitle = p.sectionTitle || "World"; }
@@ -28,12 +29,9 @@
     return pages().filter(function (c) { return sectionOf(c) === sec; });
   }
   function atlasPages() {
-    const group = inSection("world");
-    const rank = function (id) {
-      const i = ATLAS_ORDER.indexOf(id);
-      return i === -1 ? ATLAS_ORDER.length + 1 : i;
-    };
-    return group.slice().sort(function (a, b) { return rank(a.id) - rank(b.id); });
+    const byId = {};
+    pages().forEach(function (c) { byId[c.id] = c; });
+    return ATLAS_ORDER.map(function (id) { return byId[id]; }).filter(Boolean);
   }
 
   window.journalBlock = function (block) {
@@ -122,7 +120,12 @@
 
   function paintAtlasTabs() {
     if (!document.body.classList.contains("atlas-page")) return;
-    if (document.querySelector(".atlas-tabs, .chapter-tabs")) return;
+    const existing = document.querySelector(".atlas-tabs");
+    if (existing) {
+      existing.innerHTML = atlasTabs("map");
+      return;
+    }
+    if (document.querySelector(".chapter-tabs")) return;
     const bar = document.querySelector(".topbar");
     if (!bar) return;
     bar.insertAdjacentHTML("afterend", '<nav class="subbar atlas-tabs">' + atlasTabs("map") + '</nav>');
@@ -134,7 +137,7 @@
       return sectionOf(c) !== "world";
     }) || all[0];
     if (!current) return;
-    if (sectionOf(current) === "world") {
+    if (ATLAS_ORDER.indexOf(current.id) !== -1) {
       window.renderAtlasWorld(current.id);
       return;
     }
@@ -221,6 +224,15 @@
   }, true);
 
   function wrapLink(nav, href, menuHtml) {
+    const existing = Array.from(nav.querySelectorAll(".nav-drop")).find(function (el) {
+      const a = el.querySelector("a");
+      return a && a.getAttribute("href") === href;
+    });
+    if (existing) {
+      const menu = existing.querySelector(".nav-menu");
+      if (menu) menu.innerHTML = menuHtml;
+      return;
+    }
     const lone = Array.from(nav.querySelectorAll("a")).find(function (a) {
       return a.getAttribute("href") === href && !a.closest(".nav-drop");
     });
@@ -244,6 +256,8 @@
       nav.insertAdjacentHTML("beforeend",
         '<span class="dot">&middot;</span><span class="nav-drop"><a href="#/codex">Codex</a><span class="nav-menu">' +
         codexMenu("") + '</span></span>');
+    } else {
+      wrapLink(nav, "#/codex", codexMenu(hash.indexOf("codex/") === 0 ? hash.slice(6) : ""));
     }
     paintAtlasTabs();
   }
@@ -259,7 +273,7 @@
     if (boot === "codex" || boot.startsWith("codex/")) {
       const nid = boot === "codex" ? "" : boot.slice(6);
       const page = pages().find(function (c) { return c.id === nid; });
-      if (page && sectionOf(page) === "world") {
+      if (page && ATLAS_ORDER.indexOf(page.id) !== -1) {
         history.replaceState(null, "", "#/atlas/" + page.id);
         window.renderAtlasWorld(page.id);
         return true;
@@ -276,13 +290,6 @@
       window.renderAtlasWorld(h.slice(6));
     } else if (h === "atlas") {
       requestAnimationFrame(paintAtlasTabs);
-    } else if (h.startsWith("codex/")) {
-      const id = h.slice(6);
-      const page = pages().find(function (c) { return c.id === id; });
-      if (page && sectionOf(page) === "world") {
-        history.replaceState(null, "", "#/atlas/" + id);
-        window.renderAtlasWorld(id);
-      }
     }
   });
 
