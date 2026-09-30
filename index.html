@@ -21,54 +21,22 @@
       overflow: visible !important;
     }
     .filters { position: relative; z-index: 220; }
-    .nav-drop {
-      position: relative;
-      display: inline-flex;
-      z-index: 230;
-    }
+    .nav-drop { position: relative; display: inline-flex; z-index: 230; }
     .nav-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      min-width: 168px;
-      padding: 12px 16px 14px;
-      background: #070707;
-      z-index: 240;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      text-align: center;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+      display: none; position: absolute; top: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%); min-width: 168px; padding: 12px 16px 14px;
+      background: #070707; z-index: 240; flex-direction: column; align-items: center;
+      gap: 10px; text-align: center; box-shadow: 0 16px 40px rgba(0,0,0,0.55);
     }
-    .nav-drop::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 100%;
-      height: 12px;
-    }
-    .nav-drop:hover .nav-menu,
-    .nav-drop.open .nav-menu {
-      display: flex;
-    }
-    body.on-codex .nav-drop:has(> a[href="#/codex"]) .nav-menu,
-    body.on-atlas .nav-drop:has(> a[href="#/atlas"]) .nav-menu {
-      display: none !important;
-    }
+    .nav-drop::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 12px; }
+    .nav-drop:hover .nav-menu, .nav-drop.open .nav-menu { display: flex; }
+    body.on-codex .nav-drop:has(> a[href^="#/codex"]) .nav-menu,
+    body.on-atlas .nav-drop:has(> a[href="#/atlas"]) .nav-menu { display: none !important; }
     .nav-menu a {
-      display: block;
-      padding: 5px 0;
-      white-space: nowrap;
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #8f8a82;
+      display: block; padding: 5px 0; white-space: nowrap; font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: #8f8a82;
     }
-    .nav-menu a:hover,
-    .nav-menu a.active { color: #f3eee6; }
+    .nav-menu a:hover, .nav-menu a.active { color: #f3eee6; }
     .wall {
       position: fixed !important; top: 96px; left: 0; right: 0; bottom: 0;
       overflow-y: auto; z-index: 1; align-content: start; grid-auto-rows: min-content;
@@ -78,145 +46,63 @@
       position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
       overflow-y: auto; overflow-x: hidden; z-index: 3;
     }
-    .journal-page .journal-bg {
-      z-index: 0 !important;
-    }
+    .journal-page .journal-bg { z-index: 0 !important; }
     .journal-page .journal-bg::after {
-      content: "";
-      position: fixed;
-      top: var(--chrome-bottom, 96px);
-      bottom: 0;
-      left: 50%;
-      width: min(1240px, 86vw);
-      transform: translateX(-50%);
-      background: linear-gradient(to right,
-        rgba(7,7,7,0) 0%,
-        rgba(7,7,7,0.4) 10%,
-        #070707 20%,
-        #070707 80%,
-        rgba(7,7,7,0.4) 90%,
-        rgba(7,7,7,0) 100%
-      );
-      z-index: 2;
-      pointer-events: none;
+      content: ""; position: fixed; top: var(--chrome-bottom, 96px); bottom: 0; left: 50%;
+      width: min(1240px, 86vw); transform: translateX(-50%);
+      background: linear-gradient(to right, rgba(7,7,7,0) 0%, rgba(7,7,7,0.4) 10%, #070707 20%, #070707 80%, rgba(7,7,7,0.4) 90%, rgba(7,7,7,0) 100%);
+      z-index: 2; pointer-events: none;
     }
     .journal-page .sheet {
       z-index: 3;
       -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 100%);
       mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 100%);
     }
-    .journal-page .journal-read {
-      position: relative;
-      z-index: 1;
-      padding-top: 36px;
-    }
+    .journal-page .journal-read { position: relative; z-index: 1; padding-top: 36px; }
     body.lore-page .journal-read { padding-top: 48px; }
     .journal-page .journal-read::before { display: none !important; }
     .journal-read h2 { border-bottom: 0 !important; }
-    .subbar,
-    .atlas-page .atlas-tabs,
-    .journal-page .chapter-tabs {
-      display: flex !important;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px !important;
-      min-height: 40px;
-      padding: 0 28px 16px !important;
+    .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs {
+      display: flex !important; justify-content: center; align-items: center; flex-wrap: wrap;
+      gap: 16px !important; min-height: 40px; padding: 0 28px 16px !important;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-      font-size: 11px !important;
-      letter-spacing: 0.22em !important;
-      text-transform: uppercase;
-      color: #8f8a82;
-      background: #070707 !important;
+      font-size: 11px !important; letter-spacing: 0.22em !important; text-transform: uppercase;
+      color: #8f8a82; background: #070707 !important;
     }
-    .atlas-page .atlas-tabs,
-    .journal-page .chapter-tabs,
-    body:has(.mast) .subbar {
-      position: fixed !important;
-      top: 56px !important;
-      left: 0;
-      right: 0;
-      z-index: 20;
+    .atlas-page .atlas-tabs, .journal-page .chapter-tabs, body:has(.mast) .subbar {
+      position: fixed !important; top: 56px !important; left: 0; right: 0; z-index: 20;
     }
-    .atlas-page .atlas-tabs a,
-    .journal-page .chapter-tabs a,
-    .subbar a {
-      padding: 0 !important;
-      border: 0 !important;
-      color: #8f8a82;
+    .atlas-page .atlas-tabs a, .journal-page .chapter-tabs a, .subbar a {
+      padding: 0 !important; border: 0 !important; color: #8f8a82;
     }
-    .atlas-page .atlas-tabs a.active,
-    .atlas-page .atlas-tabs a:hover,
-    .journal-page .chapter-tabs a.active,
-    .journal-page .chapter-tabs a:hover,
-    .subbar a.active,
-    .subbar a:hover { color: #f3eee6; }
+    .atlas-page .atlas-tabs a.active, .atlas-page .atlas-tabs a:hover,
+    .journal-page .chapter-tabs a.active, .journal-page .chapter-tabs a:hover,
+    .subbar a.active, .subbar a:hover { color: #f3eee6; }
     .atlas-page:has(.atlas-tabs) .atlas-stage,
     .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
     @media (max-width: 800px) {
-      .nav-menu,
-      .nav-drop:hover .nav-menu,
-      .nav-drop.open .nav-menu { display: none !important; }
-      .mast,
-      .journal-page .topbar,
-      .room:not(.journal-page) .topbar,
-      .atlas-page .topbar {
-        display: flex !important;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-        gap: 8px 14px !important;
-        padding: 10px 10px 0 !important;
-        overflow: visible !important;
-        height: auto !important;
-        min-height: 0;
+      .nav-menu, .nav-drop:hover .nav-menu, .nav-drop.open .nav-menu { display: none !important; }
+      .mast, .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
+        display: flex !important; flex-wrap: wrap; align-items: center; justify-content: center;
+        gap: 8px 14px !important; padding: 10px 10px 0 !important; overflow: visible !important;
+        height: auto !important; min-height: 0;
       }
-      .mast .filters,
-      .journal-page .topbar .filters,
-      .room .topbar .filters,
-      .atlas-page .topbar .filters {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 8px 14px !important;
-        font-size: 10px !important;
-        letter-spacing: 0.1em !important;
+      .mast .filters, .journal-page .topbar .filters, .room .topbar .filters, .atlas-page .topbar .filters {
+        display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+        gap: 8px 14px !important; font-size: 10px !important; letter-spacing: 0.1em !important;
       }
-      .mast .dot,
-      .journal-page .topbar .dot,
-      .room .topbar .dot,
-      .atlas-page .topbar .dot,
-      .subbar .dot { display: none !important; }
-      .mast .brand,
-      .mast > a:first-child,
-      .topbar .brand,
-      .topbar > a:first-child {
-        margin-right: 14px !important;
-      }
+      .mast .dot, .journal-page .topbar .dot, .room .topbar .dot, .atlas-page .topbar .dot, .subbar .dot { display: none !important; }
+      .mast .brand, .mast > a:first-child, .topbar .brand, .topbar > a:first-child { margin-right: 14px !important; }
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
       .journal-page .journal-bg::after {
-        top: var(--chrome-bottom, 88px);
-        left: 0;
-        width: 100%;
-        transform: none;
-        background: rgba(7,7,7,0.80);
+        top: var(--chrome-bottom, 88px); left: 0; width: 100%; transform: none; background: rgba(7,7,7,0.80);
       }
-      .subbar,
-      .atlas-page .atlas-tabs,
-      .journal-page .chapter-tabs {
-        gap: 12px !important;
-        letter-spacing: 0.12em !important;
-        padding: 8px 12px 8px !important;
-        min-height: 36px;
+      .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs {
+        gap: 12px !important; letter-spacing: 0.12em !important; padding: 8px 12px 8px !important; min-height: 36px;
       }
-      .atlas-page .atlas-tabs,
-      .journal-page .chapter-tabs,
-      body:has(.mast) .subbar { top: 40px !important; }
-      .atlas-page:has(.atlas-tabs) .atlas-stage,
-      .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
+      .atlas-page .atlas-tabs, .journal-page .chapter-tabs, body:has(.mast) .subbar { top: 40px !important; }
+      .atlas-page:has(.atlas-tabs) .atlas-stage, .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
       body.lore-page .sheet { top: 124px; }
     }
   </style>
@@ -235,22 +121,7 @@
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
-  <script>
-    document.addEventListener("click", function (e) {
-      if (window.innerWidth > 800) return;
-      const a = e.target.closest('a[href="#/codex"]');
-      if (!a || a.closest(".chapter-tabs, .nav-menu")) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      function go() {
-        history.replaceState(null, "", "#/codex/calendar");
-        if (window.renderCodex) window.renderCodex("calendar");
-      }
-      if (window.renderCodex) go();
-      else setTimeout(go, 0);
-    }, true);
-  </script>
-  <script src="codex-ui.js?v=193"></script>
+  <script src="codex-ui.js?v=194"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
@@ -276,10 +147,11 @@
         if (chrome) {
           document.documentElement.style.setProperty("--chrome-bottom", Math.round(chrome.getBoundingClientRect().bottom) + "px");
         }
-        if (!rail || !tabs) return;
-        const top = Math.round(tabs.getBoundingClientRect().bottom);
-        rail.style.setProperty("top", top + "px", "important");
-        if (sheet) sheet.style.setProperty("top", (top + rail.offsetHeight) + "px", "important");
+        if (rail && tabs) {
+          const top = Math.round(tabs.getBoundingClientRect().bottom);
+          rail.style.setProperty("top", top + "px", "important");
+          if (sheet) sheet.style.setProperty("top", (top + rail.offsetHeight) + "px", "important");
+        }
       }
       document.addEventListener("click", function () { requestAnimationFrame(pinChrome); });
       window.addEventListener("resize", pinChrome);
