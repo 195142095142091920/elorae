@@ -45,4 +45,10 @@
     opacity: 0.85;
     pointer-events: none;
   }
+  body.on-codex .nav-drop:has(> a[href^="#/codex"]):hover .nav-menu,
+  body.on-codex .nav-drop:has(> a[href^="#/codex"]).open .nav-menu,
+  body.on-atlas .nav-drop:has(> a[href="#/atlas"]):hover .nav-menu,
+  body.on-atlas .nav-drop:has(> a[href="#/atlas"]).open .nav-menu {
+    display: flex !important;
+  }
 }
