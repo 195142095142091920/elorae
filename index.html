@@ -12,6 +12,83 @@
   <link rel="stylesheet" href="codex.css?v=190">
   <style>
     html { background: #070707; }
+    .seal-page { background: #070707; min-height: 100dvh; }
+    .seal-page .topbar {
+      position: fixed !important; top: 0; left: 0; right: 0; z-index: 200;
+      background: #070707 !important; justify-content: flex-start;
+    }
+    .seal-page .filters { display: none !important; }
+    .seal-card {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 88px 24px 72px;
+    }
+    .seal-card h1 {
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      font-size: clamp(28px, 4vw, 40px);
+      text-transform: none;
+    }
+    .seal-note {
+      margin-top: 16px;
+      max-width: 36ch;
+      color: #cfc6b8;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .seal-card form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .seal-card input {
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid #8f8a82;
+      color: #f3eee6;
+      text-align: center;
+      font: inherit;
+      font-size: 18px;
+      letter-spacing: 0.08em;
+      padding: 10px 12px;
+      width: min(280px, 80vw);
+      outline: none;
+    }
+    .seal-card button[type="submit"] {
+      background: none; border: 0; color: #8f8a82;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 11px; cursor: pointer;
+    }
+    .seal-err {
+      margin-top: 14px;
+      color: #8f8a82;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+    }
+    .seal-leave {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      background: none; border: 0;
+      color: #8f8a82;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      padding: 18px 28px;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .seal-leave:hover { opacity: 1; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
       overflow: hidden; height: 100dvh;
     }
@@ -99,7 +176,6 @@
         gap: 8px 14px !important; font-size: 10px !important; letter-spacing: 0.1em !important;
       }
       .mast .dot, .journal-page .topbar .dot, .room .topbar .dot, .atlas-page .topbar .dot, .subbar .dot { display: none !important; }
-      .mast .brand, .mast .topbar > a:first-child, .topbar .brand, .topbar > a:first-child { margin-right: 0 !important; }
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
       .journal-page .journal-bg::after {
@@ -107,8 +183,7 @@
       }
       .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs {
         gap: 12px !important; letter-spacing: 0.12em !important; padding: 8px 12px 8px !important; min-height: 36px;
-        top: var(--nav-h, 44px) !important;
-        transition: top 140ms ease;
+        top: var(--nav-h, 44px) !important; transition: top 140ms ease;
       }
       .atlas-page:has(.atlas-tabs) .atlas-stage, .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
       body.lore-page .sheet { top: 124px; }
@@ -134,15 +209,71 @@
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
       window._from = window._from || "#/gallery";
+      function goBack() {
+        const to = window._from && window._from !== "#/seal" ? window._from : "#/gallery";
+        location.hash = to;
+      }
+      function drawSeal() {
+        document.title = "Elorae";
+        document.body.className = "seal-page";
+        const v = typeof vaultOf === "function" ? vaultOf() : null;
+        if (v) {
+          document.body.innerHTML =
+            '<header class="topbar"><a href="#" id="seal-back">Back</a></header>' +
+            '<main class="seal-card"><h1>' + escapeHtml(v.name) + '</h1>' +
+            '<p class="seal-note">You may now view your private material.</p>' +
+            '<button class="seal-leave" id="leave" type="button">Close the seal</button></main>';
+          document.querySelector("#leave").addEventListener("click", function (e) {
+            e.preventDefault();
+            closeSeal();
+            drawSeal();
+          });
+        } else {
+          document.body.innerHTML =
+            '<header class="topbar"><a href="#" id="seal-back">Back</a></header>' +
+            '<main class="seal-card"><form id="seal-form">' +
+            '<input id="seal-code" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">' +
+            '<button type="submit">Enter</button></form>' +
+            '<p class="seal-err" id="seal-err" hidden>Try again.</p></main>';
+          const form = document.querySelector("#seal-form");
+          const input = document.querySelector("#seal-code");
+          const err = document.querySelector("#seal-err");
+          input.focus();
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const hit = matchSeal(input.value);
+            if (!hit) { err.hidden = false; input.value = ""; input.focus(); return; }
+            openSeal(hit.id);
+            drawSeal();
+          });
+        }
+        const back = document.querySelector("#seal-back");
+        if (back) back.addEventListener("click", function (e) { e.preventDefault(); goBack(); });
+      }
+      window.renderSeal = drawSeal;
       document.addEventListener("click", function (e) {
         const a = e.target.closest(".topbar a, .mast a");
-        if (!a || a.textContent.trim() !== "Elorae") return;
+        if (!a) return;
+        const label = a.textContent.trim();
+        if (label !== "Elorae" && a.getAttribute("href") !== "#/seal") return;
         e.preventDefault();
+        e.stopImmediatePropagation();
         if (location.hash && location.hash !== "#/seal") window._from = location.hash;
-        location.hash = "#/seal";
+        history.replaceState(null, "", "#/seal");
+        drawSeal();
       }, true);
+      window.addEventListener("hashchange", function () {
+        if ((location.hash || "").replace(/^#\/?/, "") === "seal") drawSeal();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape" || !document.body.classList.contains("seal-page")) return;
+        e.preventDefault();
+        goBack();
+      });
+      if ((location.hash || "").replace(/^#\/?/, "") === "seal") drawSeal();
       function pinChrome() {
         if (window.innerWidth > 980) return;
+        if (document.body.classList.contains("seal-page")) return;
         const bar = document.querySelector(".mast .topbar") || document.querySelector(".topbar") || document.querySelector(".mast");
         const tabs = document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
         const rail = document.querySelector(".lore-rail");
@@ -166,7 +297,6 @@
       document.addEventListener("click", function () { requestAnimationFrame(pinChrome); });
       window.addEventListener("resize", pinChrome);
       setInterval(pinChrome, 200);
-      pinChrome();
     })();
   </script>
 </body>
