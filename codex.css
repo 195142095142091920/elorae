@@ -148,17 +148,17 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 340px;
+  width: 420px;
   z-index: -1;
   pointer-events: none;
   background: linear-gradient(to right,
-    rgba(0,0,0,0.78) 0%,
-    rgba(0,0,0,0.52) 42%,
-    rgba(0,0,0,0.18) 74%,
-    rgba(0,0,0,0) 100%
+    #070707 0%,
+    #070707 38%,
+    rgba(7,7,7,0.92) 52%,
+    rgba(7,7,7,0.62) 68%,
+    rgba(7,7,7,0.22) 84%,
+    rgba(7,7,7,0) 100%
   );
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 96px, #000 calc(100% - 48px), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 96px, #000 calc(100% - 48px), transparent 100%);
 }
 .lore-rail .codex-h3 {
   margin: 0 0 14px;
