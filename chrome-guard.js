@@ -5,16 +5,25 @@
     s.textContent =
       "@media (min-width:801px){" +
       ".topbar,.mast .topbar{" +
-      "display:grid!important;" +
-      "grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;" +
-      "align-items:center;gap:16px;padding-left:28px;padding-right:28px}" +
-      ".topbar > a:first-child,.mast .topbar > a:first-child{" +
-      "grid-column:1!important;justify-self:start;min-width:0}" +
-      ".topbar .chapter-tabs,.topbar .atlas-tabs,.topbar .subbar{" +
-      "grid-column:2!important;justify-self:center;max-width:100%;" +
-      "white-space:nowrap}" +
+      "display:flex!important;align-items:center;justify-content:flex-start;" +
+      "position:relative;padding-left:28px;padding-right:28px}" +
+      ".topbar > a:first-child,.mast .topbar > a:first-child{position:relative;z-index:2}" +
       ".topbar .filters,.mast .topbar .filters{" +
-      "grid-column:3!important;justify-self:end!important;min-width:0}" +
+      "position:absolute!important;left:50%!important;right:auto!important;" +
+      "transform:translateX(-50%)!important;justify-self:center!important;" +
+      "grid-column:auto!important}" +
+      ".chapter-tabs,.atlas-tabs,body:has(.mast) .subbar{" +
+      "position:fixed!important;top:var(--nav-h,56px)!important;left:0;right:0;" +
+      "display:flex!important;justify-content:center;align-items:center;flex-wrap:wrap;" +
+      "gap:18px;min-height:40px;padding:0 28px!important;" +
+      "background:#070707!important;z-index:190}" +
+      ".journal-page:has(.chapter-tabs) .sheet," +
+      ".atlas-page:has(.atlas-tabs) .atlas-stage," +
+      ".journal-page:has(.chapter-tabs) .lore-rail," +
+      "body.room:has(.chapter-tabs) .sheet{top:calc(var(--nav-h,56px) + 40px)!important}" +
+      "}" +
+      "@media (max-width:800px){" +
+      ".topbar .filters{position:static!important;transform:none!important}" +
       "}";
     document.head.appendChild(s);
   }
@@ -38,7 +47,6 @@
   }
 
   function paint() {
-    if (window.innerWidth <= 800) return;
     const h = path();
     const bar = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
     if (!bar) return;
@@ -54,20 +62,24 @@
     }
 
     if (!items) {
-      bar.querySelectorAll(":scope > .chapter-tabs, :scope > .atlas-tabs, :scope > .subbar").forEach(function (el) {
+      document.querySelectorAll(".chapter-tabs, .atlas-tabs").forEach(function (el) {
+        if (h.indexOf("journal") === 0) return;
         el.remove();
       });
       return;
     }
 
-    let tabs = bar.querySelector(":scope > .chapter-tabs");
+    let tabs = document.querySelector(".chapter-tabs");
     if (!tabs) {
       tabs = document.createElement("nav");
       tabs.className = "chapter-tabs";
-      const filters = bar.querySelector(".filters");
-      if (filters) bar.insertBefore(tabs, filters);
-      else bar.appendChild(tabs);
     }
+    if (tabs.parentElement === bar) bar.insertAdjacentElement("afterend", tabs);
+    else if (!tabs.parentElement) bar.insertAdjacentElement("afterend", tabs);
+    else if (tabs.previousElementSibling !== bar && bar.parentElement) {
+      bar.insertAdjacentElement("afterend", tabs);
+    }
+
     const html = items.map(function (it) {
       const on = it[1] === current ? " active" : "";
       return '<a class="' + on + '" href="' + it[1] + '">' + it[0] + "</a>";
