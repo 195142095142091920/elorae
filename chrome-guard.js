@@ -18,9 +18,10 @@
   }
 
   function paint() {
+    if (window.innerWidth <= 800) return;
     const h = path();
-    const bar = document.querySelector(".topbar, .mast .topbar");
-    if (!bar || window.innerWidth <= 800) return;
+    const bar = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
+    if (!bar) return;
 
     let items = null;
     let current = "";
@@ -31,34 +32,28 @@
       items = CODEX;
       current = h === "codex" ? "#/codex/calendar" : "#/" + h;
     }
-    if (!items) {
-      const extra = document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
-      if (extra && extra.parentElement === bar) extra.remove();
-      return;
-    }
 
-    let tabs = bar.querySelector(".chapter-tabs") || document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
+    document.querySelectorAll(".chapter-tabs, .atlas-tabs, .subbar").forEach(function (el) {
+      if (!items && el.parentElement === bar) el.remove();
+    });
+    if (!items) return;
+
+    let tabs = bar.querySelector(":scope > .chapter-tabs");
     if (!tabs) {
       tabs = document.createElement("nav");
       tabs.className = "chapter-tabs";
+      const filters = bar.querySelector(".filters");
+      if (filters) bar.insertBefore(tabs, filters);
+      else bar.appendChild(tabs);
     }
-    tabs.className = "chapter-tabs";
     const html = items.map(function (it) {
       const on = it[1] === current ? " active" : "";
       return '<a class="' + on + '" href="' + it[1] + '">' + it[0] + "</a>";
     }).join("");
     if (tabs.innerHTML !== html) tabs.innerHTML = html;
-
-    const filters = bar.querySelector(".filters");
-    if (tabs.parentElement !== bar) {
-      if (filters) bar.insertBefore(tabs, filters);
-      else bar.appendChild(tabs);
-    } else if (filters && tabs.nextElementSibling !== filters) {
-      bar.insertBefore(tabs, filters);
-    }
   }
 
   paint();
-  setInterval(paint, 80);
+  setInterval(paint, 50);
   window.addEventListener("hashchange", paint);
 })();
