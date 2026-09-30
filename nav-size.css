@@ -1,15 +1,23 @@
 @media (min-width: 801px) {
   .topbar,
   .mast .topbar,
-  .filters {
+  .filters,
+  .filters a {
     font-size: 14.3px !important;
   }
-  .subbar,
-  .atlas-page .atlas-tabs,
+  nav.chapter-tabs,
+  nav.chapter-tabs a,
+  nav.atlas-tabs,
+  nav.atlas-tabs a,
+  nav.subbar,
+  nav.subbar a,
   .journal-page .chapter-tabs,
-  .chapter-tabs,
-  .atlas-tabs,
-  .nav-menu a {
-    font-size: 18px !important;
+  .journal-page .chapter-tabs a,
+  .atlas-page .atlas-tabs,
+  .atlas-page .atlas-tabs a,
+  body .subbar,
+  body .subbar a {
+    font-size: 20px !important;
+    letter-spacing: 0.16em !important;
   }
 }
