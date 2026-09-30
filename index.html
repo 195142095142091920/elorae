@@ -105,6 +105,34 @@
     .atlas-page:has(.atlas-tabs) .atlas-stage,
     .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
     @media (max-width: 800px) {
+      .mast,
+      .journal-page .topbar,
+      .room:not(.journal-page) .topbar,
+      .atlas-page .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 6px 12px;
+        padding: 10px 10px 8px;
+        overflow: visible;
+        height: auto !important;
+        min-height: 0;
+      }
+      .journal-page .topbar .filters,
+      .room .topbar .filters,
+      .atlas-page .topbar .filters {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 8px 12px;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+      }
+      .journal-page .topbar .dot,
+      .room .topbar .dot,
+      .atlas-page .topbar .dot { display: none; }
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
       .journal-page .journal-bg::after {
@@ -129,7 +157,7 @@
       .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
       body.lore-page .sheet { top: 124px; }
       .journal-page .topbar .brand,
-      .journal-page .topbar a:first-child { margin-right: 14px; }
+      .journal-page .topbar a:first-child { margin-right: 0; }
     }
   </style>
 </head>
@@ -159,18 +187,23 @@
         if (location.hash && location.hash !== "#/seal") window._from = location.hash;
         location.hash = "#/seal";
       }, true);
-      function pinLoreRail() {
+      function pinChrome() {
+        if (window.innerWidth > 980) return;
+        const bar = document.querySelector(".topbar");
+        const tabs = document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
         const rail = document.querySelector(".lore-rail");
-        const tabs = document.querySelector(".chapter-tabs");
         const sheet = document.querySelector(".sheet");
-        if (!rail || !tabs || window.innerWidth > 980) return;
+        if (bar && tabs) {
+          tabs.style.top = Math.round(bar.getBoundingClientRect().bottom) + "px";
+        }
+        if (!rail || !tabs) return;
         const top = Math.round(tabs.getBoundingClientRect().bottom);
         rail.style.top = top + "px";
         if (sheet) sheet.style.top = (top + rail.offsetHeight) + "px";
       }
-      document.addEventListener("click", function () { requestAnimationFrame(pinLoreRail); });
-      window.addEventListener("resize", pinLoreRail);
-      setInterval(pinLoreRail, 500);
+      document.addEventListener("click", function () { requestAnimationFrame(pinChrome); });
+      window.addEventListener("resize", pinChrome);
+      setInterval(pinChrome, 400);
     })();
   </script>
 </body>
