@@ -167,18 +167,13 @@
 body.lore-page .journal-read {
   max-width: 760px;
   margin: 0 auto 72px;
-  padding-left: 28px;
-  padding-right: 28px;
+  padding-left: 36px;
+  padding-right: 36px;
 }
 body.lore-page .journal-read::before {
-  inset: -36px -48px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0,0,0,0.72) 0%,
-    rgba(0,0,0,0.42) 46%,
-    rgba(0,0,0,0.12) 68%,
-    rgba(0,0,0,0) 80%
-  );
+  inset: -8px -12px;
+  background: #000;
+  border-radius: 0;
 }
 .journal-read .codex-table-wrap {
   overflow-x: auto;
