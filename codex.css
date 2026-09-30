@@ -116,13 +116,11 @@
   background: none;
   box-shadow: none;
   border: 0;
-  -webkit-mask-image: none;
-  mask-image: none;
 }
 .lore-rail::before {
   content: "";
   position: fixed;
-  top: 56px;
+  top: 0;
   left: 0;
   bottom: 0;
   width: 300px;
@@ -134,19 +132,18 @@
     rgba(0,0,0,0.18) 74%,
     rgba(0,0,0,0) 100%
   );
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 96px, #000 calc(100% - 48px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 96px, #000 calc(100% - 48px), transparent 100%);
 }
 .lore-rail .codex-h3 {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   flex: 0 0 auto;
-  border: 0;
-  box-shadow: none;
 }
 .lore-rail .codex-toc {
   margin: 0;
   flex: 0 1 auto;
   overflow-y: auto;
   max-height: calc(100vh - 180px);
-  border: 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(207,198,184,0.28) transparent;
 }
@@ -157,7 +154,7 @@
   line-height: 1.4;
   color: #c4bdb2;
   padding: 5px 0;
-  border: 0;
+  border-bottom: 1px solid rgba(243,238,230,0.08);
 }
 .lore-rail .codex-toc a {
   color: inherit;
