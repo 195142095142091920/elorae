@@ -143,10 +143,12 @@
   };
 
   function atlasTabs(currentId) {
-    const items = [{ id: "map", href: "#/atlas", label: "Map" }].concat(atlasPages().map(function (c) {
+    const overview = { id: "world", href: "#/atlas/world", label: "Overview" };
+    const rest = atlasPages().filter(function (c) { return c.id !== "world"; }).map(function (c) {
       return { id: c.id, href: "#/atlas/" + c.id, label: c.tab || c.title };
-    }));
-    items.sort(function (a, b) { return a.label.localeCompare(b.label); });
+    });
+    rest.sort(function (a, b) { return a.label.localeCompare(b.label); });
+    const items = [overview].concat(rest).concat([{ id: "map", href: "#/atlas", label: "Map" }]);
     return items.map(function (c) {
       const on = (c.id === "map" && (!currentId || currentId === "map")) || c.id === currentId ? " active" : "";
       return '<a class="' + on + '" href="' + c.href + '">' + escapeHtml(c.label) + '</a>';
