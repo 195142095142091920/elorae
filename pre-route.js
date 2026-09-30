@@ -1,5 +1,7 @@
 (function () {
   window.__keepHash = location.hash || "";
+  window.__lockNav = true;
+  setTimeout(function () { window.__lockNav = false; }, 400);
   try {
     const desc = Object.getOwnPropertyDescriptor(Location.prototype, "hash");
     if (!desc || !desc.set) return;
@@ -10,7 +12,7 @@
       set: function (v) {
         const keep = window.__keepHash || "";
         const next = String(v || "");
-        if (/(?:#\/)?(?:atlas|codex)(?:\/|$)/i.test(keep) && /gallery/i.test(next) && !/(atlas|codex)/i.test(next)) {
+        if (window.__lockNav && /(?:#\/)?(?:atlas|codex)(?:\/|$)/i.test(keep) && /gallery/i.test(next) && !/(atlas|codex)/i.test(next)) {
           return;
         }
         return desc.set.call(this, v);

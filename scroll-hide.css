@@ -1,0 +1,56 @@
+html, body, .sheet, .index-list, .wall, .lore-rail .codex-toc, .lore-toc-panel, .journal-read, .life-sheet, .atlas-stage, .room-body {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+html:hover, body:hover,
+.sheet:hover, .index-list:hover, .wall:hover,
+.lore-rail .codex-toc:hover, .lore-toc-panel:hover,
+.journal-read:hover, .life-sheet:hover, .atlas-stage:hover, .room-body:hover,
+.sheet.show-bar, .index-list.show-bar, .wall.show-bar,
+.lore-rail .codex-toc.show-bar, .life-sheet.show-bar {
+  scrollbar-color: rgba(207,198,184,0.38) transparent;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.sheet::-webkit-scrollbar,
+.index-list::-webkit-scrollbar,
+.wall::-webkit-scrollbar,
+.lore-rail .codex-toc::-webkit-scrollbar,
+.lore-toc-panel::-webkit-scrollbar,
+.journal-read::-webkit-scrollbar,
+.life-sheet::-webkit-scrollbar,
+.atlas-stage::-webkit-scrollbar,
+.room-body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.sheet::-webkit-scrollbar-thumb,
+.index-list::-webkit-scrollbar-thumb,
+.wall::-webkit-scrollbar-thumb,
+.lore-rail .codex-toc::-webkit-scrollbar-thumb,
+.lore-toc-panel::-webkit-scrollbar-thumb,
+.journal-read::-webkit-scrollbar-thumb,
+.life-sheet::-webkit-scrollbar-thumb,
+.atlas-stage::-webkit-scrollbar-thumb,
+.room-body::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+}
+html:hover::-webkit-scrollbar-thumb,
+body:hover::-webkit-scrollbar-thumb,
+.sheet:hover::-webkit-scrollbar-thumb,
+.index-list:hover::-webkit-scrollbar-thumb,
+.wall:hover::-webkit-scrollbar-thumb,
+.lore-rail .codex-toc:hover::-webkit-scrollbar-thumb,
+.lore-toc-panel:hover::-webkit-scrollbar-thumb,
+.journal-read:hover::-webkit-scrollbar-thumb,
+.life-sheet:hover::-webkit-scrollbar-thumb,
+.atlas-stage:hover::-webkit-scrollbar-thumb,
+.room-body:hover::-webkit-scrollbar-thumb,
+.sheet.show-bar::-webkit-scrollbar-thumb,
+.index-list.show-bar::-webkit-scrollbar-thumb,
+.life-sheet.show-bar::-webkit-scrollbar-thumb {
+  background: rgba(207,198,184,0.4);
+}
