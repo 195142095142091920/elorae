@@ -1,17 +1,9 @@
 (function () {
-  let stayOnMap = false;
-
   function hashPath() {
     return (location.hash || "").replace(/^#\/?/, "");
   }
 
-  function isAtlas() {
-    const hash = hashPath();
-    return hash === "atlas" || hash.indexOf("atlas/") === 0;
-  }
-
   function openWorld() {
-    stayOnMap = false;
     if (typeof window.renderAtlasWorld === "function") {
       if (hashPath() !== "atlas/world") history.replaceState(null, "", "#/atlas/world");
       window.renderAtlasWorld("world");
@@ -21,8 +13,11 @@
   }
 
   function openMap() {
-    stayOnMap = true;
-    if (hashPath() !== "atlas") location.hash = "#/atlas";
+    if (hashPath() === "atlas") {
+      if (typeof window.route === "function") window.route();
+      return;
+    }
+    location.hash = "#/atlas";
   }
 
   document.addEventListener("click", function (e) {
@@ -33,7 +28,7 @@
     const inTabs = a.closest(".chapter-tabs, .atlas-tabs, .nav-menu, .subbar");
     const inTopAtlas = a.closest(".filters, .nav-drop") && !inTabs;
 
-    if (label === "Map" && inTabs) {
+    if (label === "Map" && (inTabs || href === "#/atlas")) {
       e.preventDefault();
       e.stopImmediatePropagation();
       openMap();
@@ -53,10 +48,4 @@
       openWorld();
     }
   }, true);
-
-  window.addEventListener("hashchange", function () {
-    if (hashPath() === "atlas" && !stayOnMap) openWorld();
-  });
-
-  if (isAtlas() && hashPath() === "atlas" && !stayOnMap) openWorld();
 })();
