@@ -107,7 +107,13 @@
     @media (max-width: 800px) {
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
-      .journal-page .journal-bg::after { top: 48px; width: 100%; }
+      .journal-page .journal-bg::after {
+        top: 48px;
+        left: 0;
+        width: 100%;
+        transform: none;
+        background: #070707;
+      }
       .journal-page:has(.chapter-tabs) .journal-bg::after { top: 88px; }
       .subbar,
       .atlas-page .atlas-tabs,
