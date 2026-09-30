@@ -67,7 +67,7 @@
 }
 .journal-read .codex-quote p {
   font-family: "Iowan Old Style", Palatino, serif;
-  font-style: italic;
+  font-style: normal;
   font-size: 20px;
   line-height: 1.7;
   color: #ece6db;
@@ -85,6 +85,7 @@
 }
 .journal-read p {
   font-size: 18px;
+  font-style: normal;
   line-height: 1.72;
   color: #e8e2d8;
 }
@@ -188,11 +189,6 @@ body.lore-page .journal-read {
   margin: 0 auto 72px;
   padding-left: 36px;
   padding-right: 36px;
-}
-.journal-page .journal-read::before {
-  inset: -8px -12px !important;
-  background: #070707 !important;
-  border-radius: 0 !important;
 }
 .journal-read .codex-table-wrap {
   overflow-x: auto;
