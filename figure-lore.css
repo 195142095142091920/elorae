@@ -184,3 +184,15 @@
   opacity: 1;
   pointer-events: auto;
 }
+
+@media (max-width: 980px), (hover: none) {
+  .nav-menu,
+  .nav-drop .nav-menu,
+  .nav-drop:hover .nav-menu,
+  .nav-drop.open .nav-menu {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  .nav-drop::after { display: none !important; }
+}
