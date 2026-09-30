@@ -148,21 +148,11 @@
       .atlas-page:has(.atlas-tabs) .atlas-stage, .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
       body.lore-page .sheet { top: 124px; }
       .entry .topbar #fit {
-        width: 44px;
-        min-width: 44px;
-        min-height: 44px;
+        width: 44px; min-width: 44px; min-height: 44px;
         padding: max(16px, env(safe-area-inset-top)) 14px 12px;
-        font-size: 0 !important;
-        line-height: 0;
-        color: #efe8dc;
-        background: none;
-        border: 0;
+        font-size: 0 !important; line-height: 0; color: #efe8dc; background: none; border: 0;
       }
-      .entry .topbar #fit svg {
-        width: 18px;
-        height: 18px;
-        display: block;
-      }
+      .entry .topbar #fit svg { width: 18px; height: 18px; display: block; }
     }
   </style>
 </head>
@@ -182,6 +172,7 @@
   <script src="veil.js?v=132"></script>
   <script src="codex-ui.js?v=194"></script>
   <script src="fit-mobile.js?v=1"></script>
+  <script src="atlas-overview.js?v=1"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
@@ -306,29 +297,13 @@
           if (a.textContent.trim() !== label) a.textContent = label;
         });
       }
-      function fixAtlasOverview() {
-        const hash = (location.hash || "").replace(/^#\/?/, "");
-        if (hash !== "atlas" && hash.indexOf("atlas/") !== 0) return;
-        const tabs = document.querySelector(".atlas-tabs, body.atlas-page .chapter-tabs, body.on-atlas .chapter-tabs");
-        if (!tabs) return;
-        let ov = tabs.querySelector('a[href="#/atlas"]');
-        if (!ov) {
-          ov = document.createElement("a");
-          ov.setAttribute("href", "#/atlas");
-          tabs.insertBefore(ov, tabs.firstChild);
-        }
-        if (ov.textContent.trim() !== "Overview") ov.textContent = "Overview";
-        if (tabs.firstElementChild !== ov) tabs.insertBefore(ov, tabs.firstElementChild);
-        ov.classList.toggle("active", hash === "atlas");
-      }
       window.pinChrome = pinChrome;
       document.addEventListener("click", function () {
         requestAnimationFrame(pinChrome);
         requestAnimationFrame(fixJournalTabs);
-        requestAnimationFrame(fixAtlasOverview);
       });
       window.addEventListener("resize", pinChrome);
-      setInterval(function () { pinChrome(); fixJournalTabs(); fixAtlasOverview(); }, 200);
+      setInterval(function () { pinChrome(); fixJournalTabs(); }, 200);
     })();
   </script>
 </body>
