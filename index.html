@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=174">
+  <link rel="stylesheet" href="codex.css?v=175">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -26,12 +26,12 @@
     .tile { aspect-ratio: 4 / 3 !important; height: auto !important; }
     .sheet, .index-list, .room-body, .atlas-stage {
       position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
-      overflow-y: auto; overflow-x: hidden; z-index: 2;
+      overflow-y: auto; overflow-x: hidden; z-index: 3;
     }
     .journal-page .journal-bg {
       z-index: 0 !important;
     }
-    body.journal-page::after {
+    .journal-page .journal-bg::after {
       content: "";
       position: fixed;
       top: 56px;
@@ -40,10 +40,10 @@
       width: min(832px, 92vw);
       transform: translateX(-50%);
       background: #070707;
-      z-index: 1;
+      z-index: 2;
       pointer-events: none;
     }
-    body.journal-page:has(.chapter-tabs)::after { top: 96px; }
+    .journal-page:has(.chapter-tabs) .journal-bg::after { top: 96px; }
     .journal-page .sheet {
       z-index: 3;
       -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 100%);
@@ -98,8 +98,8 @@
     @media (max-width: 800px) {
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
-      body.journal-page::after { top: 48px; width: 100%; }
-      body.journal-page:has(.chapter-tabs)::after { top: 88px; }
+      .journal-page .journal-bg::after { top: 48px; width: 100%; }
+      .journal-page:has(.chapter-tabs) .journal-bg::after { top: 88px; }
       .subbar,
       .atlas-page .atlas-tabs,
       .journal-page .chapter-tabs {
