@@ -15,11 +15,17 @@
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
       overflow: hidden; height: 100dvh;
     }
-    .mast, .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
+    .mast {
       position: fixed !important; top: 0; left: 0; right: 0; z-index: 200;
-      background: #070707 !important;
-      overflow: visible !important;
+      background: #070707 !important; overflow: visible !important;
     }
+    .mast .topbar,
+    .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
+      position: relative !important; top: auto; left: auto; right: auto;
+      background: #070707 !important; overflow: visible !important;
+      z-index: 200;
+    }
+    .mast .topbar { position: relative !important; }
     .filters { position: relative; z-index: 220; }
     .nav-drop { position: relative; display: inline-flex; z-index: 230; }
     .nav-menu {
@@ -82,17 +88,19 @@
     .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
     @media (max-width: 800px) {
       .nav-menu, .nav-drop:hover .nav-menu, .nav-drop.open .nav-menu { display: none !important; }
-      .mast, .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
+      .mast { display: block !important; padding: 0 !important; height: auto !important; }
+      .mast .topbar,
+      .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
         display: flex !important; flex-wrap: wrap; align-items: center; justify-content: center;
         gap: 8px 14px !important; padding: 10px 10px 0 !important; overflow: visible !important;
-        height: auto !important; min-height: 0;
+        height: auto !important; min-height: 0; letter-spacing: 0.1em;
       }
       .mast .filters, .journal-page .topbar .filters, .room .topbar .filters, .atlas-page .topbar .filters {
         display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
         gap: 8px 14px !important; font-size: 10px !important; letter-spacing: 0.1em !important;
       }
       .mast .dot, .journal-page .topbar .dot, .room .topbar .dot, .atlas-page .topbar .dot, .subbar .dot { display: none !important; }
-      .mast .brand, .mast > a:first-child, .topbar .brand, .topbar > a:first-child { margin-right: 14px !important; }
+      .mast .brand, .mast .topbar > a:first-child, .topbar .brand, .topbar > a:first-child { margin-right: 0 !important; }
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
       .journal-page .journal-bg::after {
@@ -135,7 +143,7 @@
       }, true);
       function pinChrome() {
         if (window.innerWidth > 980) return;
-        const bar = document.querySelector(".topbar, .mast");
+        const bar = document.querySelector(".mast .topbar") || document.querySelector(".topbar") || document.querySelector(".mast");
         const tabs = document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
         const rail = document.querySelector(".lore-rail");
         const sheet = document.querySelector(".sheet");
