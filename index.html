@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="figure-lore.css?v=146">
   <link rel="stylesheet" href="codex.css?v=190">
   <link rel="stylesheet" href="nav-size.css?v=4">
+  <link rel="stylesheet" href="column-veil.css?v=1">
   <style>
     html { background: #070707; }
     .seal-page { background: #070707; min-height: 100dvh; }
@@ -89,8 +90,8 @@
     .journal-page .journal-bg { z-index: 0 !important; }
     .journal-page .journal-bg::after {
       content: ""; position: fixed; top: var(--chrome-bottom, 96px); bottom: 0; left: 50%;
-      width: min(1240px, 86vw); transform: translateX(-50%);
-      background: linear-gradient(to right, rgba(7,7,7,0) 0%, rgba(7,7,7,0.4) 10%, #070707 20%, #070707 80%, rgba(7,7,7,0.4) 90%, rgba(7,7,7,0) 100%);
+      width: min(1760px, 98vw); transform: translateX(-50%);
+      background: linear-gradient(to right, rgba(7,7,7,0) 0%, rgba(7,7,7,0.18) 10%, rgba(7,7,7,0.55) 20%, rgba(7,7,7,0.88) 28%, #070707 36%, #070707 64%, rgba(7,7,7,0.88) 72%, rgba(7,7,7,0.55) 80%, rgba(7,7,7,0.18) 90%, rgba(7,7,7,0) 100%);
       z-index: 2; pointer-events: none;
     }
     .journal-page .sheet {
