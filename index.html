@@ -131,6 +131,11 @@
       .subbar a, .atlas-page .atlas-tabs a, .journal-page .chapter-tabs a {
         padding: 0 18px !important;
       }
+      .atlas-page .atlas-tabs, .journal-page .chapter-tabs, body:has(.mast) .subbar {
+        position: static !important;
+      }
+      .atlas-page:has(.atlas-tabs) .atlas-stage,
+      .journal-page:has(.chapter-tabs) .sheet { top: 56px; }
     }
     @media (max-width: 980px), (hover: none) {
       .nav-menu, .nav-drop:hover .nav-menu, .nav-drop.open .nav-menu { display: none !important; }
@@ -276,14 +281,16 @@
         if (bar) {
           const top = Math.round(bar.getBoundingClientRect().bottom);
           document.documentElement.style.setProperty("--nav-h", top + "px");
-          if (tabs) tabs.style.setProperty("top", top + "px", "important");
+          if (tabs && tabs.parentElement !== bar && window.innerWidth <= 800) {
+            tabs.style.setProperty("top", top + "px", "important");
+          }
         }
-        const chrome = tabs || bar;
+        const chrome = (tabs && tabs.parentElement !== bar ? tabs : null) || bar;
         if (chrome) {
           document.documentElement.style.setProperty("--chrome-bottom", Math.round(chrome.getBoundingClientRect().bottom) + "px");
         }
-        if (rail && tabs) {
-          const top = Math.round(tabs.getBoundingClientRect().bottom);
+        if (rail && bar) {
+          const top = Math.round(((tabs && tabs.parentElement !== bar) ? tabs : bar).getBoundingClientRect().bottom);
           rail.style.setProperty("top", top + "px", "important");
           if (sheet) {
             const extra = (document.body.classList.contains("lore-page") && window.innerWidth <= 980)
@@ -309,10 +316,16 @@
             return '<a class="' + on + '" href="#/journal/' + j.id + '">' + label + '</a>';
           }).join("");
         }
-        if (tabs && bar && tabs.parentElement !== document.body) {
+        if (!tabs || !bar) return;
+        if (window.innerWidth > 800) {
+          const filters = bar.querySelector(".filters");
+          if (tabs.parentElement !== bar) {
+            if (filters) bar.insertBefore(tabs, filters);
+            else bar.appendChild(tabs);
+          }
+        } else if (tabs.parentElement !== document.body && tabs.parentElement !== bar.parentElement) {
           bar.insertAdjacentElement("afterend", tabs);
         }
-        if (!tabs) return;
         (window.JOURNAL || []).forEach(function (j) {
           const a = tabs.querySelector('a[href="#/journal/' + j.id + '"]');
           if (!a) return;
@@ -332,5 +345,6 @@
     })();
   </script>
   <script src="pin-lore.js?v=2"></script>
+  <script src="nav-merge.js?v=1"></script>
 </body>
 </html>
