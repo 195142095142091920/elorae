@@ -102,6 +102,8 @@
     body.lore-page .journal-read { padding-top: 48px; }
     .journal-page .journal-read::before { display: none !important; }
     .journal-read h2 { border-bottom: 0 !important; }
+    .journal-read .atlas-map { margin: 48px 0 24px; }
+    .journal-read .atlas-map img { max-height: none !important; width: 100%; height: auto; object-fit: contain; border: 1px solid #000; }
     .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs {
       display: flex !important; justify-content: center; align-items: center; flex-wrap: wrap;
       gap: 16px !important; min-height: 40px; padding: 0 28px 16px !important;
@@ -178,7 +180,8 @@
 <body>
   <script src="entries.js?v=132"></script>
   <script src="journal.js?v=132"></script>
-  <script src="codex.js?v=145"></script>
+  <script src="codex.js?v=146"></script>
+  <script src="codex-eras.js?v=1"></script>
   <script src="codex-world-more.js?v=145"></script>
   <script src="codex-hesk.js?v=145"></script>
   <script src="codex-calendar.js?v=145"></script>
@@ -193,7 +196,7 @@
   <script src="codex-ui.js?v=196"></script>
   <script src="fit-mobile.js?v=2"></script>
   <script src="swipe.js?v=1"></script>
-  <script src="atlas-overview.js?v=3"></script>
+  <script src="atlas-overview.js?v=4"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
