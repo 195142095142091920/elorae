@@ -60,12 +60,31 @@
     return { titles: works.map(function (w) { return w.title; }), blocks: body };
   }
   function loreRail(titles) {
-    return '<aside class="lore-rail"><h3 class="codex-h3">Contents</h3><ul class="codex-toc">' +
+    return '<aside class="lore-rail">' +
+      '<button type="button" class="lore-toc-toggle" aria-expanded="false">Contents</button>' +
+      '<h3 class="codex-h3">Contents</h3>' +
+      '<div class="lore-toc-panel"><ul class="codex-toc">' +
       (titles || []).map(function (item) {
         const id = loreSlug(item);
         return '<li><a href="#" data-lore-jump="' + id + '">' + escapeHtml(item) + '</a></li>';
       }).join("") +
-      '</ul></aside>';
+      '</ul></div></aside>';
+  }
+
+  function layoutLoreMobile() {
+    const rail = document.querySelector(".lore-rail");
+    const sheet = document.querySelector(".sheet");
+    if (!rail || !sheet || !document.body.classList.contains("lore-page")) {
+      if (sheet) sheet.style.top = "";
+      return;
+    }
+    if (window.innerWidth > 980) {
+      sheet.style.top = "";
+      return;
+    }
+    const tabs = document.querySelector(".chapter-tabs");
+    const tabBottom = tabs ? tabs.getBoundingClientRect().bottom : 88;
+    sheet.style.top = Math.round(tabBottom + rail.offsetHeight) + "px";
   }
 
   window.journalBlock = function (block) {
@@ -216,6 +235,7 @@
       '</article></div>';
     bindPlaceScroll();
     bindIdleScrollbar(document.querySelector(".sheet"));
+    layoutLoreMobile();
   };
 
   rooms = function (current) {
@@ -234,17 +254,36 @@
   };
 
   document.addEventListener("click", function (e) {
+    const toggle = e.target.closest(".lore-toc-toggle");
+    if (toggle) {
+      e.preventDefault();
+      const rail = toggle.closest(".lore-rail");
+      const open = !rail.classList.contains("open");
+      rail.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      layoutLoreMobile();
+      return;
+    }
     const jump = e.target.closest("a[data-lore-jump]");
     if (jump) {
       e.preventDefault();
       e.stopImmediatePropagation();
       document.querySelectorAll(".lore-rail a").forEach(function (a) { a.classList.remove("active"); });
       jump.classList.add("active");
+      const rail = jump.closest(".lore-rail");
+      if (rail && window.innerWidth <= 980) {
+        rail.classList.remove("open");
+        const btn = rail.querySelector(".lore-toc-toggle");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+        layoutLoreMobile();
+      }
       const el = document.getElementById(jump.getAttribute("data-lore-jump"));
       const sheet = document.querySelector(".sheet");
       if (el && sheet) {
-        const top = el.getBoundingClientRect().top - sheet.getBoundingClientRect().top + sheet.scrollTop - 8;
-        sheet.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+        requestAnimationFrame(function () {
+          const top = el.getBoundingClientRect().top - sheet.getBoundingClientRect().top + sheet.scrollTop - 8;
+          sheet.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+        });
       }
       return;
     }
@@ -327,6 +366,7 @@
   }
   paintNav();
   setInterval(paintNav, 400);
+  window.addEventListener("resize", layoutLoreMobile);
 
   function routeAtlas() {
     const boot = location.hash.replace(/^#\/?/, "");
