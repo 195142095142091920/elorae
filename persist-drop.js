@@ -6,7 +6,6 @@
     s.src = src;
     document.documentElement.appendChild(s);
   }
-  load("chrome-guard.js?v=3");
   load("soft-swap.js?v=1");
-  load("section-bar.js?v=1");
+  load("section-bar.js?v=2");
 })();
