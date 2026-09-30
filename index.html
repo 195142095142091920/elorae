@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=145">
   <link rel="stylesheet" href="figure-lore.css?v=145">
-  <link rel="stylesheet" href="codex.css?v=164">
+  <link rel="stylesheet" href="codex.css?v=165">
   <style>
     html { background: #070707; }
     body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
@@ -28,18 +28,27 @@
       position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
       overflow-y: auto; overflow-x: hidden; z-index: 2;
     }
-    .journal-page .sheet::before {
+    .journal-page .sheet::after {
       content: "";
-      position: sticky;
-      top: 0;
-      display: block;
-      height: 52px;
-      margin-bottom: -52px;
+      position: fixed;
+      top: 56px;
+      bottom: 0;
+      left: 50%;
+      width: min(832px, 92vw);
+      transform: translateX(-50%);
+      background: #070707;
+      z-index: 0;
       pointer-events: none;
-      z-index: 8;
-      background: linear-gradient(to bottom, #070707 0%, #070707 18%, rgba(7,7,7,0.55) 58%, transparent 100%);
     }
-    .journal-page .journal-read { padding-top: 24px; }
+    .journal-page:has(.chapter-tabs) .sheet::after { top: 96px; }
+    .journal-page .journal-read {
+      position: relative;
+      z-index: 1;
+      padding-top: 28px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 44px, #000 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 44px, #000 100%);
+    }
+    .journal-page .journal-read::before { display: none !important; }
     .subbar,
     .atlas-page .atlas-tabs,
     .journal-page .chapter-tabs {
@@ -83,6 +92,8 @@
     @media (max-width: 800px) {
       .wall { top: 88px; }
       .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
+      .journal-page .sheet::after { top: 48px; width: 100%; }
+      .journal-page:has(.chapter-tabs) .sheet::after { top: 88px; }
       .subbar,
       .atlas-page .atlas-tabs,
       .journal-page .chapter-tabs {
