@@ -15,8 +15,8 @@
 .journal-read .codex-cap + .codex-h,
 .journal-read .codex-school + .codex-h,
 .journal-read .codex-by + .codex-h {
-  margin-top: 64px;
-  padding-top: 32px;
+  margin-top: 88px;
+  padding-top: 40px;
   border-top: 1px solid rgba(243,238,230,0.16);
 }
 .journal-read .codex-title {
@@ -26,8 +26,8 @@
   font-size: 22px;
   letter-spacing: 0.02em;
   color: #f3eee6;
-  margin: 72px 0 10px;
-  padding-top: 32px;
+  margin: 96px 0 10px;
+  padding-top: 40px;
   border-top: 1px solid rgba(243,238,230,0.16);
   text-shadow: 0 1px 12px rgba(0,0,0,0.85);
   scroll-margin-top: 8px;
