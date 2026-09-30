@@ -170,9 +170,9 @@
   <script src="vault.js?v=132"></script>
   <script src="https://cdn.jsdelivr.net/gh/195142095142091920/elorae@5c6748fccb1ccc4b201c0065e7818325e21c016e/app.js"></script>
   <script src="veil.js?v=132"></script>
-  <script src="codex-ui.js?v=194"></script>
+  <script src="codex-ui.js?v=195"></script>
   <script src="fit-mobile.js?v=1"></script>
-  <script src="atlas-overview.js?v=1"></script>
+  <script src="atlas-overview.js?v=2"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
@@ -227,7 +227,12 @@
           if (a.closest(".nav-menu, .chapter-tabs, .atlas-tabs")) return;
           e.preventDefault();
           e.stopImmediatePropagation();
-          location.hash = "#/atlas";
+          if (typeof window.renderAtlasWorld === "function") {
+            history.replaceState(null, "", "#/atlas/world");
+            window.renderAtlasWorld("world");
+          } else {
+            location.hash = "#/atlas/world";
+          }
           return;
         }
         if (label !== "Elorae" && a.getAttribute("href") !== "#/seal") return;
