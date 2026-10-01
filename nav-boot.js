@@ -4,15 +4,19 @@
   if (!document.getElementById("nav-boot-css")) {
     var s = document.createElement("style");
     s.id = "nav-boot-css";
-    s.textContent = ".nav-menu,#drop-float,.nav-drop::after,.nav-drop:hover .nav-menu,.nav-drop.open .nav-menu,.nav-drop:active .nav-menu,.nav-drop:focus .nav-menu,.nav-drop:focus-within .nav-menu{display:none!important;visibility:hidden!important;pointer-events:none!important}.nav-drop{display:inline!important}.mast,.topbar{min-height:56px}#section-bar{display:none;position:fixed;left:0;right:0;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase}#section-bar a.active,#section-bar a:hover{color:#f3eee6}@media (min-width:801px){.topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}.topbar .filters,.mast .topbar .filters{position:absolute!important;left:50%!important;transform:translateX(-50%)!important;font-size:16px!important}.chapter-tabs,.atlas-tabs,.subbar{display:none!important}.nav-drop:hover .nav-menu,.nav-drop.open .nav-menu,.nav-drop:active .nav-menu{display:none!important}body.atlas-page .sheet,body.atlas-page .atlas-stage,body.atlas-page .room-body,body.journal-page .sheet,body.journal-page .room-body,body.lore-page .sheet,body.lore-page .lore-rail{top:102px!important}body.lore-page .lore-rail{padding-top:28px!important}body.lore-page .journal-read{padding-top:28px!important}}";
+    s.textContent = ".nav-menu,#drop-float,.nav-drop::after,.nav-drop:hover .nav-menu,.nav-drop.open .nav-menu,.nav-drop:active .nav-menu,.nav-drop:focus .nav-menu,.nav-drop:focus-within .nav-menu{display:none!important;visibility:hidden!important;pointer-events:none!important}.nav-drop{display:inline!important}.mast,.topbar{min-height:56px}#section-bar{display:none;position:fixed;left:0;right:0;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase}#section-bar a.active,#section-bar a:hover{color:#f3eee6}@media (min-width:801px){.topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}.topbar .filters,.mast .topbar .filters{position:absolute!important;left:50%!important;transform:translateX(-50%)!important;font-size:16px!important}.chapter-tabs,.atlas-tabs,.subbar{display:none!important}.nav-drop:hover .nav-menu,.nav-drop.open .nav-menu,.nav-drop:active .nav-menu{display:none!important}body.atlas-page .sheet,body.atlas-page .atlas-stage,body.atlas-page .room-body,body.journal-page .sheet,body.journal-page .room-body,body.lore-page .sheet,body.lore-page .lore-rail{top:102px!important}}";
     document.documentElement.appendChild(s);
   }
-  function lockLore() {
-    if (window.innerWidth <= 980 || !document.body.classList.contains("lore-page")) return;
-    document.querySelectorAll(".sheet, .lore-rail").forEach(function (el) {
-      el.style.setProperty("top", "102px", "important");
-    });
-  }
+  var orig = CSSStyleDeclaration.prototype.setProperty;
+  CSSStyleDeclaration.prototype.setProperty = function (name, value, priority) {
+    if (name === "top" && document.body && document.body.classList.contains("lore-page") && window.innerWidth > 980) {
+      var nodes = document.querySelectorAll(".sheet, .lore-rail");
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].style === this) { value = "102px"; break; }
+      }
+    }
+    return orig.call(this, name, value, priority);
+  };
   document.addEventListener("pointerdown", function () {
     document.querySelectorAll(".nav-drop.open").forEach(function (el) { el.classList.remove("open"); });
     document.querySelectorAll(".nav-menu,#drop-float").forEach(function (el) { el.style.display = "none"; });
@@ -32,10 +36,8 @@
     var html = list.map(function (it) { return '<a href="' + it[1] + '" class="' + (it[1] === current ? "active" : "") + '">' + it[0] + "</a>"; }).join("");
     if (bar.innerHTML !== html) bar.innerHTML = html;
     bar.classList.add("show");
-    lockLore();
   }
   paint();
-  setInterval(function () { paint(); lockLore(); }, 50);
+  setInterval(paint, 400);
   window.addEventListener("hashchange", paint);
-  requestAnimationFrame(function loop() { lockLore(); requestAnimationFrame(loop); });
 })();
