@@ -1,14 +1,23 @@
 (function () {
   var busy = false;
-  function abs(href) {
-    return location.pathname + href;
+  var style = document.createElement("style");
+  style.textContent = "body.hold-col .sheet,body.hold-col .atlas-stage,body.hold-col .room-body{top:96px!important}body.hold-col .journal-read{width:auto!important;max-width:760px;margin-left:auto;margin-right:auto}#section-bar{display:none;position:fixed;left:0;right:0;top:56px;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}";
+  document.documentElement.appendChild(style);
+  function hold() {
+    var h = (location.hash || "").replace(/^#\/?/, "");
+    var on = h === "atlas" || h.indexOf("atlas/") === 0 || h === "codex" || h.indexOf("codex/") === 0;
+    document.documentElement.classList.toggle("hold-col", on);
+    if (document.body) document.body.classList.toggle("hold-col", on);
   }
+  hold();
+  function abs(href) { return location.pathname + href; }
   function setHash(href) {
     if (location.hash === href) return;
     history.replaceState(null, "", abs(href));
   }
   function run(href) {
     setHash(href);
+    hold();
     if (href.indexOf("#/atlas") === 0 && window.renderAtlasWorld) {
       window.renderAtlasWorld(href.replace(/^#\/atlas\/?/, "") || "world");
       return true;
@@ -45,6 +54,7 @@
     e.stopImmediatePropagation();
     if (busy) return;
     busy = true;
+    hold();
     if (!run(href)) {
       var tries = 0;
       var timer = setInterval(function () {
@@ -55,4 +65,5 @@
     }
     busy = false;
   }, true);
+  window.addEventListener("hashchange", hold);
 })();
