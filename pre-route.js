@@ -1,5 +1,14 @@
 (function () {
   var busy = false;
+  var style = document.createElement("style");
+  style.textContent = "html.hold-col .sheet,html.hold-col .atlas-stage,html.hold-col .room-body{top:96px!important}";
+  document.documentElement.appendChild(style);
+  function hold() {
+    var h = location.hash || "";
+    var on = h.indexOf("#/atlas") === 0 || h.indexOf("#/codex") === 0;
+    document.documentElement.classList.toggle("hold-col", on);
+  }
+  hold();
   function abs(href) { return location.pathname + href; }
   function setHash(href) {
     if (location.hash === href) return;
@@ -7,6 +16,7 @@
   }
   function run(href) {
     setHash(href);
+    hold();
     if (href.indexOf("#/atlas") === 0 && window.renderAtlasWorld) {
       window.renderAtlasWorld(href.replace(/^#\/atlas\/?/, "") || "world");
       return true;
@@ -43,6 +53,7 @@
     e.stopImmediatePropagation();
     if (busy) return;
     busy = true;
+    hold();
     if (!run(href)) {
       var tries = 0;
       var timer = setInterval(function () {
@@ -53,4 +64,5 @@
     }
     busy = false;
   }, true);
+  window.addEventListener("hashchange", hold);
 })();
