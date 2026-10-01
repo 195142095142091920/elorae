@@ -6,5 +6,5 @@
     s.src = src;
     document.documentElement.appendChild(s);
   }
-  load("nav-boot.js?v=1");
+  load("nav-boot.js?v=2");
 })();
