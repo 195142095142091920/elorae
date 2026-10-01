@@ -1,7 +1,7 @@
 (function () {
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("restore-hash.js?v=4") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("restore-hash.js?v=5") !== -1; })) {
     var r = document.createElement("script");
-    r.src = "restore-hash.js?v=4";
+    r.src = "restore-hash.js?v=5";
     document.documentElement.appendChild(r);
   }
   if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=12") !== -1; })) return;

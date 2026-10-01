@@ -1,9 +1,13 @@
 (function () {
   window.__bootHash = location.hash || "";
+  var boot = window.__bootHash;
+  if (boot.indexOf("#/atlas") === 0 || boot.indexOf("#/codex") === 0) {
+    document.documentElement.classList.add("hold-route");
+    var hide = document.createElement("style");
+    hide.textContent = "html.hold-route body{visibility:hidden}html.hold-route body.atlas-page,html.hold-route body.journal-page,html.hold-route body.lore-page,html.hold-route body.room{visibility:visible}";
+    document.documentElement.appendChild(hide);
+  }
   var busy = false;
-  var style = document.createElement("style");
-  style.textContent = "html.hold-col .sheet,html.hold-col .atlas-stage,html.hold-col .room-body{top:96px!important}";
-  document.documentElement.appendChild(style);
   function hold() {
     var h = location.hash || "";
     var on = h.indexOf("#/atlas") === 0 || h.indexOf("#/codex") === 0;
@@ -20,10 +24,12 @@
     hold();
     if (href.indexOf("#/atlas") === 0 && window.renderAtlasWorld) {
       window.renderAtlasWorld(href.replace(/^#\/atlas\/?/, "") || "world");
+      document.documentElement.classList.remove("hold-route");
       return true;
     }
     if (href.indexOf("#/codex") === 0 && window.renderCodex) {
       window.renderCodex(href.replace(/^#\/codex\/?/, "") || "calendar");
+      document.documentElement.classList.remove("hold-route");
       return true;
     }
     if (href.indexOf("#/journal") === 0 && window.renderJournalEntry) {
@@ -32,7 +38,7 @@
       return true;
     }
     if (href === "#/index") {
-      if (window.renderIndex) { window.renderIndex(); return true; }
+      if (window.renderIndex) { window.renderIndex(); document.documentElement.classList.remove("hold-route"); return true; }
       if (window.route) { window.route(); return true; }
     }
     if (href === "#/gallery" && window.route) { window.route(); return true; }
@@ -54,7 +60,6 @@
     e.stopImmediatePropagation();
     if (busy) return;
     busy = true;
-    hold();
     if (!run(href)) {
       var tries = 0;
       var timer = setInterval(function () {
