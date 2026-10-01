@@ -1,29 +1,28 @@
 (function () {
-  const boot = (location.hash || "").replace(/^#\/?/, "");
-  window.__bootHash = boot;
+  var boot = window.__bootHash || location.hash || "";
   function renderBoot() {
-    const h = (location.hash || "").replace(/^#\/?/, "") || boot;
+    var h = (boot || "").replace(/^#\/?/, "");
     if (h === "atlas" || h.indexOf("atlas/") === 0) {
-      const id = h === "atlas" ? "world" : (h.slice(6) || "world");
-      if (location.hash !== "#/atlas/" + id) history.replaceState(null, "", "#/atlas/" + id);
-      if (window.renderAtlasWorld) window.renderAtlasWorld(id === "map" || id === "eras" ? "world" : id);
+      var id = h === "atlas" ? "world" : (h.slice(6) || "world");
+      if (id === "map" || id === "eras") id = "world";
+      var next = "#/atlas/" + id;
+      if (location.hash !== next) history.replaceState(null, "", location.pathname + next);
+      if (window.renderAtlasWorld) window.renderAtlasWorld(id);
       return;
     }
     if (h === "codex" || h.indexOf("codex/") === 0) {
-      const id = h === "codex" ? "calendar" : (h.slice(6) || "calendar");
-      if (location.hash !== "#/codex/" + id) history.replaceState(null, "", "#/codex/" + id);
-      if (window.renderCodex) window.renderCodex(id);
-      return;
+      var cid = h === "codex" ? "calendar" : (h.slice(6) || "calendar");
+      var cnext = "#/codex/" + cid;
+      if (location.hash !== cnext) history.replaceState(null, "", location.pathname + cnext);
+      if (window.renderCodex) window.renderCodex(cid);
     }
-    if (h === "journal" || h.indexOf("journal/") === 0) {
-      const id = h.indexOf("journal/") === 0 ? h.slice(8) : ((window.JOURNAL && window.JOURNAL[0] && window.JOURNAL[0].id) || "");
-      if (id && window.renderJournalEntry) window.renderJournalEntry(id);
-      return;
-    }
-    if (h === "index" && typeof window.route === "function") window.route();
   }
-  window.__renderBoot = renderBoot;
-  setTimeout(renderBoot, 0);
-  setTimeout(renderBoot, 80);
-  setTimeout(renderBoot, 400);
+  if (boot.indexOf("#/atlas") === 0 || boot.indexOf("#/codex") === 0) {
+    var n = 0;
+    var timer = setInterval(function () {
+      n += 1;
+      if ((location.hash || "").indexOf(boot.indexOf("#/atlas") === 0 ? "#/atlas" : "#/codex") !== 0 || n < 8) renderBoot();
+      if (n > 12) clearInterval(timer);
+    }, 100);
+  }
 })();

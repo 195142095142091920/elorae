@@ -1,4 +1,5 @@
 (function () {
+  window.__bootHash = location.hash || "";
   var busy = false;
   var style = document.createElement("style");
   style.textContent = "html.hold-col .sheet,html.hold-col .atlas-stage,html.hold-col .room-body{top:96px!important}";
