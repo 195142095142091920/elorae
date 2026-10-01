@@ -4,7 +4,7 @@
   body.atlas-page .room-body,
   body.journal-page .sheet,
   body.journal-page .room-body {
-    top: 96px !important;
+    top: 102px !important;
   }
   .journal-page .journal-read::before {
     display: block !important;
