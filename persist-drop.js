@@ -6,6 +6,5 @@
     s.src = src;
     document.documentElement.appendChild(s);
   }
-  load("soft-swap.js?v=1");
-  load("section-bar.js?v=2");
+  load("nav-boot.js?v=1");
 })();

@@ -1,55 +1,29 @@
 (function () {
-  let booted = false;
-  function pathOf(raw) {
-    return String(raw || "").replace(/^#\/?/, "");
-  }
-  function openKept() {
-    const raw = window.__keepHash || location.hash || "";
-    const h = pathOf(raw);
+  const boot = (location.hash || "").replace(/^#\/?/, "");
+  window.__bootHash = boot;
+  function renderBoot() {
+    const h = (location.hash || "").replace(/^#\/?/, "") || boot;
     if (h === "atlas" || h.indexOf("atlas/") === 0) {
-      const id = h === "atlas" ? "world" : (h.replace(/^atlas\/?/, "") || "world");
-      const dest = "#/atlas/" + (id === "eras" || id === "map" ? "world" : id);
-      try { history.replaceState(null, "", dest); } catch (e) {}
-      if (typeof window.renderAtlasWorld === "function") window.renderAtlasWorld(id === "eras" || id === "map" ? "world" : id);
-      return true;
-    }
-    if (h === "codex" || h.indexOf("codex/") === 0) {
-      const id = h === "codex" ? "calendar" : (h.replace(/^codex\/?/, "") || "calendar");
-      try { history.replaceState(null, "", "#/codex/" + id); } catch (e) {}
-      if (typeof window.renderCodex === "function") window.renderCodex(id);
-      return true;
-    }
-    return false;
-  }
-  function followHash() {
-    const h = pathOf(location.hash);
-    if (h === "atlas" || h.indexOf("atlas/") === 0) {
-      const id = h === "atlas" ? "world" : (h.replace(/^atlas\/?/, "") || "world");
-      if (typeof window.renderAtlasWorld === "function") window.renderAtlasWorld(id === "eras" || id === "map" ? "world" : id);
-      return true;
-    }
-    if (h === "codex" || h.indexOf("codex/") === 0) {
-      const id = h === "codex" ? "calendar" : (h.replace(/^codex\/?/, "") || "calendar");
-      if (typeof window.renderCodex === "function") window.renderCodex(id);
-      return true;
-    }
-    return false;
-  }
-  const prev = window.route;
-  window.route = function () {
-    if (!booted && openKept()) {
-      booted = true;
-      window.__lockNav = false;
+      const id = h === "atlas" ? "world" : (h.slice(6) || "world");
+      if (location.hash !== "#/atlas/" + id) history.replaceState(null, "", "#/atlas/" + id);
+      if (window.renderAtlasWorld) window.renderAtlasWorld(id === "map" || id === "eras" ? "world" : id);
       return;
     }
-    if (followHash()) return;
-    if (typeof prev === "function") prev();
-  };
-  window.addEventListener("hashchange", function () {
-    followHash();
-  });
-  openKept();
-  booted = true;
-  setTimeout(function () { window.__lockNav = false; }, 80);
-  setTimeout(function () { window.__lockNav = false; }, 420);
+    if (h === "codex" || h.indexOf("codex/") === 0) {
+      const id = h === "codex" ? "calendar" : (h.slice(6) || "calendar");
+      if (location.hash !== "#/codex/" + id) history.replaceState(null, "", "#/codex/" + id);
+      if (window.renderCodex) window.renderCodex(id);
+      return;
+    }
+    if (h === "journal" || h.indexOf("journal/") === 0) {
+      const id = h.indexOf("journal/") === 0 ? h.slice(8) : ((window.JOURNAL && window.JOURNAL[0] && window.JOURNAL[0].id) || "");
+      if (id && window.renderJournalEntry) window.renderJournalEntry(id);
+      return;
+    }
+    if (h === "index" && typeof window.route === "function") window.route();
+  }
+  window.__renderBoot = renderBoot;
+  setTimeout(renderBoot, 0);
+  setTimeout(renderBoot, 80);
+  setTimeout(renderBoot, 400);
 })();
