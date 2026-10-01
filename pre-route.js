@@ -1,17 +1,39 @@
 (function () {
   window.__bootHash = location.hash || "";
   var boot = window.__bootHash;
+  var ATLAS = [["Overview","#/atlas/world"],["Cosm","#/atlas/cosm"],["Essen Revir","#/atlas/essen-revir"],["Far Nybei","#/atlas/far-nybei"],["Hesk","#/atlas/hesk"]];
+  var CODEX = [["Calendar","#/codex/calendar"],["Lore","#/codex/lore"],["Magics","#/codex/magics"],["Souls","#/codex/souls"]];
+  if (!document.getElementById("early-section-css")) {
+    var css = document.createElement("style");
+    css.id = "early-section-css";
+    css.textContent = "#section-bar{display:none;position:fixed;left:0;right:0;top:62px;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase}#section-bar a.active,#section-bar a:hover{color:#f3eee6}@media (min-width:801px){.topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}.topbar .filters,.mast .topbar .filters{position:absolute!important;left:50%!important;transform:translateX(-50%)!important}}";
+    document.documentElement.appendChild(css);
+  }
+  function paintBar() {
+    var h = (location.hash || boot || "").replace(/^#\/?/, "");
+    var list = null, current = "";
+    if (h === "atlas" || h.indexOf("atlas/") === 0) { list = ATLAS; current = "#/atlas/" + (h === "atlas" ? "world" : h.slice(6)); }
+    else if (h === "codex" || h.indexOf("codex/") === 0) { list = CODEX; current = "#/codex/" + (h === "codex" ? "calendar" : h.slice(6)); }
+    var bar = document.getElementById("section-bar");
+    if (!list) { if (bar) { bar.classList.remove("show"); bar.innerHTML = ""; } return; }
+    if (!bar) { bar = document.createElement("nav"); bar.id = "section-bar"; document.documentElement.appendChild(bar); }
+    var top = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
+    if (top) bar.style.top = Math.round(top.getBoundingClientRect().bottom) + "px";
+    bar.innerHTML = list.map(function (it) { return '<a href="' + it[1] + '" class="' + (it[1] === current ? "active" : "") + '">' + it[0] + "</a>"; }).join("");
+    bar.classList.add("show");
+  }
   if (boot.indexOf("#/atlas") === 0 || boot.indexOf("#/codex") === 0) {
     document.documentElement.classList.add("hold-route");
     var hide = document.createElement("style");
     hide.textContent = "html.hold-route body{visibility:hidden}html.hold-route body.atlas-page,html.hold-route body.journal-page,html.hold-route body.lore-page,html.hold-route body.room{visibility:visible}";
     document.documentElement.appendChild(hide);
+    paintBar();
   }
+  document.addEventListener("DOMContentLoaded", paintBar);
   var busy = false;
   function hold() {
     var h = location.hash || "";
-    var on = h.indexOf("#/atlas") === 0 || h.indexOf("#/codex") === 0;
-    document.documentElement.classList.toggle("hold-col", on);
+    document.documentElement.classList.toggle("hold-col", h.indexOf("#/atlas") === 0 || h.indexOf("#/codex") === 0);
   }
   hold();
   function abs(href) { return location.pathname + href; }
@@ -22,6 +44,7 @@
   function run(href) {
     setHash(href);
     hold();
+    paintBar();
     if (href.indexOf("#/atlas") === 0 && window.renderAtlasWorld) {
       window.renderAtlasWorld(href.replace(/^#\/atlas\/?/, "") || "world");
       document.documentElement.classList.remove("hold-route");
@@ -70,5 +93,5 @@
     }
     busy = false;
   }, true);
-  window.addEventListener("hashchange", hold);
+  window.addEventListener("hashchange", function () { hold(); paintBar(); });
 })();
