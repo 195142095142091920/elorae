@@ -5,9 +5,15 @@
     gap.textContent = "@media (min-width:801px){body.journal-page .journal-read,body.atlas-page .journal-read,body.lore-page .journal-read{padding-top:72px!important}}";
     document.documentElement.appendChild(gap);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=26") !== -1; })) {
+  if (!document.getElementById("fit-lock")) {
+    var fit = document.createElement("style");
+    fit.id = "fit-lock";
+    fit.textContent = ".entry #fitmark,.entry .fit-mark,.entry #fit,.entry .fit-toggle{color:#f3eee6!important;opacity:1!important;text-shadow:none!important}.entry #fitmark,.entry .fit-mark{transform:translateY(2px)!important}.entry #fitmark svg,.entry .fit-mark svg,.entry #fit svg,.entry .fit-toggle svg,.entry #fitmark path,.entry .fit-mark path,.entry #fit path,.entry .fit-toggle path{stroke:#f3eee6!important;color:#f3eee6!important;opacity:1!important;stroke-width:2.4!important}";
+    document.documentElement.appendChild(fit);
+  }
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=27") !== -1; })) {
     var f = document.createElement("script");
-    f.src = "features.js?v=26";
+    f.src = "features.js?v=27";
     document.documentElement.appendChild(f);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=3") !== -1; })) {
