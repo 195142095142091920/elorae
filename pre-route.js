@@ -6,7 +6,7 @@
   if (!document.getElementById("early-section-css")) {
     var css = document.createElement("style");
     css.id = "early-section-css";
-    css.textContent = "#section-bar{display:none;position:fixed;left:0;right:0;top:62px;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase}#section-bar a.active,#section-bar a:hover{color:#f3eee6}@media (min-width:801px){.topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}.topbar .filters,.mast .topbar .filters{position:absolute!important;left:50%!important;transform:translateX(-50%)!important}}";
+    css.textContent = ".chapter-tabs,.topbar .chapter-tabs{display:none!important}#section-bar{display:none;position:fixed;left:0;right:0;top:62px;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase}#section-bar a.active,#section-bar a:hover{color:#f3eee6}@media (min-width:801px){.topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}.topbar .filters,.mast .topbar .filters{position:absolute!important;left:50%!important;transform:translateX(-50%)!important}}";
     document.documentElement.appendChild(css);
   }
   function paintBar() {
@@ -36,10 +36,9 @@
     document.documentElement.classList.toggle("hold-col", h.indexOf("#/atlas") === 0 || h.indexOf("#/codex") === 0);
   }
   hold();
-  function abs(href) { return location.pathname + href; }
   function setHash(href) {
     if (location.hash === href) return;
-    history.replaceState(null, "", abs(href));
+    history.replaceState(null, "", location.pathname + href);
   }
   function run(href) {
     setHash(href);
