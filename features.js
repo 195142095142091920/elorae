@@ -8,7 +8,7 @@
   if (!document.getElementById("feature-css")) {
     var s = document.createElement("style");
     s.id = "feature-css";
-    s.textContent = "#seek{position:fixed;top:16px;left:118px;z-index:260;background:transparent;border:0;border-bottom:1px solid rgba(143,138,130,.45);color:#f3eee6;font:inherit;font-size:13px;letter-spacing:.06em;width:160px;padding:4px 2px;outline:none}#seek::placeholder{color:#8f8a82}#friend-link{position:fixed;top:18px;right:28px;z-index:260;color:#8f8a82;text-decoration:none;letter-spacing:.16em;text-transform:uppercase;font-size:16px}#friend-link:hover{color:#f3eee6}@media (min-width:801px){.wall{grid-template-columns:repeat(4,minmax(0,1fr))!important}.tile .name,.tile figcaption,.wall .tile span{font-size:15px!important;letter-spacing:.04em}.tile::after{content:\"\";position:absolute;left:0;right:0;bottom:0;height:72px;background:linear-gradient(to top,rgba(0,0,0,.72),rgba(0,0,0,0));pointer-events:none}.lore-toggle,.zone-lore,#lore{font-size:15px!important}}@media (max-width:800px){#seek{top:46px;left:16px;width:140px}#friend-link{top:14px;right:12px;font-size:11px}}";
+    s.textContent = "#seek-wrap{position:fixed;top:14px;left:108px;z-index:260;display:flex;align-items:center;gap:8px}#seek-glyph{background:none;border:0;color:#8f8a82;cursor:pointer;padding:4px;line-height:0}#seek-glyph:hover{color:#f3eee6}#seek{width:0;opacity:0;background:transparent;border:0;border-bottom:1px solid transparent;color:#f3eee6;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.08em;padding:4px 0;outline:none;transition:width .18s ease,opacity .18s ease}#seek-wrap.open #seek{width:160px;opacity:1;border-bottom-color:rgba(143,138,130,.45)}#seek::placeholder{color:#8f8a82}#friend-link{position:fixed;top:18px;right:28px;z-index:260;color:#8f8a82;text-decoration:none;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:16px;letter-spacing:.16em;text-transform:uppercase}#friend-link:hover{color:#f3eee6}@media (min-width:801px){.wall{grid-template-columns:repeat(4,minmax(0,1fr))!important}.tile .name,.tile figcaption,.wall .tile span{font-size:15px!important;letter-spacing:.04em}.tile::after{content:\"\";position:absolute;left:0;right:0;bottom:0;height:72px;background:linear-gradient(to top,rgba(0,0,0,.72),rgba(0,0,0,0));pointer-events:none}.lore-toggle,.zone-lore,#lore{font-size:15px!important}}@media (max-width:800px){#seek-wrap{top:44px;left:14px}#friend-link{top:14px;right:12px;font-size:11px;letter-spacing:.1em}}";
     document.documentElement.appendChild(s);
   }
   function who() { return typeof vaultOf === "function" ? vaultOf() : null; }
@@ -25,13 +25,17 @@
     if (old.textContent !== FIGURE[v.id][0]) old.textContent = FIGURE[v.id][0];
   }
   function paintSearch() {
-    if (document.getElementById("seek")) return;
-    var input = document.createElement("input");
-    input.id = "seek";
-    input.placeholder = "Search";
-    input.autocomplete = "off";
-    document.documentElement.appendChild(input);
+    if (document.getElementById("seek-wrap")) return;
+    var wrap = document.createElement("div");
+    wrap.id = "seek-wrap";
+    wrap.innerHTML = '<button id="seek-glyph" type="button" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2 L14 14"/></svg></button><input id="seek" placeholder="Search" autocomplete="off">';
+    document.documentElement.appendChild(wrap);
+    var glyph = wrap.querySelector("#seek-glyph");
+    var input = wrap.querySelector("#seek");
+    function open() { wrap.classList.add("open"); input.focus(); }
+    glyph.addEventListener("click", open);
     input.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { wrap.classList.remove("open"); input.blur(); return; }
       if (e.key !== "Enter") return;
       var q = input.value.trim().toLowerCase();
       if (!q) return;
@@ -39,15 +43,13 @@
       var hit = pool.find(function (e2) { return (e2.title || "").toLowerCase() === q; }) || pool.find(function (e2) { return (e2.title || "").toLowerCase().indexOf(q) !== -1; });
       if (hit) location.hash = "#/" + hit.id;
     });
+    document.addEventListener("keydown", function (e) {
+      var t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.key.length !== 1) return;
+      open();
+    });
   }
-  document.addEventListener("keydown", function (e) {
-    var t = e.target;
-    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-    if (e.metaKey || e.ctrlKey || e.altKey || e.key.length !== 1) return;
-    var input = document.getElementById("seek");
-    if (!input) return;
-    input.focus();
-  });
   paintSearch();
   paintFriend();
   window.addEventListener("hashchange", paintFriend);
