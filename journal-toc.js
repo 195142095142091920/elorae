@@ -8,7 +8,7 @@
   function label(j) {
     var act = String(j.act || "").replace(/^act\s+/i, "").trim();
     var chap = String(j.chapter || "").replace(/^chapter\s+/i, "").trim();
-    if (act && chap) return "Act " + act + " \u00b7 Chapter " + chap;
+    if (act && chap) return act + ". " + chap;
     return j.title || j.id;
   }
   function paint() {
