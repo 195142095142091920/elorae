@@ -1,6 +1,6 @@
 (function () {
-  if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=6") !== -1; })) return;
+  if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=7") !== -1; })) return;
   var s = document.createElement("script");
-  s.src = "nav-boot.js?v=6";
+  s.src = "nav-boot.js?v=7";
   document.documentElement.appendChild(s);
 })();

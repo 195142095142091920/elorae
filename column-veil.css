@@ -38,17 +38,3 @@
     ) !important;
   }
 }
-html { scrollbar-gutter: stable; }
-.sheet, .index-list, .room-body, .atlas-stage {
-  overflow-y: scroll !important;
-  scrollbar-gutter: stable;
-}
-.journal-read {
-  width: min(760px, calc(100% - 48px));
-  margin-left: auto;
-  margin-right: auto;
-  transition: none !important;
-}
-.journal-read, .journal-read p, .journal-read h2 {
-  animation: none !important;
-}
