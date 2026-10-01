@@ -54,9 +54,9 @@
     var fade;
     function show(q) {
       ghost.textContent = q;
-      ghost.classList.add("show");
+      ghost.classList.toggle("show", !!q);
       clearTimeout(fade);
-      fade = setTimeout(function () { ghost.classList.remove("show"); }, 900);
+      if (q) fade = setTimeout(function () { ghost.classList.remove("show"); }, 900);
       document.querySelectorAll(".tile").forEach(function (tile) {
         var name = (tile.textContent || "").toLowerCase();
         tile.classList.toggle("search-dim", q.length > 0 && name.indexOf(q.toLowerCase()) === -1);
@@ -67,15 +67,18 @@
       ghost.classList.remove("show");
       document.querySelectorAll(".tile.search-dim").forEach(function (tile) { tile.classList.remove("search-dim"); });
     }
-    wrap.querySelector("#seek-glyph").addEventListener("click", function () { input.focus(); });
-    input.addEventListener("input", function () { show(input.value); });
-    input.addEventListener("keydown", function (e) {
-      if (e.key !== "Enter") return;
+    function go() {
       var q = input.value.trim().toLowerCase();
       if (!q) return;
-      var hit = pool().find(function (e2) { return (e2.title || "").toLowerCase() === q; }) || pool().find(function (e2) { return (e2.title || "").toLowerCase().indexOf(q) !== -1; });
-      if (hit) { clear(); location.hash = "#/" + hit.id; }
-    });
+      var list = pool();
+      var hit = list.find(function (e2) { return (e2.title || "").toLowerCase() === q; }) || list.find(function (e2) { return (e2.title || "").toLowerCase().indexOf(q) === 0; }) || list.find(function (e2) { return (e2.title || "").toLowerCase().indexOf(q) !== -1; });
+      if (!hit) return;
+      clear();
+      var href = "#/" + hit.id;
+      if (location.hash !== href) location.hash = href;
+      else if (window.route) window.route();
+    }
+    wrap.querySelector("#seek-glyph").addEventListener("click", function () { input.focus(); });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && (input.value || ghost.classList.contains("show"))) {
         clear();
@@ -85,14 +88,21 @@
         e.stopImmediatePropagation();
         return;
       }
+      if (e.key === "Enter" && input.value) {
+        go();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return;
+      }
       var t = e.target;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable) && t !== input) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "Backspace") {
+      if (e.key === "Backspace" && input.value) {
         input.value = input.value.slice(0, -1);
         show(input.value);
-        if (!input.value) clear();
         e.preventDefault();
+        e.stopPropagation();
         return;
       }
       if (e.key.length !== 1) return;
