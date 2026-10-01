@@ -3,7 +3,9 @@
   body.atlas-page .atlas-stage,
   body.atlas-page .room-body,
   body.journal-page .sheet,
-  body.journal-page .room-body {
+  body.journal-page .room-body,
+  body.lore-page .sheet,
+  body.lore-page .lore-rail {
     top: 102px !important;
   }
   .journal-page .journal-read::before {
