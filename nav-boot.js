@@ -6,7 +6,7 @@
     const s = document.createElement("style");
     s.id = "nav-boot-css";
     s.textContent =
-      ".nav-menu,#drop-float,.nav-drop::after{display:none!important;visibility:hidden!important;pointer-events:none!important}" +
+      ".nav-menu,#drop-float,.nav-drop::after{display:none!important;pointer-events:none!important}" +
       ".nav-drop{display:inline!important}" +
       "@media (min-width:801px){" +
       ".topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}" +
@@ -15,7 +15,7 @@
       "}" +
       "#section-bar{display:none;position:fixed;left:0;right:0;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}" +
       "#section-bar.show{display:flex}" +
-      "#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase;pointer-events:auto}" +
+      "#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase}" +
       "#section-bar a.active,#section-bar a:hover{color:#f3eee6}" +
       "body.has-section-bar .sheet,body.has-section-bar .lore-rail{top:calc(var(--nav-h,56px) + 40px)!important}";
     document.documentElement.appendChild(s);
@@ -31,11 +31,7 @@
   function path() { return (location.hash || "").replace(/^#\/?/, ""); }
 
   function killMenus() {
-    document.querySelectorAll(".nav-menu, #drop-float").forEach(function (el) {
-      el.style.display = "none";
-      el.remove();
-    });
-    document.querySelectorAll(".nav-drop.open").forEach(function (el) { el.classList.remove("open"); });
+    document.querySelectorAll(".nav-menu, #drop-float").forEach(function (el) { el.remove(); });
   }
 
   function paint() {
@@ -49,9 +45,9 @@
     }
     let list = null, current = "";
     if (h === "atlas" || h.indexOf("atlas/") === 0) {
-      list = ATLAS; current = h === "atlas" ? "#/atlas/world" : "#/" + h;
+      list = ATLAS; current = "#/atlas/" + (h === "atlas" ? "world" : h.slice(6));
     } else if (h === "codex" || h.indexOf("codex/") === 0) {
-      list = CODEX; current = h === "codex" ? "#/codex/calendar" : "#/" + h;
+      list = CODEX; current = "#/codex/" + (h === "codex" ? "calendar" : h.slice(6));
     }
     if (!list) {
       bar.classList.remove("show");
@@ -68,28 +64,20 @@
 
   function go(href) {
     killMenus();
-    if (href.indexOf("#/atlas") === 0) {
-      const id = href.replace(/^#\/atlas\/?/, "") || "world";
-      history.replaceState(null, "", "#/atlas/" + id);
-      if (window.renderAtlasWorld) window.renderAtlasWorld(id);
-      paint();
-      return;
+    if (location.hash !== href) location.hash = href;
+    if (href.indexOf("#/atlas") === 0 && window.renderAtlasWorld) {
+      window.renderAtlasWorld(href.replace(/^#\/atlas\/?/, "") || "world");
+    } else if (href.indexOf("#/codex") === 0 && window.renderCodex) {
+      window.renderCodex(href.replace(/^#\/codex\/?/, "") || "calendar");
+    } else if (href.indexOf("#/journal") === 0 && window.renderJournalEntry) {
+      const id = href.replace(/^#\/journal\/?/, "") || (window.JOURNAL && window.JOURNAL[0] && window.JOURNAL[0].id);
+      window.renderJournalEntry(id);
+    } else if (href === "#/index") {
+      if (window.renderIndex) window.renderIndex();
+      else if (window.route) window.route();
+    } else if (href === "#/gallery" && window.route) {
+      window.route();
     }
-    if (href.indexOf("#/codex") === 0) {
-      const id = href.replace(/^#\/codex\/?/, "") || "calendar";
-      history.replaceState(null, "", "#/codex/" + id);
-      if (window.renderCodex) window.renderCodex(id);
-      paint();
-      return;
-    }
-    if (href.indexOf("#/journal") === 0) {
-      const id = href.replace(/^#\/journal\/?/, "");
-      history.replaceState(null, "", id ? "#/journal/" + id : "#/journal");
-      if (window.renderJournalEntry) window.renderJournalEntry(id || (window.JOURNAL && window.JOURNAL[0] && window.JOURNAL[0].id));
-      paint();
-      return;
-    }
-    location.hash = href;
     paint();
   }
 
@@ -102,21 +90,21 @@
       return;
     }
     const a = e.target.closest && e.target.closest("a");
-    if (!a) return;
-    if (a.closest("#section-bar")) return;
-    const inFilters = a.closest(".filters, .topbar, .mast");
-    if (!inFilters) return;
-    if (a.closest(".nav-menu, .chapter-tabs, .atlas-tabs, .subbar")) return;
+    if (!a || !a.closest(".filters, .topbar, .mast")) return;
+    if (a.closest("#section-bar, .chapter-tabs, .atlas-tabs, .subbar")) return;
     const label = a.textContent.replace(/\s+/g, " ").trim();
-    if (label === "Atlas") { e.preventDefault(); e.stopImmediatePropagation(); go("#/atlas/world"); }
-    else if (label === "Codex") { e.preventDefault(); e.stopImmediatePropagation(); go("#/codex/calendar"); }
-    else if (label === "Journal") { e.preventDefault(); e.stopImmediatePropagation(); go("#/journal"); }
-    else if (label === "Index") { e.preventDefault(); e.stopImmediatePropagation(); go("#/index"); }
-    else if (label === "Gallery") { e.preventDefault(); e.stopImmediatePropagation(); go("#/gallery"); }
+    const map = { Atlas: "#/atlas/world", Codex: "#/codex/calendar", Gallery: "#/gallery", Index: "#/index", Journal: "#/journal" };
+    if (!map[label]) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    go(map[label]);
   }, true);
 
   paint();
-  setInterval(paint, 250);
-  window.addEventListener("hashchange", paint);
-  if (window.__renderBoot) setTimeout(window.__renderBoot, 50);
+  setInterval(paint, 300);
+  window.addEventListener("hashchange", function () {
+    const h = path();
+    if (h === "index" && window.renderIndex) window.renderIndex();
+    paint();
+  });
 })();
