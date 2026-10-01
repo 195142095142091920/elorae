@@ -15,8 +15,19 @@
   body.journal-page .sheet,
   body.journal-page .room-body,
   body.lore-page .sheet,
-  body.lore-page .lore-rail {
+  body.lore-page .lore-rail,
+  .journal-rail {
     top: 102px !important;
+  }
+  body.journal-page .journal-read,
+  body.atlas-page .journal-read,
+  body.lore-page .journal-read {
+    padding-top: 72px !important;
+  }
+  .journal-read > h2:first-child,
+  .journal-read > .codex-h:first-child,
+  .journal-read > .codex-title:first-child {
+    margin-top: 0 !important;
   }
   .journal-page .journal-read::before {
     display: block !important;
