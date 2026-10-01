@@ -5,9 +5,9 @@
     gap.textContent = "@media (min-width:801px){body.journal-page .journal-read,body.atlas-page .journal-read,body.lore-page .journal-read{padding-top:72px!important}}";
     document.documentElement.appendChild(gap);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=9") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=10") !== -1; })) {
     var f = document.createElement("script");
-    f.src = "features.js?v=9";
+    f.src = "features.js?v=10";
     document.documentElement.appendChild(f);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=3") !== -1; })) {
