@@ -33,9 +33,9 @@
     var glyph = wrap.querySelector("#seek-glyph");
     var input = wrap.querySelector("#seek");
     function open() { wrap.classList.add("open"); input.focus(); }
+    function close() { wrap.classList.remove("open"); input.blur(); }
     glyph.addEventListener("click", open);
     input.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { wrap.classList.remove("open"); input.blur(); return; }
       if (e.key !== "Enter") return;
       var q = input.value.trim().toLowerCase();
       if (!q) return;
@@ -44,11 +44,18 @@
       if (hit) location.hash = "#/" + hit.id;
     });
     document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && wrap.classList.contains("open")) {
+        close();
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return;
+      }
       var t = e.target;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey || e.key.length !== 1) return;
       open();
-    });
+    }, true);
   }
   paintSearch();
   paintFriend();
