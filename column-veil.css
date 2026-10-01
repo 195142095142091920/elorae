@@ -1,4 +1,14 @@
 @media (min-width: 801px) {
+  .topbar, .mast .topbar {
+    display: flex !important;
+    align-items: center;
+    position: relative;
+  }
+  .topbar .filters, .mast .topbar .filters {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
   body.atlas-page .sheet,
   body.atlas-page .atlas-stage,
   body.atlas-page .room-body,
