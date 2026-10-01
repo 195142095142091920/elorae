@@ -1,5 +1,16 @@
 (function () {
   window.__bootHash = location.hash || "";
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var wrap = document.getElementById("seek-wrap");
+    if (!wrap || !wrap.classList.contains("open")) return;
+    wrap.classList.remove("open");
+    var input = document.getElementById("seek");
+    if (input) input.blur();
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+  }, true);
   var boot = window.__bootHash;
   var ATLAS = [["Overview","#/atlas/world"],["Cosm","#/atlas/cosm"],["Essen Revir","#/atlas/essen-revir"],["Far Nybei","#/atlas/far-nybei"],["Hesk","#/atlas/hesk"]];
   var CODEX = [["Calendar","#/codex/calendar"],["Lore","#/codex/lore"],["Magics","#/codex/magics"],["Souls","#/codex/souls"]];
