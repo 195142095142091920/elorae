@@ -77,7 +77,8 @@
       return true;
     }
     if (href.indexOf("#/journal") === 0 && window.renderJournalEntry) {
-      var id = href.replace(/^#\/journal\/?/, "") || (window.JOURNAL && window.JOURNAL[0] && window.JOURNAL[0].id);
+      var list = window.JOURNAL || [];
+      var id = href.replace(/^#\/journal\/?/, "") || (list[list.length - 1] && list[list.length - 1].id);
       window.renderJournalEntry(id);
       return true;
     }
@@ -96,7 +97,7 @@
     if (sec) href = sec.getAttribute("href") || "";
     else if (a.closest(".filters, .topbar, .mast") && !a.closest(".chapter-tabs, .atlas-tabs, .subbar")) {
       var label = a.textContent.replace(/\s+/g, " ").trim();
-      var map = { Atlas: "#/atlas/world", Codex: "#/codex/calendar", Gallery: "#/gallery", Index: "#/index", Journal: "#/journal" };
+      var map = { Atlas: "#/atlas/world", Codex: "#/codex/calendar", Gallery: "#/gallery", Index: "#/index", Journal: "#/journal/iii-xli" };
       href = map[label] || "";
     }
     if (!href || href.charAt(0) !== "#") return;
