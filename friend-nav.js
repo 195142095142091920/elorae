@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}@media (max-width:800px){#friend-link{position:fixed;top:calc(env(safe-area-inset-top) + 9px);right:12px;z-index:640;font-size:11px;letter-spacing:.12em}body.has-friend .topbar,body.has-friend .mast .topbar,body.has-friend header.topbar{padding-right:78px}body.entry #friend-link{right:62px!important;top:calc(env(safe-area-inset-top) + 11px)!important}}body.seal-page #friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:42px;height:22px}#friend-link a + a{margin-left:42px!important}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a:hover,#friend-link a.here{color:#f3eee6}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}@media (max-width:800px){#friend-link{position:fixed;top:calc(env(safe-area-inset-top) + 38px);right:14px;z-index:640;font-size:11px;letter-spacing:.12em;pointer-events:auto}body.entry #friend-link{right:62px!important;top:calc(env(safe-area-inset-top) + 11px)!important}}body.seal-page #friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:42px;height:22px}#friend-link a + a{margin-left:42px!important}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a:hover,#friend-link a.here{color:#f3eee6}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -37,9 +37,9 @@
       ctx.clearRect(0, 0, W, H);
       ctx.save();
       ctx.translate(W / 2, 78);
-      ctx.scale(1.7, 0.7);
+      ctx.scale(1.15, 0.45);
       var g = ctx.createRadialGradient(0, 0, 6, 0, 0, 120);
-      g.addColorStop(0, "rgba(" + firstTone.wash + ",0.42)");
+      g.addColorStop(0, "rgba(" + firstTone.wash + ",0.22)");
       g.addColorStop(0.4, "rgba(" + firstTone.wash + ",0.16)");
       g.addColorStop(0.72, "rgba(" + firstTone.wash + ",0)");
       g.addColorStop(1, "rgba(" + firstTone.wash + ",0)");
@@ -71,7 +71,7 @@
       ctx2.translate(W / 2, 78);
       ctx2.scale(2.8, 1);
       var g2 = ctx2.createRadialGradient(0, 0, 6, 0, 0, 120);
-      g2.addColorStop(0, "rgba(" + tone.wash + ",0.42)");
+      g2.addColorStop(0, "rgba(" + tone.wash + ",0.22)");
       g2.addColorStop(0.4, "rgba(" + tone.wash + ",0.16)");
       g2.addColorStop(0.72, "rgba(" + tone.wash + ",0)");
       g2.addColorStop(1, "rgba(" + tone.wash + ",0)");
@@ -200,8 +200,8 @@
     function place(canvas, el) {
       var box = el.getBoundingClientRect();
       canvas.setAttribute("data-tone", el.getAttribute("data-name"));
-      canvas.width = W;
-      canvas.height = H;
+      if (canvas.width !== W) canvas.width = W;
+      if (canvas.height !== H) canvas.height = H;
       canvas.style.position = "fixed";
       canvas.style.zIndex = "240";
       canvas.style.pointerEvents = "none";
@@ -229,5 +229,5 @@
   window.paintFriend = paint;
   paint();
   window.addEventListener("hashchange", function () { setTimeout(paint, 40); setTimeout(greet, 60); });
-  setInterval(paint, 300);
+  setInterval(paint, 1200);
 })();
