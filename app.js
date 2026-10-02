@@ -30,7 +30,9 @@ function rooms(current) {
 }
 
 function brand() {
-  return '<a href="#/seal">Elorae</a>';
+  // old left-hand brand, painted then hidden by friend-nav:
+  // return '<a href="#/seal">Elorae</a>';
+  return '<span id="friend-link" data-built="elorae"><a href="#/seal" data-name="Elorae">Elorae</a></span>';
 }
 
 function normCode(s) {
