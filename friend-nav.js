@@ -24,9 +24,8 @@
   function drawBits() {
     if (glow.style.display !== "none") {
       ctx.clearRect(0, 0, W, H);
-      var g = ctx.createRadialGradient(W / 2, 78, 4, W / 2, 90, 170);
-      g.addColorStop(0, "rgba(18,78,48,0.28)");
-      g.addColorStop(0.5, "rgba(12,58,36,0.1)");
+      var g = ctx.createRadialGradient(W / 2, 78, 80, W / 2, 90, 180);
+      g.addColorStop(0, "rgba(18,78,48,0.16)");
       g.addColorStop(1, "rgba(12,58,36,0)");
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
