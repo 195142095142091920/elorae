@@ -42,8 +42,8 @@
     if (!on) { if (bar) bar.remove(); return; }
     var entries = window.JOURNAL || [];
     var current = hash().indexOf("journal/") === 0 ? hash().slice(8) : (entries[0] && entries[0].id);
-    var currentLabel = "Contents";
-    entries.forEach(function (j) { if (j.id === current) currentLabel = (j.act || "") + ". " + (j.chapter || ""); });
+    var currentLabel = "Chapters";
+    /* toggle stays labeled Chapters */
     if (!bar) {
       bar = document.createElement("nav");
       bar.id = "journal-mobile-toc";
@@ -70,7 +70,7 @@
     var toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "index-toggle";
-    toggle.textContent = "Index";
+    toggle.textContent = "Categories";
     rail.insertBefore(toggle, rail.firstChild);
     toggle.addEventListener("click", function () { rail.classList.toggle("open"); });
     rail.addEventListener("click", function (e) {
@@ -115,7 +115,7 @@
     var toggle = rail && rail.querySelector(".index-toggle");
     if (toggle) {
       var on = rail.querySelector("button.on");
-      if (on) toggle.textContent = on.textContent;
+      toggle.textContent = "Categories";
     }
   }
   tick();
