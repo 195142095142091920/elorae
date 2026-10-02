@@ -1,5 +1,16 @@
 (function () {
   window.__bootHash = location.hash || "";
+  function hideIndexList() {
+    document.documentElement.classList.toggle("index-boot", (location.hash || "").indexOf("#/index") === 0);
+  }
+  hideIndexList();
+  window.addEventListener("hashchange", hideIndexList);
+  if (!document.getElementById("index-boot-css")) {
+    var bootCss = document.createElement("style");
+    bootCss.id = "index-boot-css";
+    bootCss.textContent = "html.index-boot .index-list{display:none!important}";
+    document.documentElement.appendChild(bootCss);
+  }
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     var wrap = document.getElementById("seek-wrap");
