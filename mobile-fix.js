@@ -15,7 +15,7 @@
     "#journal-mobile-toc a.active{color:#f3eee6}",
     "body.journal-page .sheet,body.journal-page .room-body{top:96px!important}",
     "body.index-sorted .filters,body.index-sorted .chapter-tabs,body.index-sorted #section-bar{display:none!important}",
-    "body.index-sorted #index-rail{position:fixed;top:52px;left:0;right:0;bottom:auto;width:auto;z-index:40;padding:0;background:#070707;overflow:visible}",
+    "body.index-sorted #index-rail h3{display:none}body.index-sorted #index-rail{position:fixed;top:calc(env(safe-area-inset-top) + 46px);left:0;right:0;bottom:auto;width:auto;z-index:40;padding:0;background:#070707;overflow:visible}",
     "body.index-sorted #index-rail button{display:none}",
     "body.index-sorted #index-rail.open button{display:block;width:100%;margin:0;padding:10px 18px;text-align:center;font-size:14px}",
     "body.index-sorted #index-rail .index-toggle{display:flex!important;align-items:center;justify-content:center;width:100%;min-height:40px;border:0;background:#070707;color:#f3eee6;font-family:Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.16em;text-transform:uppercase}",
@@ -24,7 +24,7 @@
     "body.index-sorted #index-flow{position:static;left:auto;right:auto;top:auto;bottom:auto;display:flex;flex-direction:column;align-items:center;gap:28px;width:100%;padding:108px 18px 80px;overflow:visible}",
     "body.index-sorted .index-card{width:min(280px,78vw)}",
     "body.index-sorted .index-card img{width:100%;height:auto;aspect-ratio:3/4}",
-    "#section-bar.show{height:auto;min-height:36px;flex-wrap:wrap;gap:2px 8px;padding:6px 8px 8px;justify-content:center}",
+    "#section-bar.show{height:auto;min-height:36px;flex-wrap:wrap;gap:2px 8px;padding:6px 8px 8px;justify-content:center;margin-top:16px}",
     "#section-bar a{font-size:11px;letter-spacing:.08em;padding:5px 4px}",
     "body.entry #friend-link{right:58px;top:calc(env(safe-area-inset-top) + 10px)}",
     "body.entry:has(.lore.open) #friend-link,body.entry:has(.life-sheet.open) #friend-link{display:none!important}",
@@ -70,7 +70,7 @@
     var toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "index-toggle";
-    toggle.textContent = "Categories";
+    toggle.textContent = "Ancients";
     rail.insertBefore(toggle, rail.firstChild);
     toggle.addEventListener("click", function () { rail.classList.toggle("open"); });
     rail.addEventListener("click", function (e) {
@@ -78,30 +78,7 @@
     });
   }
 
-  document.addEventListener("click", function (e) {
-    if (!phone()) return;
-    var a = e.target.closest && e.target.closest("a");
-    if (!a) return;
-    var href = a.getAttribute("href") || "";
-    if (href !== "#/index" && a.textContent.replace(/\s+/g, " ").trim() !== "Index") return;
-    if (!a.closest(".topbar, .mast, .filters")) return;
-    e.preventDefault();
-    history.replaceState(null, "", "#/index");
-    if (typeof window.paintIndex === "function") window.paintIndex();
-    else location.hash = "#/index";
-  }, true);
-
-  function seatGlow() {
-    if (!phone() || !document.body.classList.contains("seal-page") || document.getElementById("seal-code")) return;
-    document.querySelectorAll("#friend-glow,#friend-glow-2").forEach(function (canvas) {
-      var name = canvas.getAttribute("data-tone");
-      var link = document.querySelector("#friend-link a[data-name=\"" + name + "\"]");
-      if (!link || canvas.style.display === "none") return;
-      var box = link.getBoundingClientRect();
-      canvas.style.top = Math.max(0, Math.round(box.top - 28)) + "px";
-      canvas.style.left = Math.round(box.left + box.width / 2 - canvas.clientWidth / 2) + "px";
-    });
-  }
+  function seatGlow() {}
   function tick() {
     if (!phone()) {
       var bar = document.getElementById("journal-mobile-toc");
@@ -115,7 +92,7 @@
     var toggle = rail && rail.querySelector(".index-toggle");
     if (toggle) {
       var on = rail.querySelector("button.on");
-      toggle.textContent = "Categories";
+      toggle.textContent = on ? on.textContent : "Ancients";
     }
   }
   tick();
