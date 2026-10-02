@@ -31,21 +31,21 @@
     "body.index-sorted #index-rail .index-toggle::after{content:\"+\";margin-left:10px;color:#9a948a}",
     "body.index-sorted #index-rail.open .index-toggle::after{content:\"\\2013\"}",
     "body.index-sorted #index-flow{position:static!important;left:0!important;right:0!important;top:auto!important;bottom:auto!important;width:100%!important;max-width:100%!important;transform:none!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:28px;padding:112px 18px 80px!important;overflow:visible!important}",
-    "body.index-sorted .index-card{width:min(280px,78vw)!important;margin-left:auto!important;margin-right:auto!important}",
-    "body.index-sorted .index-card img{width:100%;height:auto;aspect-ratio:3/4}",
+    "body.index-sorted .index-card{width:calc(100vw - 28px)!important;max-width:none!important;text-align:center!important;margin-left:auto!important;margin-right:auto!important}",
+    "body.index-sorted .index-card img{width:100%;height:auto;aspect-ratio:16/9!important}",
     "#section-bar.show{height:auto;min-height:36px;flex-wrap:wrap;gap:2px 8px;padding:6px 8px 8px;justify-content:center}",
     "#section-bar a{font-size:11px;letter-spacing:.08em;padding:5px 4px}",
     "body.entry #friend-link{right:58px;top:calc(env(safe-area-inset-top) + 10px)}",
     "body.entry:has(.lore.open) #friend-link,body.entry:has(.life-sheet.open) #friend-link{display:none!important}",
     "body.index-sorted #index-flow{position:static!important;left:0!important;right:0!important;width:100%!important;display:flex!important;flex-direction:column!important;align-items:center!important}",
-    "body.index-sorted .index-card{width:min(280px,78vw)!important;margin:0 auto 28px!important}",
-    "body.index-sorted .index-card img{width:100%!important;height:auto!important;aspect-ratio:3/4;object-fit:cover}",
+    "body.index-sorted .index-card{width:calc(100vw - 28px)!important;max-width:none!important;text-align:center!important;margin:0 auto 28px!important}",
+    "body.index-sorted .index-card img{width:100%!important;height:auto!important;aspect-ratio:16/9!important;object-fit:cover}",
     "body.index-sorted #index-rail{width:100%!important;background:#070707}",
     "body.index-sorted #index-rail.open{z-index:70;background:#070707}",
     "body.index-sorted #index-rail.open button{background:#070707}",
     "body.index-sorted #index-tertiary{top:calc(env(safe-area-inset-top) + 88px)!important}",
     "body.index-sorted #index-rail.open ~ #index-tertiary{display:none!important}",
-    "header.topbar,.mast,.topbar{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:80!important;background:#070707!important}",
+    "header.topbar,.mast,.topbar{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:80!important;background:#070707!important;display:flex!important;align-items:center!important}@media (hover:none){.filters a:hover{color:#8f8a82!important}.filters a.active,.filters a.active:hover{color:#f3eee6!important}}",
     "body.index-sorted #index-rail{top:calc(env(safe-area-inset-top) + 44px)!important}",
     "body.index-sorted #index-rail button:not(.index-toggle){display:none!important}",
     "body.index-sorted #index-rail.open button:not(.index-toggle){display:block!important}",
@@ -55,6 +55,23 @@
   ].join("");
   document.documentElement.appendChild(css);
 
+  function markRoom() {
+    var h = (location.hash || "").replace(/^#\/?/, "");
+    var room = "";
+    if (h.indexOf("atlas") === 0) room = "atlas";
+    else if (h.indexOf("codex") === 0) room = "codex";
+    else if (h.indexOf("index") === 0) room = "index";
+    else if (h.indexOf("journal") === 0) room = "journal";
+    else if (!h || h.indexOf("gallery") === 0) room = "gallery";
+    document.querySelectorAll(".filters > a, .nav-drop > a").forEach(function (a) {
+      if (a.closest(".nav-menu, .chapter-tabs, .atlas-tabs, .subbar")) return;
+      var href = (a.getAttribute("href") || "").replace(/^#\/?/, "").split("/")[0];
+      a.classList.toggle("active", !!room && href === room);
+    });
+  }
+  window.addEventListener("hashchange", markRoom);
+  setInterval(markRoom, 400);
+  markRoom();
   function phone() { return window.innerWidth <= 800; }
   function hash() { return (location.hash || "").replace(/^#\/?/, ""); }
 
