@@ -51,7 +51,7 @@
     "body.index-sorted #index-rail.open button:not(.index-toggle){display:block!important}",
     "body.index-sorted #index-flow{padding-top:92px!important}",
     ".entry .topbar #fit,.entry #fitmark{position:relative;z-index:40}",
-    "}"
+    "}",
     "#site-nav{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:420!important;display:flex!important;align-items:center!important;justify-content:center!important;height:calc(env(safe-area-inset-top) + 46px)!important;padding:env(safe-area-inset-top) 14px 0!important;background:#070707!important;box-sizing:border-box!important}",
     "#site-nav .filters{display:flex!important;align-items:center!important;justify-content:center!important;gap:14px!important}",
     "#site-nav .filters a,#site-nav #friend-link a{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif!important;font-size:11px!important;font-weight:400!important;letter-spacing:.12em!important;text-transform:uppercase!important;line-height:1!important;color:#8f8a82!important;text-decoration:none!important}",
