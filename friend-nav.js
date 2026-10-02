@@ -1,35 +1,49 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed;z-index:250;pointer-events:none;display:none}body.seal-page #friend-link{color:#e7f6ee!important;text-shadow:0 0 8px rgba(18,72,46,.45)!important}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed;z-index:250;pointer-events:none;display:none}body.seal-page #friend-link{color:#e7f6ee!important;text-shadow:0 0 6px rgba(16,54,36,.35)!important}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
   var mark = document.getElementById("phrase-caret");
   if (!mark) { mark = document.createElement("i"); mark.id = "phrase-caret"; document.documentElement.appendChild(mark); }
   var glow = document.getElementById("friend-glow");
-  if (!glow) { glow = document.createElement("canvas"); glow.id = "friend-glow"; document.documentElement.appendChild(glow); }
+  if (!glow || glow.tagName !== "CANVAS") {
+    if (glow) glow.remove();
+    glow = document.createElement("canvas");
+    glow.id = "friend-glow";
+    document.documentElement.appendChild(glow);
+  }
   var ctx = glow.getContext("2d");
+  function mote() {
+    return { x: 70 + Math.random() * 100, y: 28 + Math.random() * 34, vx: (Math.random() - 0.5) * 0.12, vy: -0.04 - Math.random() * 0.08, life: Math.random(), fade: 0.002 + Math.random() * 0.003, r: Math.random() < 0.2 ? 1.1 : 0.55 };
+  }
   var bits = [];
-  var i;
-  for (i = 0; i < 28; i += 1) bits.push({ a: Math.random() * 6.28, r: 18 + Math.random() * 54, s: 0.002 + Math.random() * 0.004, o: 0.15 + Math.random() * 0.45, w: Math.random() < 0.3 ? 1.4 : 0.7 });
+  var n;
+  for (n = 0; n < 18; n += 1) bits.push(mote());
   function drawBits() {
-    if (glow.style.display === "none") return;
-    var w = glow.width;
-    var h = glow.height;
-    ctx.clearRect(0, 0, w, h);
-    var g = ctx.createRadialGradient(w / 2, h / 2, 8, w / 2, h / 2, 70);
-    g.addColorStop(0, "rgba(12,48,30,0.22)");
-    g.addColorStop(1, "rgba(12,48,30,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
-    bits.forEach(function (b) {
-      b.a += b.s;
-      var x = w / 2 + Math.cos(b.a) * b.r;
-      var y = h / 2 + Math.sin(b.a * 0.72) * (b.r * 0.28);
-      ctx.globalAlpha = b.o * (0.65 + 0.35 * Math.sin(b.a * 2));
-      ctx.fillStyle = "#d7f3e4";
-      ctx.fillRect(x, y, b.w, b.w);
-    });
-    ctx.globalAlpha = 1;
+    if (glow.style.display !== "none") {
+      var w = glow.width;
+      var h = glow.height;
+      ctx.clearRect(0, 0, w, h);
+      var g = ctx.createRadialGradient(w / 2, h / 2, 4, w / 2, h / 2, 62);
+      g.addColorStop(0, "rgba(10,36,24,0.16)");
+      g.addColorStop(1, "rgba(10,36,24,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+      bits.forEach(function (b) {
+        b.life += b.fade;
+        b.x += b.vx;
+        b.y += b.vy;
+        if (b.life > 1 || b.y < 8 || b.x < 20 || b.x > w - 20) {
+          var next = mote();
+          b.x = next.x; b.y = next.y; b.vx = next.vx; b.vy = next.vy; b.life = 0; b.fade = next.fade; b.r = next.r;
+        }
+        var alpha = Math.sin(b.life * Math.PI) * 0.55;
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(214,236,222," + alpha + ")";
+        ctx.arc(b.x, b.y, b.r, 0, 6.28);
+        ctx.fill();
+      });
+    }
     requestAnimationFrame(drawBits);
   }
   requestAnimationFrame(drawBits);
