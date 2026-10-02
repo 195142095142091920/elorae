@@ -787,3 +787,20 @@ body::after {
   .journal-read::before { inset: -40px -24px; }
   .journal-page .chapter-tabs { padding-top: calc(64px + env(safe-area-inset-top)); }
 }
+
+@media (min-width: 801px) {
+  .entry .pager,
+  .entry:has(.lore.open) .pager,
+  .entry:has(.life-sheet.open) .pager {
+    z-index: 60 !important;
+    opacity: 1 !important;
+    pointer-events: none;
+  }
+  .entry .pager .arrow,
+  .entry .pager #fitmark,
+  .entry .pager .fit-toggle {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 61;
+  }
+}
