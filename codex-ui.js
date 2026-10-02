@@ -211,6 +211,7 @@
   };
 
   function paintAtlasTabs() {
+    return; // old second atlas bar
     if (!document.body.classList.contains("atlas-page")) return;
     document.body.classList.add("on-atlas");
     const existing = document.querySelector(".atlas-tabs");
@@ -245,6 +246,7 @@
   };
 
   function paintJournalTabs() {
+    return; // old second journal bar
     const hash = (location.hash || "").replace(/^#\/?/, "");
     if (hash !== "journal" && hash.indexOf("journal/") !== 0) return;
     if (document.querySelector(".chapter-tabs")) return;
@@ -430,6 +432,7 @@
   window.addEventListener("resize", layoutLoreMobile);
 
   function routeAtlas() {
+    return false; // route() paints the current pages
     const boot = location.hash.replace(/^#\/?/, "");
     if (boot.startsWith("atlas/") && boot !== "atlas/") {
       window.renderAtlasWorld(boot.slice(6));
@@ -456,8 +459,9 @@
   }
 
   window.addEventListener("hashchange", function () {
-    const h = location.hash.replace(/^#\/?/, "");
     markSection();
+    return; // route() already paints the current secondary bar
+    const h = location.hash.replace(/^#\/?/, "");
     if (h.startsWith("atlas/") && h !== "atlas/") {
       window.renderAtlasWorld(h.slice(6));
     } else if (h === "atlas") {
