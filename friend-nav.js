@@ -1,4 +1,10 @@
 (function () {
+  if (!document.getElementById("phrase-pulse")) {
+    var phrase = document.createElement("style");
+    phrase.id = "phrase-pulse";
+    phrase.textContent = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}";
+    document.documentElement.appendChild(phrase);
+  }
   var FIGURE = {
     jack: ["Galand Helviath", "#/galand-helviath"],
     jon: ["Telorin", "#/telorin"],
