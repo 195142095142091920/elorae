@@ -193,13 +193,19 @@
     }
     var here = (location.hash || "").split("?")[0];
     Array.prototype.forEach.call(link.querySelectorAll("a"), function (a) {
-      var own = a.getAttribute("href") === here;
+      var own = !onSeal && a.getAttribute("href") === here;
       a.style.display = own ? "none" : "";
       a.classList.toggle("on", a.getAttribute("data-name") === item[0]);
-      a.classList.toggle("here", list.length < 2 || own);
+      a.classList.toggle("here", list.length < 2 || a.getAttribute("href") === here);
     });
     var shown = Array.prototype.filter.call(link.querySelectorAll("a"), function (a) { return a.style.display !== "none"; });
-    link.style.display = shown.length ? "" : "none";
+    if (onSeal && shown.length) {
+      link.style.setProperty("display", "flex", "important");
+      link.style.position = "fixed";
+      link.style.top = "calc(env(safe-area-inset-top) + 16px)";
+      link.style.right = "16px";
+      link.style.zIndex = "700";
+    } else link.style.display = shown.length ? "" : "none";
     tone = TONES[item[0]] || TONES.Telorin;
     var active = link.querySelector("a.on");
     Array.prototype.forEach.call(link.querySelectorAll("a"), function (a) {
