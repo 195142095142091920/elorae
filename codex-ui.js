@@ -226,7 +226,7 @@
 
   window.renderJournalEntry = function (id) {
     const list = journalEntries();
-    const current = list.find(function (j) { return j.id === id; }) || list[0];
+    const current = list.find(function (j) { return j.id === id; }) || list[list.length - 1];
     if (!current) return;
     place.hash = "#/journal/" + current.id;
     document.title = (current.title || "Journal") + " - Elorae";
@@ -466,7 +466,7 @@
       const nid = h === "codex" || h === "codex/" ? "calendar" : h.slice(6);
       window.renderCodex(nid);
     } else if (h === "journal" || h.startsWith("journal/")) {
-      const jid = h === "journal" || h === "journal/" ? ((journalEntries()[0] || {}).id) : h.slice(8);
+      const jid = h === "journal" || h === "journal/" ? ((journalEntries()[journalEntries().length - 1] || {}).id) : h.slice(8);
       if (jid) window.renderJournalEntry(jid);
       else paintJournalTabs();
     }
