@@ -37,6 +37,14 @@
     "#section-bar a{font-size:11px;letter-spacing:.08em;padding:5px 4px}",
     "body.entry #friend-link{right:58px;top:calc(env(safe-area-inset-top) + 10px)}",
     "body.entry:has(.lore.open) #friend-link,body.entry:has(.life-sheet.open) #friend-link{display:none!important}",
+    "body.index-sorted #index-flow{position:static!important;left:0!important;right:0!important;width:100%!important;display:flex!important;flex-direction:column!important;align-items:center!important}",
+    "body.index-sorted .index-card{width:min(280px,78vw)!important;margin:0 auto 28px!important}",
+    "body.index-sorted .index-card img{width:100%!important;height:auto!important;aspect-ratio:3/4;object-fit:cover}",
+    "body.index-sorted #index-rail{width:100%!important;background:#070707}",
+    "body.index-sorted #index-rail.open{z-index:70;background:#070707}",
+    "body.index-sorted #index-rail.open button{background:#070707}",
+    "body.index-sorted #index-tertiary{top:calc(env(safe-area-inset-top) + 88px)!important}",
+    "body.index-sorted #index-rail.open ~ #index-tertiary{display:none!important}",
     ".entry .topbar #fit,.entry #fitmark{position:relative;z-index:40}",
     "}"
   ].join("");
