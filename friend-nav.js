@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}@media (max-width:800px){#friend-link{display:none!important}body.seal-page #friend-link{display:flex!important;position:fixed;top:calc(env(safe-area-inset-top) + 10px);right:14px;z-index:640}}body.seal-page #friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:42px;height:22px}#friend-link a + a{margin-left:42px!important}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a:hover,#friend-link a.here{color:#f3eee6}";
+  var phraseCss = "header.topbar > a:not([data-brand]),.topbar > a:not([data-brand]){color:transparent!important}.seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}@media (max-width:800px){#friend-link{display:none!important}body.seal-page #friend-link{display:flex!important;position:fixed;top:calc(env(safe-area-inset-top) + 10px);right:14px;z-index:640}}body.seal-page #friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:42px;height:22px}#friend-link a + a{margin-left:42px!important}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a:hover,#friend-link a.here{color:#f3eee6}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -152,29 +152,20 @@
     var brand = document.querySelector("header.topbar > a, .topbar > a");
     var onEntry = document.body.classList.contains("entry");
     if (brand && brand.id !== "seal-back") {
+      var label = "Elorae";
+      var href = "#/seal";
       if (onEntry) {
-        if (brand.textContent !== "Back") {
-          var backTo = (window.place && window.place.hash) || "#/gallery";
-          if (!backTo || backTo.indexOf("#/") !== 0 || backTo === (location.hash || "").split("?")[0]) backTo = "#/gallery";
-          brand.textContent = "Back";
-          brand.setAttribute("href", backTo);
-        }
+        label = "Back";
+        href = (window.place && window.place.hash) || "#/gallery";
+        if (!href || href.indexOf("#/") !== 0 || href === (location.hash || "").split("?")[0]) href = "#/gallery";
       } else if (v && FIGURE[v.id]) {
         var named = chosen(v.id);
-        var here = (location.hash || "").split("?")[0];
-        if (named[1] === here) {
-          if (brand.textContent !== "Elorae") {
-            brand.textContent = "Elorae";
-            brand.setAttribute("href", "#/seal");
-          }
-        } else {
-          brand.textContent = named[0];
-          brand.setAttribute("href", named[1]);
-        }
-      } else if (brand.textContent !== "Elorae") {
-        brand.textContent = "Elorae";
-        brand.setAttribute("href", "#/seal");
+        label = named[0];
+        href = named[1];
       }
+      if (brand.textContent !== label) brand.textContent = label;
+      if (brand.getAttribute("href") !== href) brand.setAttribute("href", href);
+      brand.setAttribute("data-brand", label);
     }
     if (!v || !FIGURE[v.id]) { if (link) link.remove(); glow.style.display = "none"; return; }
     if (!onSeal && link) link.style.display = "none";
@@ -260,6 +251,10 @@
   }
   window.paintFriend = paint;
   paint();
-  window.addEventListener("hashchange", function () { setTimeout(paint, 40); setTimeout(greet, 60); });
+  window.addEventListener("hashchange", function () { paint(); setTimeout(paint, 0); setTimeout(greet, 60); });
+  if (!window.__brandWatch) {
+    window.__brandWatch = 1;
+    new MutationObserver(function () { paint(); }).observe(document.documentElement, { childList: true, subtree: true });
+  }
   setInterval(paint, 1200);
 })();
