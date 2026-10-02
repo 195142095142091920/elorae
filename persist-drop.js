@@ -16,9 +16,9 @@
     g.src = "friend-nav.js?v=32";
     document.documentElement.appendChild(g);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("index-sections.js?v=9") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("index-sections.js?v=10") !== -1; })) {
     var i = document.createElement("script");
-    i.src = "index-sections.js?v=9";
+    i.src = "index-sections.js?v=10";
     document.documentElement.appendChild(i);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=33") !== -1; })) {
@@ -33,9 +33,9 @@
   }
   if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=15") !== -1; })) return;
   var n = document.createElement("script");
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=6") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=7") !== -1; })) {
     var m = document.createElement("script");
-    m.src = "mobile-fix.js?v=6";
+    m.src = "mobile-fix.js?v=7";
     document.documentElement.appendChild(m);
   }
   n.src = "nav-boot.js?v=15";
