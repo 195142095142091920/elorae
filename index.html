@@ -126,8 +126,11 @@
     .atlas-page:has(.atlas-tabs) .atlas-stage,
     .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
     @media (min-width: 801px) {
-      .topbar, .mast .topbar { font-size: 15.8px !important; }
-      .filters > a { font-size: 15.8px !important; letter-spacing: 0.12em !important; font-weight: 400 !important; line-height: 1 !important; }
+      .topbar, .mast .topbar, .topbar .filters, .topbar .filters a, .mast .filters a, #friend-link, #friend-link a {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+        font-size: 17.3px !important; letter-spacing: 0.12em !important; font-weight: 400 !important; line-height: 1 !important;
+      }
+      .topbar .filters a.active { font-weight: 700 !important; }
       #section-bar, #section-bar a { font-size: 14.4px !important; letter-spacing: 0.12em !important; }
       .subbar, .subbar a,
       .atlas-page .atlas-tabs, .atlas-page .atlas-tabs a,
@@ -218,7 +221,7 @@
   <script src="atlas-overview.js?v=5"></script>
   <script src="restore-hash.js?v=3"></script>
   <script src="atlas-nav-fix.js?v=2"></script>
-  <script src="persist-drop.js?v=39"></script>
+  <script src="persist-drop.js?v=40"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
