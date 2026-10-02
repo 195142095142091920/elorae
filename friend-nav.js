@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:400!important;pointer-events:none;display:none}body.seal-page .topbar,body.seal-page .mast,body.seal-page{overflow:visible!important}body.seal-page #friend-link{color:#e7f6ee!important;z-index:410!important}#friend-pick{position:fixed;z-index:420;display:none;background:#070707;padding:8px 0}#friend-pick button{display:block;width:100%;border:0;background:none;color:#8f8a82;text-align:right;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;padding:6px 0}#friend-pick button.on,#friend-pick button:hover{color:#f3eee6}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none;overflow:visible}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link{color:#e7f6ee!important;z-index:510!important}#friend-pick{position:fixed;z-index:520;display:none;background:#070707;padding:8px 0}#friend-pick button{display:block;width:100%;border:0;background:none;color:#8f8a82;text-align:right;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;padding:6px 0}#friend-pick button.on,#friend-pick button:hover{color:#f3eee6}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -15,8 +15,8 @@
   var pick = document.getElementById("friend-pick");
   if (!pick) { pick = document.createElement("div"); pick.id = "friend-pick"; document.documentElement.appendChild(pick); }
   var ctx = glow.getContext("2d");
-  var W = 380;
-  var H = 130;
+  var W = 640;
+  var H = 220;
   var tone = { wash: "18,78,48", mote: "186,236,206", shadow: "24,92,56" };
   var TONES = {
     "Telorin": { wash: "18,78,48", mote: "186,236,206", shadow: "24,92,56" },
@@ -26,21 +26,21 @@
     "Galand": { wash: "128,96,22", mote: "255,224,150", shadow: "130,100,24" }
   };
   function mote() {
-    return { x: 40 + Math.random() * (W - 80), y: 28 + Math.random() * 60, vx: (Math.random() - 0.5) * 0.06, vy: -0.012 - Math.random() * 0.02, life: Math.random(), fade: 0.0012 + Math.random() * 0.0018, r: Math.random() < 0.2 ? 1.1 : 0.55 };
+    return { x: 80 + Math.random() * (W - 160), y: 40 + Math.random() * 90, vx: (Math.random() - 0.5) * 0.06, vy: -0.012 - Math.random() * 0.02, life: Math.random(), fade: 0.0012 + Math.random() * 0.0018, r: Math.random() < 0.2 ? 1.1 : 0.55 };
   }
   var bits = [];
   var n;
-  for (n = 0; n < 14; n += 1) bits.push(mote());
+  for (n = 0; n < 16; n += 1) bits.push(mote());
   function drawBits() {
     if (glow.style.display !== "none") {
       ctx.clearRect(0, 0, W, H);
       ctx.save();
-      ctx.translate(W / 2, 48);
-      ctx.scale(2.6, 1);
-      var g = ctx.createRadialGradient(0, 0, 4, 0, 0, 92);
+      ctx.translate(W / 2, 78);
+      ctx.scale(2.8, 1);
+      var g = ctx.createRadialGradient(0, 0, 6, 0, 0, 120);
       g.addColorStop(0, "rgba(" + tone.wash + ",0.1)");
-      g.addColorStop(0.35, "rgba(" + tone.wash + ",0.045)");
-      g.addColorStop(0.7, "rgba(" + tone.wash + ",0.015)");
+      g.addColorStop(0.28, "rgba(" + tone.wash + ",0.04)");
+      g.addColorStop(0.62, "rgba(" + tone.wash + ",0.012)");
       g.addColorStop(1, "rgba(" + tone.wash + ",0)");
       ctx.fillStyle = g;
       ctx.fillRect(-W, -H, W * 2, H * 2);
@@ -49,7 +49,7 @@
         b.life += b.fade;
         b.x += b.vx;
         b.y += b.vy;
-        if (b.life > 1 || b.y < 8 || b.x < 16 || b.x > W - 16) {
+        if (b.life > 1 || b.y < 12 || b.x < 24 || b.x > W - 24) {
           var next = mote();
           b.x = next.x; b.y = next.y; b.vx = next.vx; b.vy = next.vy; b.life = 0; b.fade = next.fade; b.r = next.r;
         }
@@ -119,7 +119,7 @@
   if (!document.getElementById("friend-nav-css")) {
     var css = document.createElement("style");
     css.id = "friend-nav-css";
-    css.textContent = "#friend-link{position:fixed;right:28px;z-index:410;display:flex;align-items:center;height:22px;line-height:1;color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase}";
+    css.textContent = "#friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;height:22px;line-height:1;color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase}";
     document.documentElement.appendChild(css);
   }
   pick.addEventListener("click", function (e) {
@@ -170,7 +170,7 @@
     glow.style.width = W + "px";
     glow.style.height = H + "px";
     glow.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
-    glow.style.top = Math.round(box.top + box.height / 2 - 42) + "px";
+    glow.style.top = Math.round(box.top + box.height / 2 - 70) + "px";
     document.documentElement.appendChild(glow);
   }
   window.paintFriend = paint;
