@@ -160,7 +160,8 @@
     link.style.setProperty("height", desk ? "auto" : "auto", "important");
     link.style.setProperty("bottom", desk ? "0" : "auto", "important");
     link.style.setProperty("align-items", "center", "important");
-    link.style.setProperty("display", "flex", "important");
+    var hide = document.body.classList.contains("entry") && window.matchMedia("(max-width:800px)").matches;
+    link.style.setProperty("display", hide ? "none" : "flex", "important");
     link.style.setProperty("font-size", window.matchMedia("(min-width:801px)").matches ? "17.3px" : "11px", "important");
   }
   function paint() {
