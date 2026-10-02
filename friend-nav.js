@@ -33,15 +33,16 @@
   for (n = 0; n < 16; n += 1) bits.push(mote());
   function drawBits() {
     if (glow.style.display !== "none") {
+      var firstTone = TONES[glow.getAttribute("data-tone")] || tone;
       ctx.clearRect(0, 0, W, H);
       ctx.save();
       ctx.translate(W / 2, 78);
       ctx.scale(2.8, 1);
       var g = ctx.createRadialGradient(0, 0, 6, 0, 0, 120);
-      g.addColorStop(0, "rgba(" + tone.wash + ",0.1)");
-      g.addColorStop(0.28, "rgba(" + tone.wash + ",0.04)");
-      g.addColorStop(0.62, "rgba(" + tone.wash + ",0.012)");
-      g.addColorStop(1, "rgba(" + tone.wash + ",0)");
+      g.addColorStop(0, "rgba(" + firstTone.wash + ",0.1)");
+      g.addColorStop(0.28, "rgba(" + firstTone.wash + ",0.04)");
+      g.addColorStop(0.62, "rgba(" + firstTone.wash + ",0.012)");
+      g.addColorStop(1, "rgba(" + firstTone.wash + ",0)");
       ctx.fillStyle = g;
       ctx.fillRect(-W, -H, W * 2, H * 2);
       ctx.restore();
@@ -55,7 +56,7 @@
         }
         var alpha = Math.sin(b.life * Math.PI) * 0.4;
         ctx.beginPath();
-        ctx.fillStyle = "rgba(" + tone.mote + "," + alpha + ")";
+        ctx.fillStyle = "rgba(" + firstTone.mote + "," + alpha + ")";
         ctx.arc(b.x, b.y, b.r, 0, 6.28);
         ctx.fill();
       });
@@ -186,6 +187,7 @@
     if (!onSeal || !names.length) { glow.style.display = "none"; var extra = document.getElementById("friend-glow-2"); if (extra) extra.style.display = "none"; return; }
     function place(canvas, el) {
       var box = el.getBoundingClientRect();
+      canvas.setAttribute("data-tone", el.getAttribute("data-name"));
       canvas.width = W;
       canvas.height = H;
       canvas.style.position = "fixed";
