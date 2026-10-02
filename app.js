@@ -292,11 +292,17 @@ function bindTap(el, toggleFn) {
 function bindIdleScrollbar(el) {
   if (!el) return;
   let hide;
-  el.addEventListener("scroll", () => {
+  const show = () => {
     el.classList.add("show-bar");
     clearTimeout(hide);
-    hide = setTimeout(() => el.classList.remove("show-bar"), 900);
-  }, { passive: true });
+  };
+  const later = () => {
+    clearTimeout(hide);
+    hide = setTimeout(() => el.classList.remove("show-bar"), 700);
+  };
+  el.addEventListener("scroll", () => { show(); later(); }, { passive: true });
+  el.addEventListener("mouseenter", show);
+  el.addEventListener("mouseleave", later);
 }
 function paintFit(on) {
   const word = document.querySelector("#fit");
@@ -386,6 +392,7 @@ function renderEntry(id) {
   bindTap(dock, flipLore);
   bindTap(lifedock, flipLife);
   bindIdleScrollbar(life);
+  bindIdleScrollbar(lore);
   document.querySelectorAll(".arrow").forEach((a) => {
     a.addEventListener("click", (e) => {
       var phone = window.matchMedia("(max-width:800px)").matches;
