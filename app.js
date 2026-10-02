@@ -321,7 +321,11 @@ function renderEntry(id) {
   onPlaceScroll();
   dropPlaceScroll();
   const { prev, next } = neighbors(id);
-  const loreBits = entry.lore || [];
+  const loreBits = (entry.lore || []).filter(function (line, i) {
+    if (i === 0) return true;
+    var cap = String(entry.caption || "").replace(/[.\s]+$/g, "").toLowerCase();
+    return String(line || "").replace(/[.\s]+$/g, "").toLowerCase() !== cap;
+  });
   const bioBits = entry.bio || [];
   const quote = entry.quote || "";
   const quoteBy = entry.quoteBy || "";
