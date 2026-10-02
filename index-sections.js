@@ -10,7 +10,7 @@
   if (!document.getElementById("index-section-css")) {
     var css = document.createElement("style");
     css.id = "index-section-css";
-    css.textContent = "body.index-sorted{background:#070707}body.index-sorted #index-rail h3{margin:0 0 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8f8a82;font-weight:400}body.index-sorted #index-rail{position:fixed;top:102px;left:0;bottom:0;width:240px;z-index:6;padding:28px 26px 40px;background:#070707;overflow:auto;scrollbar-width:none}body.index-sorted #index-rail button{display:block;width:100%;margin:0 0 13px;padding:0;border:0;background:none;text-align:left;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8f8a82}body.index-sorted #index-rail button.on,body.index-sorted #index-rail button:hover{color:#f3eee6}body.index-sorted #index-rail .sub{display:none;margin:-4px 0 14px 16px}body.index-sorted #index-rail .sub.open{display:block}body.index-sorted #index-rail .sub button{font-size:11px;letter-spacing:.08em;margin-bottom:9px}body.index-sorted #index-rail h3{margin:0 0 16px;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;font-weight:400}body.index-sorted #index-flow{position:fixed;top:102px;left:240px;right:0;bottom:0;z-index:5;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;justify-content:center;gap:34px 26px;padding:32px 40px 72px;background:#070707;scrollbar-width:none}@media (max-width:800px){body.index-sorted #index-flow{position:static!important;left:0!important;right:0!important;top:auto!important;width:100%!important;display:flex!important;flex-direction:column;align-items:center!important;justify-content:flex-start;padding:118px 18px 80px!important}body.index-sorted .index-card{width:min(280px,78vw)!important;margin:0 auto}body.index-sorted .filters{display:none!important}}body.index-sorted .index-card{width:220px;color:#f3eee6;text-decoration:none}body.index-sorted .index-card span{display:block;height:2.7em;margin:0 0 12px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.35;letter-spacing:.14em;text-transform:uppercase}body.index-sorted .index-card img{display:block;width:220px;height:300px;object-fit:cover}body.index-sorted .index-empty{color:#8f8a82;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase}";
+    css.textContent = "body.index-sorted{background:#070707}body.index-sorted #index-rail h3{margin:0 0 16px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8f8a82;font-weight:400}body.index-sorted #index-rail{position:fixed;top:102px;left:0;bottom:0;width:240px;z-index:6;padding:28px 26px 40px;background:#070707;overflow:auto;scrollbar-width:none}body.index-sorted #index-rail button{display:block;width:100%;margin:0 0 13px;padding:0;border:0;background:none;text-align:left;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8f8a82}body.index-sorted #index-rail button.on,body.index-sorted #index-rail button:hover{color:#f3eee6}body.index-sorted #index-rail .sub{display:none;margin:-4px 0 14px 16px}body.index-sorted #index-rail .sub.open{display:block}body.index-sorted #index-rail .sub button{font-size:11px;letter-spacing:.08em;margin-bottom:9px}body.index-sorted #index-rail h3{margin:0 0 16px;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;font-weight:400}body.index-sorted #index-flow{position:fixed;top:102px;left:240px;right:0;bottom:0;z-index:5;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;justify-content:center;gap:34px 26px;padding:32px 40px 72px;background:#070707;scrollbar-width:none}@media (max-width:800px){body.index-sorted #index-flow{position:static!important;left:0!important;right:0!important;top:auto!important;width:100%!important;display:flex!important;flex-direction:column;align-items:center!important;justify-content:flex-start;padding:118px 18px 80px!important}body.index-sorted .index-card{width:min(280px,78vw)!important;margin:0 auto!important}body.index-sorted .index-card img{width:100%!important;height:auto!important;margin:0 auto}}body.index-sorted .index-card{width:220px;color:#f3eee6;text-decoration:none}body.index-sorted .index-card span{display:block;height:2.7em;margin:0 0 12px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.35;letter-spacing:.14em;text-transform:uppercase}body.index-sorted .index-card img{display:block;width:220px;height:300px;object-fit:cover}body.index-sorted .index-empty{color:#8f8a82;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase}";
     document.documentElement.appendChild(css);
   }
   function sectionOf(id) { if (HOME[id]) return HOME[id]; if (PLACES[id]) return "locations"; if (VIGNETTES[id]) return "vignettes"; return "power"; }
@@ -42,7 +42,7 @@
   }
   function paintIndex() {
     document.title = "Index - Elorae";
-    document.body.className = "room index-sorted";
+    document.body.className = "room index-sorted" + (open === "factions" ? " factions-open" : "");
     document.body.style.backgroundImage = "";
     clearPage();
     var rail = document.getElementById("index-rail");
@@ -67,6 +67,12 @@
     if (!flow) { flow = document.createElement("div"); flow.id = "index-flow"; document.body.appendChild(flow); }
     var items = (window.ENTRIES || []).filter(function (e) { return chosen(e.id); });
     items.sort(function (a, b) { return a.title.localeCompare(b.title); });
+    var tertiary = document.getElementById("index-tertiary");
+    if (open === "factions") {
+      if (!tertiary) { tertiary = document.createElement("nav"); tertiary.id = "index-tertiary"; document.body.appendChild(tertiary); }
+      tertiary.innerHTML = FACTIONS.map(function (f) { return '<button type="button" data-fac="' + f[0] + '"' + (f[0] === faction ? ' class="on"' : '') + '>' + f[1] + '</button>'; }).join("");
+      tertiary.onclick = function (e) { var fac = e.target.getAttribute("data-fac"); if (!fac) return; open = "factions"; faction = fac; paintIndex(); };
+    } else if (tertiary) tertiary.remove();
     if (!items.length) { flow.innerHTML = '<p class="index-empty">' + (open === "factions" && !faction ? "Choose a faction" : "None filed here yet") + "</p>"; return; }
     flow.innerHTML = items.map(function (e) { return '<a class="index-card" href="#/' + e.id + '"><span>' + e.title + '</span><img src="' + e.image + '" alt=""></a>'; }).join("");
   }
@@ -76,6 +82,8 @@
     var flow = document.getElementById("index-flow");
     if (rail) rail.remove();
     if (flow) flow.remove();
+    var tertiary = document.getElementById("index-tertiary");
+    if (tertiary) tertiary.remove();
   }
   window.paintIndex = paintIndex;
   window.renderIndex = paintIndex;
