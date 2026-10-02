@@ -15,10 +15,10 @@ function route() {
   if (!hash || hash === "cover") { location.replace("#/gallery"); return; }
   if (hash === "gallery") renderWall("all");
   else if (hash.startsWith("gallery/")) renderWall(hash.slice(8));
-  else if (hash === "atlas" || hash.startsWith("atlas/")) { if (window.renderAtlasWorld) window.renderAtlasWorld(hash === "atlas" ? "world" : hash.slice(6)); }
+  else if (hash === "atlas") renderAtlas();
   else if (hash === "index") renderIndex();
-  else if (hash === "journal" || hash.startsWith("journal/")) { if (window.renderJournalEntry) window.renderJournalEntry(hash === "journal" ? "" : hash.slice(8)); }
-  else if (hash === "codex" || hash.startsWith("codex/")) { if (window.renderCodex) window.renderCodex(hash === "codex" ? "calendar" : hash.slice(6)); }
+  else if (hash === "journal") renderJournal();
+  else if (hash.startsWith("journal/")) renderJournal(hash.slice(8));
   else if (hash === "seal") renderSeal();
   else renderEntry(hash);
 }
@@ -30,9 +30,7 @@ function rooms(current) {
 }
 
 function brand() {
-  // old left-hand brand, painted then hidden by friend-nav:
-  // return '<a href="#/seal">Elorae</a>';
-  return '<span id="friend-link" data-built="elorae"><a href="#/seal" data-name="Elorae">Elorae</a></span>';
+  return '<a href="#/seal">Elorae</a>';
 }
 
 function normCode(s) {
@@ -196,8 +194,15 @@ function renderIndex() {
 }
 
 function renderAtlas() {
-  // old atlas page had no secondary tabs. Replaced by renderAtlasWorld.
-  if (window.renderAtlasWorld) window.renderAtlasWorld("world");
+  dropPlaceScroll();
+  place.hash = "#/atlas";
+  place.scroll = 0;
+  document.title = "Atlas - Elorae";
+  document.body.className = "atlas-page";
+  document.body.innerHTML =
+    '<header class="topbar">' + brand() + '<nav class="filters">' + rooms("atlas") + '</nav></header>' +
+    '<div class="journal-bg atlas-bg"><img src="' + encodeURI(ATLAS_BG) + '" alt=""></div>' +
+    '<main class="atlas-stage"><figure class="atlas-plate"><img src="' + encodeURI(ATLAS) + '" alt="Elorae"></figure></main>';
 }
 
 function renderRoom(id, title, empty) {
@@ -231,8 +236,6 @@ function renderJournal(id) {
   place.hash = backTo;
   document.title = current.title + " - Elorae";
   document.body.className = "room journal-page";
-  // old sheet tabs replaced by renderJournalEntry
-  if (window.renderJournalEntry) { window.renderJournalEntry(current.id); return; }
   document.body.innerHTML =
     '<div class="journal-bg"><img src="' + encodeURI(current.banner || COVER) + '" alt=""></div>' +
     '<header class="topbar journal-bar">' + brand() + '<nav class="filters">' + rooms("journal") + '</nav></header>' +
