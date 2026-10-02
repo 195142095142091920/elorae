@@ -171,7 +171,7 @@
     var here = (location.hash || "").split("?")[0];
     Array.prototype.forEach.call(link.querySelectorAll("a"), function (a) {
       a.classList.toggle("on", a.getAttribute("data-name") === item[0]);
-      a.classList.toggle("here", a.getAttribute("href") === here);
+      a.classList.toggle("here", list.length < 2 || a.getAttribute("href") === here);
     });
     tone = TONES[item[0]] || TONES.Telorin;
     var active = link.querySelector("a.on");
