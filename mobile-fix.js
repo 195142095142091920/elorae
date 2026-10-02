@@ -116,7 +116,7 @@
     var bar = document.getElementById("journal-mobile-toc");
     var on = phone() && (hash() === "journal" || hash().indexOf("journal/") === 0);
     if (!on) { if (bar) bar.remove(); return; }
-    var entries = window.JOURNAL || [];
+    var entries = (window.JOURNAL || []).slice().reverse();
     var current = hash().indexOf("journal/") === 0 ? hash().slice(8) : (entries[0] && entries[0].id);
     var currentLabel = "Chapters";
     /* toggle stays labeled Chapters */
