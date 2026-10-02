@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:400!important;pointer-events:none;display:none}body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link{color:#e7f6ee!important;text-shadow:0 0 6px rgba(16,54,36,.35)!important;z-index:410!important}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:400!important;pointer-events:none;display:none}body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link{color:#e7f6ee!important;text-shadow:0 0 8px rgba(24,92,56,.5)!important;z-index:410!important}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -25,9 +25,9 @@
     if (glow.style.display !== "none") {
       ctx.clearRect(0, 0, W, H);
       var g = ctx.createRadialGradient(W / 2, 78, 4, W / 2, 90, 170);
-      g.addColorStop(0, "rgba(10,36,24,0.16)");
-      g.addColorStop(0.5, "rgba(10,36,24,0.05)");
-      g.addColorStop(1, "rgba(10,36,24,0)");
+      g.addColorStop(0, "rgba(18,78,48,0.28)");
+      g.addColorStop(0.5, "rgba(12,58,36,0.1)");
+      g.addColorStop(1, "rgba(12,58,36,0)");
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
       bits.forEach(function (b) {
@@ -38,9 +38,9 @@
           var next = mote();
           b.x = next.x; b.y = next.y; b.vx = next.vx; b.vy = next.vy; b.life = 0; b.fade = next.fade; b.r = next.r;
         }
-        var alpha = Math.sin(b.life * Math.PI) * 0.5;
+        var alpha = Math.sin(b.life * Math.PI) * 0.55;
         ctx.beginPath();
-        ctx.fillStyle = "rgba(214,236,222," + alpha + ")";
+        ctx.fillStyle = "rgba(186,236,206," + alpha + ")";
         ctx.arc(b.x, b.y, b.r, 0, 6.28);
         ctx.fill();
       });
