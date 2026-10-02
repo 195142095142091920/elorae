@@ -14,7 +14,16 @@
     "#journal-mobile-toc a{display:block;padding:9px 0;color:#d2cbc0;text-decoration:none;font-family:\"Iowan Old Style\",Palatino,serif;font-size:16px}",
     "#journal-mobile-toc a.active{color:#f3eee6}",
     "body.journal-page .sheet,body.journal-page .room-body{top:96px!important}",
-    "body.index-sorted .chapter-tabs,body.index-sorted .subbar{display:none!important}",
+    "body.index-sorted .topbar,body.index-sorted .mast{display:flex!important;position:fixed;top:0;left:0;right:0;z-index:60;background:#070707}
+body.index-sorted .topbar .filters,body.index-sorted .mast .filters{display:flex!important}
+body.index-sorted #friend-link{display:none!important}
+body.index-sorted #index-rail .sub{display:none!important}
+body.index-sorted #index-tertiary{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top) + 92px);z-index:39;display:flex;justify-content:center;gap:16px;padding:8px 12px;background:#070707}
+body.index-sorted #index-tertiary button{border:0;background:none;color:#8f8a82;font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+body.index-sorted #index-tertiary button.on{color:#f3eee6}
+body.index-sorted #index-flow{align-items:center!important}
+body.index-sorted.factions-open #index-flow{padding-top:148px!important}
+body.index-sorted .chapter-tabs,body.index-sorted .subbar{display:none!important}",
     "body.index-sorted #index-rail h3{display:none}body.index-sorted #index-rail{position:fixed;top:calc(env(safe-area-inset-top) + 52px);left:0;right:0;bottom:auto;width:auto;z-index:40;padding:0;background:#070707;overflow:visible}",
     "body.index-sorted #index-rail button{display:none}",
     "body.index-sorted #index-rail.open button{display:block;width:100%;margin:0;padding:10px 18px;text-align:center;font-size:14px}",
