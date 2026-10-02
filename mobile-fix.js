@@ -91,6 +91,17 @@
     else location.hash = "#/index";
   }, true);
 
+  function seatGlow() {
+    if (!phone() || !document.body.classList.contains("seal-page") || document.getElementById("seal-code")) return;
+    document.querySelectorAll("#friend-glow,#friend-glow-2").forEach(function (canvas) {
+      var name = canvas.getAttribute("data-tone");
+      var link = document.querySelector("#friend-link a[data-name=\"" + name + "\"]");
+      if (!link || canvas.style.display === "none") return;
+      var box = link.getBoundingClientRect();
+      canvas.style.top = Math.max(0, Math.round(box.top - 28)) + "px";
+      canvas.style.left = Math.round(box.left + box.width / 2 - canvas.clientWidth / 2) + "px";
+    });
+  }
   function tick() {
     if (!phone()) {
       var bar = document.getElementById("journal-mobile-toc");
@@ -99,6 +110,7 @@
     }
     journalBar();
     indexBar();
+    seatGlow();
     var rail = document.getElementById("index-rail");
     var toggle = rail && rail.querySelector(".index-toggle");
     if (toggle) {
