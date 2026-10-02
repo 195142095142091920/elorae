@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none;overflow:visible}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link{color:#e7f6ee!important;z-index:510!important}#friend-pick{position:fixed;z-index:520;display:none;background:#070707;padding:8px 0}#friend-pick button{display:block;width:100%;border:0;background:none;color:#8f8a82;text-align:right;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;padding:6px 0}#friend-pick button.on,#friend-pick button:hover{color:#f3eee6}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link a.on{color:#e7f6ee!important}#friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:16px;height:22px}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a.on{color:#f3eee6}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -12,8 +12,8 @@
     glow.id = "friend-glow";
     document.documentElement.appendChild(glow);
   }
-  var pick = document.getElementById("friend-pick");
-  if (!pick) { pick = document.createElement("div"); pick.id = "friend-pick"; document.documentElement.appendChild(pick); }
+  var oldPick = document.getElementById("friend-pick");
+  if (oldPick) oldPick.remove();
   var ctx = glow.getContext("2d");
   var W = 640;
   var H = 220;
@@ -116,54 +116,46 @@
     list.forEach(function (item) { if (item[0] === saved) hit = item; });
     return hit;
   }
-  if (!document.getElementById("friend-nav-css")) {
-    var css = document.createElement("style");
-    css.id = "friend-nav-css";
-    css.textContent = "#friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;height:22px;line-height:1;color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase}";
-    document.documentElement.appendChild(css);
-  }
-  pick.addEventListener("click", function (e) {
-    var name = e.target.getAttribute("data-name");
-    var id = pick.getAttribute("data-id");
-    if (!name || !id) return;
-    try { localStorage.setItem("elorae-figure-" + id, name); } catch (err) {}
-    pick.style.display = "none";
-    paint();
-  });
+  var link = document.getElementById("friend-link");
+  if (link && link.tagName !== "SPAN") link.remove();
   function paint() {
     var v = typeof vaultOf === "function" ? vaultOf() : null;
-    var link = document.getElementById("friend-link");
+    link = document.getElementById("friend-link");
     var onSeal = document.body.classList.contains("seal-page") && !document.getElementById("seal-code");
-    if (!v || !FIGURE[v.id]) { if (link) link.remove(); glow.style.display = "none"; pick.style.display = "none"; return; }
+    if (!v || !FIGURE[v.id]) { if (link) link.remove(); glow.style.display = "none"; return; }
     if (!link) {
-      link = document.createElement("a");
+      link = document.createElement("span");
       link.id = "friend-link";
-      link.addEventListener("click", function (e) {
-        if (!v || !FIGURE[v.id] || FIGURE[v.id].length < 2) return;
-        e.preventDefault();
-        pick.style.display = pick.style.display === "block" ? "none" : "block";
-      });
       document.documentElement.appendChild(link);
     }
     var item = chosen(v.id);
-    link.href = item[1];
-    link.textContent = item[0];
+    var list = FIGURE[v.id];
+    if (link.getAttribute("data-built") !== v.id + item[0]) {
+      link.innerHTML = list.map(function (row) {
+        return "<a href=\"" + row[1] + "\" data-name=\"" + row[0] + "\">" + row[0] + "</a>";
+      }).join("");
+      link.setAttribute("data-built", v.id + item[0]);
+      Array.prototype.forEach.call(link.querySelectorAll("a"), function (a) {
+        a.addEventListener("click", function () {
+          try { localStorage.setItem("elorae-figure-" + v.id, a.getAttribute("data-name")); } catch (err) {}
+          paint();
+        });
+      });
+    }
+    Array.prototype.forEach.call(link.querySelectorAll("a"), function (a) {
+      a.classList.toggle("on", a.getAttribute("data-name") === item[0]);
+    });
     tone = TONES[item[0]] || TONES.Telorin;
-    link.style.textShadow = "0 0 10px rgba(" + tone.shadow + ",0.28)";
-    pick.setAttribute("data-id", v.id);
-    pick.innerHTML = FIGURE[v.id].map(function (row) {
-      return "<button type=\"button\" data-name=\"" + row[0] + "\" class=\"" + (row[0] === item[0] ? "on" : "") + "\">" + row[0] + "</button>";
-    }).join("");
+    var active = link.querySelector("a.on");
+    if (active) active.style.textShadow = onSeal ? "0 0 10px rgba(" + tone.shadow + ",0.28)" : "none";
     var bar = document.querySelector(".topbar") || document.querySelector(".mast");
     if (bar) {
       var r = bar.getBoundingClientRect();
       link.style.top = Math.round(r.top + (r.height - link.offsetHeight) / 2) + "px";
       bar.style.overflow = "visible";
     }
-    var box = link.getBoundingClientRect();
-    pick.style.right = "28px";
-    pick.style.top = Math.round(box.bottom + 8) + "px";
-    if (!onSeal) { glow.style.display = "none"; return; }
+    if (!onSeal || !active) { glow.style.display = "none"; return; }
+    var box = active.getBoundingClientRect();
     glow.width = W;
     glow.height = H;
     glow.style.display = "block";
