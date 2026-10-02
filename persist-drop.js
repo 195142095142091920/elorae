@@ -31,14 +31,13 @@
     j.src = "journal-toc.js?v=6";
     document.documentElement.appendChild(j);
   }
+  if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=15") !== -1; })) return;
+  var n = document.createElement("script");
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=22") !== -1; })) {
     var m = document.createElement("script");
     m.src = "mobile-fix.js?v=22";
     document.documentElement.appendChild(m);
   }
-  /* old nav-boot bar removed: do not inject nav-boot.js
-  var n = document.createElement("script");
   n.src = "nav-boot.js?v=15";
   document.documentElement.appendChild(n);
-  */
 })();
