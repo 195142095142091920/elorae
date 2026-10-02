@@ -16,7 +16,7 @@
     "body.journal-page .sheet,body.journal-page .room-body{top:96px!important}",
     "body.index-sorted .topbar,body.index-sorted .mast{display:flex!important;position:fixed;top:0;left:0;right:0;z-index:60;background:#070707}",
     "body.index-sorted .topbar .filters,body.index-sorted .mast .filters{display:flex!important}",
-    "body.index-sorted #friend-link{display:none!important}",
+    "body.index-sorted #friend-link{display:flex!important}",
     "body.index-sorted #index-rail .sub{display:none!important}",
     "body.index-sorted #index-tertiary{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top) + 92px);z-index:39;display:flex;justify-content:center;gap:16px;padding:8px 12px;background:#070707}",
     "body.index-sorted #index-tertiary button{border:0;background:none;color:#8f8a82;font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase}",
