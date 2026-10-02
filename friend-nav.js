@@ -200,6 +200,8 @@
       canvas.style.top = Math.round(box.top + box.height / 2 - 70) + "px";
     }
     place(glow, names[0]);
+    var second = document.getElementById("friend-glow-2");
+    if (names.length < 2) { if (second) second.style.display = "none"; }
     if (names.length > 1) {
       var second = document.getElementById("friend-glow-2");
       if (!second) {
