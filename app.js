@@ -229,7 +229,7 @@ function flattenJournal() {
 
 function renderJournal(id) {
   const chapters = flattenJournal();
-  const current = chapters.find((c) => c.id === id) || chapters[0];
+  const current = chapters.find((c) => c.id === id) || chapters[chapters.length - 1];
   if (!current) { renderRoom("journal", "Journal", "No entries yet."); return; }
   const backTo = "#/journal/" + current.id;
   const keepScroll = place.hash === backTo;
