@@ -148,7 +148,7 @@
   var link = document.getElementById("friend-link");
   if (link && link.tagName !== "SPAN") link.remove();
   function dock() {
-    var bar = document.querySelector(".mast .topbar") || document.querySelector("header.topbar") || document.querySelector(".topbar");
+    var bar = document.getElementById("site-nav") || document.querySelector(".mast .topbar") || document.querySelector("header.topbar") || document.querySelector(".topbar");
     if (!link) return;
     if (bar && link.parentElement !== bar) bar.appendChild(link);
     link.style.setProperty("position", "static", "important");
