@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = "header.topbar > a:not([data-brand]):not(#seal-back),.topbar > a:not([data-brand]):not(#seal-back){color:transparent!important}#seal-back{color:#f3eee6!important}.seal-card form{position:relative}.seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:absolute;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}#friend-link{position:static!important;top:auto!important;right:auto!important;margin-left:14px;z-index:5;display:flex;align-items:center;gap:14px;height:auto}#friend-link a + a{margin-left:14px!important}#friend-link a{color:#8f8a82!important;text-decoration:none;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif!important;font-size:11px!important;font-weight:400!important;letter-spacing:.16em!important;text-transform:uppercase!important;line-height:1!important}#friend-link a.here,#friend-link a:hover{color:#f3eee6!important}";
+  var phraseCss = "header.topbar > a:not([data-brand]):not(#seal-back),.topbar > a:not([data-brand]):not(#seal-back){color:transparent!important}#seal-back{color:#f3eee6!important}.seal-card form{position:relative}.seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:absolute;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}#friend-link{position:static!important;top:auto!important;right:auto!important;margin-left:14px;z-index:5;display:flex;align-items:center;gap:14px;height:auto}#friend-link a + a{margin-left:14px!important}body:not(.seal-page) .topbar > a[href='#/seal']{position:absolute!important;width:0!important;height:0!important;overflow:hidden!important;padding:0!important;margin:0!important}#friend-link a{color:#8f8a82!important;text-decoration:none;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif!important;font-size:11px!important;font-weight:400!important;letter-spacing:.16em!important;text-transform:uppercase!important;line-height:1!important}#friend-link a.here,#friend-link a:hover{color:#f3eee6!important}@media (min-width:801px){#friend-link a{font-size:19.2px!important;letter-spacing:.14em!important}}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -156,7 +156,7 @@
     link.style.setProperty("right", "auto", "important");
     link.style.setProperty("margin-left", "14px", "important");
     link.style.setProperty("display", "flex", "important");
-    link.style.setProperty("font-size", "11px", "important");
+    link.style.setProperty("font-size", window.matchMedia("(min-width:801px)").matches ? "19.2px" : "11px", "important");
   }
   function paint() {
     var v = typeof vaultOf === "function" ? vaultOf() : null;
@@ -226,7 +226,7 @@
     document.body.classList.add("has-friend");
     link.style.top = "";
     link.style.right = "";
-    link.style.setProperty("font-size", "11px", "important");
+    link.style.setProperty("font-size", window.matchMedia("(min-width:801px)").matches ? "19.2px" : "11px", "important");
     if (!document.getElementById("seal-code") && mark) mark.style.display = "none";
     var fit = document.querySelector("body.entry #fit, body.entry #fitmark, body.entry .fit-mark");
     if (fit) {
