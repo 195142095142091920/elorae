@@ -83,6 +83,7 @@
     "body.index-sorted #index-tertiary{top:calc(env(safe-area-inset-top) + 86px)!important;margin:0!important;background:#070707!important;z-index:74!important}",
     "body.index-sorted.factions-open #index-flow,body.index-sorted #index-flow{padding-top:calc(env(safe-area-inset-top) + 128px)!important}",
     "}",
+    ".entry .title-block .caption,.entry .caption,.entry .title-block .more{font-family:\"Iowan Old Style\",\"Palatino Linotype\",Palatino,Georgia,\"Times New Roman\",serif!important;font-weight:400!important;letter-spacing:.01em!important;text-transform:none!important}",
   ].join("");
   document.documentElement.appendChild(css);
 
