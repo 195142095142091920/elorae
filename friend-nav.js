@@ -13,18 +13,18 @@
     document.documentElement.appendChild(glow);
   }
   var ctx = glow.getContext("2d");
-  var W = 420;
-  var H = 220;
+  var W = 220;
+  var H = 96;
   function mote() {
-    return { x: 50 + Math.random() * (W - 100), y: 40 + Math.random() * 120, vx: (Math.random() - 0.5) * 0.1, vy: -0.03 - Math.random() * 0.06, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
+    return { x: 36 + Math.random() * (W - 72), y: 22 + Math.random() * 48, vx: (Math.random() - 0.5) * 0.08, vy: -0.02 - Math.random() * 0.04, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
   }
   var bits = [];
   var n;
-  for (n = 0; n < 22; n += 1) bits.push(mote());
+  for (n = 0; n < 14; n += 1) bits.push(mote());
   function drawBits() {
     if (glow.style.display !== "none") {
       ctx.clearRect(0, 0, W, H);
-      var g = ctx.createRadialGradient(W / 2, 78, 80, W / 2, 90, 180);
+      var g = ctx.createRadialGradient(W / 2, 40, 28, W / 2, 42, 78);
       g.addColorStop(0, "rgba(18,78,48,0.16)");
       g.addColorStop(1, "rgba(12,58,36,0)");
       ctx.fillStyle = g;
@@ -33,7 +33,7 @@
         b.life += b.fade;
         b.x += b.vx;
         b.y += b.vy;
-        if (b.life > 1 || b.y < 12 || b.x < 18 || b.x > W - 18) {
+        if (b.life > 1 || b.y < 8 || b.x < 12 || b.x > W - 12) {
           var next = mote();
           b.x = next.x; b.y = next.y; b.vx = next.vx; b.vy = next.vy; b.life = 0; b.fade = next.fade; b.r = next.r;
         }
@@ -123,7 +123,7 @@
     glow.style.width = W + "px";
     glow.style.height = H + "px";
     glow.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
-    glow.style.top = Math.round(box.top + box.height / 2 - 70) + "px";
+    glow.style.top = Math.round(box.top + box.height / 2 - 36) + "px";
     document.documentElement.appendChild(glow);
   }
   window.paintFriend = paint;
