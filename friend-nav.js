@@ -2,8 +2,10 @@
   if (!document.getElementById("phrase-pulse")) {
     var phrase = document.createElement("style");
     phrase.id = "phrase-pulse";
-    phrase.textContent = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}";
+    phrase.textContent = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input:focus:placeholder-shown,#seal-code:focus:placeholder-shown{caret-color:rgba(243,238,230,.45)!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}";
     document.documentElement.appendChild(phrase);
+  } else {
+    document.getElementById("phrase-pulse").textContent = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input:focus:placeholder-shown,#seal-code:focus:placeholder-shown{caret-color:rgba(243,238,230,.45)!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}";
   }
   var FIGURE = {
     jack: ["Galand Helviath", "#/galand-helviath"],
