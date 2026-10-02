@@ -21,9 +21,9 @@
     i.src = "index-sections.js?v=6";
     document.documentElement.appendChild(i);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=27") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=28") !== -1; })) {
     var f = document.createElement("script");
-    f.src = "features.js?v=27";
+    f.src = "features.js?v=28";
     document.documentElement.appendChild(f);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=4") !== -1; })) {
