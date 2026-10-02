@@ -48,8 +48,21 @@
       bar = document.createElement("nav");
       bar.id = "journal-mobile-toc";
       document.documentElement.appendChild(bar);
+      bar.addEventListener("pointerup", function (e) {
+        var btn = e.target.closest("button");
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        bar.classList.toggle("open");
+        bar.setAttribute("data-lock", String(Date.now()));
+      });
       bar.addEventListener("click", function (e) {
-        if (e.target.closest("button")) bar.classList.toggle("open");
+        if (e.target.closest("a")) bar.classList.remove("open");
+        if (!e.target.closest("button")) return;
+        e.preventDefault();
+        var lock = Number(bar.getAttribute("data-lock") || 0);
+        if (Date.now() - lock < 700) return;
+        bar.classList.toggle("open");
       });
     }
     var top = document.querySelector(".topbar, .mast");
@@ -58,9 +71,13 @@
       var label = (j.act ? j.act + ". " : "") + (j.chapter || j.title || "");
       return '<a href="#/journal/' + j.id + '" class="' + (j.id === current ? "active" : "") + '">' + label + "</a>";
     }).join("");
-    var open = bar.classList.contains("open");
-    bar.innerHTML = '<button type="button">' + currentLabel + '</button><div class="panel">' + panel + "</div>";
-    if (open) bar.classList.add("open");
+    var next = '<button type="button">' + currentLabel + '</button><div class="panel">' + panel + "</div>";
+    if (bar.getAttribute("data-html") !== next) {
+      var open = bar.classList.contains("open");
+      bar.innerHTML = next;
+      bar.setAttribute("data-html", next);
+      if (open) bar.classList.add("open");
+    }
   }
 
   function indexBar() {
