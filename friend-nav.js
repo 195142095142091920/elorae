@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:36px;height:22px}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a:hover{color:#f3eee6}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:42px;height:22px}#friend-link a + a{margin-left:42px!important}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a:hover{color:#f3eee6}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -59,6 +59,32 @@
         ctx.arc(b.x, b.y, b.r, 0, 6.28);
         ctx.fill();
       });
+    }
+    var second = document.getElementById("friend-glow-2");
+    if (second && second.style.display !== "none") {
+      var saved = tone;
+      tone = TONES[second.getAttribute("data-tone")] || TONES.Silar;
+      var ctx2 = second.getContext("2d");
+      ctx2.clearRect(0, 0, W, H);
+      ctx2.save();
+      ctx2.translate(W / 2, 78);
+      ctx2.scale(2.8, 1);
+      var g2 = ctx2.createRadialGradient(0, 0, 6, 0, 0, 120);
+      g2.addColorStop(0, "rgba(" + tone.wash + ",0.1)");
+      g2.addColorStop(0.28, "rgba(" + tone.wash + ",0.04)");
+      g2.addColorStop(0.62, "rgba(" + tone.wash + ",0.012)");
+      g2.addColorStop(1, "rgba(" + tone.wash + ",0)");
+      ctx2.fillStyle = g2;
+      ctx2.fillRect(-W, -H, W * 2, H * 2);
+      ctx2.restore();
+      bits.forEach(function (b) {
+        var alpha2 = Math.sin(b.life * Math.PI) * 0.4;
+        ctx2.beginPath();
+        ctx2.fillStyle = "rgba(" + tone.mote + "," + alpha2 + ")";
+        ctx2.arc(b.x, b.y, b.r, 0, 6.28);
+        ctx2.fill();
+      });
+      tone = saved;
     }
     requestAnimationFrame(drawBits);
   }
@@ -154,16 +180,30 @@
       link.style.top = Math.round(r.top + (r.height - link.offsetHeight) / 2) + "px";
       bar.style.overflow = "visible";
     }
-    if (!onSeal || !active) { glow.style.display = "none"; return; }
-    var box = active.getBoundingClientRect();
-    glow.width = W;
-    glow.height = H;
-    glow.style.display = "block";
-    glow.style.width = W + "px";
-    glow.style.height = H + "px";
-    glow.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
-    glow.style.top = Math.round(box.top + box.height / 2 - 70) + "px";
-    document.documentElement.appendChild(glow);
+    var names = link.querySelectorAll("a");
+    if (!onSeal || !names.length) { glow.style.display = "none"; var extra = document.getElementById("friend-glow-2"); if (extra) extra.style.display = "none"; return; }
+    function place(canvas, el) {
+      var box = el.getBoundingClientRect();
+      canvas.width = W;
+      canvas.height = H;
+      canvas.style.display = "block";
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+      canvas.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
+      canvas.style.top = Math.round(box.top + box.height / 2 - 70) + "px";
+    }
+    place(glow, names[0]);
+    if (names.length > 1) {
+      var second = document.getElementById("friend-glow-2");
+      if (!second) {
+        second = document.createElement("canvas");
+        second.id = "friend-glow-2";
+        second.className = "friend-glow";
+        document.documentElement.appendChild(second);
+      }
+      place(second, names[1]);
+      second.setAttribute("data-tone", names[1].getAttribute("data-name"));
+    }
   }
   window.paintFriend = paint;
   paint();
