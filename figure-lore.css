@@ -87,9 +87,14 @@
 }
 
 @media (min-width: 801px) {
-  .entry .title-block .caption {
+  .entry .title-block .caption,
+  .entry .title-block .caption .more {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif !important;
+    font-weight: 400;
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0.01em;
     font-size: 16px;
-    letter-spacing: 0.08em;
     line-height: 1.4;
     color: #e4ddd2;
     margin-left: 8px;
