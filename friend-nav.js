@@ -1,32 +1,26 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow,.friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link a.on{color:#e7f6ee!important}#friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:16px;height:22px}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a.on{color:#f3eee6}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link a.on{color:#e7f6ee!important}#friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:16px;height:22px}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a.on{color:#f3eee6}#friend-link a:hover{color:#f3eee6!important}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
   var mark = document.getElementById("phrase-caret");
   if (!mark) { mark = document.createElement("i"); mark.id = "phrase-caret"; document.documentElement.appendChild(mark); }
-  var oldGlow = document.getElementById("friend-glow");
-  if (oldGlow) oldGlow.remove();
-  var glows = {};
-  function fieldFor(name) {
-    if (!glows[name]) {
-      var canvas = document.createElement("canvas");
-      canvas.className = "friend-glow";
-      canvas.width = W;
-      canvas.height = H;
-      document.documentElement.appendChild(canvas);
-      glows[name] = canvas;
-    }
-    return glows[name];
+  var glow = document.getElementById("friend-glow");
+  if (!glow || glow.tagName !== "CANVAS") {
+    if (glow) glow.remove();
+    glow = document.createElement("canvas");
+    glow.id = "friend-glow";
+    document.documentElement.appendChild(glow);
   }
   var oldPick = document.getElementById("friend-pick");
   if (oldPick) oldPick.remove();
+  var ctx = glow.getContext("2d");
   var W = 640;
   var H = 220;
   var tone = { wash: "18,78,48", mote: "186,236,206", shadow: "24,92,56" };
   var TONES = {
     "Telorin": { wash: "18,78,48", mote: "186,236,206", shadow: "24,92,56" },
-    "Silar": { wash: "168,48,18", mote: "255,150,72", shadow: "160,46,16" },
+    "Silar": { wash: "150,62,16", mote: "255,168,78", shadow: "150,70,18" },
     "Saoirse": { wash: "210,150,170", mote: "255,236,240", shadow: "190,130,150" },
     "Vaerek": { wash: "150,62,16", mote: "255,168,78", shadow: "150,70,18" },
     "Galand": { wash: "128,96,22", mote: "255,224,150", shadow: "130,100,24" }
@@ -37,41 +31,35 @@
   var bits = [];
   var n;
   for (n = 0; n < 16; n += 1) bits.push(mote());
-  function drawField(canvas, color) {
-    var ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, W, H);
-    ctx.save();
-    ctx.translate(W / 2, 78);
-    ctx.scale(2.8, 1);
-    var g = ctx.createRadialGradient(0, 0, 6, 0, 0, 120);
-    g.addColorStop(0, "rgba(" + color.wash + ",0.1)");
-    g.addColorStop(0.28, "rgba(" + color.wash + ",0.04)");
-    g.addColorStop(0.62, "rgba(" + color.wash + ",0.012)");
-    g.addColorStop(1, "rgba(" + color.wash + ",0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(-W, -H, W * 2, H * 2);
-    ctx.restore();
-    bits.forEach(function (b) {
-      var alpha = Math.sin((b.life + color.wash.length) * Math.PI) * 0.4;
-      ctx.beginPath();
-      ctx.fillStyle = "rgba(" + color.mote + "," + Math.abs(alpha) + ")";
-      ctx.arc((b.x + color.wash.length * 7) % (W - 40) + 20, b.y, b.r, 0, 6.28);
-      ctx.fill();
-    });
-  }
   function drawBits() {
-    bits.forEach(function (b) {
-      b.life += b.fade;
-      b.x += b.vx;
-      b.y += b.vy;
-      if (b.life > 1 || b.y < 12 || b.x < 24 || b.x > W - 24) {
-        var next = mote();
-        b.x = next.x; b.y = next.y; b.vx = next.vx; b.vy = next.vy; b.life = 0; b.fade = next.fade; b.r = next.r;
-      }
-    });
-    Object.keys(glows).forEach(function (name) {
-      if (glows[name].style.display !== "none") drawField(glows[name], TONES[name] || TONES.Telorin);
-    });
+    if (glow.style.display !== "none") {
+      ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      ctx.translate(W / 2, 78);
+      ctx.scale(2.8, 1);
+      var g = ctx.createRadialGradient(0, 0, 6, 0, 0, 120);
+      g.addColorStop(0, "rgba(" + tone.wash + ",0.1)");
+      g.addColorStop(0.28, "rgba(" + tone.wash + ",0.04)");
+      g.addColorStop(0.62, "rgba(" + tone.wash + ",0.012)");
+      g.addColorStop(1, "rgba(" + tone.wash + ",0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(-W, -H, W * 2, H * 2);
+      ctx.restore();
+      bits.forEach(function (b) {
+        b.life += b.fade;
+        b.x += b.vx;
+        b.y += b.vy;
+        if (b.life > 1 || b.y < 12 || b.x < 24 || b.x > W - 24) {
+          var next = mote();
+          b.x = next.x; b.y = next.y; b.vx = next.vx; b.vy = next.vy; b.life = 0; b.fade = next.fade; b.r = next.r;
+        }
+        var alpha = Math.sin(b.life * Math.PI) * 0.4;
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(" + tone.mote + "," + alpha + ")";
+        ctx.arc(b.x, b.y, b.r, 0, 6.28);
+        ctx.fill();
+      });
+    }
     requestAnimationFrame(drawBits);
   }
   requestAnimationFrame(drawBits);
@@ -134,7 +122,7 @@
     var v = typeof vaultOf === "function" ? vaultOf() : null;
     link = document.getElementById("friend-link");
     var onSeal = document.body.classList.contains("seal-page") && !document.getElementById("seal-code");
-    if (!v || !FIGURE[v.id]) { if (link) link.remove(); Object.keys(glows).forEach(function (name) { glows[name].style.display = "none"; }); return; }
+    if (!v || !FIGURE[v.id]) { if (link) link.remove(); glow.style.display = "none"; return; }
     if (!link) {
       link = document.createElement("span");
       link.id = "friend-link";
@@ -166,21 +154,16 @@
       link.style.top = Math.round(r.top + (r.height - link.offsetHeight) / 2) + "px";
       bar.style.overflow = "visible";
     }
-    Array.prototype.forEach.call(link.querySelectorAll("a"), function (a) {
-      var canvas = fieldFor(a.getAttribute("data-name"));
-      if (!onSeal) { canvas.style.display = "none"; return; }
-      var box = a.getBoundingClientRect();
-      canvas.width = W;
-      canvas.height = H;
-      canvas.style.display = "block";
-      canvas.style.width = W + "px";
-      canvas.style.height = H + "px";
-      canvas.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
-      canvas.style.top = Math.round(box.top + box.height / 2 - 70) + "px";
-    });
-    Object.keys(glows).forEach(function (name) {
-      if (!link.querySelector('[data-name="' + name + '"]')) glows[name].style.display = "none";
-    });
+    if (!onSeal || !active) { glow.style.display = "none"; return; }
+    var box = active.getBoundingClientRect();
+    glow.width = W;
+    glow.height = H;
+    glow.style.display = "block";
+    glow.style.width = W + "px";
+    glow.style.height = H + "px";
+    glow.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
+    glow.style.top = Math.round(box.top + box.height / 2 - 70) + "px";
+    document.documentElement.appendChild(glow);
   }
   window.paintFriend = paint;
   paint();
