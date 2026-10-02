@@ -208,7 +208,7 @@ body::after {
   z-index: 3;
   pointer-events: none;
   background: linear-gradient(to top, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.14) 48%, rgba(0,0,0,0) 100%);
-  transition: height 220ms ease, background 220ms ease;
+  transition: none;
 }
 .entry:has(.lore.open)::before,
 .entry:has(.life-sheet.open)::before {
@@ -323,8 +323,11 @@ body::after {
 .lore::-webkit-scrollbar { width: 3px; }
 .lore::-webkit-scrollbar-track { background: transparent; }
 .lore::-webkit-scrollbar-thumb { background: transparent; border-radius: 99px; }
-.lore.show-bar::-webkit-scrollbar-thumb { background: rgba(207,198,184,0.45); }
-.lore.show-bar { scrollbar-width: thin; scrollbar-color: rgba(207,198,184,0.45) transparent; }
+.lore::-webkit-scrollbar-thumb { transition: background 700ms ease; }
+.lore.show-bar::-webkit-scrollbar-thumb,
+.lore.open.show-bar::-webkit-scrollbar-thumb { background: rgba(207,198,184,0.45); }
+.lore.show-bar,
+.lore.open.show-bar { scrollbar-width: thin; scrollbar-color: rgba(207,198,184,0.45) transparent; }
 .lore.open {
   max-height: none;
   opacity: 1;
