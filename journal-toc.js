@@ -20,7 +20,7 @@
     var entries = window.JOURNAL || [];
     var current = h.indexOf("journal/") === 0 ? h.slice(8) : (entries[0] && entries[0].id);
     if (!rail) { rail = document.createElement("aside"); rail.id = "journal-rail"; rail.className = "journal-rail"; document.documentElement.appendChild(rail); }
-    var html = "<h3>Contents</h3>" + entries.map(function (j) {
+    var html = "<h3>Chapters</h3>" + entries.map(function (j) {
       return '<a href="#/journal/' + j.id + '" class="' + (j.id === current ? "active" : "") + '">' + label(j) + "</a>";
     }).join("");
     if (rail.innerHTML !== html) rail.innerHTML = html;
