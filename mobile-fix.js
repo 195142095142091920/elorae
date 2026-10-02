@@ -58,8 +58,16 @@
     "#site-nav .filters a.active{font-weight:700!important;color:#f3eee6!important}",
     "#site-nav .dot{display:none!important}",
     "#site-nav #friend-link{margin-left:14px!important}",
-    "body:not(.entry):not(.seal-page) > header.topbar,body:not(.entry):not(.seal-page) > .mast > .topbar{visibility:hidden!important}",
     "@media (min-width:801px){#site-nav{height:56px!important;padding:0 28px!important}#site-nav .filters a,#site-nav #friend-link a{font-size:19.2px!important;letter-spacing:.12em!important}}",
+    "header.topbar,.mast .topbar{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:80!important;display:flex!important;align-items:center!important;justify-content:center!important;height:calc(env(safe-area-inset-top) + 46px)!important;padding:env(safe-area-inset-top) 10px 0!important;background:#070707!important;box-sizing:border-box!important}",
+    ".topbar .filters,.mast .filters{display:flex!important;align-items:center!important;justify-content:center!important;gap:12px!important;font-size:11px!important;letter-spacing:.12em!important}",
+    ".topbar .filters a,.mast .filters a,#friend-link a{font-family:Helvetica,Arial,sans-serif!important;font-size:11px!important;font-weight:400!important;letter-spacing:.12em!important;line-height:1!important}",
+    ".topbar .filters a.active,.mast .filters a.active{font-weight:700!important;color:#f3eee6!important}",
+    ".topbar > a[href=\"#/seal\"]{position:absolute!important;width:0!important;height:0!important;overflow:hidden!important;padding:0!important}",
+    "#journal-mobile-toc{top:calc(env(safe-area-inset-top) + 46px)!important;z-index:75!important;display:block!important}",
+    "body.index-sorted #index-rail{top:calc(env(safe-area-inset-top) + 46px)!important}",
+    "body.index-sorted #index-tertiary{top:calc(env(safe-area-inset-top) + 86px)!important;margin:0!important;background:#070707!important;z-index:74!important}",
+    "body.index-sorted.factions-open #index-flow,body.index-sorted #index-flow{padding-top:calc(env(safe-area-inset-top) + 128px)!important}",
   ].join("");
   document.documentElement.appendChild(css);
 
@@ -78,39 +86,7 @@
     });
   }
 
-  function syncSiteNav() {
-    var entry = document.body.classList.contains("entry") || document.body.classList.contains("seal-page");
-    var bar = document.getElementById("site-nav");
-    if (entry) { if (bar) bar.style.display = "none"; return; }
-    var page = document.querySelector("body > .mast .topbar .filters, body > header.topbar .filters");
-    if (!bar) {
-      bar = document.createElement("header");
-      bar.id = "site-nav";
-      bar.className = "topbar";
-      document.documentElement.appendChild(bar);
-    }
-    bar.style.display = "flex";
-    if (page && page.querySelector("a")) {
-      var have = bar.querySelectorAll(".filters a").length;
-      var need = page.querySelectorAll("a").length;
-      if (!have || need > have) bar.innerHTML = '<nav class="filters">' + page.innerHTML + '</nav>';
-    }
-    var h = (location.hash || "").replace(/^#\/?/, "");
-    var room = "gallery";
-    if (h.indexOf("atlas") === 0) room = "atlas";
-    else if (h.indexOf("codex") === 0) room = "codex";
-    else if (h.indexOf("index") === 0) room = "index";
-    else if (h.indexOf("journal") === 0) room = "journal";
-    bar.querySelectorAll(".filters a").forEach(function (a) {
-      var href = (a.getAttribute("href") || "").replace(/^#\/?/, "").split("/")[0];
-      a.classList.toggle("active", href === room);
-    });
-    var friend = document.getElementById("friend-link");
-    if (friend && friend.parentElement !== bar) bar.appendChild(friend);
-  }
-  syncSiteNav();
-  window.addEventListener("hashchange", syncSiteNav);
-  setInterval(syncSiteNav, 240);
+  var stale = document.getElementById("site-nav"); if (stale) stale.remove();
   window.addEventListener("hashchange", markRoom);
   setInterval(markRoom, 400);
   markRoom();
