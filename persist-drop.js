@@ -11,9 +11,9 @@
     fit.textContent = ".entry #fitmark,.entry .fit-mark,.entry #fit,.entry .fit-toggle{color:#f3eee6!important;opacity:1!important;text-shadow:none!important}.entry #fitmark,.entry .fit-mark{transform:translateY(2px)!important}.entry #fitmark svg,.entry .fit-mark svg,.entry #fit svg,.entry .fit-toggle svg,.entry #fitmark path,.entry .fit-mark path,.entry #fit path,.entry .fit-toggle path{stroke:#f3eee6!important;color:#f3eee6!important;opacity:1!important;stroke-width:2.4!important}";
     document.documentElement.appendChild(fit);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("friend-nav.js?v=27") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("friend-nav.js?v=28") !== -1; })) {
     var g = document.createElement("script");
-    g.src = "friend-nav.js?v=27";
+    g.src = "friend-nav.js?v=28";
     document.documentElement.appendChild(g);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("index-sections.js?v=8") !== -1; })) {
@@ -21,9 +21,9 @@
     i.src = "index-sections.js?v=8";
     document.documentElement.appendChild(i);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=28") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=29") !== -1; })) {
     var f = document.createElement("script");
-    f.src = "features.js?v=28";
+    f.src = "features.js?v=29";
     document.documentElement.appendChild(f);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=5") !== -1; })) {
