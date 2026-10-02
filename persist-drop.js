@@ -11,6 +11,11 @@
     fit.textContent = ".entry #fitmark,.entry .fit-mark,.entry #fit,.entry .fit-toggle{color:#f3eee6!important;opacity:1!important;text-shadow:none!important}.entry #fitmark,.entry .fit-mark{transform:translateY(2px)!important}.entry #fitmark svg,.entry .fit-mark svg,.entry #fit svg,.entry .fit-toggle svg,.entry #fitmark path,.entry .fit-mark path,.entry #fit path,.entry .fit-toggle path{stroke:#f3eee6!important;color:#f3eee6!important;opacity:1!important;stroke-width:2.4!important}";
     document.documentElement.appendChild(fit);
   }
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("index-sections.js?v=1") !== -1; })) {
+    var i = document.createElement("script");
+    i.src = "index-sections.js?v=1";
+    document.documentElement.appendChild(i);
+  }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=27") !== -1; })) {
     var f = document.createElement("script");
     f.src = "features.js?v=27";
