@@ -20,7 +20,7 @@
   var tone = { wash: "18,78,48", mote: "186,236,206", shadow: "24,92,56" };
   var TONES = {
     "Telorin": { wash: "18,78,48", mote: "186,236,206", shadow: "24,92,56" },
-    "Silar": { wash: "150,62,16", mote: "255,168,78", shadow: "150,70,18" },
+    "Silar": { wash: "168,48,18", mote: "255,150,72", shadow: "160,46,16" },
     "Saoirse": { wash: "210,150,170", mote: "255,236,240", shadow: "190,130,150" },
     "Vaerek": { wash: "150,62,16", mote: "255,168,78", shadow: "150,70,18" },
     "Galand": { wash: "128,96,22", mote: "255,224,150", shadow: "130,100,24" }
@@ -186,6 +186,9 @@
       var box = el.getBoundingClientRect();
       canvas.width = W;
       canvas.height = H;
+      canvas.style.position = "fixed";
+      canvas.style.zIndex = "500";
+      canvas.style.pointerEvents = "none";
       canvas.style.display = "block";
       canvas.style.width = W + "px";
       canvas.style.height = H + "px";
