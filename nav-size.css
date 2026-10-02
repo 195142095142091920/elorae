@@ -3,7 +3,8 @@
   .mast .topbar,
   .filters,
   .filters a {
-    font-size: 16px !important;
+    font-size: 12px !important;
+    letter-spacing: 0.12em !important;
   }
   nav.chapter-tabs,
   nav.chapter-tabs a,
@@ -16,9 +17,11 @@
   .atlas-page .atlas-tabs,
   .atlas-page .atlas-tabs a,
   body .subbar,
-  body .subbar a {
-    font-size: 15px !important;
-    letter-spacing: 0.16em !important;
+  body .subbar a,
+  #section-bar,
+  #section-bar a {
+    font-size: 12px !important;
+    letter-spacing: 0.12em !important;
   }
   .subbar,
   .atlas-page .atlas-tabs,
@@ -44,11 +47,5 @@
     background: #5c5852;
     opacity: 0.85;
     pointer-events: none;
-  }
-  body.on-codex .nav-drop:has(> a[href^="#/codex"]):hover .nav-menu,
-  body.on-codex .nav-drop:has(> a[href^="#/codex"]).open .nav-menu,
-  body.on-atlas .nav-drop:has(> a[href="#/atlas"]):hover .nav-menu,
-  body.on-atlas .nav-drop:has(> a[href="#/atlas"]).open .nav-menu {
-    display: flex !important;
   }
 }
