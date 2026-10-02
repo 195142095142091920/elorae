@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}body.seal-page #friend-link{position:fixed;color:#e7f6ee;text-shadow:0 0 12px rgba(24,110,68,.9),0 0 28px rgba(10,70,42,.75)}body.seal-page #friend-link::before{content:\"\";position:absolute;left:50%;top:50%;width:180px;height:64px;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(16,92,56,.62),rgba(8,48,30,.22) 52%,transparent 74%);z-index:-1;pointer-events:none}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -22,6 +22,14 @@
     mark.style.left = Math.round(box.left + (box.width - word) / 2 - 1) + "px";
     mark.style.top = Math.round(box.top + (box.height - 18) / 2) + "px";
   }
+  function greet() {
+    var card = document.querySelector(".seal-card h1");
+    if (!card || document.getElementById("seal-code") || document.querySelector(".seal-greet")) return;
+    var line = document.createElement("p");
+    line.className = "seal-greet";
+    line.textContent = "Welcome,";
+    card.parentNode.insertBefore(line, card);
+  }
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     var input = document.getElementById("seal-code");
@@ -35,7 +43,7 @@
   document.addEventListener("focusin", placeCaret, true);
   document.addEventListener("focusout", placeCaret, true);
   document.addEventListener("input", placeCaret, true);
-  setInterval(placeCaret, 200);
+  setInterval(function () { placeCaret(); greet(); }, 200);
   var FIGURE = {
     jack: ["Galand Helviath", "#/galand-helviath"],
     jon: ["Telorin", "#/telorin"],
@@ -67,6 +75,6 @@
   }
   window.paintFriend = paint;
   paint();
-  window.addEventListener("hashchange", function () { setTimeout(paint, 40); });
+  window.addEventListener("hashchange", function () { setTimeout(paint, 40); setTimeout(greet, 60); });
   setInterval(paint, 300);
 })();
