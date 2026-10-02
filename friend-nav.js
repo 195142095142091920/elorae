@@ -22,6 +22,16 @@
     mark.style.left = Math.round(box.left + (box.width - word) / 2 - 1) + "px";
     mark.style.top = Math.round(box.top + (box.height - 18) / 2) + "px";
   }
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var input = document.getElementById("seal-code");
+    if (!input || document.activeElement !== input) return;
+    input.blur();
+    placeCaret();
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+  }, true);
   document.addEventListener("focusin", placeCaret, true);
   document.addEventListener("focusout", placeCaret, true);
   document.addEventListener("input", placeCaret, true);
