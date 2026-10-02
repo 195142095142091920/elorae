@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed;z-index:255;pointer-events:none;display:none}body.seal-page #friend-link{color:#e7f6ee!important;text-shadow:0 0 6px rgba(16,54,36,.35)!important;z-index:260}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:400!important;pointer-events:none;display:none}body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link{color:#e7f6ee!important;text-shadow:0 0 6px rgba(16,54,36,.35)!important;z-index:410!important}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -13,10 +13,10 @@
     document.documentElement.appendChild(glow);
   }
   var ctx = glow.getContext("2d");
-  var W = 360;
-  var H = 150;
+  var W = 420;
+  var H = 220;
   function mote() {
-    return { x: 40 + Math.random() * (W - 80), y: 36 + Math.random() * 70, vx: (Math.random() - 0.5) * 0.1, vy: -0.03 - Math.random() * 0.06, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
+    return { x: 50 + Math.random() * (W - 100), y: 40 + Math.random() * 120, vx: (Math.random() - 0.5) * 0.1, vy: -0.03 - Math.random() * 0.06, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
   }
   var bits = [];
   var n;
@@ -24,9 +24,9 @@
   function drawBits() {
     if (glow.style.display !== "none") {
       ctx.clearRect(0, 0, W, H);
-      var g = ctx.createRadialGradient(W / 2, 58, 6, W / 2, 62, 130);
-      g.addColorStop(0, "rgba(10,36,24,0.18)");
-      g.addColorStop(0.55, "rgba(10,36,24,0.06)");
+      var g = ctx.createRadialGradient(W / 2, 78, 4, W / 2, 90, 170);
+      g.addColorStop(0, "rgba(10,36,24,0.16)");
+      g.addColorStop(0.5, "rgba(10,36,24,0.05)");
       g.addColorStop(1, "rgba(10,36,24,0)");
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
@@ -34,7 +34,7 @@
         b.life += b.fade;
         b.x += b.vx;
         b.y += b.vy;
-        if (b.life > 1 || b.y < 10 || b.x < 16 || b.x > W - 16) {
+        if (b.life > 1 || b.y < 12 || b.x < 18 || b.x > W - 18) {
           var next = mote();
           b.x = next.x; b.y = next.y; b.vx = next.vx; b.vy = next.vy; b.life = 0; b.fade = next.fade; b.r = next.r;
         }
@@ -96,7 +96,7 @@
   if (!document.getElementById("friend-nav-css")) {
     var css = document.createElement("style");
     css.id = "friend-nav-css";
-    css.textContent = "#friend-link{position:fixed;right:28px;z-index:260;display:flex;align-items:center;height:22px;line-height:1;color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase}";
+    css.textContent = "#friend-link{position:fixed;right:28px;z-index:410;display:flex;align-items:center;height:22px;line-height:1;color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase}";
     document.documentElement.appendChild(css);
   }
   function paint() {
@@ -124,7 +124,8 @@
     glow.style.width = W + "px";
     glow.style.height = H + "px";
     glow.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
-    glow.style.top = Math.round(box.top + box.height / 2 - 52) + "px";
+    glow.style.top = Math.round(box.top + box.height / 2 - 70) + "px";
+    document.documentElement.appendChild(glow);
   }
   window.paintFriend = paint;
   paint();
