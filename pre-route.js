@@ -31,9 +31,7 @@
     css.textContent = ".chapter-tabs,.topbar .chapter-tabs{display:none!important}#section-bar{display:none;position:fixed;left:0;right:0;top:62px;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase}#section-bar a.active,#section-bar a:hover{color:#f3eee6}@media (min-width:801px){.topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}.topbar .filters,.mast .topbar .filters{position:absolute!important;left:50%!important;transform:translateX(-50%)!important}}";
     document.documentElement.appendChild(css);
   }
-  function paintBar() { return; }
-  /* old second bar, do not paint
-  function paintBarUnused() {
+  function paintBar() {
     var h = (location.hash || boot || "").replace(/^#\/?/, "");
     var list = null, current = "";
     if (h === "atlas" || h.indexOf("atlas/") === 0) { list = ATLAS; current = "#/atlas/" + (h === "atlas" ? "world" : h.slice(6)); }
@@ -46,7 +44,6 @@
     bar.innerHTML = list.map(function (it) { return '<a href="' + it[1] + '" class="' + (it[1] === current ? "active" : "") + '">' + it[0] + "</a>"; }).join("");
     bar.classList.add("show");
   }
-  */
   if (boot.indexOf("#/atlas") === 0 || boot.indexOf("#/codex") === 0) {
     document.documentElement.classList.add("hold-route");
     var hide = document.createElement("style");
