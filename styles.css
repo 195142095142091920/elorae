@@ -670,7 +670,7 @@ body::after {
     min-height: 30vh;
     padding: 36px 14px max(18px, env(safe-area-inset-bottom));
     pointer-events: auto;
-    transition: width 220ms ease, opacity 180ms ease;
+    transition: none;
   }
   .title-block h1 {
     font-size: clamp(26px, 7.2vw, 34px);
