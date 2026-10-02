@@ -26,16 +26,16 @@
     f.src = "features.js?v=35";
     document.documentElement.appendChild(f);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=6") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=7") !== -1; })) {
     var j = document.createElement("script");
-    j.src = "journal-toc.js?v=6";
+    j.src = "journal-toc.js?v=7";
     document.documentElement.appendChild(j);
   }
   if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=15") !== -1; })) return;
   var n = document.createElement("script");
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=23") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=24") !== -1; })) {
     var m = document.createElement("script");
-    m.src = "mobile-fix.js?v=23";
+    m.src = "mobile-fix.js?v=24";
     document.documentElement.appendChild(m);
   }
   n.src = "nav-boot.js?v=15";
