@@ -17,7 +17,7 @@
     var onJournal = h === "journal" || h.indexOf("journal/") === 0;
     var rail = document.getElementById("journal-rail");
     if (!onJournal) { if (rail) rail.remove(); return; }
-    var entries = window.JOURNAL || [];
+    var entries = (window.JOURNAL || []).slice().reverse();
     var current = h.indexOf("journal/") === 0 ? h.slice(8) : (entries[0] && entries[0].id);
     if (!rail) { rail = document.createElement("aside"); rail.id = "journal-rail"; rail.className = "journal-rail"; document.documentElement.appendChild(rail); }
     var html = "<h3>Chapters</h3>" + entries.map(function (j) {
