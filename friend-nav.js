@@ -20,10 +20,10 @@
   var tone = { wash: "18,78,48", mote: "186,236,206", shadow: "24,92,56" };
   var TONES = {
     "Telorin": { wash: "18,78,48", mote: "186,236,206", shadow: "24,92,56" },
-    "Silar Scorria": { wash: "150,62,16", mote: "255,168,78", shadow: "150,70,18" },
+    "Silar": { wash: "150,62,16", mote: "255,168,78", shadow: "150,70,18" },
     "Saoirse": { wash: "132,36,78", mote: "255,186,210", shadow: "140,40,84" },
-    "Vaerek Rathkin": { wash: "150,62,16", mote: "255,168,78", shadow: "150,70,18" },
-    "Galand Helviath": { wash: "128,96,22", mote: "255,224,150", shadow: "130,100,24" }
+    "Vaerek": { wash: "150,62,16", mote: "255,168,78", shadow: "150,70,18" },
+    "Galand": { wash: "128,96,22", mote: "255,224,150", shadow: "130,100,24" }
   };
   function mote() {
     return { x: 48 + Math.random() * (W - 96), y: 24 + Math.random() * 56, vx: (Math.random() - 0.5) * 0.08, vy: -0.015 - Math.random() * 0.03, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
@@ -102,10 +102,10 @@
   document.addEventListener("input", placeCaret, true);
   setInterval(function () { placeCaret(); greet(); }, 200);
   var FIGURE = {
-    jack: [["Galand Helviath", "#/galand-helviath"]],
-    jon: [["Telorin", "#/telorin"], ["Silar Scorria", "#/silar-scorria"]],
+    jack: [["Galand", "#/galand-helviath"]],
+    jon: [["Telorin", "#/telorin"], ["Silar", "#/silar-scorria"]],
     julie: [["Saoirse", "#/saoirse"]],
-    sawyer: [["Vaerek Rathkin", "#/vaerek-at-ease"]]
+    sawyer: [["Vaerek", "#/vaerek-at-ease"]]
   };
   function chosen(id) {
     var list = FIGURE[id];
@@ -138,7 +138,7 @@
       link = document.createElement("a");
       link.id = "friend-link";
       link.addEventListener("click", function (e) {
-        if (FIGURE[v.id].length < 2) return;
+        if (!v || !FIGURE[v.id] || FIGURE[v.id].length < 2) return;
         e.preventDefault();
         pick.style.display = pick.style.display === "block" ? "none" : "block";
       });
