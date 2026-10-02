@@ -1,9 +1,9 @@
 (function () {
   var FIGURE = {
-    jack: ["Galand Helviath", "#/galand-helviath"],
+    jack: ["Galand", "#/galand-helviath"],
     jon: ["Telorin", "#/telorin"],
     julie: ["Saoirse", "#/saoirse"],
-    sawyer: ["Vaerek Rathkin", "#/vaerek-at-ease"]
+    sawyer: ["Vaerek", "#/vaerek-at-ease"]
   };
   var ARTS = {
     "vaerek-at-ease": ["assets/Vaerek, At Ease.png", "assets/Vaerek, Vessel of Heldranc.png"]
@@ -76,24 +76,7 @@
   if (oldWrap) oldWrap.remove();
   function who() { return typeof vaultOf === "function" ? vaultOf() : null; }
   function paintFriend() {
-    var v = who();
-    var old = document.getElementById("friend-link");
-    if (!v || !FIGURE[v.id]) return;
-    if (!old) {
-      old = document.createElement("a");
-      old.id = "friend-link";
-      document.documentElement.appendChild(old);
-    }
-    if (old.getAttribute("href") !== FIGURE[v.id][1]) old.href = FIGURE[v.id][1];
-    if (old.textContent !== FIGURE[v.id][0]) old.textContent = FIGURE[v.id][0];
-    var on = document.body.classList.contains("entry");
-    old.style.fontFamily = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-    old.style.fontWeight = on ? "700" : "400";
-    old.style.color = on ? "#f3eee6" : "#8f8a82";
-    old.style.letterSpacing = "0.16em";
-    old.style.textTransform = "uppercase";
-    old.style.textShadow = "none";
-    old.style.fontSize = on && window.innerWidth <= 800 ? "13px" : "16px";
+    /* Retired. friend-nav.js owns the signed-in figure name. */
   }
   function pool() { return (window.ENTRIES || []).concat((who() && who().entries) || []); }
   if (!document.getElementById("seek-ghost")) {
