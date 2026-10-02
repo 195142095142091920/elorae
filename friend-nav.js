@@ -1,12 +1,31 @@
 (function () {
-  if (!document.getElementById("phrase-pulse")) {
-    var phrase = document.createElement("style");
-    phrase.id = "phrase-pulse";
-    phrase.textContent = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input:focus:placeholder-shown,#seal-code:focus:placeholder-shown{caret-color:rgba(243,238,230,.45)!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}";
-    document.documentElement.appendChild(phrase);
-  } else {
-    document.getElementById("phrase-pulse").textContent = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input:focus:placeholder-shown,#seal-code:focus:placeholder-shown{caret-color:rgba(243,238,230,.45)!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}";
+  var phrase = document.getElementById("phrase-pulse");
+  if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
+  phrase.textContent = phraseCss;
+  var mark = document.getElementById("phrase-caret");
+  if (!mark) { mark = document.createElement("i"); mark.id = "phrase-caret"; document.documentElement.appendChild(mark); }
+  function placeCaret() {
+    var input = document.getElementById("seal-code");
+    if (!input || document.activeElement !== input || input.value) { mark.style.display = "none"; return; }
+    var probe = document.getElementById("phrase-probe");
+    if (!probe) {
+      probe = document.createElement("span");
+      probe.id = "phrase-probe";
+      probe.textContent = input.getAttribute("placeholder") || "Phrase";
+      probe.style.cssText = "position:fixed;left:-9999px;visibility:hidden;white-space:pre;font:inherit;font-size:18px;letter-spacing:.08em";
+      document.documentElement.appendChild(probe);
+    }
+    var box = input.getBoundingClientRect();
+    var word = probe.getBoundingClientRect().width;
+    mark.style.display = "block";
+    mark.style.left = Math.round(box.left + (box.width - word) / 2 - 1) + "px";
+    mark.style.top = Math.round(box.top + (box.height - 18) / 2) + "px";
   }
+  document.addEventListener("focusin", placeCaret, true);
+  document.addEventListener("focusout", placeCaret, true);
+  document.addEventListener("input", placeCaret, true);
+  setInterval(placeCaret, 200);
   var FIGURE = {
     jack: ["Galand Helviath", "#/galand-helviath"],
     jon: ["Telorin", "#/telorin"],

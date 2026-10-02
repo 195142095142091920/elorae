@@ -1,12 +1,4 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input:focus:placeholder-shown,#seal-code:focus:placeholder-shown{caret-color:rgba(243,238,230,.45)!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}";
-  var phrase = document.getElementById("phrase-pulse");
-  if (!phrase) {
-    phrase = document.createElement("style");
-    phrase.id = "phrase-pulse";
-    document.documentElement.appendChild(phrase);
-  }
-  phrase.textContent = phraseCss;
   if (!document.getElementById("title-gap")) {
     var gap = document.createElement("style");
     gap.id = "title-gap";
@@ -19,9 +11,9 @@
     fit.textContent = ".entry #fitmark,.entry .fit-mark,.entry #fit,.entry .fit-toggle{color:#f3eee6!important;opacity:1!important;text-shadow:none!important}.entry #fitmark,.entry .fit-mark{transform:translateY(2px)!important}.entry #fitmark svg,.entry .fit-mark svg,.entry #fit svg,.entry .fit-toggle svg,.entry #fitmark path,.entry .fit-mark path,.entry #fit path,.entry .fit-toggle path{stroke:#f3eee6!important;color:#f3eee6!important;opacity:1!important;stroke-width:2.4!important}";
     document.documentElement.appendChild(fit);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("friend-nav.js?v=3") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("friend-nav.js?v=4") !== -1; })) {
     var g = document.createElement("script");
-    g.src = "friend-nav.js?v=3";
+    g.src = "friend-nav.js?v=4";
     document.documentElement.appendChild(g);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("index-sections.js?v=5") !== -1; })) {
