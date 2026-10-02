@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:400!important;pointer-events:none;display:none}body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}body.seal-page #friend-link{color:#e7f6ee!important;text-shadow:0 0 8px rgba(24,92,56,.5)!important;z-index:410!important}";
+  var phraseCss = ".seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:400!important;pointer-events:none;display:none}body.seal-page .topbar,body.seal-page .mast,body.seal-page{overflow:visible!important}body.seal-page #friend-link{color:#e7f6ee!important;text-shadow:0 0 8px rgba(24,92,56,.5)!important;z-index:410!important}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -14,9 +14,9 @@
   }
   var ctx = glow.getContext("2d");
   var W = 340;
-  var H = 72;
+  var H = 120;
   function mote() {
-    return { x: 48 + Math.random() * (W - 96), y: 22 + Math.random() * 28, vx: (Math.random() - 0.5) * 0.08, vy: -0.015 - Math.random() * 0.03, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
+    return { x: 48 + Math.random() * (W - 96), y: 24 + Math.random() * 56, vx: (Math.random() - 0.5) * 0.08, vy: -0.015 - Math.random() * 0.03, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
   }
   var bits = [];
   var n;
@@ -25,9 +25,9 @@
     if (glow.style.display !== "none") {
       ctx.clearRect(0, 0, W, H);
       ctx.save();
-      ctx.translate(W / 2, H / 2);
-      ctx.scale(2.4, 1);
-      var g = ctx.createRadialGradient(0, 0, 8, 0, 0, 70);
+      ctx.translate(W / 2, 46);
+      ctx.scale(2.2, 1);
+      var g = ctx.createRadialGradient(0, 0, 10, 0, 0, 78);
       g.addColorStop(0, "rgba(18,78,48,0.18)");
       g.addColorStop(0.45, "rgba(16,64,40,0.07)");
       g.addColorStop(1, "rgba(12,58,36,0)");
@@ -119,6 +119,7 @@
     if (bar) {
       var r = bar.getBoundingClientRect();
       link.style.top = Math.round(r.top + (r.height - link.offsetHeight) / 2) + "px";
+      bar.style.overflow = "visible";
     }
     if (!onSeal) { glow.style.display = "none"; return; }
     var box = link.getBoundingClientRect();
@@ -128,7 +129,7 @@
     glow.style.width = W + "px";
     glow.style.height = H + "px";
     glow.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
-    glow.style.top = Math.round(box.top + box.height / 2 - 30) + "px";
+    glow.style.top = Math.round(box.top + box.height / 2 - 40) + "px";
     document.documentElement.appendChild(glow);
   }
   window.paintFriend = paint;
