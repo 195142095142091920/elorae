@@ -45,6 +45,11 @@
     "body.index-sorted #index-rail.open button{background:#070707}",
     "body.index-sorted #index-tertiary{top:calc(env(safe-area-inset-top) + 88px)!important}",
     "body.index-sorted #index-rail.open ~ #index-tertiary{display:none!important}",
+    "header.topbar,.mast,.topbar{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:80!important;background:#070707!important}",
+    "body.index-sorted #index-rail{top:calc(env(safe-area-inset-top) + 44px)!important}",
+    "body.index-sorted #index-rail button:not(.index-toggle){display:none!important}",
+    "body.index-sorted #index-rail.open button:not(.index-toggle){display:block!important}",
+    "body.index-sorted #index-flow{padding-top:92px!important}",
     ".entry .topbar #fit,.entry #fitmark{position:relative;z-index:40}",
     "}"
   ].join("");
