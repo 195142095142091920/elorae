@@ -150,11 +150,27 @@
     link = document.getElementById("friend-link");
     var onSeal = document.body.classList.contains("seal-page") && !document.getElementById("seal-code");
     var brand = document.querySelector("header.topbar > a, .topbar > a");
+    var onEntry = document.body.classList.contains("entry");
     if (brand && brand.id !== "seal-back") {
-      if (v && FIGURE[v.id]) {
+      if (onEntry) {
+        if (brand.textContent !== "Back") {
+          var backTo = (window.place && window.place.hash) || "#/gallery";
+          if (!backTo || backTo.indexOf("#/") !== 0 || backTo === (location.hash || "").split("?")[0]) backTo = "#/gallery";
+          brand.textContent = "Back";
+          brand.setAttribute("href", backTo);
+        }
+      } else if (v && FIGURE[v.id]) {
         var named = chosen(v.id);
-        brand.textContent = named[0];
-        brand.setAttribute("href", named[1]);
+        var here = (location.hash || "").split("?")[0];
+        if (named[1] === here) {
+          if (brand.textContent !== "Elorae") {
+            brand.textContent = "Elorae";
+            brand.setAttribute("href", "#/seal");
+          }
+        } else {
+          brand.textContent = named[0];
+          brand.setAttribute("href", named[1]);
+        }
       } else if (brand.textContent !== "Elorae") {
         brand.textContent = "Elorae";
         brand.setAttribute("href", "#/seal");
