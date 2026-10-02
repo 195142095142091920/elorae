@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = "header.topbar > a:not([data-brand]),.topbar > a:not([data-brand]){color:transparent!important}.seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:fixed;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}@media (max-width:800px){#friend-link{display:none!important}body.seal-page #friend-link{display:flex!important;position:fixed;top:calc(env(safe-area-inset-top) + 10px);right:14px;z-index:640}}body.seal-page #friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:42px;height:22px}#friend-link a + a{margin-left:42px!important}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a:hover,#friend-link a.here{color:#f3eee6}";
+  var phraseCss = "header.topbar > a:not([data-brand]),.topbar > a:not([data-brand]){color:transparent!important}.seal-card form{position:relative}.seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:absolute;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}@media (max-width:800px){#friend-link{display:none!important}body.seal-page #friend-link{display:flex!important;position:fixed;top:calc(env(safe-area-inset-top) + 10px);right:14px;z-index:640}}body.seal-page #friend-link{position:fixed;right:28px;z-index:510;display:flex;align-items:center;gap:42px;height:22px}#friend-link a + a{margin-left:42px!important}#friend-link a{color:#8f8a82;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;line-height:1}#friend-link a:hover,#friend-link a.here{color:#f3eee6}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -93,19 +93,21 @@
   function placeCaret() {
     var input = document.getElementById("seal-code");
     if (!input || document.activeElement !== input || input.value) { mark.style.display = "none"; return; }
+    var host = input.parentNode;
+    if (host && mark.parentNode !== host) host.appendChild(mark);
     var probe = document.getElementById("phrase-probe");
     if (!probe) {
       probe = document.createElement("span");
       probe.id = "phrase-probe";
       probe.textContent = input.getAttribute("placeholder") || "Phrase";
-      probe.style.cssText = "position:fixed;left:-9999px;visibility:hidden;white-space:pre;font:inherit;font-size:18px;letter-spacing:.08em";
+      probe.style.cssText = "position:absolute;left:-9999px;visibility:hidden;white-space:pre;font:inherit;font-size:18px;letter-spacing:.08em";
       document.documentElement.appendChild(probe);
     }
-    var box = input.getBoundingClientRect();
     var word = probe.getBoundingClientRect().width;
+    mark.style.position = "absolute";
     mark.style.display = "block";
-    mark.style.left = Math.round(box.left + (box.width - word) / 2 - 1) + "px";
-    mark.style.top = Math.round(box.top + (box.height - 18) / 2) + "px";
+    mark.style.left = Math.round(input.offsetLeft + (input.offsetWidth - word) / 2 - 1) + "px";
+    mark.style.top = Math.round(input.offsetTop + (input.offsetHeight - 18) / 2) + "px";
   }
   function greet() {
     var card = document.querySelector(".seal-card h1");
