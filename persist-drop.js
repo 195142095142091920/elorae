@@ -26,9 +26,9 @@
     f.src = "features.js?v=33";
     document.documentElement.appendChild(f);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=5") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=6") !== -1; })) {
     var j = document.createElement("script");
-    j.src = "journal-toc.js?v=5";
+    j.src = "journal-toc.js?v=6";
     document.documentElement.appendChild(j);
   }
   if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=15") !== -1; })) return;
