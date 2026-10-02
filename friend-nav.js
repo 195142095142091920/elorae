@@ -13,10 +13,10 @@
     document.documentElement.appendChild(glow);
   }
   var ctx = glow.getContext("2d");
-  var W = 220;
-  var H = 96;
+  var W = 340;
+  var H = 72;
   function mote() {
-    return { x: 36 + Math.random() * (W - 72), y: 22 + Math.random() * 48, vx: (Math.random() - 0.5) * 0.08, vy: -0.02 - Math.random() * 0.04, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
+    return { x: 48 + Math.random() * (W - 96), y: 22 + Math.random() * 28, vx: (Math.random() - 0.5) * 0.08, vy: -0.015 - Math.random() * 0.03, life: Math.random(), fade: 0.0016 + Math.random() * 0.0024, r: Math.random() < 0.2 ? 1.1 : 0.55 };
   }
   var bits = [];
   var n;
@@ -24,16 +24,21 @@
   function drawBits() {
     if (glow.style.display !== "none") {
       ctx.clearRect(0, 0, W, H);
-      var g = ctx.createRadialGradient(W / 2, 40, 28, W / 2, 42, 78);
-      g.addColorStop(0, "rgba(18,78,48,0.16)");
+      ctx.save();
+      ctx.translate(W / 2, H / 2);
+      ctx.scale(2.4, 1);
+      var g = ctx.createRadialGradient(0, 0, 8, 0, 0, 70);
+      g.addColorStop(0, "rgba(18,78,48,0.18)");
+      g.addColorStop(0.45, "rgba(16,64,40,0.07)");
       g.addColorStop(1, "rgba(12,58,36,0)");
       ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(-W, -H, W * 2, H * 2);
+      ctx.restore();
       bits.forEach(function (b) {
         b.life += b.fade;
         b.x += b.vx;
         b.y += b.vy;
-        if (b.life > 1 || b.y < 8 || b.x < 12 || b.x > W - 12) {
+        if (b.life > 1 || b.y < 8 || b.x < 16 || b.x > W - 16) {
           var next = mote();
           b.x = next.x; b.y = next.y; b.vx = next.vx; b.vy = next.vy; b.life = 0; b.fade = next.fade; b.r = next.r;
         }
@@ -123,7 +128,7 @@
     glow.style.width = W + "px";
     glow.style.height = H + "px";
     glow.style.left = Math.round(box.left + box.width / 2 - W / 2) + "px";
-    glow.style.top = Math.round(box.top + box.height / 2 - 36) + "px";
+    glow.style.top = Math.round(box.top + box.height / 2 - 30) + "px";
     document.documentElement.appendChild(glow);
   }
   window.paintFriend = paint;
