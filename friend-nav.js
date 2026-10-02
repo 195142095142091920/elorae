@@ -171,9 +171,13 @@
     }
     var here = (location.hash || "").split("?")[0];
     Array.prototype.forEach.call(link.querySelectorAll("a"), function (a) {
+      var own = a.getAttribute("href") === here;
+      a.style.display = own ? "none" : "";
       a.classList.toggle("on", a.getAttribute("data-name") === item[0]);
-      a.classList.toggle("here", list.length < 2 || a.getAttribute("href") === here);
+      a.classList.toggle("here", list.length < 2 || own);
     });
+    var shown = Array.prototype.filter.call(link.querySelectorAll("a"), function (a) { return a.style.display !== "none"; });
+    link.style.display = shown.length ? "" : "none";
     tone = TONES[item[0]] || TONES.Telorin;
     var active = link.querySelector("a.on");
     Array.prototype.forEach.call(link.querySelectorAll("a"), function (a) {
@@ -195,7 +199,7 @@
         link.style.right = Math.round(window.innerWidth - fb.left + 12) + "px";
       }
     }
-    var names = link.querySelectorAll("a");
+    var names = Array.prototype.filter.call(link.querySelectorAll("a"), function (a) { return a.style.display !== "none"; });
     if (!onSeal || !names.length) { glow.style.display = "none"; var extra = document.getElementById("friend-glow-2"); if (extra) extra.style.display = "none"; return; }
     function place(canvas, el) {
       var box = el.getBoundingClientRect();
