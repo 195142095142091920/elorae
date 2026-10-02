@@ -16,9 +16,9 @@
     g.src = "friend-nav.js?v=1";
     document.documentElement.appendChild(g);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("index-sections.js?v=4") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("index-sections.js?v=5") !== -1; })) {
     var i = document.createElement("script");
-    i.src = "index-sections.js?v=4";
+    i.src = "index-sections.js?v=5";
     document.documentElement.appendChild(i);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=27") !== -1; })) {

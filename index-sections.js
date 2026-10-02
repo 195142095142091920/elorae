@@ -10,11 +10,10 @@
   if (!document.getElementById("index-section-css")) {
     var css = document.createElement("style");
     css.id = "index-section-css";
-    css.textContent = "body.index-sorted #index-rail{position:fixed;top:102px;left:0;bottom:0;width:240px;z-index:6;padding:28px 26px 40px;background:#070707;overflow:auto;scrollbar-width:none}body.index-sorted #index-rail button{display:block;width:100%;margin:0 0 13px;padding:0;border:0;background:none;text-align:left;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8f8a82}body.index-sorted #index-rail button.on,body.index-sorted #index-rail button:hover{color:#f3eee6}body.index-sorted #index-rail .sub{display:none;margin:-4px 0 14px 16px}body.index-sorted #index-rail .sub.open{display:block}body.index-sorted #index-rail .sub button{font-size:11px;letter-spacing:.08em;margin-bottom:9px}body.index-sorted .index-list{display:none!important}body.index-sorted #index-flow{position:fixed;top:102px;left:240px;right:0;bottom:0;z-index:5;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:34px 26px;padding:32px 40px 72px;scrollbar-width:none}body.index-sorted .index-card{width:220px;color:#f3eee6;text-decoration:none}body.index-sorted .index-card span{display:block;height:2.7em;margin:0 0 12px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.35;letter-spacing:.14em;text-transform:uppercase}body.index-sorted .index-card img{display:block;width:220px;height:300px;object-fit:cover}body.index-sorted .index-empty{color:#8f8a82;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase}.journal-rail{display:none!important}body.journal-page .journal-rail{display:block!important}";
+    css.textContent = "body.index-sorted #index-rail{position:fixed;top:102px;left:0;bottom:0;width:240px;z-index:6;padding:28px 26px 40px;background:#070707;overflow:auto;scrollbar-width:none}body.index-sorted #index-rail button{display:block;width:100%;margin:0 0 13px;padding:0;border:0;background:none;text-align:left;cursor:pointer;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8f8a82}body.index-sorted #index-rail button.on,body.index-sorted #index-rail button:hover{color:#f3eee6}body.index-sorted #index-rail .sub{display:none;margin:-4px 0 14px 16px}body.index-sorted #index-rail .sub.open{display:block}body.index-sorted #index-rail .sub button{font-size:11px;letter-spacing:.08em;margin-bottom:9px}body.index-sorted #index-flow{position:fixed;top:102px;left:240px;right:0;bottom:0;z-index:5;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:34px 26px;padding:32px 40px 72px;scrollbar-width:none}body.index-sorted .index-card{width:220px;color:#f3eee6;text-decoration:none}body.index-sorted .index-card span{display:block;height:2.7em;margin:0 0 12px;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.35;letter-spacing:.14em;text-transform:uppercase}body.index-sorted .index-card img{display:block;width:220px;height:300px;object-fit:cover}body.index-sorted .index-empty{color:#8f8a82;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase}";
     document.documentElement.appendChild(css);
   }
   function sectionOf(id) { if (HOME[id]) return HOME[id]; if (PLACES[id]) return "locations"; if (VIGNETTES[id]) return "vignettes"; return "power"; }
-  function onIndex() { return (location.hash || "").indexOf("#/index") === 0; }
   function railHtml() {
     return SECTIONS.map(function (s) {
       var button = '<button type="button" data-sec="' + s[0] + '">' + s[1] + "</button>";
@@ -32,17 +31,7 @@
     }
     return sectionOf(id) === open;
   }
-  function paint() {
-    if (!onIndex()) {
-      document.body.classList.remove("index-sorted");
-      var old = document.getElementById("index-rail");
-      var gone = document.getElementById("index-flow");
-      if (old) old.remove();
-      if (gone) gone.remove();
-      return;
-    }
-    var stray = document.getElementById("journal-rail");
-    if (stray) stray.remove();
+  function paintIndex() {
     document.body.classList.add("index-sorted");
     var rail = document.getElementById("index-rail");
     if (!rail) {
@@ -54,7 +43,7 @@
         var fac = e.target.getAttribute("data-fac");
         if (sec) { open = sec; faction = ""; }
         if (fac) { open = "factions"; faction = fac; }
-        paint();
+        paintIndex();
       });
       document.body.appendChild(rail);
     }
@@ -69,14 +58,25 @@
     if (!items.length) { flow.innerHTML = '<p class="index-empty">' + (open === "factions" && !faction ? "Choose a faction" : "None filed here yet") + "</p>"; return; }
     flow.innerHTML = items.map(function (e) { return '<a class="index-card" href="#/' + e.id + '"><span>' + e.title + '</span><img src="' + e.image + '" alt=""></a>'; }).join("");
   }
-  function start() {
-    if (window.ENTRIES) { paint(); return; }
-    var s = document.createElement("script");
-    s.src = "entries.js";
-    s.onload = paint;
-    document.documentElement.appendChild(s);
+  function clearIndex() {
+    document.body.classList.remove("index-sorted");
+    var rail = document.getElementById("index-rail");
+    var flow = document.getElementById("index-flow");
+    if (rail) rail.remove();
+    if (flow) flow.remove();
   }
-  window.addEventListener("hashchange", paint);
-  start();
-  setTimeout(paint, 300);
+  window.paintIndex = paintIndex;
+  window.renderIndex = function () {
+    document.title = "Index - Elorae";
+    document.body.className = "room index-sorted";
+    if (!document.querySelector(".topbar")) {
+      document.body.innerHTML = '<header class="topbar"><a href="#/seal">Elorae</a><nav class="filters"><a href="#/atlas">Atlas</a><span class="dot">&middot;</span><a href="#/gallery">Gallery</a><span class="dot">&middot;</span><a class="active" href="#/index">Index</a><span class="dot">&middot;</span><a href="#/journal">Journal</a></nav></header>';
+    }
+    paintIndex();
+  };
+  window.addEventListener("hashchange", function () {
+    if ((location.hash || "").indexOf("#/index") === 0) paintIndex();
+    else clearIndex();
+  });
+  if ((location.hash || "").indexOf("#/index") === 0) paintIndex();
 })();
