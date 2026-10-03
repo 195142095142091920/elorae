@@ -18,7 +18,7 @@
       "display:grid;place-items:center;color:#efe8dc;opacity:0.7}" +
       ".fit-mark:hover,#fitmark:hover{opacity:1}" +
       ".fit-mark svg,#fitmark svg{width:18px;height:18px;display:block;pointer-events:none}" +
-      "@media (min-width:801px){.entry .topbar #fit{display:none!important}}" +
+      "body:not(.entry) #fit,body:not(.entry) #fitmark,body:not(.entry) .fit-toggle{display:none!important}" +      "@media (min-width:801px){.entry .topbar #fit{display:none!important}}" +
       "@media (max-width:800px){" +
       ".entry .topbar #fit{display:grid;place-items:center;width:44px;min-width:44px;min-height:44px;" +
       "padding:max(16px, env(safe-area-inset-top)) 14px 12px;font-size:0!important;line-height:0;" +
@@ -74,7 +74,10 @@
   }
 
   document.addEventListener("click", function (e) {
-    if (!document.body.classList.contains("entry")) return;
+    if (!document.body.classList.contains("entry")) {
+      document.querySelectorAll("#fit,#fitmark,.fit-toggle").forEach(function (el) { el.remove(); });
+      return;
+    }
     if (!isFitBtn(e.target)) return;
     toggle(e);
   }, true);
