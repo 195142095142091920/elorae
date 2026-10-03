@@ -35,11 +35,12 @@
       atlas = document.body.classList.contains("on-atlas") || document.body.classList.contains("atlas-page");
       codex = document.body.classList.contains("on-codex") || document.body.classList.contains("codex-page");
     }
+    /* replaced: hardcoded 78px for two names and 46px for one. The bar now sits under the live nav stack. */
     var top = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
-    var phone = window.matchMedia("(max-width:800px)").matches;
-    var two = document.getElementById("friend-link") && document.getElementById("friend-link").classList.contains("two");
-    var y = phone ? ("calc(env(safe-area-inset-top) + " + (two ? "78" : "46") + "px)") : ((top ? Math.round(top.getBoundingClientRect().bottom) : 56) + "px");
-    bar.style.top = y;
+    var edge = top ? top.getBoundingClientRect().bottom : 56;
+    var link = document.getElementById("friend-link");
+    if (link && link.classList.contains("two")) edge = Math.max(edge, link.getBoundingClientRect().bottom);
+    bar.style.top = Math.round(edge) + "px";
     document.body.classList.toggle("has-section-bar", atlas || codex);
     var list = null, current = "";
     if (atlas) { list = ATLAS; current = "#/atlas/" + (h.indexOf("atlas/") === 0 ? h.slice(6) : "world"); }
