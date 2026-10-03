@@ -23,11 +23,11 @@
   }, true);
   var bar = document.getElementById("section-bar");
   if (!bar) { bar = document.createElement("nav"); bar.id = "section-bar"; document.documentElement.appendChild(bar); }
-  function paint() {
+  function paint(force) {
     document.querySelectorAll(".nav-menu,#drop-float").forEach(function (el) { el.remove(); });
     document.querySelectorAll(".subbar").forEach(function (el) { el.style.display = "none"; });
     document.querySelectorAll(".nav-drop.open").forEach(function (el) { el.classList.remove("open"); });
-    var h = (location.hash || "").replace(/^#\/?/, "");
+    var h = (typeof force === "string" ? force : (location.hash || "")).replace(/^#\/?/, "");
     var atlas = h === "atlas" || h.indexOf("atlas/") === 0;
     var codex = h === "codex" || h.indexOf("codex/") === 0;
     /* body class only if the hash has not been set yet. A leftover on-atlas class was keeping Atlas tabs on Codex. */
@@ -64,6 +64,11 @@
     bar.style.setProperty("visibility", "visible", "important");
   }
   paint();
-  setInterval(paint, 400);
-  window.addEventListener("hashchange", paint);
+  /* replaced: setInterval(paint, 400) left the previous page's tabs up for a tick. Uncomment to revert. */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href^='#/']");
+    if (!a) return;
+    paint(a.getAttribute("href"));
+  }, true);
+  window.addEventListener("hashchange", function () { paint(); });
 })();
