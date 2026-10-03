@@ -85,7 +85,11 @@ var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","
       tertiary.onclick = function (e) { var fac = e.target.getAttribute("data-fac"); if (!fac) return; open = "factions"; faction = fac; paintIndex(); };
     } else if (tertiary) tertiary.remove();
     if (!items.length) { flow.innerHTML = '<p class="index-empty">' + (open === "factions" && !faction ? "Choose a faction" : "None filed here yet") + "</p>"; return; }
+    /* replaced: card used e.image, which was the dragon art for these five.
     flow.innerHTML = items.map(function (e) { return '<a class="index-card" href="#/' + e.id + '"><span>' + e.title + '</span><img src="' + e.image + '" alt=""></a>'; }).join("");
+    */
+    var CARD = {"aszurithice":"assets/Aszurithice, Human Form.png","nyralshirad":"assets/Nyralshirad Human Form.png","pethengorom":"assets/Pethengorom, Human Form.png","heldranc-flies":"assets/Heldranc, Human Form.webp","montmorian-chamber":"assets/Montmorian in his Chamber .png"};
+    flow.innerHTML = items.map(function (e) { var src = CARD[e.id] || e.image; return '<a class="index-card" href="#/' + e.id + '"><span>' + e.title + '</span><img src="' + src + '" alt=""></a>'; }).join("");
   }
   function clearIndex() {
     document.body.classList.remove("index-sorted");
