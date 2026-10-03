@@ -81,7 +81,9 @@
     ".title-block h1{display:block!important;width:100%!important;margin:0!important}",
     ".title-block .caption{display:flex!important;width:100%!important;flex-wrap:nowrap!important;align-items:baseline!important;white-space:nowrap!important;margin:8px 0 0!important;gap:8px!important}",
     ".title-block .more{display:inline!important;min-height:0!important;padding:0!important;margin:0!important;white-space:nowrap!important}",
-    ".life-dock:not(:has(.life-sheet.open)){position:fixed!important} .life-dock:not(:has(.life-sheet.open)) .life-toggle{position:absolute!important;right:14px!important;bottom:max(16px, env(safe-area-inset-bottom))!important;min-height:0!important;padding:0!important;margin:0!important;line-height:1.35!important;transform:none!important}",
+    /* replaced: bottom:max(16px, env(safe-area-inset-bottom)) sat the Lore button below the epithet. Uncomment that offset to revert. */
+    ".life-dock:not(:has(.life-sheet.open)){position:fixed!important} .life-dock:not(:has(.life-sheet.open)) .life-toggle{position:absolute!important;right:14px!important;bottom:calc(max(16px, env(safe-area-inset-bottom)) + 5px)!important;min-height:0!important;padding:0!important;margin:0!important;line-height:1.35!important;transform:none!important;font-size:11px!important}",
+    ".title-block .caption{line-height:1.35!important;margin-bottom:0!important}",
     ".entry .topbar{position:relative!important}",
     ".entry .topbar a{position:absolute!important;left:16px!important;top:calc(env(safe-area-inset-top) + 16px)!important;padding:0!important;margin:0!important;min-height:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;-webkit-text-stroke:.6px #fff!important;font-weight:700!important;line-height:18px!important}",
     ".entry .topbar #fit{position:absolute!important;right:16px!important;left:auto!important;top:calc(env(safe-area-inset-top) + 16px)!important;width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;padding:0!important;margin:0!important;z-index:50!important}",
