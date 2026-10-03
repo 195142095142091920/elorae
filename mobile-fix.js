@@ -94,7 +94,8 @@
     ".mast .filters,.mast .filters a{font-size:11px!important;letter-spacing:.12em!important;line-height:1!important}",
     "body.index-sorted #index-rail{top:calc(env(safe-area-inset-top) + 46px)!important}",
     "body.index-sorted #index-tertiary{top:calc(env(safe-area-inset-top) + 86px)!important;margin:0!important;background:#070707!important;z-index:74!important}",
-    "body.index-sorted.factions-open #index-flow,body.index-sorted #index-flow{padding-top:calc(env(safe-area-inset-top) + 188px)!important}",
+    /* replaced: padding-top calc(env(safe-area-inset-top) + 188px) cut the card title under the category bar. */
+    "body.index-sorted.factions-open #index-flow,body.index-sorted #index-flow{padding-top:calc(var(--stack-h, 148px) + 18px)!important}",
     "}",
     ".entry .title-block .caption,.entry .caption,.entry .title-block .more{font-family:\"Iowan Old Style\",\"Palatino Linotype\",Palatino,Georgia,\"Times New Roman\",serif!important;font-weight:400!important;letter-spacing:.01em!important;text-transform:none!important}",
   ].join("");
