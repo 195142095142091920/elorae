@@ -50,7 +50,7 @@
     artIndex = i;
     var img = document.querySelector(".entry .hero img");
     if (img) img.src = list[i];
-    var btn = document.querySelector("#art-swap button");
+    var btn = document.querySelector("#art-count");
     if (btn) btn.textContent = (i + 1) + " / " + list.length;
     document.querySelectorAll("#art-strip img").forEach(function (thumb, n) {
       thumb.classList.toggle("on", n === i);
@@ -67,10 +67,10 @@
     if (!wrap) {
       wrap = document.createElement("div");
       wrap.id = "art-swap";
-      wrap.innerHTML = '<div id="art-strip"></div><button type="button"></button>';
+      wrap.innerHTML = '<div id="art-strip"></div><span id="art-count" role="button" style="color:#fff;-webkit-text-fill-color:#fff;opacity:1"></span>';
       document.documentElement.appendChild(wrap);
     }
-    var count = wrap.querySelector("button");
+    var count = wrap.querySelector("#art-count");
     count.style.fontWeight = "800";
     count.style.color = "#fff";
     count.style.webkitTextFillColor = "#fff";
