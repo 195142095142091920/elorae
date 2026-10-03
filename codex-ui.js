@@ -81,8 +81,13 @@
       sheet.style.top = "";
       return;
     }
+    /* replaced: chapter-tabs are hidden on mobile, so their bottom was 0 and Contents vanished under the nav.
     const tabs = document.querySelector(".chapter-tabs");
     const tabBottom = tabs ? tabs.getBoundingClientRect().bottom : 88;
+    */
+    var section = document.getElementById("section-bar");
+    var tabBottom = section && section.classList.contains("show") ? section.getBoundingClientRect().bottom : 88;
+    rail.style.top = Math.round(tabBottom) + "px";
     sheet.style.top = Math.round(tabBottom + rail.offsetHeight) + "px";
   }
 
