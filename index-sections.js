@@ -11,6 +11,16 @@ var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","
   var HIDE = {"aszurithice-human":1,"heldranc-human":1,"nyralshirad-human":1,"pethengorom-human":1,"vaerek-heldranc":1};
   var open = "ancients";
   var faction = "";
+  function readIndexHash() {
+    var h = (location.hash || "").replace(/^#\/?/, "");
+    if (h.indexOf("index") !== 0) return;
+    var parts = h.split("/");
+    var sec = parts[1] || "ancients";
+    if (!SECTIONS.some(function (s) { return s[0] === sec; })) sec = "ancients";
+    open = sec;
+    faction = "";
+    if (sec === "factions" && parts[2] && FACTIONS.some(function (f) { return f[0] === parts[2]; })) faction = parts[2];
+  }
   if (!document.getElementById("index-section-css")) {
     var css = document.createElement("style");
     css.id = "index-section-css";
@@ -51,6 +61,7 @@ var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","
     });
   }
   function paintIndex() {
+    readIndexHash();
     markIndex();
     document.title = "Index - Elorae";
     document.body.className = "room index-sorted" + (open === "factions" ? " factions-open" : "");
@@ -64,9 +75,10 @@ var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","
       rail.addEventListener("click", function (e) {
         var sec = e.target.getAttribute("data-sec");
         var fac = e.target.getAttribute("data-fac");
-        if (sec) { open = sec; faction = ""; }
-        if (fac) { open = "factions"; faction = fac; }
-        paintIndex();
+        /* replaced: open was memory only, so refresh returned to Ancients. */
+        if (sec) location.hash = "#/index/" + sec;
+        else if (fac) location.hash = "#/index/factions/" + fac;
+        else paintIndex();
       });
       document.body.appendChild(rail);
     }
@@ -82,7 +94,7 @@ var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","
     if (open === "factions") {
       if (!tertiary) { tertiary = document.createElement("nav"); tertiary.id = "index-tertiary"; document.body.appendChild(tertiary); }
       tertiary.innerHTML = FACTIONS.map(function (f) { return '<button type="button" data-fac="' + f[0] + '"' + (f[0] === faction ? ' class="on"' : '') + '>' + f[1] + '</button>'; }).join("");
-      tertiary.onclick = function (e) { var fac = e.target.getAttribute("data-fac"); if (!fac) return; open = "factions"; faction = fac; paintIndex(); };
+      tertiary.onclick = function (e) { var fac = e.target.getAttribute("data-fac"); if (!fac) return; location.hash = "#/index/factions/" + fac; };
     } else if (tertiary) tertiary.remove();
     if (!items.length) { flow.innerHTML = '<p class="index-empty">' + (open === "factions" && !faction ? "Choose a faction" : "None filed here yet") + "</p>"; return; }
     /* replaced: card used e.image, which was the dragon art for these five.
