@@ -82,7 +82,8 @@
     }
     .nav-menu a:hover, .nav-menu a.active { color: #f3eee6; }
     .wall {
-      position: fixed !important; top: var(--stack-h, 56px); left: 0; right: 0; bottom: 0;
+      position: fixed !important; top: calc(env(safe-area-inset-top) + 46px); left: 0; right: 0; bottom: 0;
+      /* replaced: top: var(--stack-h, 56px) kept the secondary-bar gap on Gallery. */
       overflow-y: auto; z-index: 1; align-content: start; grid-auto-rows: min-content;
     }
     /* replaced: top: 96px reserved a secondary bar on Gallery. */
@@ -223,7 +224,7 @@
   <script src="atlas-overview.js?v=5"></script>
   <script src="restore-hash.js?v=3"></script>
   <script src="atlas-nav-fix.js?v=2"></script>
-  <script src="persist-drop.js?v=59"></script>
+  <script src="persist-drop.js?v=60"></script>
   <script>
     (function () {
       if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
