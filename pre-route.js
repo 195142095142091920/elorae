@@ -37,7 +37,7 @@
     if (h === "atlas" || h.indexOf("atlas/") === 0) { list = ATLAS; current = "#/atlas/" + (h === "atlas" ? "world" : h.slice(6)); }
     else if (h === "codex" || h.indexOf("codex/") === 0) { list = CODEX; current = "#/codex/" + (h === "codex" ? "calendar" : h.slice(6)); }
     var bar = document.getElementById("section-bar");
-    if (!list) { if (bar) { bar.classList.remove("show"); bar.innerHTML = ""; } return; }
+    if (!list) return;
     if (!bar) { bar = document.createElement("nav"); bar.id = "section-bar"; document.documentElement.appendChild(bar); }
     var top = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
     if (top) bar.style.top = Math.round(top.getBoundingClientRect().bottom) + "px";
