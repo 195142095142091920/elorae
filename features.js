@@ -67,14 +67,14 @@
     if (!wrap) {
       wrap = document.createElement("div");
       wrap.id = "art-swap";
-      wrap.innerHTML = '<div id="art-strip"></div><span id="art-count" role="button" style="color:#fff;-webkit-text-fill-color:#fff;opacity:1"></span>';
+      wrap.innerHTML = '<div id="art-strip"></div><span id="art-count" role="button" style="color:#ffffff;-webkit-text-fill-color:#ffffff;-webkit-text-stroke:0.6px #ffffff;opacity:1"></span>';
       document.documentElement.appendChild(wrap);
     }
     var count = wrap.querySelector("#art-count");
     count.style.fontWeight = "800";
     count.style.color = "#fff";
     count.style.webkitTextFillColor = "#fff";
-    count.style.webkitTextStroke = "0";
+    count.style.webkitTextStroke = "0.6px #ffffff";
     count.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
