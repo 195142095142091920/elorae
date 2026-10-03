@@ -181,12 +181,14 @@
       link.style.setProperty("z-index", two ? "800" : "5", "important");
       link.style.setProperty("background", two ? "#070707" : "transparent", "important");
       link.style.setProperty("transform", "none", "important");
+      /* replaced: this block set a second top on #section-bar. nav-boot.js owns that bar and measures the nav stack. Uncomment to revert.
       ["section-bar", "journal-mobile-toc", "index-rail", "index-tertiary"].forEach(function (id) {
         var el = document.getElementById(id);
         if (!el) return;
         if (two) el.style.setProperty("top", "calc(env(safe-area-inset-top) + " + (id === "index-tertiary" ? "118" : "78") + "px)", "important");
-        /* replaced: else el.style.removeProperty("top") cleared the single-name bar and hid it under the main nav. */
+        else el.style.removeProperty("top");
       });
+      */
       document.documentElement.style.setProperty("--nav-h", two ? "calc(env(safe-area-inset-top) + 78px)" : "");
       var rail = document.getElementById("journal-rail");
       if (rail && two) rail.style.setProperty("display", "none", "important");
