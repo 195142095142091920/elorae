@@ -354,7 +354,7 @@ function renderEntry(id) {
     '<div class="hero"><img src="' + encodeURI(entry.image) + '" alt="' + escapeHtml(entry.title) +
     '" style="object-fit:' + (entry.fit || "cover") + ';object-position:' + (entry.position || "center") + '"></div>' +
     '<header class="topbar"><a href="' + (place.hash || "#/gallery") + '">Back</a>' +
-    '<button class="fit-toggle" id="fit" type="button">Full</button></header>' +
+    '<button class="fit-toggle" id="fit" type="button" aria-label="Full">' + FIT_OUT + '</button></header>' +
     '<nav class="pager"><a class="arrow prev" href="#/' + prev.id + '">&#8249;</a>' +
     '<button class="fit-toggle fit-mark" id="fitmark" type="button" aria-label="Full">' + FIT_OUT + '</button>' +
     '<a class="arrow next" href="#/' + next.id + '">&#8250;</a></nav>' +
