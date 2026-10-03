@@ -64,7 +64,9 @@
 
   function place() {
     const top = document.querySelector(".mast .topbar") || document.querySelector(".topbar") || document.querySelector(".mast");
-    const y = top ? Math.round(top.getBoundingClientRect().bottom) : 56;
+    var y = top ? Math.round(top.getBoundingClientRect().bottom) : 56;
+    var two = window.matchMedia("(max-width:800px)").matches && document.getElementById("friend-link") && document.getElementById("friend-link").classList.contains("two");
+    if (two) y += 32;
     document.documentElement.style.setProperty("--nav-h", y + "px");
     bar.style.top = y + "px";
   }
