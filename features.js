@@ -68,12 +68,21 @@
       wrap = document.createElement("div");
       wrap.id = "art-swap";
       wrap.innerHTML = '<div id="art-strip"></div><button type="button"></button>';
-      wrap.querySelector("button").addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (window.innerWidth <= 800) wrap.classList.toggle("open");
-      });
       document.documentElement.appendChild(wrap);
+    }
+    wrap.querySelector("button").onclick = function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (window.innerWidth <= 800) wrap.classList.toggle("open");
+    };
+    if (!window._artOutside) {
+      window._artOutside = true;
+      document.addEventListener("click", function (e) {
+        var box = document.getElementById("art-swap");
+        if (!box || window.innerWidth > 800) return;
+        if (e.target.closest && e.target.closest("#art-swap")) return;
+        box.classList.remove("open");
+      });
     }
     var strip = wrap.querySelector("#art-strip");
     if (strip.childElementCount !== list.length) {
