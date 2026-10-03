@@ -28,13 +28,24 @@
     document.querySelectorAll(".subbar").forEach(function (el) { el.style.display = "none"; });
     document.querySelectorAll(".nav-drop.open").forEach(function (el) { el.classList.remove("open"); });
     var h = (location.hash || "").replace(/^#\/?/, "");
+    var atlas = h === "atlas" || h.indexOf("atlas/") === 0 || document.body.classList.contains("atlas-page");
+    var codex = h === "codex" || h.indexOf("codex/") === 0 || document.body.classList.contains("codex-page");
+    if (document.body.classList.contains("room") || document.body.classList.contains("journal-page")) { atlas = false; codex = false; }
     var top = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
-    if (top) bar.style.top = Math.round(top.getBoundingClientRect().bottom) + "px";
-    document.body.classList.toggle("has-section-bar", !!(h === "atlas" || (h && h.indexOf("atlas/") === 0) || h === "codex" || (h && h.indexOf("codex/") === 0)));
+    var phone = window.matchMedia("(max-width:800px)").matches;
+    var y = phone ? "calc(env(safe-area-inset-top) + 78px)" : ((top ? Math.round(top.getBoundingClientRect().bottom) : 56) + "px");
+    bar.style.top = y;
+    document.body.classList.toggle("has-section-bar", atlas || codex);
     var list = null, current = "";
-    if (h === "atlas" || h.indexOf("atlas/") === 0) { list = ATLAS; current = "#/atlas/" + (h === "atlas" ? "world" : h.slice(6)); }
-    else if (h === "codex" || h.indexOf("codex/") === 0) { list = CODEX; current = "#/codex/" + (h === "codex" ? "calendar" : h.slice(6)); }
-    if (!list) { if (window.matchMedia("(min-width:801px)").matches) { bar.classList.remove("show"); bar.innerHTML = ""; } return; }
+    if (atlas) { list = ATLAS; current = "#/atlas/" + (h.indexOf("atlas/") === 0 ? h.slice(6) : "world"); }
+    else if (codex) { list = CODEX; current = "#/codex/" + (h.indexOf("codex/") === 0 ? h.slice(6) : "calendar"); }
+    if (!list) {
+      /* clear when the page is not Atlas or Codex */
+      bar.classList.remove("show");
+      bar.innerHTML = "";
+      bar.style.removeProperty("display");
+      return;
+    }
     var html = list.map(function (it) { return '<a href="' + it[1] + '" class="' + (it[1] === current ? "active" : "") + '">' + it[0] + "</a>"; }).join("");
     if (bar.innerHTML !== html) bar.innerHTML = html;
     bar.classList.add("show");
