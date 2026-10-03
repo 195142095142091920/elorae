@@ -34,10 +34,12 @@
     var list = null, current = "";
     if (h === "atlas" || h.indexOf("atlas/") === 0) { list = ATLAS; current = "#/atlas/" + (h === "atlas" ? "world" : h.slice(6)); }
     else if (h === "codex" || h.indexOf("codex/") === 0) { list = CODEX; current = "#/codex/" + (h === "codex" ? "calendar" : h.slice(6)); }
-    if (!list) { bar.classList.remove("show"); bar.innerHTML = ""; return; }
+    if (!list) { if (window.matchMedia("(min-width:801px)").matches) { bar.classList.remove("show"); bar.innerHTML = ""; } return; }
     var html = list.map(function (it) { return '<a href="' + it[1] + '" class="' + (it[1] === current ? "active" : "") + '">' + it[0] + "</a>"; }).join("");
     if (bar.innerHTML !== html) bar.innerHTML = html;
     bar.classList.add("show");
+    bar.style.setProperty("display", "flex", "important");
+    bar.style.setProperty("visibility", "visible", "important");
   }
   paint();
   setInterval(paint, 400);
