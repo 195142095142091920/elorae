@@ -35,7 +35,9 @@
       ".chapter-tabs,.atlas-tabs,body .subbar{display:none!important}" +
       "}" +
       "@media (max-width:800px){" +
-      "#section-bar{height:36px}" +
+      ".chapter-tabs,.atlas-tabs,body .subbar{display:none!important}" +
+      "#section-bar.show{display:flex!important;position:fixed!important;left:0!important;right:0!important;z-index:450!important;background:#070707!important;min-height:36px;height:auto;flex-wrap:wrap}" +
+      "body.has-section-bar .sheet,body.has-section-bar .lore-rail,body.has-section-bar .room-body{top:calc(env(safe-area-inset-top) + 128px)!important}" +
       ".topbar .filters{position:static!important;transform:none!important}" +
       "}";
     document.documentElement.appendChild(s);
@@ -69,6 +71,11 @@
     if (two) y += 32;
     document.documentElement.style.setProperty("--nav-h", y + "px");
     bar.style.top = y + "px";
+    var sheet = document.querySelector(".sheet");
+    if (sheet && bar.classList.contains("show")) {
+      var bottom = Math.round(bar.getBoundingClientRect().bottom);
+      sheet.style.setProperty("top", (bottom + 8) + "px", "important");
+    }
   }
 
   function paint() {
@@ -113,5 +120,6 @@
   paint();
   setInterval(paint, 80);
   window.addEventListener("hashchange", paint);
+  setInterval(function () { if (document.getElementById("section-bar")) paint(); }, 500);
   window.addEventListener("resize", place);
 })();
