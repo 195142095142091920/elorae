@@ -28,9 +28,9 @@
     document.querySelectorAll(".subbar").forEach(function (el) { el.style.display = "none"; });
     document.querySelectorAll(".nav-drop.open").forEach(function (el) { el.classList.remove("open"); });
     var h = (location.hash || "").replace(/^#\/?/, "");
-    var atlas = h === "atlas" || h.indexOf("atlas/") === 0 || document.body.classList.contains("atlas-page");
-    var codex = h === "codex" || h.indexOf("codex/") === 0 || document.body.classList.contains("codex-page");
-    if (document.body.classList.contains("room") || document.body.classList.contains("journal-page")) { atlas = false; codex = false; }
+    var atlas = h === "atlas" || h.indexOf("atlas/") === 0 || document.body.classList.contains("on-atlas") || document.body.classList.contains("atlas-page");
+    var codex = h === "codex" || h.indexOf("codex/") === 0 || document.body.classList.contains("on-codex") || document.body.classList.contains("codex-page");
+    if (h === "journal" || h.indexOf("journal/") === 0 || h === "gallery" || h === "index" || h.indexOf("index/") === 0) { atlas = false; codex = false; }
     var top = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
     var phone = window.matchMedia("(max-width:800px)").matches;
     var y = phone ? "calc(env(safe-area-inset-top) + 78px)" : ((top ? Math.round(top.getBoundingClientRect().bottom) : 56) + "px");
