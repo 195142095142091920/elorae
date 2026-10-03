@@ -40,7 +40,13 @@
       el.remove();
     });
   }
+  function markIndex() {
+    document.querySelectorAll(".filters > a, .filters > .nav-drop > a").forEach(function (a) {
+      a.classList.toggle("active", (a.getAttribute("href") || "") === "#/index");
+    });
+  }
   function paintIndex() {
+    markIndex();
     document.title = "Index - Elorae";
     document.body.className = "room index-sorted" + (open === "factions" ? " factions-open" : "");
     document.body.style.backgroundImage = "";
