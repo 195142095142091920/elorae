@@ -21,9 +21,9 @@
     i.src = "index-sections.js?v=11";
     document.documentElement.appendChild(i);
   }
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=39") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("features.js?v=40") !== -1; })) {
     var f = document.createElement("script");
-    f.src = "features.js?v=39";
+    f.src = "features.js?v=40";
     document.documentElement.appendChild(f);
   }
   if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("journal-toc.js?v=7") !== -1; })) {
@@ -33,9 +33,9 @@
   }
   if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=15") !== -1; })) return;
   var n = document.createElement("script");
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=35") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=36") !== -1; })) {
     var m = document.createElement("script");
-    m.src = "mobile-fix.js?v=35";
+    m.src = "mobile-fix.js?v=36";
     document.documentElement.appendChild(m);
   }
   n.src = "nav-boot.js?v=15";
