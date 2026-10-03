@@ -278,16 +278,17 @@ body.lore-page .journal-read {
   body.lore-page::before { display: none; }
   .lore-rail {
     position: fixed;
-    top: 84px;
+    /* replaced: top: 84px sat under the secondary nav. */
+    top: var(--stack-h, 132px);
     left: 0;
     right: 0;
     bottom: auto;
     width: auto;
     max-height: none;
-    z-index: 36;
+    z-index: 80;
     margin: 0;
     padding: 0;
-    background: transparent;
+    background: #070707;
   }
   .lore-rail .codex-h3 { display: none; }
   .lore-toc-toggle {
@@ -334,7 +335,7 @@ body.lore-page .journal-read {
   body.lore-page .journal-read {
     max-width: none;
     margin: 0 auto 48px;
-    padding-top: 20px;
+    padding-top: 56px;
     padding-left: 22px;
     padding-right: 22px;
   }
