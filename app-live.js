@@ -181,8 +181,13 @@ function renderIndex() {
   dropPlaceScroll();
   place.hash = "#/index";
   place.scroll = 0;
-  const list = [...catalog()].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }));
   document.title = "Index - Elorae";
+  document.querySelectorAll(".filters > a, .filters > .nav-drop > a").forEach(function (a) {
+    a.classList.toggle("active", (a.getAttribute("href") || "") === "#/index");
+  });
+  if (typeof window.paintIndex === "function") window.paintIndex();
+  /* replaced: this built the old full index list before the highlight could show. Uncomment to revert.
+  const list = [...catalog()].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }));
   document.body.className = "room";
   document.body.innerHTML =
     '<header class="topbar">' + brand() + '<nav class="filters">' + rooms("index") + '</nav></header>' +
@@ -191,6 +196,7 @@ function renderIndex() {
       escapeHtml(e.title) + '</span><span class="index-cap">' + escapeHtml(e.caption || "") + '</span></a>').join("") +
     '</main>';
   bindIdleScrollbar(document.querySelector(".index-list"));
+  */
 }
 
 function renderAtlas() {
