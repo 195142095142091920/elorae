@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#070707">
   <link rel="stylesheet" href="styles.css?v=41">
   <link rel="stylesheet" href="figure-lore.css?v=147">
-  <link rel="stylesheet" href="codex.css?v=191">
+  <link rel="stylesheet" href="codex.css?v=192">
   <link rel="stylesheet" href="nav-size.css?v=5">
   <link rel="stylesheet" href="column-veil.css?v=2">
   <link rel="stylesheet" href="scroll-hide.css?v=1">
@@ -218,7 +218,7 @@
   <script src="nav-mobile.js?v=1"></script>
   <script src="app.js?v=8"></script>
   <script src="veil.js?v=132"></script>
-  <script src="codex-ui.js?v=198"></script>
+  <script src="codex-ui.js?v=199"></script>
   <script src="fit-mobile.js?v=3"></script>
   <script src="swipe.js?v=1"></script>
   <script src="atlas-overview.js?v=5"></script>
@@ -322,8 +322,17 @@
           document.documentElement.style.setProperty("--chrome-bottom", Math.round(chrome.getBoundingClientRect().bottom) + "px");
         }
         if (rail && bar) {
+          /* replaced: hidden chapter-tabs reported a top of 0, so Contents slid under the nav.
           const top = Math.round(((tabs && tabs.parentElement !== bar) ? tabs : bar).getBoundingClientRect().bottom);
+          */
+          var section = document.getElementById("section-bar");
+          var edge = bar.getBoundingClientRect().bottom;
+          if (section && section.classList.contains("show")) edge = Math.max(edge, section.getBoundingClientRect().bottom);
+          else if (tabs && tabs.parentElement !== bar && window.innerWidth > 800) edge = tabs.getBoundingClientRect().bottom;
+          const top = Math.round(edge);
           rail.style.setProperty("top", top + "px", "important");
+          rail.style.setProperty("display", "block", "important");
+          rail.style.setProperty("z-index", "80", "important");
           if (sheet) {
             const extra = (document.body.classList.contains("lore-page") && window.innerWidth <= 980)
               ? rail.offsetHeight : 0;
