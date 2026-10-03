@@ -81,7 +81,7 @@
     ".title-block h1{display:block!important;width:100%!important;margin:0!important}",
     ".title-block .caption{display:flex!important;width:100%!important;flex-wrap:nowrap!important;align-items:baseline!important;white-space:nowrap!important;margin:8px 0 0!important;gap:8px!important}",
     ".title-block .more{display:inline!important;min-height:0!important;padding:0!important;margin:0!important;white-space:nowrap!important}",
-    ".life-dock:not(:has(.life-sheet.open)) .life-toggle{min-height:0!important;padding:0!important;margin:0 0 1px!important;line-height:1.35!important;transform:translateY(-7px)!important}",
+    ".life-dock:not(:has(.life-sheet.open)){position:fixed!important} .life-dock:not(:has(.life-sheet.open)) .life-toggle{position:absolute!important;right:14px!important;bottom:max(16px, env(safe-area-inset-bottom))!important;min-height:0!important;padding:0!important;margin:0!important;line-height:1.35!important;transform:none!important}",
     ".entry .topbar{position:relative!important}",
     ".entry .topbar #fit{position:absolute!important;right:10px!important;left:auto!important;top:calc(env(safe-area-inset-top) + 6px)!important;margin:0!important;z-index:50!important}",
     ".chapter-tabs,.topbar .chapter-tabs,body.journal-page .chapter-tabs{display:none!important;height:0!important;overflow:hidden!important}",
