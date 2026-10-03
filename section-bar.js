@@ -81,12 +81,7 @@
   function paint() {
     const spec = itemsFor(path());
     place();
-    if (!spec) {
-      bar.classList.remove("show");
-      bar.innerHTML = "";
-      document.body.classList.remove("has-section-bar");
-      return;
-    }
+    if (!spec) return;
     bar.innerHTML = spec.list.map(function (it) {
       const on = it[1] === spec.current ? " active" : "";
       return '<a href="' + it[1] + '" class="' + on + '">' + it[0] + "</a>";
@@ -118,8 +113,8 @@
   }, true);
 
   paint();
-  setInterval(paint, 80);
+  /* setInterval(paint, 80); */
   window.addEventListener("hashchange", paint);
-  setInterval(function () { if (document.getElementById("section-bar")) paint(); }, 500);
+  /* setInterval(function () { if (document.getElementById("section-bar")) paint(); }, 500); */
   window.addEventListener("resize", place);
 })();
