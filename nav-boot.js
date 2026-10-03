@@ -4,7 +4,7 @@
   if (!document.getElementById("nav-boot-css")) {
     var s = document.createElement("style");
     s.id = "nav-boot-css";
-    s.textContent = ".subbar{display:none!important}.nav-menu,#drop-float,.nav-drop::after,.nav-drop:hover .nav-menu,.nav-drop.open .nav-menu,.nav-drop:active .nav-menu,.nav-drop:focus .nav-menu,.nav-drop:focus-within .nav-menu{display:none!important;visibility:hidden!important;pointer-events:none!important}.nav-drop{display:inline!important}.mast,.topbar{min-height:56px}#section-bar{display:none;position:fixed;left:0;right:0;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase}#section-bar a.active,#section-bar a:hover{color:#f3eee6}@media (min-width:801px){.topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}.chapter-tabs,.atlas-tabs,.subbar{display:none!important}.nav-drop:hover .nav-menu,.nav-drop.open .nav-menu,.nav-drop:active .nav-menu{display:none!important}body.atlas-page .sheet,body.atlas-page .atlas-stage,body.atlas-page .room-body,body.journal-page .sheet,body.journal-page .room-body,body.lore-page .sheet,body.lore-page .lore-rail{top:102px!important}}@media (max-width:800px){.chapter-tabs,.atlas-tabs,.subbar{display:none!important}#section-bar.show{display:flex!important;position:fixed!important;left:0!important;right:0!important;z-index:450!important;background:#070707!important;height:36px!important;min-height:36px!important;max-height:36px!important;overflow:hidden!important;flex-wrap:nowrap!important;gap:8px!important;padding:0 6px!important}#section-bar a{font-size:10px!important;letter-spacing:.06em!important;padding:8px 4px!important;white-space:nowrap!important}body.has-section-bar .sheet,body.atlas-page .sheet,body.atlas-page .room-body,body.lore-page .sheet,body.codex-page .sheet{top:var(--stack-h, 132px)!important}";
+    s.textContent = ".subbar{display:none!important}.nav-menu,#drop-float,.nav-drop::after,.nav-drop:hover .nav-menu,.nav-drop.open .nav-menu,.nav-drop:active .nav-menu,.nav-drop:focus .nav-menu,.nav-drop:focus-within .nav-menu{display:none!important;visibility:hidden!important;pointer-events:none!important}.nav-drop{display:inline!important}.mast,.topbar{min-height:56px}#section-bar{display:none;position:fixed;left:0;right:0;z-index:500;height:40px;align-items:center;justify-content:center;gap:18px;background:#070707}#section-bar.show{display:flex}#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase}#section-bar a.active,#section-bar a:hover{color:#f3eee6}@media (min-width:801px){.topbar,.mast .topbar{display:flex!important;align-items:center;position:relative}.chapter-tabs,.atlas-tabs,.subbar{display:none!important}.nav-drop:hover .nav-menu,.nav-drop.open .nav-menu,.nav-drop:active .nav-menu{display:none!important}body.atlas-page .sheet,body.atlas-page .atlas-stage,body.atlas-page .room-body,body.journal-page .sheet,body.journal-page .room-body,body.lore-page .sheet,body.lore-page .lore-rail{top:102px!important}}@media (max-width:800px){.chapter-tabs,.atlas-tabs,.subbar{display:none!important}.wall{top:calc(env(safe-area-inset-top) + 46px)!important}#section-bar.show{display:flex!important;position:fixed!important;left:0!important;right:0!important;z-index:450!important;background:#070707!important;height:36px!important;min-height:36px!important;max-height:36px!important;overflow:hidden!important;flex-wrap:nowrap!important;gap:8px!important;padding:0 6px!important}#section-bar a{font-size:10px!important;letter-spacing:.06em!important;padding:8px 4px!important;white-space:nowrap!important}body.has-section-bar .sheet,body.atlas-page .sheet,body.atlas-page .room-body,body.lore-page .sheet,body.codex-page .sheet{top:var(--stack-h, 132px)!important}";
     document.documentElement.appendChild(s);
   }
   var orig = CSSStyleDeclaration.prototype.setProperty;
@@ -30,17 +30,26 @@
     var h = (typeof force === "string" ? force : (location.hash || "")).replace(/^#\/?/, "");
     var atlas = h === "atlas" || h.indexOf("atlas/") === 0 || document.body.classList.contains("atlas-page") || document.body.classList.contains("on-atlas");
     var codex = h === "codex" || h.indexOf("codex/") === 0 || document.body.classList.contains("codex-page") || document.body.classList.contains("on-codex");
-    if (h === "journal" || h.indexOf("journal/") === 0 || h === "gallery" || h === "index" || h.indexOf("index/") === 0) { atlas = false; codex = false; }
-    /* replaced: hardcoded 78px for two names and 46px for one. The bar now sits under the live nav stack. */
+    var gallery = !h || h === "gallery" || h.indexOf("gallery/") === 0;
+    if (gallery || h === "journal" || h.indexOf("journal/") === 0 || h === "index" || h.indexOf("index/") === 0) { atlas = false; codex = false; }
+    /* replaced: stack was measured while the bar was still shown, so Gallery kept the bar's offset for a tick, then dropped.
+    var stack = edge;
+    if (bar.classList.contains("show")) stack = Math.max(stack, bar.getBoundingClientRect().bottom);
+    */
     var top = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
     var edge = top ? top.getBoundingClientRect().bottom : 56;
     var link = document.getElementById("friend-link");
     if (link && link.classList.contains("two")) edge = Math.max(edge, link.getBoundingClientRect().bottom);
+    if (!atlas && !codex) {
+      bar.classList.remove("show");
+      bar.innerHTML = "";
+      bar.style.setProperty("display", "none", "important");
+    }
     bar.style.top = Math.round(edge) + "px";
     var stack = edge;
-    if (bar.classList.contains("show")) stack = Math.max(stack, bar.getBoundingClientRect().bottom);
+    if (atlas || codex) stack = Math.max(stack, edge + 36);
     var rail = document.getElementById("index-rail");
-    if (rail) stack = Math.max(stack, rail.getBoundingClientRect().bottom);
+    if (!gallery && rail && rail.getBoundingClientRect().height) stack = Math.max(stack, rail.getBoundingClientRect().bottom);
     document.documentElement.style.setProperty("--stack-h", Math.round(stack) + "px");
     document.body.classList.toggle("has-section-bar", atlas || codex);
     var list = null, current = "";
