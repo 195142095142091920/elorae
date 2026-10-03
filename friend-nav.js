@@ -1,5 +1,5 @@
 (function () {
-  var phraseCss = "header.topbar > a:not([data-brand]):not(#seal-back),.topbar > a:not([data-brand]):not(#seal-back){color:transparent!important}#seal-back{color:#f3eee6!important}.seal-card form{position:relative}.seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:absolute;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}#friend-link{position:static!important;top:auto!important;right:auto!important;margin-left:14px;z-index:5;display:flex;align-items:center;gap:14px;height:auto}@media (max-width:800px){#friend-link{position:static!important;left:auto!important;right:auto!important;top:auto!important;height:auto!important;margin:0 0 0 12px!important;display:flex!important;align-items:center!important;gap:10px!important}#friend-link.two{position:absolute!important;left:0!important;right:0!important;top:calc(env(safe-area-inset-top) + 46px)!important;height:28px!important;margin:0!important;justify-content:center!important;background:#070707!important;z-index:210!important}body:not(.seal-page):has(#friend-link.two) #section-bar,body:not(.seal-page):has(#friend-link.two) .subbar,body:not(.seal-page):has(#friend-link.two) .atlas-tabs,body:not(.seal-page):has(#friend-link.two) .chapter-tabs,body:not(.seal-page):has(#friend-link.two) #journal-mobile-toc,body:not(.seal-page):has(#friend-link.two) #index-rail{top:calc(env(safe-area-inset-top) + 74px)!important}body.seal-page #friend-link,body.seal-page #friend-link.two{position:absolute!important;left:auto!important;right:16px!important;top:env(safe-area-inset-top)!important;height:46px!important;margin:0!important;background:transparent!important;justify-content:flex-end!important;align-items:center!important;z-index:30!important}body.seal-page .topbar{height:calc(env(safe-area-inset-top) + 46px)!important;padding-top:env(safe-area-inset-top)!important}body.seal-page #seal-back{display:inline-flex!important;align-items:center!important;height:46px!important;padding:0 16px!important}}@media (min-width:801px){.topbar,.mast .topbar{position:relative!important}#friend-link{position:absolute!important;left:auto!important;right:36px!important;top:0!important;height:56px!important;margin:0!important;z-index:30!important}}#friend-link a + a{margin-left:14px!important}body:not(.seal-page) .topbar > a[href='#/seal']{position:absolute!important;width:0!important;height:0!important;overflow:hidden!important;padding:0!important;margin:0!important}#friend-link a{color:#8f8a82!important;text-decoration:none;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif!important;font-size:11px!important;font-weight:400!important;letter-spacing:.16em!important;text-transform:uppercase!important;line-height:1!important}#friend-link a.here,#friend-link a:hover{color:#f3eee6!important}@media (min-width:801px){#friend-link a{font-size:17.3px!important;letter-spacing:.12em!important;font-weight:400!important;line-height:1!important;font-family:Helvetica Neue,Helvetica,Arial,sans-serif!important}}";
+  var phraseCss = "header.topbar > a:not([data-brand]):not(#seal-back),.topbar > a:not([data-brand]):not(#seal-back){color:transparent!important}#seal-back{color:#f3eee6!important}.seal-card form{position:relative}.seal-card input,#seal-code{caret-color:transparent!important}.seal-card input::placeholder,#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}#phrase-caret{position:absolute;width:1px;height:18px;background:rgba(243,238,230,.45);pointer-events:none;z-index:30;display:none}.seal-greet{margin:0 0 10px;color:#8f8a82;letter-spacing:.22em;text-transform:uppercase;font-family:Helvetica,Arial,sans-serif;font-size:11px}#friend-glow{position:fixed!important;z-index:500!important;pointer-events:none;display:none}html,body,body.seal-page,body.seal-page .topbar,body.seal-page .mast{overflow:visible!important}.subbar{display:none!important}#friend-link{position:static!important;top:auto!important;right:auto!important;margin-left:14px;z-index:5;display:flex;align-items:center;gap:14px;height:auto}@media (max-width:800px){#friend-link{position:static!important;left:auto!important;right:auto!important;top:auto!important;height:auto!important;margin:0 0 0 12px!important;display:flex!important;align-items:center!important;gap:10px!important}#friend-link.two{position:fixed!important;left:0!important;right:0!important;width:100%!important;top:calc(env(safe-area-inset-top) + 46px)!important;height:32px!important;margin:0!important;padding:0!important;justify-content:center!important;align-items:center!important;background:#070707!important;z-index:800!important;transform:none!important}#journal-rail{display:none!important}body:not(.seal-page):has(#friend-link.two) #section-bar,body:not(.seal-page):has(#friend-link.two) .subbar,body:not(.seal-page):has(#friend-link.two) .atlas-tabs,body:not(.seal-page):has(#friend-link.two) .chapter-tabs,body:not(.seal-page):has(#friend-link.two) #journal-mobile-toc,body:not(.seal-page):has(#friend-link.two) #index-rail{top:calc(env(safe-area-inset-top) + 74px)!important}body.seal-page #friend-link,body.seal-page #friend-link.two{position:absolute!important;left:auto!important;right:16px!important;top:env(safe-area-inset-top)!important;height:46px!important;margin:0!important;background:transparent!important;justify-content:flex-end!important;align-items:center!important;z-index:30!important}body.seal-page .topbar{height:calc(env(safe-area-inset-top) + 46px)!important;padding-top:env(safe-area-inset-top)!important}body.seal-page #seal-back{display:inline-flex!important;align-items:center!important;height:46px!important;padding:0 16px!important}}@media (min-width:801px){.topbar,.mast .topbar{position:relative!important}#friend-link{position:absolute!important;left:auto!important;right:36px!important;top:0!important;height:56px!important;margin:0!important;z-index:30!important}}#friend-link a + a{margin-left:14px!important}body:not(.seal-page) .topbar > a[href='#/seal']{position:absolute!important;width:0!important;height:0!important;overflow:hidden!important;padding:0!important;margin:0!important}#friend-link a{color:#8f8a82!important;text-decoration:none;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif!important;font-size:11px!important;font-weight:400!important;letter-spacing:.16em!important;text-transform:uppercase!important;line-height:1!important}#friend-link a.here,#friend-link a:hover{color:#f3eee6!important}@media (min-width:801px){#friend-link a{font-size:17.3px!important;letter-spacing:.12em!important;font-weight:400!important;line-height:1!important;font-family:Helvetica Neue,Helvetica,Arial,sans-serif!important}}";
   var phrase = document.getElementById("phrase-pulse");
   if (!phrase) { phrase = document.createElement("style"); phrase.id = "phrase-pulse"; document.documentElement.appendChild(phrase); }
   phrase.textContent = phraseCss;
@@ -150,8 +150,12 @@
   function dock() {
     var bar = document.getElementById("site-nav") || document.querySelector(".mast .topbar") || document.querySelector("header.topbar") || document.querySelector(".topbar");
     if (!link) return;
-    if (bar && link.parentElement !== bar) bar.appendChild(link);
     var desk = window.matchMedia("(min-width:801px)").matches;
+    var phone = window.matchMedia("(max-width:800px)").matches;
+    var twoNow = phone && !document.body.classList.contains("seal-page") && link.querySelectorAll("a").length > 1;
+    if (twoNow) {
+      if (link.parentElement !== document.documentElement) document.documentElement.appendChild(link);
+    } else if (bar && link.parentElement !== bar) bar.appendChild(link);
     link.style.setProperty("position", "absolute", "important");
     link.style.setProperty("top", "0", "important");
     link.style.setProperty("left", "auto", "important");
@@ -160,20 +164,23 @@
     link.style.setProperty("height", desk ? "auto" : "auto", "important");
     link.style.setProperty("bottom", desk ? "0" : "auto", "important");
     link.style.setProperty("align-items", "center", "important");
-    var phone = window.matchMedia("(max-width:800px)").matches;
     var hide = document.body.classList.contains("entry") && phone;
     link.classList.toggle("two", phone && !document.body.classList.contains("seal-page") && link.querySelectorAll("a").length > 1);
     if (phone && !document.body.classList.contains("seal-page")) {
       var two = link.classList.contains("two");
-      link.style.setProperty("position", two ? "absolute" : "static", "important");
-      link.style.setProperty("right", "auto", "important");
+      link.style.setProperty("position", two ? "fixed" : "static", "important");
+      link.style.setProperty("right", two ? "0" : "auto", "important");
       link.style.setProperty("top", two ? "calc(env(safe-area-inset-top) + 46px)" : "auto", "important");
       link.style.setProperty("left", two ? "0" : "auto", "important");
-      link.style.setProperty("margin-left", two ? "0" : "12px", "important");
+      link.style.setProperty("width", two ? "100%" : "auto", "important");
+      link.style.setProperty("margin", "0", "important");
+      link.style.setProperty("padding", "0", "important");
       link.style.setProperty("height", two ? "32px" : "auto", "important");
       link.style.setProperty("justify-content", "center", "important");
-      link.style.setProperty("z-index", two ? "260" : "5", "important");
+      link.style.setProperty("align-items", "center", "important");
+      link.style.setProperty("z-index", two ? "800" : "5", "important");
       link.style.setProperty("background", two ? "#070707" : "transparent", "important");
+      link.style.setProperty("transform", "none", "important");
       ["section-bar", "journal-mobile-toc", "index-rail", "index-tertiary"].forEach(function (id) {
         var el = document.getElementById(id);
         if (!el) return;
@@ -302,6 +309,7 @@
   window.paintFriend = paint;
   paint();
   window.addEventListener("hashchange", function () { paint(); setTimeout(paint, 0); setTimeout(greet, 60); });
+  setInterval(dock, 400);
   if (!window.__brandWatch) {
     window.__brandWatch = 1;
     new MutationObserver(function () { paint(); }).observe(document.documentElement, { childList: true, subtree: true });
