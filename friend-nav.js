@@ -257,9 +257,8 @@
       } else a.style.textShadow = "none";
     });
     document.body.classList.add("has-friend");
-    link.style.top = "";
-    link.style.right = "";
     link.style.setProperty("font-size", window.matchMedia("(min-width:801px)").matches ? "17.3px" : "11px", "important");
+    dock();
     if (!document.getElementById("seal-code") && mark) mark.style.display = "none";
     var fit = document.querySelector("body.entry #fit, body.entry #fitmark, body.entry .fit-mark");
     if (fit) {
