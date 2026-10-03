@@ -112,9 +112,11 @@
     go(a.getAttribute("href"));
   }, true);
 
+  /* Replaced by nav-boot.js, the only owner of #section-bar. Uncomment to revert.
   paint();
-  /* setInterval(paint, 80); */
+  setInterval(paint, 80);
   window.addEventListener("hashchange", paint);
-  /* setInterval(function () { if (document.getElementById("section-bar")) paint(); }, 500); */
+  setInterval(function () { if (document.getElementById("section-bar")) paint(); }, 500);
   window.addEventListener("resize", place);
+  */
 })();
