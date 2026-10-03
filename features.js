@@ -70,7 +70,10 @@
       wrap.innerHTML = '<div id="art-strip"></div><button type="button"></button>';
       document.documentElement.appendChild(wrap);
     }
-    wrap.querySelector("button").onclick = function (e) {
+    var count = wrap.querySelector("button");
+    count.style.fontWeight = "800";
+    count.style.webkitTextStroke = "1px #f3eee6";
+    count.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
       if (window.innerWidth <= 800) wrap.classList.toggle("open");
