@@ -190,9 +190,10 @@
       .atlas-page:has(.atlas-tabs) .atlas-stage, .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
       body.lore-page .sheet { top: 124px; }
       .entry .topbar #fit {
+        position: absolute; right: 10px; top: calc(env(safe-area-inset-top) + 6px);
         width: 44px; min-width: 44px; min-height: 44px;
-        padding: max(16px, env(safe-area-inset-top)) 14px 12px;
-        font-size: 0 !important; line-height: 0; color: #efe8dc; background: none; border: 0;
+        display: grid; place-items: center; padding: 0;
+        font-size: 0 !important; line-height: 0; color: #efe8dc; background: none; border: 0; z-index: 50;
       }
       .entry .topbar #fit svg { width: 18px; height: 18px; display: block; }
     }
