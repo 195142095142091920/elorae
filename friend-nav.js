@@ -190,7 +190,6 @@
       document.documentElement.style.setProperty("--nav-h", two ? "calc(env(safe-area-inset-top) + 78px)" : "");
       var rail = document.getElementById("journal-rail");
       if (rail && two) rail.style.setProperty("display", "none", "important");
-      });
     }
     link.style.setProperty("display", hide ? "none" : "flex", "important");
     if (phone && document.body.classList.contains("seal-page")) {
