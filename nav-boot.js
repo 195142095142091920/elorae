@@ -28,12 +28,17 @@
     document.querySelectorAll(".subbar").forEach(function (el) { el.style.display = "none"; });
     document.querySelectorAll(".nav-drop.open").forEach(function (el) { el.classList.remove("open"); });
     var h = (location.hash || "").replace(/^#\/?/, "");
-    var atlas = h === "atlas" || h.indexOf("atlas/") === 0 || document.body.classList.contains("on-atlas") || document.body.classList.contains("atlas-page");
-    var codex = h === "codex" || h.indexOf("codex/") === 0 || document.body.classList.contains("on-codex") || document.body.classList.contains("codex-page");
-    if (h === "journal" || h.indexOf("journal/") === 0 || h === "gallery" || h === "index" || h.indexOf("index/") === 0) { atlas = false; codex = false; }
+    var atlas = h === "atlas" || h.indexOf("atlas/") === 0;
+    var codex = h === "codex" || h.indexOf("codex/") === 0;
+    /* body class only if the hash has not been set yet. A leftover on-atlas class was keeping Atlas tabs on Codex. */
+    if (!h) {
+      atlas = document.body.classList.contains("on-atlas") || document.body.classList.contains("atlas-page");
+      codex = document.body.classList.contains("on-codex") || document.body.classList.contains("codex-page");
+    }
     var top = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
     var phone = window.matchMedia("(max-width:800px)").matches;
-    var y = phone ? "calc(env(safe-area-inset-top) + 78px)" : ((top ? Math.round(top.getBoundingClientRect().bottom) : 56) + "px");
+    var two = document.getElementById("friend-link") && document.getElementById("friend-link").classList.contains("two");
+    var y = phone ? ("calc(env(safe-area-inset-top) + " + (two ? "78" : "46") + "px)") : ((top ? Math.round(top.getBoundingClientRect().bottom) : 56) + "px");
     bar.style.top = y;
     document.body.classList.toggle("has-section-bar", atlas || codex);
     var list = null, current = "";
