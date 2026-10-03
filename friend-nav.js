@@ -164,13 +164,22 @@
     var hide = document.body.classList.contains("entry") && phone;
     link.classList.toggle("two", phone && !document.body.classList.contains("seal-page") && link.querySelectorAll("a").length > 1);
     if (phone && !document.body.classList.contains("seal-page")) {
-      link.style.setProperty("position", link.classList.contains("two") ? "absolute" : "static", "important");
+      var two = link.classList.contains("two");
+      link.style.setProperty("position", two ? "absolute" : "static", "important");
       link.style.setProperty("right", "auto", "important");
-      link.style.setProperty("top", link.classList.contains("two") ? "calc(env(safe-area-inset-top) + 46px)" : "auto", "important");
-      link.style.setProperty("left", link.classList.contains("two") ? "0" : "auto", "important");
-      link.style.setProperty("margin-left", link.classList.contains("two") ? "0" : "12px", "important");
-      link.style.setProperty("height", link.classList.contains("two") ? "28px" : "auto", "important");
+      link.style.setProperty("top", two ? "calc(env(safe-area-inset-top) + 46px)" : "auto", "important");
+      link.style.setProperty("left", two ? "0" : "auto", "important");
+      link.style.setProperty("margin-left", two ? "0" : "12px", "important");
+      link.style.setProperty("height", two ? "32px" : "auto", "important");
       link.style.setProperty("justify-content", "center", "important");
+      link.style.setProperty("z-index", two ? "260" : "5", "important");
+      link.style.setProperty("background", two ? "#070707" : "transparent", "important");
+      ["section-bar", "journal-mobile-toc", "index-rail", "index-tertiary"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (two) el.style.setProperty("top", "calc(env(safe-area-inset-top) + " + (id === "index-tertiary" ? "118" : "78") + "px)", "important");
+        else el.style.removeProperty("top");
+      });
     }
     link.style.setProperty("display", hide ? "none" : "flex", "important");
     if (phone && document.body.classList.contains("seal-page")) {
