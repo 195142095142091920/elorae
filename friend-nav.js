@@ -185,7 +185,7 @@
         var el = document.getElementById(id);
         if (!el) return;
         if (two) el.style.setProperty("top", "calc(env(safe-area-inset-top) + " + (id === "index-tertiary" ? "118" : "78") + "px)", "important");
-        else el.style.removeProperty("top");
+        /* replaced: else el.style.removeProperty("top") cleared the single-name bar and hid it under the main nav. */
       });
       document.documentElement.style.setProperty("--nav-h", two ? "calc(env(safe-area-inset-top) + 78px)" : "");
       var rail = document.getElementById("journal-rail");
