@@ -3,8 +3,9 @@
   /* replaced: kindred/heartroot/mano dropdowns.
   var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath"]],["heartroot","Heartroot",["saoirse","vaerek-at-ease"]],["mano","Mano",["mano","galand-helviath"]]];
   */
-  var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","nyralshirad","pethengorom","heldranc-flies"]],["armies","Demonic Armies",["mano","mintas-fae","vehem-adahr","vorn"]],["heartroot","Druids of Heartroot Sanctuary",["saoirse"]]];
-  var HOME = {aghor:"ancients",auralon:"ancients",caurobor:"ancients",hesk:"ancients",maegoroth:"ancients","salaseth-ii":"ancients",sthistu:"ancients",mano:"demonic","mintas-fae":"demonic","vehem-adahr":"demonic",vorn:"demonic",aszurithice:"power","nyralshirad":"power",pethengorom:"power","heldranc-flies":"power","vaerek-at-ease":"heroes",saoirse:"heroes","galand-helviath":"heroes","perstrin-naba":"heroes","silar-scorria":"heroes","yuo-nanaga":"heroes",kojin:"heroes",baiji:"heroes","hanto-han":"heroes"};
+  /* replaced: kindred without Vaerek, Saoirse, Montmorian, Filibeth; armies without Revenant Host. */
+var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","nyralshirad","pethengorom","heldranc-flies","vaerek-at-ease","saoirse","montmorian-chamber","filibeth"]],["armies","Demonic Armies",["mano","mintas-fae","vehem-adahr","vorn","revenant-host"]],["heartroot","Druids of Heartroot Sanctuary",["saoirse"]]];
+  var HOME = {aghor:"ancients",auralon:"ancients",caurobor:"ancients",hesk:"ancients",maegoroth:"ancients","salaseth-ii":"ancients",sthistu:"ancients",mano:"demonic","mintas-fae":"demonic","vehem-adahr":"demonic",vorn:"demonic",aszurithice:"power","nyralshirad":"power",pethengorom:"power","heldranc-flies":"power","montmorian-chamber":"power","vaerek-at-ease":"heroes",saoirse:"heroes","galand-helviath":"heroes","perstrin-naba":"heroes","silar-scorria":"heroes","yuo-nanaga":"heroes",kojin:"heroes",baiji:"heroes","hanto-han":"heroes"};
   var PLACES = {"ashforge-kuroishi":1,"phantom-cavern":1};
   var VIGNETTES = {"cadarinost-falls":1};
   var HIDE = {"aszurithice-human":1,"heldranc-human":1,"nyralshirad-human":1,"pethengorom-human":1,"vaerek-heldranc":1};
