@@ -31,13 +31,13 @@
     j.src = "journal-toc.js?v=7";
     document.documentElement.appendChild(j);
   }
-  if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=22") !== -1; })) return;
+  if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=23") !== -1; })) return;
   var n = document.createElement("script");
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=47") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=46") !== -1; })) {
     var m = document.createElement("script");
-    m.src = "mobile-fix.js?v=47";
+    m.src = "mobile-fix.js?v=46";
     document.documentElement.appendChild(m);
   }
-  n.src = "nav-boot.js?v=22";
+  n.src = "nav-boot.js?v=23";
   document.documentElement.appendChild(n);
 })();
