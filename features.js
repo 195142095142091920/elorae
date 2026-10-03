@@ -72,6 +72,8 @@
     }
     var count = wrap.querySelector("button");
     count.style.fontWeight = "800";
+    count.style.color = "#f3eee6";
+    count.style.webkitTextFillColor = "#f3eee6";
     count.style.webkitTextStroke = "1px #f3eee6";
     count.onclick = function (e) {
       e.preventDefault();
