@@ -370,7 +370,6 @@ body::after {
   padding: 72px var(--pad) max(28px, env(safe-area-inset-bottom));
   background: none;
 }
-.life-dock:not(:has(.life-sheet.open)) .life-toggle { transform: translateY(-4px); }
 .life-toggle {
   border: 0;
   background: none;
