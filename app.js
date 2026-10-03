@@ -16,7 +16,8 @@ function route() {
   if (hash === "gallery") renderWall("all");
   else if (hash.startsWith("gallery/")) renderWall(hash.slice(8));
   else if (hash === "atlas") renderAtlas();
-  else if (hash === "index") renderIndex();
+  /* replaced: hash === "index" only, so a refresh on a category fell through or reset to Ancients. */
+  else if (hash === "index" || hash.indexOf("index/") === 0) renderIndex();
   else if (hash === "journal") renderJournal();
   else if (hash.startsWith("journal/")) renderJournal(hash.slice(8));
   else if (hash === "seal") renderSeal();
