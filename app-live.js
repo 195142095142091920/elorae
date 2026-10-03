@@ -147,7 +147,10 @@ function renderWall(tag) {
   document.body.className = "";
   document.body.innerHTML =
     '<div class="mast"><header class="topbar">' + brand() + '<nav class="filters">' +
+    rooms("gallery") + '</nav></header></div>' +
+    /* replaced: gallery subbar reserved a secondary bar. Uncomment to restore categories.
     rooms("gallery") + '</nav></header><nav class="subbar">' + galleryFilters(tag) + '</nav></div>' +
+    */
     '<main class="wall">' + (entries.map(tile).join("") || '<p class="empty">No pieces in this set yet.</p>') + '</main>';
   const backTo = tag === "all" ? "#/gallery" : "#/gallery/" + tag;
   const keepScroll = place.hash === backTo;
