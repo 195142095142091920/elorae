@@ -32,6 +32,7 @@
     document.documentElement.appendChild(css);
   }
   function paintBar() {
+    /* Replaced by nav-boot.js, the only owner of #section-bar. Uncomment this block to revert.
     var h = (location.hash || boot || "").replace(/^#\/?/, "");
     var list = null, current = "";
     if (h === "atlas" || h.indexOf("atlas/") === 0) { list = ATLAS; current = "#/atlas/" + (h === "atlas" ? "world" : h.slice(6)); }
@@ -43,6 +44,7 @@
     if (top) bar.style.top = Math.round(top.getBoundingClientRect().bottom) + "px";
     bar.innerHTML = list.map(function (it) { return '<a href="' + it[1] + '" class="' + (it[1] === current ? "active" : "") + '">' + it[0] + "</a>"; }).join("");
     bar.classList.add("show");
+    */
   }
   if (boot.indexOf("#/atlas") === 0 || boot.indexOf("#/codex") === 0) {
     document.documentElement.classList.add("hold-route");
@@ -115,5 +117,5 @@
     }
     busy = false;
   }, true);
-  window.addEventListener("hashchange", function () { hold(); paintBar(); });
+  window.addEventListener("hashchange", function () { hold(); /* paintBar(); owned by nav-boot.js */ });
 })();
