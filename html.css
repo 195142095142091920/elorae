@@ -725,3 +725,28 @@ body:not(.journal-page) .toc a:hover { color: #f3eee6; }
     padding-top: 28px;
   }
 }
+
+@media (max-width: 800px) {
+  .toc,
+  .journal-page .toc {
+    position: static;
+    left: auto;
+    right: auto;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+  }
+  body.journal-page main.read {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 22px;
+    padding-right: 22px;
+    box-sizing: border-box;
+    position: relative;
+    left: 0;
+    transform: none;
+  }
+}
