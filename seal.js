@@ -1,4 +1,5 @@
 var PHRASE = {light:"jack",arcana:"jon",succor:"julie",vigor:"sawyer",fatalis:"devin"};
+var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",devin:"Devin"};
 function applySeal() {
   var who = "";
   try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
@@ -6,9 +7,16 @@ function applySeal() {
   if (who) document.body.classList.add("seal-" + who);
   var note = document.getElementById("seal-note");
   var form = document.getElementById("seal-form");
+  var welcome = document.getElementById("seal-welcome");
+  var name = document.getElementById("seal-name");
   if (note && form) {
     note.hidden = !who;
     form.hidden = !!who;
+  }
+  if (welcome) welcome.hidden = !who;
+  if (name) {
+    name.hidden = !who;
+    name.textContent = NAMES[who] || "";
   }
   return who;
 }

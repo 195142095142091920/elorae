@@ -69,3 +69,7 @@ body.entry .topbar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;fon
 .life-sheet{display:none;max-height:70vh;overflow:auto}
 .life-sheet.open{display:block}
 .journal-page{background:#070707 center/cover no-repeat}
+
+#seal-form{display:flex;flex-direction:column;align-items:center}
+.seal-welcome{margin:0 0 6px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;font-size:11px;color:#8f8a82}
+.seal-name{margin:0 0 14px;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;color:#f3eee6}

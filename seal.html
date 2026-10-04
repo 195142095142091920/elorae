@@ -3,20 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Seal - Elorae</title>
+<title>Elorae</title>
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="html.css">
+<link rel="stylesheet" href="html.css?v=seal2">
 <link rel="icon" href="favicon.svg">
 </head>
 <body class="seal-page">
 <div class="mast"><header class="topbar"><a href="seal.html">Elorae</a><form action="search.html"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="atlas.html">Atlas</a><a class="" href="index.html">Gallery</a><a class="" href="index/ancients.html">Index</a><a class="" href="journal.html">Journal</a><a class="" href="codex/lore.html">Codex</a><span class="friend" data-owner="jack"><a href="figures/galand-helviath.html">Galand</a></span><span class="friend" data-owner="jon"><a href="figures/telorin.html">Telorin</a><a href="figures/silar-scorria.html">Silar</a></span><span class="friend" data-owner="julie"><a href="figures/saoirse.html">Saoirse</a></span><span class="friend" data-owner="sawyer"><a href="figures/vaerek-at-ease.html">Vaerek</a></span></nav></header></div>
 <main class="seal-card">
-<p class="seal-kicker">Seal</p>
 <form id="seal-form">
 <input id="seal-code" name="phrase" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">
 <button type="submit">Enter</button>
 </form>
 <p class="seal-err" id="seal-err" hidden>Try again.</p>
+<p class="seal-welcome" id="seal-welcome" hidden>Welcome,</p>
+<p class="seal-name" id="seal-name" hidden></p>
 <p class="seal-note" id="seal-note" hidden>You may now view your private material.</p>
 </main>
 <script src="seal.js"></script>
