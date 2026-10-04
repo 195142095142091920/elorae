@@ -372,6 +372,13 @@ body.journal-page .read h3 {
   margin: 32px 0 12px;
 }
 
+
+/* Lore column only. Narrower than the journal and atlas columns. */
+body.book .read {
+  max-width: 640px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
 /* Lore passages. Scoped copy of .journal-read rules in codex.css. */
 body.book .read .codex-by {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -403,6 +410,7 @@ body.book .read .codex-quote p {
   line-height: 1.7;
   color: #ece6db;
   margin: 0;
+  text-shadow: none;
 }
 body.book .read .codex-quote cite {
   display: block;
