@@ -422,3 +422,33 @@ body.book .read .codex-quote cite {
   text-transform: uppercase;
   color: #9a948a;
 }
+
+/* Lore contents. Smaller than the journal rail. */
+body.book .toc {
+  width: 228px;
+  padding: 18px 20px 32px 26px;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+body.book .toc:hover {
+  scrollbar-color: rgba(207,198,184,0.35) transparent;
+}
+body.book .toc h3 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  margin: 0 0 12px;
+}
+body.book .toc a {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-size: 13px;
+  line-height: 1.35;
+  padding: 4px 0;
+  color: #a39c92;
+  border-bottom-color: rgba(243,238,230,0.05);
+}
+body.book .toc a.on,
+body.book .toc a:hover { color: #f3eee6; }
