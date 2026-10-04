@@ -310,3 +310,56 @@ body.lore-page .read p {
 #section-bar a.active,
 #section-bar a:hover { color: #f3eee6; }
 body:has(#section-bar) main.index-flow { padding-top: 72px; }
+
+
+/* column headers */
+.journal-page .read > h1 {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 26px;
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: #f3eee6;
+  margin: 0 0 28px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid rgba(243,238,230,.18);
+}
+body.lore-page .read > h3,
+body.lore-page .read > ul { display: none; }
+body.lore-page .read h2 {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: #f3eee6;
+  margin: 96px 0 28px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(243,238,230,.16);
+  border-bottom: 0;
+}
+body.lore-page .read h2:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+body.journal-page:not(.lore-page) .read h2 {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  text-align: left;
+  color: #f3eee6;
+  margin: 72px 0 22px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(243,238,230,.16);
+  border-bottom: 0;
+}
+body.journal-page:not(.lore-page) .read h2:first-of-type {
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: 0;
+}
