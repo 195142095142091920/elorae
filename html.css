@@ -10,3 +10,15 @@ body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],bo
 #art-strip{display:none;gap:10px;padding:12px;background:#070707}
 #art-swap.open #art-strip{display:flex}
 #art-strip img{width:132px;height:88px;object-fit:cover}
+
+.facts{margin:0 0 16px;padding:0;list-style:none;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#d8d0c4}
+.facts li{margin:0 0 6px}
+@media(max-width:800px){
+  .toc{position:static;width:auto;padding:12px 18px}
+  .with-toc{margin-left:0}
+  .index-card{width:calc(100vw - 36px)}
+  .index-card img{width:100%;height:auto;aspect-ratio:16/9}
+  .wall{grid-template-columns:1fr}
+  #art-swap{bottom:24px}
+  .pager{bottom:16px}
+}
