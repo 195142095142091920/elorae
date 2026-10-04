@@ -22,3 +22,7 @@ body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],bo
   #art-swap{bottom:24px}
   .pager{bottom:16px}
 }
+
+.private-journal{display:none;right:0;left:auto}
+body.seal-devin .private-journal{display:block}
+.read{padding-top:28px}
