@@ -165,3 +165,148 @@ body.seal-devin .mark > a[href$="seal.html"]{display:none}
   pointer-events:none;
 }
 .tile:hover::after{opacity:1}
+
+/* reading column, veil, rail — journal / atlas / codex */
+.with-toc { margin-left: 0; }
+.with-toc.read {
+  background: transparent;
+  padding: 48px 64px 80px;
+}
+.journal-page .read {
+  position: relative;
+  z-index: 2;
+  max-width: 880px;
+  margin: 0 auto 72px;
+  padding: 48px 64px 80px;
+  background: transparent;
+  text-shadow: none;
+}
+.journal-page:has(#section-bar) main.read {
+  padding-top: 96px;
+}
+.journal-page .read p,
+body.lore-page .read p {
+  font-size: 18px;
+  line-height: 1.75;
+  color: #f0e9de;
+  text-shadow: 0 1px 12px rgba(0,0,0,.45);
+}
+.journal-page .read > h1,
+.journal-page .read > h2:first-child {
+  font-weight: 400;
+  font-style: normal;
+  font-size: 26px;
+  letter-spacing: 0.03em;
+  text-align: center;
+  margin: 0 0 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(243,238,230,.18);
+}
+.journal-page figure img:not(.atlas-map) {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+}
+.journal-page img.atlas-map {
+  display: block;
+  width: 100%;
+  max-height: none;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid #000;
+}
+.journal-page figcaption {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #b7b0a4;
+  text-align: center;
+  margin-top: 8px;
+}
+@media (min-width: 801px) {
+  .journal-page .read::before {
+    display: block;
+    content: "";
+    position: absolute;
+    top: -140px;
+    bottom: -140px;
+    left: -340px;
+    right: -340px;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      rgba(7,7,7,0) 0%,
+      rgba(7,7,7,0.35) 12%,
+      rgba(7,7,7,0.78) 24%,
+      #070707 34%,
+      #070707 66%,
+      rgba(7,7,7,0.78) 76%,
+      rgba(7,7,7,0.35) 88%,
+      rgba(7,7,7,0) 100%
+    );
+  }
+  .journal-page .toc {
+    width: 300px;
+    top: 102px;
+    background: none;
+    padding: 28px;
+    z-index: 8;
+  }
+  main.with-toc.index-flow { margin-left: 240px; }
+}
+.journal-page .toc h3 {
+  margin: 0 0 18px;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #f3eee6;
+  text-transform: none;
+}
+.journal-page .toc a {
+  display: block;
+  margin: 0;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(243,238,230,.07);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #d2cbc0;
+  text-decoration: none;
+}
+.journal-page .toc a.on,
+.journal-page .toc a:hover { color: #f3eee6; }
+#section-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 56px;
+  z-index: 19;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #070707;
+  padding: 0;
+  letter-spacing: 0;
+}
+#section-bar a {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14.4px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  text-decoration: none;
+  padding: 8px 12px;
+}
+#section-bar a.active,
+#section-bar a:hover { color: #f3eee6; }
+body:has(#section-bar) main.index-flow { padding-top: 72px; }
