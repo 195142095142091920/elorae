@@ -43,3 +43,16 @@ body.seal-page{background:#070707}
 body.entry .mast{background:transparent}
 body.entry .topbar{background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0,0,0))}
 .life-sheet{background:linear-gradient(to left,rgba(0,0,0,.9),rgba(0,0,0,.55) 70%,rgba(0,0,0,0))}
+
+@media(max-width:800px){
+  .mast .topbar{padding-top:max(18px,env(safe-area-inset-top));padding-left:16px;padding-right:16px}
+  .entry .topbar a{top:max(16px,env(safe-area-inset-top));left:16px}
+  .dock{padding-bottom:max(28px,env(safe-area-inset-bottom))}
+}
+.friend a{position:relative}
+body.seal-jack .friend[data-owner=jack] a,body.seal-julie .friend[data-owner=julie] a,body.seal-sawyer .friend[data-owner=sawyer] a,body.seal-jon .friend[data-owner=jon] a,body.seal-devin .friend a{text-shadow:0 0 12px var(--glow),0 0 24px var(--glow)}
+body.seal-jack{--glow:rgba(230,190,80,.55)}
+body.seal-julie{--glow:rgba(255,190,210,.5)}
+body.seal-sawyer{--glow:rgba(230,120,40,.5)}
+body.seal-jon{--glow:rgba(80,180,90,.5)}
+body.seal-devin{--glow:rgba(180,180,180,.35)}
