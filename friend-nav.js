@@ -214,7 +214,8 @@
       var label = "Elorae";
       var href = "#/seal";
       if (onEntry) {
-        label = "Back";
+        /* replaced: label = "Back"; this paint runs after the page and was putting Back back. */
+        label = "Gallery";
         href = (window.place && window.place.hash) || "#/gallery";
         if (!href || href.indexOf("#/") !== 0 || href === (location.hash || "").split("?")[0]) href = "#/gallery";
         brand.style.display = "";
