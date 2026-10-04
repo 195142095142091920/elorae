@@ -540,3 +540,17 @@ body:not(.journal-page) .toc a {
 }
 body:not(.journal-page) .toc a.on,
 body:not(.journal-page) .toc a:hover { color: #f3eee6; }
+
+@media (min-width: 801px) {
+  body.journal-page:has(aside.toc) main.read {
+    width: min(880px, calc(100vw - 348px));
+    max-width: none;
+    margin-left: max(300px, calc(50vw - 440px));
+    margin-right: auto;
+  }
+  body.book:has(aside.toc) main.read {
+    width: min(640px, calc(100vw - 276px));
+    max-width: none;
+    margin-left: max(228px, calc(50vw - 320px));
+  }
+}
