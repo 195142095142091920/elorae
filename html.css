@@ -554,3 +554,72 @@ body:not(.journal-page) .toc a:hover { color: #f3eee6; }
     margin-left: max(228px, calc(50vw - 320px));
   }
 }
+
+@media (max-width: 800px) {
+  .mast .topbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 0;
+  }
+  .mast .topbar > .mark,
+  .mast .topbar > a[href$="seal.html"] {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+  }
+  .mast .topbar > .mark a {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+  .mast .topbar .filters {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    transform: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+  }
+  .mast .topbar .filters a {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+  #section-bar {
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    height: auto;
+    flex-wrap: wrap;
+    padding: 4px 10px 8px;
+    gap: 2px 8px;
+  }
+  #section-bar a {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
