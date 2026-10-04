@@ -639,7 +639,8 @@ body:not(.journal-page) .toc a:hover { color: #f3eee6; }
     height: auto;
     min-height: 0;
     margin: 0;
-    padding: 14px 8px 6px;
+    gap: 8px;
+    padding: 22px 8px 14px;
     background: #070707;
     text-align: center;
   }
@@ -691,7 +692,7 @@ body:not(.journal-page) .toc a:hover { color: #f3eee6; }
     white-space: nowrap;
   }
   .mast .topbar .filters a + a::before {
-    padding: 0 5px;
+    padding: 0 8px;
   }
   .journal-page #section-bar,
   #section-bar {
@@ -706,9 +707,9 @@ body:not(.journal-page) .toc a:hover { color: #f3eee6; }
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 2px 6px;
+    gap: 2px 10px;
     margin: 0;
-    padding: 4px 8px 10px;
+    padding: 12px 8px 18px;
     background: #070707;
     text-align: center;
   }
