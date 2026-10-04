@@ -371,3 +371,46 @@ body.journal-page .read h3 {
   color: #cfc6b8;
   margin: 32px 0 12px;
 }
+
+/* Lore passages. Scoped copy of .journal-read rules in codex.css. */
+body.book .read .codex-by {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9a948a;
+  margin: 0 0 36px;
+  text-align: center;
+  border: 0;
+}
+body.book .read h2:has(+ .codex-by) {
+  margin-bottom: 8px;
+}
+body.book .read .codex-quote {
+  margin: 0 0 32px;
+  padding: 0 8px 0 0;
+  border: 0;
+}
+body.book .read .codex-quote + .codex-quote {
+  margin-top: 8px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(243,238,230,0.08);
+}
+body.book .read .codex-quote p {
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1.7;
+  color: #ece6db;
+  margin: 0;
+}
+body.book .read .codex-quote cite {
+  display: block;
+  margin-top: 12px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9a948a;
+}
