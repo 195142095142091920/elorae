@@ -60,3 +60,12 @@ body.seal-devin{--glow:rgba(180,180,180,.35)}
 .dock{padding:40px 28px max(28px,env(safe-area-inset-bottom))}
 .title-block h1{font-size:clamp(28px,4vw,42px)}
 .title-block .caption{margin-top:6px}
+
+body.entry .mast{display:none}
+body.entry .topbar{position:fixed;top:0;left:0;right:0;z-index:20;background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0,0,0));padding:max(22px,env(safe-area-inset-top)) 28px 18px}
+body.entry .topbar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6}
+.life-dock{position:fixed;right:0;bottom:0;z-index:5;width:min(46vw,560px);padding:40px 28px max(28px,env(safe-area-inset-bottom))}
+.life-toggle{background:none;border:0;color:#f3eee6;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.life-sheet{display:none;max-height:70vh;overflow:auto}
+.life-sheet.open{display:block}
+.journal-page{background:#070707 center/cover no-repeat}
