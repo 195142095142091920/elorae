@@ -73,3 +73,13 @@ body.entry .topbar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;fon
 #seal-form{display:flex;flex-direction:column;align-items:center}
 .seal-welcome{margin:0 0 6px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;font-size:11px;color:#8f8a82}
 .seal-name{margin:0 0 14px;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;color:#f3eee6}
+
+.seal-top{position:fixed;left:0;right:0;top:0;background:#070707;justify-content:flex-start}
+.seal-top #seal-back{color:#f3eee6;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.22em}
+#seal-code{width:min(280px,80vw);font-size:18px;letter-spacing:.08em;padding:10px 12px}
+#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}
+@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}
+.seal-card button,.seal-err{font-size:11px;letter-spacing:.22em;color:#8f8a82}
+.seal-card{min-height:100dvh;padding:88px 24px 72px}
+.seal-note{margin-top:16px;max-width:36ch;line-height:1.5;color:#cfc6b8;font-size:16px}
+.seal-name{font-weight:400;letter-spacing:.14em;font-size:clamp(28px,4vw,40px)}

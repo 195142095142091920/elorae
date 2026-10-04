@@ -32,3 +32,8 @@ if (form) form.addEventListener("submit", function (e) {
   if (err) err.hidden = true;
   applySeal();
 });
+
+var back = document.getElementById("seal-back");
+if (back) back.addEventListener("click", function (e) {
+  if (history.length > 1) { e.preventDefault(); history.back(); }
+});

@@ -10,8 +10,8 @@ if (canvas) {
   }
   function frame() {
     var name = who();
-    var link = name && document.querySelector('.friend[data-owner="' + name + '"]');
-    if (!name || !link || getComputedStyle(link).display === "none") {
+    var link = name && (document.querySelector('.friend[data-owner="' + name + '"]') || document.getElementById("seal-name"));
+    if (!name || !link || link.hidden || getComputedStyle(link).display === "none") {
       canvas.style.display = "none";
       requestAnimationFrame(frame);
       return;
