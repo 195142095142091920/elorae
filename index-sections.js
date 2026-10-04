@@ -47,13 +47,27 @@ var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","
     return sectionOf(id) === open;
   }
   function clearPage() {
+    /* replaced: every NAV was kept, so browser Back left the gallery arrows on Index.
+    if (tag === "HEADER" || tag === "NAV" || tag === "SCRIPT" || tag === "STYLE" || tag === "LINK" || tag === "CANVAS") return;
+    */
+    document.querySelectorAll(".pager, .arrow").forEach(function (el) { el.remove(); });
     Array.prototype.slice.call(document.body.children).forEach(function (el) {
       if (el.id === "index-rail" || el.id === "index-flow" || el.id === "section-bar" || el.id === "friend-link") return;
       var tag = el.tagName;
-      if (tag === "HEADER" || tag === "NAV" || tag === "SCRIPT" || tag === "STYLE" || tag === "LINK" || tag === "CANVAS") return;
-      if (el.classList.contains("topbar") || el.classList.contains("mast")) return;
+      if (tag === "SCRIPT" || tag === "STYLE" || tag === "LINK" || tag === "CANVAS") return;
+      if (el.classList.contains("mast") || (el.classList.contains("topbar") && el.querySelector(".filters"))) return;
+      if (tag === "HEADER" || tag === "NAV") { el.remove(); return; }
       el.remove();
     });
+  }
+  function ensureNav() {
+    if (document.querySelector(".mast .filters")) return;
+    var mast = document.createElement("div");
+    mast.className = "mast";
+    mast.innerHTML = '<header class="topbar"><a href="#/seal">Elorae</a><nav class="filters">' +
+      '<a href="#/atlas">Atlas</a><span class="dot">&middot;</span><a href="#/gallery">Gallery</a><span class="dot">&middot;</span><a class="active" href="#/index">Index</a><span class="dot">&middot;</span><a href="#/journal">Journal</a>' +
+      '</nav></header>';
+    document.body.insertBefore(mast, document.body.firstChild);
   }
   function markIndex() {
     document.querySelectorAll(".filters > a, .filters > .nav-drop > a").forEach(function (a) {
@@ -67,6 +81,7 @@ var FACTIONS = [["kindred","Draconic Kindred",["galand-helviath","aszurithice","
     document.body.className = "room index-sorted" + (open === "factions" ? " factions-open" : "");
     document.body.style.backgroundImage = "";
     clearPage();
+    ensureNav();
     var rail = document.getElementById("index-rail");
     if (!rail) {
       rail = document.createElement("aside");
