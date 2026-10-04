@@ -750,3 +750,16 @@ body:not(.journal-page) .toc a:hover { color: #f3eee6; }
     transform: none;
   }
 }
+
+/* Calendar day names. Cell padding keeps the three columns from touching. */
+table.day-names {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 28px;
+}
+table.day-names th,
+table.day-names td {
+  text-align: left;
+  vertical-align: top;
+  padding: 4px 20px 4px 0;
+}
