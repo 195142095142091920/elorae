@@ -56,3 +56,7 @@ body.seal-julie{--glow:rgba(255,190,210,.5)}
 body.seal-sawyer{--glow:rgba(230,120,40,.5)}
 body.seal-jon{--glow:rgba(80,180,90,.5)}
 body.seal-devin{--glow:rgba(180,180,180,.35)}
+
+.dock{padding:40px 28px max(28px,env(safe-area-inset-bottom))}
+.title-block h1{font-size:clamp(28px,4vw,42px)}
+.title-block .caption{margin-top:6px}
