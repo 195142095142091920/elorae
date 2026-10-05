@@ -1,0 +1,3355 @@
+body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;background:#070707}#section-bar{display:flex;justify-content:center;gap:18px;background:#070707;padding:12px}#section-bar a{color:#8f8a82;text-decoration:none;letter-spacing:.12em;text-transform:uppercase;font-size:12px}#section-bar a.active{color:#f3eee6}.read{max-width:720px;margin:32px auto 80px;padding:0 22px;font-family:"Iowan Old Style","Palatino Linotype",Palatino,serif;font-size:18px;line-height:1.55}.read h2{font-weight:400;font-style:italic}.read img{width:100%;height:auto}.toc{position:fixed;left:0;top:96px;bottom:0;width:240px;overflow:auto;padding:28px 22px;background:#070707}.toc a{display:block;margin:0 0 10px;color:#8f8a82;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:12px}.toc a.on{color:#f3eee6}.with-toc{margin-left:240px}.index-flow{display:flex;flex-wrap:wrap;justify-content:center;gap:34px 26px;padding:32px 40px 72px}.index-card{width:220px;color:#f3eee6;text-decoration:none}.index-card span{display:block;min-height:2.7em;margin:0 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase}.index-card img{width:220px;height:300px;object-fit:cover}@media(max-width:800px){.toc{position:static;width:auto}.with-toc{margin-left:0}.wall{grid-template-columns:1fr 1fr}}
+
+.private{display:none}body.seal-devin .private{display:block}body.seal-jack .private[data-owner=jack]{display:block}body.seal-jon .private[data-owner=jon]{display:block}body.seal-julie .private[data-owner=julie]{display:block}body.seal-sawyer .private[data-owner=sawyer]{display:block}#seek{background:#070707;color:#f3eee6;border:0;border-bottom:1px solid #8f8a82;font:13px Helvetica,Arial,sans-serif;letter-spacing:.08em;opacity:0;position:absolute;left:-9999px;width:0;height:0;margin:0;padding:0}.tile.is-seek-miss,.index-card.is-seek-miss{display:none!important}.index-cat.is-seek-empty{display:none!important}.tile.is-dim{display:none!important}
+
+/* Experimental: de-emphasize Gallery in primary nav; Index is the main browse. Gallery wall + /gallery/* stay reachable by URL. */
+nav.filters > a[href$="index.html"] { display: none !important; }
+
+.friend{display:none}
+body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],body.seal-julie .friend[data-owner=julie],body.seal-sawyer .friend[data-owner=sawyer]{display:inline}
+.friend a{margin-left:12px}
+.hero.full img{object-fit:contain;background:#000}
+#art-swap{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:22}
+#art-strip{display:none;gap:10px;padding:12px;background:#070707}
+#art-swap.open #art-strip{display:flex}
+#art-strip img{width:132px;height:88px;object-fit:cover}
+
+.facts{margin:0 0 16px;padding:0;list-style:none;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#d8d0c4}
+.facts li{margin:0 0 6px}
+@media(max-width:800px){
+  .toc{position:static;width:auto;padding:12px 18px}
+  .with-toc{margin-left:0}
+  .index-card{width:calc(100vw - 36px)}
+  .index-card img{width:100%;height:auto;aspect-ratio:16/9}
+  #art-swap{bottom:24px}
+  .pager{bottom:16px}
+}
+
+.private-journal{display:none;right:0;left:auto}
+body.seal-devin .private-journal{display:block}
+.read{padding-top:28px}
+
+body.seal-page{background:#070707}
+.seal-card{min-height:calc(100vh - 72px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.seal-kicker{margin:0 0 18px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:#8f8a82}
+#seal-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;text-align:center;padding:8px 0}
+.seal-card button{margin-top:18px;background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.filters a,.toc a,#section-bar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.title-block h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,serif}
+.title-block .caption,.life-toggle{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+
+.filters,.topbar{letter-spacing:.28em;font-size:14.3px}
+#section-bar{letter-spacing:.22em;padding:0 28px 16px}
+.journal-read,.read{max-width:760px;padding-top:72px;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.8)}
+.with-toc.journal-read,.with-toc.read{background:#070707;padding:72px 48px 80px}
+body.entry .mast{background:transparent}
+body.entry .topbar{background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0,0,0))}
+
+@media(max-width:800px){
+  .mast .topbar{padding-top:8px;padding-left:16px;padding-right:16px}
+  .entry .topbar a{top:max(16px,env(safe-area-inset-top));left:16px}
+  .dock{padding-bottom:max(28px,env(safe-area-inset-bottom))}
+}
+.friend a{position:relative}
+body.seal-page.seal-jack .friend[data-owner=jack] a,body.seal-page.seal-julie .friend[data-owner=julie] a,body.seal-page.seal-sawyer .friend[data-owner=sawyer] a,body.seal-page.seal-jon .friend[data-owner=jon] a{text-shadow:0 0 12px var(--glow),0 0 24px var(--glow)}
+body.seal-page.seal-devin .seal-name{text-shadow:0 0 14px var(--glow),0 0 28px var(--glow)}
+body.seal-jack{--glow:rgba(230,190,80,.55)}
+body.seal-julie{--glow:rgba(255,190,210,.5)}
+body.seal-sawyer{--glow:rgba(230,120,40,.5)}
+body.seal-jon{--glow:rgba(80,180,90,.5);--glow-b:rgba(230,90,40,.55)}
+@keyframes jon-glow-alt{0%{--glow:rgba(80,180,90,.55)}50%{--glow:rgba(230,90,40,.55)}100%{--glow:rgba(80,180,90,.55)}}
+body.seal-page.seal-jon{animation:jon-glow-alt 3.2s linear infinite}
+/* Per-figure text glow on the seal mast: Telorin green, Silar red. */
+body.seal-page.seal-jon .friend[data-owner=jon] a[href*="telorin"]{text-shadow:0 0 12px rgba(80,180,90,.95),0 0 28px rgba(24,92,56,.85);--glow:rgba(80,180,90,.55)}
+body.seal-page.seal-jon .friend[data-owner=jon] a[href*="silar"]{text-shadow:0 0 12px rgba(255,150,72,.95),0 0 28px rgba(168,48,18,.85);--glow:rgba(230,90,40,.55)}
+body.seal-devin{--glow:rgba(243,238,230,.7)}
+
+.dock{padding:40px 28px max(28px,env(safe-area-inset-bottom))}
+.title-block h1{font-size:clamp(28px,4vw,42px)}
+.title-block .caption{margin-top:6px}
+
+body.entry .mast{display:none}
+body.entry .topbar{position:fixed;top:0;left:0;right:0;z-index:20;background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0,0,0));padding:max(22px,env(safe-area-inset-top)) 28px 18px}
+body.entry .topbar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6}
+.life-dock{position:fixed;right:0;bottom:0;z-index:5;width:min(42vw,480px);padding:40px 28px max(28px,env(safe-area-inset-bottom))}
+.life-toggle{background:none;border:0;color:#f3eee6;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.journal-page{background:#070707 center/cover no-repeat}
+
+#seal-form{display:flex;flex-direction:column;align-items:center}
+.seal-welcome{margin:0 0 6px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;font-size:11px;color:#8f8a82}
+.seal-name{margin:0 0 14px;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;color:#f3eee6}
+
+.seal-top{position:fixed;left:0;right:0;top:0;background:#070707;justify-content:flex-start}
+.seal-top #seal-back{color:#f3eee6;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.22em}
+#seal-code{width:min(280px,80vw);font-size:18px;letter-spacing:.08em;padding:10px 12px}
+#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}
+@keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}
+.seal-card button,.seal-err{font-size:11px;letter-spacing:.22em;color:#8f8a82}
+.seal-card{min-height:100dvh;padding:88px 24px 72px}
+.seal-note{margin-top:16px;max-width:36ch;line-height:1.5;color:#cfc6b8;font-size:16px}
+.seal-name{font-weight:400;letter-spacing:.14em;font-size:clamp(28px,4vw,40px)}
+
+.filters{gap:0}
+.filters a + a::before{content:"\00b7";color:#5c5852;padding:0 11px;letter-spacing:0}
+
+@media (min-width:801px){
+  .topbar,
+  .filters,
+  .filters a{
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size:17.3px;
+    letter-spacing:0.12em;
+    font-weight:400;
+    line-height:1;
+  }
+  .filters a.active{font-weight:700}
+  .mast .topbar{position:relative;min-height:56px}
+  .mast .topbar .filters{
+    position:absolute;
+    left:50%;
+    top:0;
+    height:56px;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:0;
+    z-index:4;
+  }
+  .mast .topbar > .mark,
+  .mast .topbar > a[href$="seal.html"]{
+    position:absolute;
+    right:36px;
+    top:0;
+    height:56px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    color:#8f8a82;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size:17.3px;
+    letter-spacing:0.12em;
+    font-weight:400;
+    line-height:1;
+    z-index:2;
+  }
+  .mast .topbar > .mark a{
+    color:#8f8a82;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size:17.3px;
+    letter-spacing:0.12em;
+    font-weight:400;
+    line-height:1;
+  }
+  #seek{position:absolute;left:-9999px;top:50%;transform:translateY(-50%);width:0;height:0;margin:0;padding:0;opacity:0;z-index:3;border:0}
+  .wall{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+body.seal-jack .mark > a[href$="seal.html"],
+body.seal-jon .mark > a[href$="seal.html"],
+body.seal-julie .mark > a[href$="seal.html"],
+body.seal-sawyer .mark > a[href$="seal.html"],
+body.seal-devin .mark > a[href$="seal.html"]{display:none}
+
+
+.tile .label{
+  font-family:Helvetica,Arial,sans-serif;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:0.06em;
+  color:#f3eee6;
+  opacity:0;
+  z-index:1;
+}
+.tile:hover .label{opacity:1}
+.tile::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:84px;
+  background:linear-gradient(to top,rgba(0,0,0,.78),transparent);
+  opacity:0;
+  pointer-events:none;
+}
+.tile:hover::after{opacity:1}
+
+/* reading column, veil, rail — journal / atlas / codex */
+.with-toc { margin-left: 0; }
+.with-toc.read {
+  background: transparent;
+  padding: 48px 64px 80px;
+}
+.journal-page .read {
+  position: relative;
+  z-index: 2;
+  max-width: 880px;
+  margin: 0 auto 72px;
+  padding: 48px 64px 80px;
+  background: transparent;
+  text-shadow: none;
+}
+.journal-page:has(#section-bar) main.read {
+  padding-top: 96px;
+}
+.journal-page .read p,
+body.lore-page .read p {
+  font-size: 18px;
+  line-height: 1.75;
+  color: #f0e9de;
+  text-shadow: 0 1px 12px rgba(0,0,0,.45);
+}
+.journal-page .read > h1,
+.journal-page .read > h2:first-child {
+  font-weight: 400;
+  font-style: normal;
+  font-size: 26px;
+  letter-spacing: 0.03em;
+  text-align: center;
+  margin: 0 0 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(243,238,230,.18);
+}
+.journal-page figure img:not(.atlas-map) {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+}
+.journal-page img.atlas-map {
+  display: block;
+  width: 100%;
+  max-height: none;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid #000;
+}
+.journal-page figcaption {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #b7b0a4;
+  text-align: center;
+  margin-top: 8px;
+}
+@media (min-width: 801px) {
+  .journal-page .read::before {
+    display: block;
+    content: "";
+    position: absolute;
+    top: -140px;
+    bottom: -140px;
+    left: -340px;
+    right: -340px;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      rgba(7,7,7,0) 0%,
+      rgba(7,7,7,0.35) 12%,
+      rgba(7,7,7,0.78) 24%,
+      #070707 34%,
+      #070707 66%,
+      rgba(7,7,7,0.78) 76%,
+      rgba(7,7,7,0.35) 88%,
+      rgba(7,7,7,0) 100%
+    );
+  }
+  /* The veil reaches 340px past the column; keep it from adding a sideways scroll (veil1). */
+  body.journal-page { overflow-x: clip; }
+  .journal-page .toc {
+    width: 300px;
+    top: 102px;
+    background: none;
+    padding: 28px;
+    z-index: 8;
+  }
+  main.with-toc.index-flow { margin-left: 0; }
+}
+.journal-page .toc h3 {
+  margin: 0 0 12px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+.journal-page .toc a {
+  display: block;
+  margin: 0;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(243,238,230,.07);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #d2cbc0;
+  text-decoration: none;
+}
+.journal-page .toc a.on,
+.journal-page .toc a:hover { color: #f3eee6; }
+#section-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 56px;
+  z-index: 19;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #070707;
+  padding: 0;
+  letter-spacing: 0;
+}
+#section-bar a {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14.4px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  text-decoration: none;
+  padding: 8px 12px;
+}
+#section-bar a.active,
+#section-bar a:hover { color: #f3eee6; }
+body:has(#section-bar) main.index-flow { padding-top: 72px; }
+
+
+/* column headers */
+.journal-page .read > h1 {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 26px;
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: #f3eee6;
+  margin: 0 0 28px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid rgba(243,238,230,.18);
+}
+/* Section heads, the old .codex-h. Centered because .journal-read h2 is centered. */
+body.journal-page .read h2 {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #f3eee6;
+  margin: 8px 0 22px;
+  padding: 0;
+  border: 0;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.85);
+}
+body.journal-page .read p + h2,
+body.journal-page .read blockquote + h2,
+body.journal-page .read ul + h2,
+body.journal-page .read h2 + h2 {
+  margin-top: 88px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(243,238,230,0.16);
+}
+/* Lore book titles only, the old .codex-title. */
+body.book .read h2 {
+  font-style: italic;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  margin: 96px 0 28px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(243,238,230,0.16);
+  border-bottom: 0;
+}
+body.book .read h2:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+body.book .read > h3,
+body.book .read > h3 + ul { display: none; }
+/* Small labels, the old .codex-h3. Season names on the calendar. */
+body.journal-page .read h3 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #cfc6b8;
+  margin: 32px 0 12px;
+}
+
+
+/* Lore column only. Narrower than the journal and atlas columns. */
+body.book .read {
+  max-width: 640px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+/* Lore passages. Scoped copy of .journal-read rules in codex.css. */
+body.book .read .codex-by {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9a948a;
+  margin: 0 0 36px;
+  text-align: center;
+  border: 0;
+}
+body.book .read h2:has(+ .codex-by) {
+  margin-bottom: 8px;
+}
+body.book .read .codex-quote {
+  margin: 0 0 32px;
+  padding: 0 8px 0 0;
+  border: 0;
+}
+body.book .read .codex-quote + .codex-quote {
+  margin-top: 8px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(243,238,230,0.08);
+}
+body.book .read .codex-quote p {
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1.7;
+  color: #ece6db;
+  margin: 0;
+  text-shadow: none;
+}
+body.book .read .codex-quote cite {
+  display: block;
+  margin-top: 12px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9a948a;
+}
+
+/* Lore contents. Smaller than the journal rail. */
+body.book .toc {
+  width: 228px;
+  padding: 18px 20px 32px 26px;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+body.book .toc:hover {
+  scrollbar-color: rgba(207,198,184,0.35) transparent;
+}
+body.book .toc h3 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  margin: 0 0 12px;
+}
+body.book .toc a {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-size: 13px;
+  line-height: 1.35;
+  padding: 4px 0;
+  color: #a39c92;
+  border-bottom-color: rgba(243,238,230,0.05);
+}
+body.book .toc a.on,
+body.book .toc a:hover { color: #f3eee6; }
+
+html, body, .sheet, .index-list, .wall, .lore-rail .codex-toc, .lore-toc-panel, .journal-read, .life-sheet, .atlas-stage, .room-body {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+html:hover, body:hover,
+.sheet:hover, .index-list:hover, .wall:hover,
+.lore-rail .codex-toc:hover, .lore-toc-panel:hover,
+.journal-read:hover, .life-sheet:hover, .atlas-stage:hover, .room-body:hover,
+.sheet.show-bar, .index-list.show-bar, .wall.show-bar,
+.lore-rail .codex-toc.show-bar, .life-sheet.show-bar {
+  scrollbar-color: rgba(207,198,184,0.38) transparent;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.sheet::-webkit-scrollbar,
+.index-list::-webkit-scrollbar,
+.wall::-webkit-scrollbar,
+.lore-rail .codex-toc::-webkit-scrollbar,
+.lore-toc-panel::-webkit-scrollbar,
+.journal-read::-webkit-scrollbar,
+.life-sheet::-webkit-scrollbar,
+.atlas-stage::-webkit-scrollbar,
+.room-body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.sheet::-webkit-scrollbar-thumb,
+.index-list::-webkit-scrollbar-thumb,
+.wall::-webkit-scrollbar-thumb,
+.lore-rail .codex-toc::-webkit-scrollbar-thumb,
+.lore-toc-panel::-webkit-scrollbar-thumb,
+.journal-read::-webkit-scrollbar-thumb,
+.life-sheet::-webkit-scrollbar-thumb,
+.atlas-stage::-webkit-scrollbar-thumb,
+.room-body::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+}
+html:hover::-webkit-scrollbar-thumb,
+body:hover::-webkit-scrollbar-thumb,
+.sheet:hover::-webkit-scrollbar-thumb,
+.index-list:hover::-webkit-scrollbar-thumb,
+.wall:hover::-webkit-scrollbar-thumb,
+.lore-rail .codex-toc:hover::-webkit-scrollbar-thumb,
+.lore-toc-panel:hover::-webkit-scrollbar-thumb,
+.journal-read:hover::-webkit-scrollbar-thumb,
+.life-sheet:hover::-webkit-scrollbar-thumb,
+.atlas-stage:hover::-webkit-scrollbar-thumb,
+.room-body:hover::-webkit-scrollbar-thumb,
+.sheet.show-bar::-webkit-scrollbar-thumb,
+.index-list.show-bar::-webkit-scrollbar-thumb,
+.life-sheet.show-bar::-webkit-scrollbar-thumb {
+  background: rgba(207,198,184,0.4);
+}
+
+/* Index categories. Same quiet list as the lore contents. */
+body:not(.journal-page) .toc {
+  background: none;
+  width: 220px;
+  top: 72px;
+  padding: 28px 22px 32px;
+  z-index: 8;
+}
+body:not(.journal-page) .toc h3 {
+  margin: 0 0 12px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+body:not(.journal-page) .toc a {
+  margin: 0;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(243,238,230,0.06);
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  font-size: 14px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #a39c92;
+}
+body:not(.journal-page) .toc a.on,
+body:not(.journal-page) .toc a:hover { color: #f3eee6; }
+
+body.index-page .toc a {
+  border-bottom: 0;
+  font-size: 12px;
+  padding: 2px 0;
+  line-height: 1.25;
+}
+
+@media (min-width: 801px) {
+  body.journal-page:has(aside.toc) main.read {
+    width: min(880px, calc(100vw - 348px));
+    max-width: none;
+    margin-left: max(300px, calc(50vw - 440px));
+    margin-right: auto;
+  }
+  body.book:has(aside.toc) main.read {
+    width: min(640px, calc(100vw - 276px));
+    max-width: none;
+    margin-left: max(228px, calc(50vw - 320px));
+  }
+}
+
+@media (max-width: 800px) {
+  .mast .topbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 0;
+  }
+  .mast .topbar > .mark,
+  .mast .topbar > a[href$="seal.html"] {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+  }
+  .mast .topbar > .mark a {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+  .mast .topbar .filters {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    transform: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+  }
+  .mast .topbar .filters a {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+  #section-bar {
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    height: auto;
+    flex-wrap: wrap;
+    padding: 4px 10px 8px;
+    gap: 2px 8px;
+  }
+  #section-bar a {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 800px) {
+  .journal-page .mast .topbar {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    gap: 8px;
+    padding: 8px 8px 4px;
+    background: #070707;
+    text-align: center;
+  }
+  .journal-page .mast .topbar > .mark,
+  .journal-page .mast .topbar > a[href$="seal.html"] {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    margin: 0;
+    transform: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .mast .topbar .filters {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0;
+    transform: none;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    column-gap: 0;
+    row-gap: 0;
+  }
+  .journal-page .mast .topbar .filters,
+  .mast .topbar .filters {
+    width: 100%;
+    max-width: 100%;
+    gap: 0;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+  .mast .topbar .filters a {
+    flex: 0 0 auto;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .mast .topbar .filters a + a::before {
+    padding: 0 8px;
+  }
+  /* Secondary nav freezes flush under the fixed mast (sticky1). Sticky keeps its
+     own flow space, so body padding-top (mast clearance) stays as-is and nothing
+     slides under the stacked chrome. top = phone mast height: 102px, or 118px on
+     journal-page (8px topbar row-gap) -- same numbers as body padding-top. */
+  .journal-page #section-bar,
+  #section-bar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: calc(102px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    left: auto;
+    right: auto;
+    z-index: 30;
+    width: 100%;
+    height: auto;
+    min-height: 44px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0 2px;
+    margin: 0;
+    padding: 0 6px;
+    box-sizing: border-box;
+    background: #070707;
+    text-align: center;
+  }
+  body.journal-page #section-bar {
+    top: calc(118px + env(safe-area-inset-top, 0px));
+  }
+  .journal-page #section-bar a,
+  #section-bar a {
+    flex: 0 0 auto;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 6px 6px;
+    white-space: nowrap;
+  }
+  .journal-page:has(#section-bar) main.read {
+    padding-top: 28px;
+  }
+}
+
+@media (max-width: 800px) {
+  .toc,
+  .journal-page .toc {
+    position: static;
+    left: auto;
+    right: auto;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+  }
+  body.journal-page main.read {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 22px;
+    padding-right: 22px;
+    box-sizing: border-box;
+    position: relative;
+    left: 0;
+    transform: none;
+  }
+}
+
+/* Calendar day names. Cell padding keeps the three columns from touching. */
+table.day-names {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 28px;
+}
+table.day-names th,
+table.day-names td {
+  text-align: left;
+  vertical-align: top;
+  padding: 4px 20px 4px 0;
+}
+
+/* Continuous Index — experimental gallery-like cards + Chromium-style category rail (i1).
+   Collapsed strip stays hoverable; hover/focus peeks + pushes (body.index-toc-open);
+   pin sticks open. Categories keep section headers + spacing; labels sit on the art. */
+body.index-page aside.toc.index-toc {
+  z-index: 18;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  background: none;
+}
+body.index-page .index-toc-cue {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: rgba(243,238,230,0.45);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color .15s ease;
+}
+@media (min-width: 801px) {
+  body.index-page aside.toc.index-toc {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 12px;
+    pointer-events: none;
+  }
+  body.index-page aside.toc.index-toc::before {
+    content: "";
+    pointer-events: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+  }
+  body.index-page .index-toc-cue {
+    position: fixed;
+    left: 0;
+    top: calc(72px + 42vh);
+    z-index: 19;
+    width: 18px;
+    height: 36px;
+  }
+}
+body.index-page .index-toc-cue:hover,
+body.index-page .index-toc-cue:focus-visible { color: rgba(243,238,230,0.9); }
+body.index-page .index-toc-cue:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
+body.index-page .index-toc-cue svg {
+  display: block;
+  width: 6px;
+  height: 10px;
+  overflow: visible;
+}
+/* Desktop slide-rail panel layout lives under min-width:801px; shared look here. */
+body.index-page .index-toc-panel {
+  pointer-events: auto;
+  padding: 22px 18px 32px;
+  overflow: auto;
+  scrollbar-width: none;
+  background: rgba(7,7,7,0.92);
+  z-index: 18;
+}
+@media (min-width: 801px) {
+  body.index-page .index-toc-panel {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 220px;
+    max-width: 78vw;
+    transform: translateX(-105%);
+    transition: transform .2s ease;
+  }
+}
+body.index-page .index-toc-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
+body.index-page .index-toc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+body.index-page .index-toc-head > h3,
+body.index-page .index-toc-panel > h3 {
+  margin: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f3eee6;
+}
+/* Minimalist pin (Chromium vertical-tabs stick) — glyph only, matches cue/toc-tog. */
+body.index-page .index-toc-pin {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: #8f8a82;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color .15s ease;
+}
+body.index-page .index-toc-pin:hover,
+body.index-page .index-toc-pin:focus-visible { color: #f3eee6; }
+body.index-page .index-toc-pin:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
+body.index-page .index-toc-pin svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+  overflow: visible;
+}
+body.index-page aside.toc.index-toc.pinned .index-toc-pin {
+  color: rgba(243,238,230,0.9);
+}
+body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
+  fill: currentColor;
+}
+
+@media (min-width: 801px) {
+  body.index-page aside.toc.index-toc.open {
+    width: 220px;
+  }
+  body.index-page aside.toc.index-toc.open::before {
+    width: 220px;
+  }
+  body.index-page aside.toc.index-toc.open .index-toc-panel {
+    transform: translateX(0);
+  }
+  body.index-page aside.toc.index-toc.open .index-toc-cue,
+  body.index-page aside.toc.index-toc.pinned .index-toc-cue {
+    color: rgba(243,238,230,0.85);
+  }
+  body.index-page main.with-toc.index-flow {
+    display: block;
+    margin-left: 0;
+    /* Edge-to-edge like Gallery .wall (pad 6px sides, gap 6px); bigger tiles. */
+    padding: 16px 6px 72px;
+    transition: margin-left .2s ease;
+  }
+  /* Open rail pushes the column over (push1): body.index-toc-open is set by index-scroll.js,
+     the grid below reflows to the narrower width instead of the panel overlaying cards. */
+  body.index-page.index-toc-open main.with-toc.index-flow { margin-left: 220px; }
+  body.index-page .index-cat,
+  body.index-page .index-card {
+    scroll-margin-top: 88px;
+  }
+  body.index-page .index-cat > h2 {
+    margin: 40px 0 8px;
+    text-align: center;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    color: #f3eee6;
+  }
+  body.index-page .index-sub {
+    margin: 28px 0 0;
+    scroll-margin-top: 88px;
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8f8a82;
+  }
+  body.index-page .index-cards {
+    display: grid;
+    /* Full-bleed 4-col like Gallery .wall; rail open still pushes (margin-left) and tiles shrink. */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    justify-content: stretch;
+    padding: 18px 0 48px;
+    max-width: none;
+    margin: 0;
+  }
+  body.index-page .index-empty {
+    margin: 0;
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #8f8a82;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  /* Gallery-like card: name overlaid on art, always visible (top). */
+  body.index-page .index-card {
+    position: relative;
+    display: block;
+    width: auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #111;
+    color: #f3eee6;
+    text-decoration: none;
+  }
+  body.index-page .index-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  body.index-page .index-card span {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 12px;
+    z-index: 1;
+    display: block;
+    min-height: 0;
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #f3eee6;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 12px rgba(0,0,0,0.7);
+    opacity: 1;
+    pointer-events: none;
+  }
+  body.index-page .index-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 84px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.72), transparent);
+    opacity: 1;
+    pointer-events: none;
+  }
+  body.index-page .index-cat:not(:last-child) > .index-cards:last-child { padding-bottom: 96px; }
+  body.index-page .index-cards + .index-sub { margin-top: 76px; }
+}
+
+@media (max-width: 800px) {
+  /* Phone: Categories is a sticky top dropdown under the mast (like Codex Contents),
+     not a left side slide-out. Desktop Chromium rail stays in min-width 801px. */
+  body.index-page aside.toc.index-toc {
+    position: -webkit-sticky;
+    position: sticky;
+    top: calc(102px + env(safe-area-inset-top, 0px));
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 29;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    background: #070707;
+    pointer-events: auto;
+  }
+  body.index-page aside.toc.index-toc::before { display: none; content: none; }
+  body.index-page .index-toc-cue {
+    position: relative;
+    left: auto;
+    top: auto;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    color: #b7b0a4;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body.index-page .index-toc-cue::before {
+    content: "Categories";
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  body.index-page .index-toc-cue svg {
+    width: 6px;
+    height: 6px;
+    transform: translateY(-2px) rotate(45deg);
+    border-right: 0;
+    overflow: visible;
+  }
+  /* Cue chevron: reuse the polyline as a down caret via rotate */
+  body.index-page .index-toc-cue svg { transform: rotate(90deg); opacity: 0.7; transition: transform 0.2s ease, opacity 0.2s ease; }
+  body.index-page aside.toc.index-toc.open .index-toc-cue { color: #f3eee6; left: auto; }
+  body.index-page aside.toc.index-toc.open .index-toc-cue svg { transform: rotate(-90deg); opacity: 1; }
+  body.index-page .index-toc-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    bottom: auto;
+    z-index: 2;
+    width: 100%;
+    max-width: none;
+    max-height: min(58vh, 520px);
+    padding: 0 16px 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    background: #070707;
+    border-bottom: 1px solid rgba(243,238,230,0.12);
+    box-shadow: 0 20px 28px 6px rgba(7,7,7,0.88);
+    transform: none;
+    display: none;
+  }
+  body.index-page aside.toc.index-toc.open .index-toc-panel {
+    display: block;
+    transform: none;
+  }
+  /* Pin is desktop Chromium stick; hide on phone top-dropdown. */
+  body.index-page .index-toc-pin,
+  body.index-page .index-toc-head { display: none; }
+  body.index-page aside.toc.index-toc.open .index-toc-cue,
+  body.index-page aside.toc.index-toc.pinned .index-toc-cue {
+    color: #f3eee6;
+  }
+  body.index-page .index-toc-pin {
+    width: 28px;
+    height: 28px;
+  }
+  body.index-page .index-toc-pin svg {
+    width: 14px;
+    height: 14px;
+  }
+  body.index-page main.with-toc.index-flow {
+    display: block;
+    margin-left: 0;
+    /* Phone: tighter sides than Gallery's 12px so art tiles read larger. */
+    padding: 8px 6px 56px;
+  }
+  body.index-page .index-cat,
+  body.index-page .index-card {
+    scroll-margin-top: calc(146px + env(safe-area-inset-top, 0px));
+  }
+  body.index-page .index-cat > h2 {
+    margin: 28px 6px 6px;
+    text-align: center;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    color: #f3eee6;
+  }
+  body.index-page .index-sub {
+    margin: 22px 6px 0;
+    scroll-margin-top: calc(146px + env(safe-area-inset-top, 0px));
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8f8a82;
+  }
+  body.index-page .index-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    justify-content: stretch;
+    padding: 12px 0 36px;
+  }
+  body.index-page .index-empty {
+    margin: 0;
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #8f8a82;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  body.index-page .index-card {
+    position: relative;
+    display: block;
+    width: auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #111;
+    color: #f3eee6;
+    text-decoration: none;
+  }
+  body.index-page .index-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  body.index-page .index-card span {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    z-index: 1;
+    display: block;
+    min-height: 0;
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #f3eee6;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 10px rgba(0,0,0,0.7);
+    opacity: 1;
+    pointer-events: none;
+  }
+  body.index-page .index-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 72px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.72), transparent);
+    opacity: 1;
+    pointer-events: none;
+  }
+  body.index-page .index-cat:not(:last-child) > .index-cards:last-child { padding-bottom: 72px; }
+  body.index-page .index-cards + .index-sub { margin-top: 58px; }
+}
+
+/* Index nested category list. Names fold under the active (or manually opened) category. */
+body.index-page .toc-cat { margin: 0; }
+body.index-page .toc-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+body.index-page .toc-row > a { flex: 1 1 auto; min-width: 0; }
+body.index-page .toc-tog {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: #8f8a82;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+body.index-page .toc-tog:hover,
+body.index-page .toc-tog:focus-visible { color: #f3eee6; }
+body.index-page .toc-tog:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
+body.index-page .toc-tog svg {
+  display: block;
+  width: 6px;
+  height: 10px;
+  overflow: visible;
+  transition: transform .15s ease;
+}
+body.index-page .toc-cat.open .toc-tog svg { transform: rotate(90deg); }
+body.index-page .toc-nest {
+  display: none;
+  padding: 2px 0 8px 10px;
+}
+body.index-page .toc-cat.open > .toc-nest { display: block; }
+body.index-page .toc-name,
+body.index-page .toc-sub {
+  display: block;
+  padding: 2px 0;
+  margin: 0;
+  border-bottom: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  text-decoration: none;
+}
+body.index-page .toc-sub {
+  margin-top: 6px;
+  letter-spacing: 0.14em;
+  color: #a39c92;
+}
+body.index-page .toc-group:first-child .toc-sub { margin-top: 0; }
+body.index-page .toc-name.on,
+body.index-page .toc-name:hover,
+body.index-page .toc-sub.on,
+body.index-page .toc-sub:hover { color: #f3eee6; }
+body.index-page .toc-group .toc-name { padding-left: 8px; }
+
+@media (min-width: 801px) {
+  body.index-page .toc-nest { padding-left: 8px; }
+}
+
+@media (max-width: 800px) {
+  body.index-page .toc-nest { padding: 2px 0 10px 12px; }
+  body.index-page .toc-name,
+  body.index-page .toc-sub { font-size: 12px; padding: 4px 0; }
+}
+
+
+/* Article Index slide-in. Same nest as the Index rail; cue only while hidden. */
+body.article .art-index {
+  z-index: 18;
+}
+body.article .art-index-cue {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: rgba(243,238,230,0.45);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color .15s ease;
+}
+@media (min-width: 801px) {
+  body.article .art-index {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 12px;
+    pointer-events: none;
+  }
+  /* Thin full-height bridge so the cue and panel share one hover. */
+  body.article .art-index::before {
+    content: "";
+    pointer-events: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+  }
+  body.article .art-index-cue {
+    position: fixed;
+    left: 0;
+    top: calc(72px + 42vh);
+    z-index: 19;
+    width: 18px;
+    height: 36px;
+  }
+}
+body.article .art-index-cue:hover,
+body.article .art-index-cue:focus-visible { color: rgba(243,238,230,0.9); }
+body.article .art-index-cue:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
+body.article .art-index-cue svg {
+  display: block;
+  width: 6px;
+  height: 10px;
+  overflow: visible;
+}
+/* Desktop slide-rail panel layout lives under min-width:801px; shared look here. */
+body.article .art-index-panel {
+  pointer-events: auto;
+  padding: 22px 18px 32px;
+  overflow: auto;
+  scrollbar-width: none;
+  background: rgba(7,7,7,0.92);
+  z-index: 18;
+}
+@media (min-width: 801px) {
+  body.article .art-index-panel {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 220px;
+    max-width: 78vw;
+    transform: translateX(-105%);
+    transition: transform .2s ease;
+  }
+}
+body.article .art-index-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
+body.article .art-index-panel > h3 {
+  margin: 0 0 12px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f3eee6;
+}
+body.article .art-index .toc-cat { margin: 0; }
+body.article .art-index .toc-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+body.article .art-index .toc-row > a {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+  margin: 0;
+  padding: 2px 0;
+  border: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  text-decoration: none;
+}
+body.article .art-index .toc-row > a.on,
+body.article .art-index .toc-row > a:hover { color: #f3eee6; }
+body.article .art-index .toc-tog {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  color: #8f8a82;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+body.article .art-index .toc-tog:hover,
+body.article .art-index .toc-tog:focus-visible { color: #f3eee6; }
+body.article .art-index .toc-tog svg {
+  display: block;
+  width: 6px;
+  height: 10px;
+  overflow: visible;
+  transition: transform .15s ease;
+}
+body.article .art-index .toc-cat.open .toc-tog svg { transform: rotate(90deg); }
+body.article .art-index .toc-nest {
+  display: none;
+  padding: 2px 0 8px 8px;
+}
+body.article .art-index .toc-cat.open > .toc-nest { display: block; }
+body.article .art-index .toc-name,
+body.article .art-index .toc-sub {
+  display: block;
+  padding: 2px 0;
+  margin: 0;
+  border: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  text-decoration: none;
+}
+body.article .art-index .toc-sub {
+  margin-top: 6px;
+  letter-spacing: 0.14em;
+  color: #a39c92;
+}
+body.article .art-index .toc-group:first-child .toc-sub { margin-top: 0; }
+body.article .art-index .toc-name.on,
+body.article .art-index .toc-name:hover,
+body.article .art-index .toc-sub.on,
+body.article .art-index .toc-sub:hover { color: #f3eee6; }
+body.article .art-index .toc-group .toc-name { padding-left: 8px; }
+
+@media (min-width: 801px) {
+  body.article .art-index:hover .art-index-panel,
+  body.article .art-index:focus-within .art-index-panel,
+  body.article .art-index.open .art-index-panel {
+    transform: translateX(0);
+  }
+  /* Widen the hover bridge so leaving the cue onto the panel stays open. */
+  body.article .art-index:hover,
+  body.article .art-index:focus-within,
+  body.article .art-index.open {
+    width: 220px;
+  }
+  body.article .art-index:hover::before,
+  body.article .art-index:focus-within::before,
+  body.article .art-index.open::before {
+    width: 220px;
+  }
+  body.article .art-index:hover .art-index-cue,
+  body.article .art-index:focus-within .art-index-cue,
+  body.article .art-index.open .art-index-cue {
+    color: rgba(243,238,230,0.85);
+  }
+}
+
+@media (max-width: 800px) {
+  /* Phone: article Categories drops from a fixed strip under the mast, not a side rail.
+     Fixed (not sticky) so the hero art is not pushed down in the flow. */
+  body.article .art-index {
+    position: fixed;
+    top: calc(102px + env(safe-area-inset-top, 0px));
+    left: 0;
+    right: 0;
+    bottom: auto;
+    z-index: 29;
+    width: 100%;
+    height: auto;
+    pointer-events: auto;
+    background: #070707;
+  }
+  body.article .art-index::before { display: none; content: none; }
+  body.article .art-index-cue {
+    position: relative;
+    left: auto;
+    top: auto;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    color: #b7b0a4;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body.article .art-index-cue::before {
+    content: "Categories";
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  body.article .art-index-cue svg { transform: rotate(90deg); opacity: 0.7; transition: transform 0.2s ease; }
+  body.article .art-index.open .art-index-cue { color: #f3eee6; left: auto; }
+  body.article .art-index.open .art-index-cue svg { transform: rotate(-90deg); opacity: 1; }
+  body.article .art-index-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    bottom: auto;
+    z-index: 2;
+    width: 100%;
+    max-width: none;
+    max-height: min(58vh, 520px);
+    padding: 0 16px 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    background: #070707;
+    border-bottom: 1px solid rgba(243,238,230,0.12);
+    box-shadow: 0 20px 28px 6px rgba(7,7,7,0.88);
+    transform: none;
+    display: none;
+  }
+  body.article .art-index.open .art-index-panel {
+    display: block;
+    transform: none;
+  }
+  body.article .art-index-panel > h3 { display: none; }
+  body.article .art-index .toc-name,
+  body.article .art-index .toc-sub { font-size: 12px; padding: 4px 0; }
+}
+
+
+/* Gallery art pages. Full-screen art like the figure pages (body.entry, .hero, .dock, .title-block),
+   with the name, epithet, and one-line. No lore, pager, or fit toggle. */
+@media (min-width: 801px) {
+  body.gallery-page .title-block .gallery-line {
+    order: 2;
+    margin: 6px 0 0;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+    font-weight: 400;
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #e4ddd2;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
+  }
+}
+@media (max-width: 800px) {
+  body.gallery-page .dock {
+    width: 100%;
+  }
+  body.gallery-page .title-block h1 {
+    overflow-wrap: break-word;
+  }
+  body.gallery-page .title-block .caption,
+  body.gallery-page .title-block .gallery-line {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+    font-weight: 400;
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #e4ddd2;
+    white-space: normal;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
+  }
+  body.gallery-page .title-block .gallery-line {
+    order: 2;
+    margin: 6px 0 0;
+  }
+}
+
+/* Articles (one page per subject). The hero art fills the screen and scrolls up in the
+   normal flow; the dossier, lore, arts, and related rise beneath it. Pure CSS.
+   Everything is scoped under body.article. */
+body.article { overflow-x: hidden; background: #070707; }
+body.article .art-hero {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #000;
+}
+body.article .art-hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: center top;
+}
+body.article .art-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42vh;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to top, #070707 0%, rgba(7,7,7,0.62) 26%, rgba(0,0,0,0.22) 62%, rgba(0,0,0,0) 100%);
+}
+body.article .art-title {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+body.article .art-title h1 {
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  font-weight: 400;
+  color: #f3eee6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
+}
+body.article .art-title .art-epithet {
+  margin: 6px 0 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  color: #e4ddd2;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
+}
+body.article .mast { background: #070707; background-color: #070707; }
+body.article .mast .topbar { background: #070707; background-color: #070707; }
+body.article .art-back {
+  z-index: 21;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f3eee6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
+}
+body.article .art-body {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  color: #f3eee6;
+}
+body.article .art-sec { margin: 0 0 64px; }
+body.article .art-sec > h2 {
+  margin: 0 0 22px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(243,238,230,0.14);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+body.article .art-line { margin: 0; line-height: 1.45; color: #e4ddd2; }
+body.article .art-dossier { display: grid; grid-template-columns: max-content 1fr; gap: 12px 28px; margin: 0; align-items: baseline; }
+body.article .art-dossier dt,
+body.article .art-facts li,
+body.article .art-quote cite,
+/* body.article .art-strip figcaption, (Arts section retired) */
+body.article .art-rel-head {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+body.article .art-dossier dt { font-size: 11px; color: #8f8a82; }
+body.article .art-dossier dd { margin: 0; font-size: 17px; line-height: 1.45; color: #f3eee6; }
+body.article .art-quote { margin: 0 0 28px; padding: 0; border: 0; text-align: center; }
+body.article .art-quote p {
+  margin: 0;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.55;
+  color: #f3eee6;
+}
+body.article .art-quote cite { display: block; margin: 14px 0 0; font-style: normal; font-size: 11px; color: #9a948a; }
+body.article .art-facts {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0 0 22px;
+  border-bottom: 1px solid rgba(243,238,230,0.14);
+}
+body.article .art-facts li { margin: 0; font-size: 12px; line-height: 1.7; color: #b7b0a4; }
+body.article .art-life { margin: 0; font-size: 17px; line-height: 1.65; }
+/* Arts section retired: body.article .art-strip { display: grid; gap: 18px; } */
+/* Arts section retired: body.article .art-piece { margin: 0; } */
+/* Arts section retired: body.article .art-piece a { display: block; } */
+/* Arts section retired: body.article .art-piece img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: #000; border: 1px solid transparent; } */
+/* Arts section retired: body.article .art-piece a:hover img { border-color: rgba(243,238,230,0.45); } */
+/* Arts section retired: body.article .art-strip figcaption { margin: 10px 0 0; font-size: 11px; line-height: 1.4; color: #cfc6b8; } */
+body.article .art-rel-head { margin: 0 0 14px; font-size: 12px; }
+body.article .art-rel-head a { color: #f3eee6; }
+body.article .art-related { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 26px; }
+body.article .art-related a { font-size: 17px; color: #cfc6b8; }
+body.article .art-related a:hover,
+body.article .art-rel-head a:hover,
+body.article .art-dossier a:hover { color: #f3eee6; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    body.article .art-hero img {
+      animation: art-lift linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+@keyframes art-lift { to { transform: translateY(18%) scale(1.04); opacity: 0.45; } }
+
+@media (min-width: 801px) {
+  /* Previous always-visible thumbnail row (replaced by arrows, art5):
+  body.article .art-swap { position: absolute; z-index: 3; display: flex; gap: 8px; }
+  body.article .art-swap button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
+  body.article .art-swap button:hover { opacity: 0.9; }
+  body.article .art-swap button.on { opacity: 1; border-color: #f3eee6; }
+  body.article .art-swap img { position: static; inset: auto; display: block; width: 100%; height: 100%; object-fit: cover; transform: none; animation: none; opacity: 1; }
+  body.article .art-swap { right: 28px; bottom: 28px; }
+  body.article .art-swap button { width: 56px; height: 70px; }
+  */
+  body.article .art-swap { position: absolute; z-index: 3; display: flex; flex-direction: column; gap: 10px; }
+  body.article .art-swap-nav { display: flex; gap: 10px; }
+  body.article .art-swap-nav button { padding: 0; margin: 0; width: 32px; height: 36px; display: flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 0; box-shadow: none; color: rgba(243,238,230,0.55); cursor: pointer; transition: color .2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.85); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.85)) drop-shadow(0 0 6px rgba(0,0,0,0.5)); -webkit-appearance: none; appearance: none; }
+  body.article .art-swap-nav button:hover, body.article .art-swap-nav button:focus-visible { color: rgba(243,238,230,0.95); }
+  body.article .art-swap-nav button:focus-visible { outline: 1px solid rgba(243,238,230,0.4); outline-offset: 2px; }
+  body.article .art-swap-nav svg { display: block; width: 8px; height: 14px; overflow: visible; }
+  body.article .art-swap-thumbs { display: flex; gap: 8px; }
+  body.article .art-swap-thumbs button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
+  body.article .art-swap-thumbs button:hover { opacity: 0.9; }
+  body.article .art-swap-thumbs button.on { opacity: 1; border-color: #f3eee6; }
+  body.article .art-swap-thumbs img { position: static; inset: auto; display: block; width: 100%; height: 100%; object-fit: cover; transform: none; animation: none; opacity: 1; }
+  body.article .art-swap { right: 28px; bottom: 28px; align-items: flex-end; }
+  body.article .art-swap-thumbs { opacity: 0; pointer-events: none; transform: translateY(6px); transition: opacity .2s ease, transform .2s ease; }
+  body.article .art-swap:hover .art-swap-thumbs, body.article .art-swap:has(:focus-visible) .art-swap-thumbs { opacity: 1; pointer-events: auto; transform: none; }
+  body.article .art-swap-thumbs button { width: 56px; height: 70px; }
+  body.article .art-life + .art-life { margin-top: 1.1em; }
+  body.article .art-related + .art-rel-head, body.article .art-related + .art-related, body.article .art-rel-head + .art-rel-head { margin-top: 28px; }
+  body.article .mast { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 0; background: #070707; }
+  body.article .art-back { position: fixed; top: 0; left: 28px; height: 56px; display: flex; align-items: center; font-size: 16px; }
+  body.article .art-title { width: min(46vw, 560px); padding: 40px 28px 28px; }
+  body.article .art-title h1 { font-size: clamp(28px, 4vw, 42px); }
+  body.article .art-title .art-epithet { font-size: 16px; }
+  body.article .art-body { padding: 72px 28px 96px; }
+  body.article .art-line { font-size: 22px; }
+  /* Arts section retired: body.article .art-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } */
+}
+@media (max-width: 800px) {
+  /* Previous always-visible thumbnail row (replaced by arrows, art5):
+  body.article .art-swap { position: absolute; z-index: 3; display: flex; gap: 8px; }
+  body.article .art-swap button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
+  body.article .art-swap button:hover { opacity: 0.9; }
+  body.article .art-swap button.on { opacity: 1; border-color: #f3eee6; }
+  body.article .art-swap img { position: static; inset: auto; display: block; width: 100%; height: 100%; object-fit: cover; transform: none; animation: none; opacity: 1; }
+  body.article .art-swap { left: 0; right: 0; bottom: max(22px, env(safe-area-inset-bottom)); justify-content: center; }
+  body.article .art-swap button { width: 44px; height: 54px; }
+  body.article .art-hero.has-swap .art-title { padding-bottom: calc(max(22px, env(safe-area-inset-bottom)) + 70px); }
+  */
+  body.article .art-swap { position: absolute; z-index: 3; display: flex; flex-direction: column; gap: 10px; }
+  body.article .art-swap-nav { display: flex; gap: 10px; }
+  body.article .art-swap-nav button { padding: 0; margin: 0; width: 32px; height: 36px; display: flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 0; box-shadow: none; color: rgba(243,238,230,0.55); cursor: pointer; transition: color .2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.85); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.85)) drop-shadow(0 0 6px rgba(0,0,0,0.5)); -webkit-appearance: none; appearance: none; }
+  body.article .art-swap-nav button:hover, body.article .art-swap-nav button:focus-visible { color: rgba(243,238,230,0.95); }
+  body.article .art-swap-nav button:focus-visible { outline: 1px solid rgba(243,238,230,0.4); outline-offset: 2px; }
+  body.article .art-swap-nav svg { display: block; width: 8px; height: 14px; overflow: visible; }
+  body.article .art-swap-thumbs { display: flex; gap: 8px; }
+  body.article .art-swap-thumbs button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
+  body.article .art-swap-thumbs button:hover { opacity: 0.9; }
+  body.article .art-swap-thumbs button.on { opacity: 1; border-color: #f3eee6; }
+  body.article .art-swap-thumbs img { position: static; inset: auto; display: block; width: 100%; height: 100%; object-fit: cover; transform: none; animation: none; opacity: 1; }
+  body.article .art-swap { left: 0; right: 0; bottom: max(22px, env(safe-area-inset-bottom)); align-items: center; }
+  body.article .art-swap-thumbs { display: none; }
+  body.article .art-swap-nav button { width: 44px; height: 44px; -webkit-tap-highlight-color: transparent; }
+  body.article .art-swap-nav button:focus:not(:focus-visible) { outline: none; }
+  body.article .art-hero.has-swap .art-title { padding-bottom: calc(max(22px, env(safe-area-inset-bottom)) + 60px); }
+  body.article .art-life + .art-life { margin-top: 1.1em; }
+  body.article .art-related + .art-rel-head, body.article .art-related + .art-related, body.article .art-rel-head + .art-rel-head { margin-top: 28px; }
+  body.article .mast { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 18px; }
+  body.article .art-back { position: absolute; top: calc(max(18px, env(safe-area-inset-top)) + 64px); left: 18px; font-size: 13px; }
+  body.article .art-title { width: 100%; padding: 36px 18px max(22px, env(safe-area-inset-bottom)); }
+  body.article .art-title h1 { font-size: clamp(26px, 7.2vw, 34px); line-height: 1.12; overflow-wrap: break-word; }
+  body.article .art-title .art-epithet { font-size: 15px; }
+  body.article .art-body { padding: 44px 20px 72px; }
+  body.article .art-sec { margin-bottom: 52px; }
+  body.article .art-line { font-size: 19px; }
+  body.article .art-dossier { grid-template-columns: 1fr; gap: 4px; }
+  body.article .art-dossier dd { margin-bottom: 12px; }
+  body.article .art-quote p { font-size: 18px; }
+  body.article .art-life { font-size: 16px; }
+  /* Arts section retired: body.article .art-strip { grid-template-columns: 1fr; gap: 26px; } */
+  /* Arts section retired: body.article .art-piece img { aspect-ratio: auto; height: auto; } */
+}
+
+/* Old JS site typography (art7). Copied from the pre-rebuild site at commit c1113ef. */
+@media (min-width: 801px) {
+  /* Hero name: styles.css (html, body font-family; .title-block h1 weight/size) + figure-lore.css text-shadow, old JS site c1113ef. */
+  body.article .art-title h1,
+  body.gallery-page .title-block h1 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
+  /* Hero epithet: old #epithet-face / mobile-fix.js face, features.js size (20px @min-width 801), figure-lore.css line-height 1.4. */
+  body.article .art-title .art-epithet,
+  body.gallery-page .title-block .caption { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: 20px; line-height: 1.4; color: #e4ddd2; }
+  /* Index: old index-sections.js #index-section-css (rail h3, rail buttons, .index-card span, .index-empty). */
+  body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  body.index-page .toc a.on,
+  body.index-page .toc a:hover { color: #f3eee6; }
+  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  /* Lore contents: old codex.css .lore-rail .codex-h3 and .lore-rail .codex-toc li / a. */
+  body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
+  body.book .toc a { font-family: "Iowan Old Style", Palatino, serif; font-style: normal; font-size: 15px; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; color: #d2cbc0; }
+  body.book .toc a.on,
+  body.book .toc a:hover { color: #f3eee6; }
+}
+@media (max-width: 800px) {
+  /* Hero name: styles.css (html, body font-family; .title-block h1 weight/size) + figure-lore.css text-shadow, old JS site c1113ef. */
+  body.article .art-title h1,
+  body.gallery-page .title-block h1 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
+  /* Hero epithet: old #epithet-face / mobile-fix.js face, features.js size (15px base), mobile-fix.js line-height 1.35. */
+  body.article .art-title .art-epithet,
+  body.gallery-page .title-block .caption { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: 15px; line-height: 1.35; color: #e4ddd2; }
+  /* Index: old index-sections.js #index-section-css (rail h3, rail buttons, .index-card span, .index-empty). */
+  body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  body.index-page .toc a.on,
+  body.index-page .toc a:hover { color: #f3eee6; }
+  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 700; line-height: 1.25; letter-spacing: 0.05em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  /* Lore contents: old codex.css .lore-rail .codex-h3 and .lore-rail .codex-toc li / a (+ @max-width 980px li 16px). */
+  body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
+  body.book .toc a { font-family: "Iowan Old Style", Palatino, serif; font-style: normal; font-size: 16px; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; color: #d2cbc0; }
+  body.book .toc a.on,
+  body.book .toc a:hover { color: #f3eee6; }
+}
+
+/* Continuous Journal. All chapters in one column; no divider under chapter heads.
+   Desktop rail stays fixed (existing .journal-page .toc); phone list sits in the flow. */
+@media (min-width: 801px) {
+  body.journal-flow .read > h1 { border-bottom: 0; padding-bottom: 0; scroll-margin-top: 96px; }
+  body.journal-flow .read > h1 ~ h1 { margin-top: 88px; }
+}
+@media (max-width: 800px) {
+  body.journal-flow .read > h1 { border-bottom: 0; padding-bottom: 0; scroll-margin-top: 130px; }
+  body.journal-flow:has(aside.toc > .toc-drop) .read > h1 {
+    scroll-margin-top: calc(162px + env(safe-area-inset-top, 0px));
+  }
+  body.journal-flow .read > h1 ~ h1 { margin-top: 64px; }
+}
+
+/* Codex and Atlas headings land below the sticky mast (and the fixed section bar on desktop)
+   when reached from the Contents rail or a link (land1). */
+@media (min-width: 801px) {
+  body.journal-page main.read h2[id] { scroll-margin-top: 136px; }
+}
+@media (max-width: 800px) {
+  body.journal-page main.read h2[id] { scroll-margin-top: 130px; }
+}
+
+/* Atlas map lightbox (atlas-zoom.js). */
+@media (min-width: 801px) {
+  body.journal-page main.read figure img.atlas-map { cursor: zoom-in; }
+  html.map-zoom-open, html.map-zoom-open body { overflow: hidden; }
+  #map-zoom { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; background: rgba(5,5,5,0.94); overflow: hidden; touch-action: none; }
+  #map-zoom[hidden] { display: none; }
+  #map-zoom img { display: block; max-width: 92vw; max-height: 92vh; width: auto; height: auto; object-fit: contain; border: 0; transform-origin: center center; cursor: zoom-in; touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform; }
+  #map-zoom.zoomed img { cursor: grab; }
+  #map-zoom.zoomed img:active { cursor: grabbing; }
+  #map-zoom .map-zoom-close { position: absolute; top: 22px; right: 26px; z-index: 2; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; background: none; border: 0; color: rgba(243,238,230,0.6); cursor: pointer; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.85)); -webkit-tap-highlight-color: transparent; }
+  #map-zoom .map-zoom-close:hover, #map-zoom .map-zoom-close:focus-visible { color: rgba(243,238,230,0.95); }
+  #map-zoom .map-zoom-close svg { width: 14px; height: 14px; overflow: visible; }
+}
+@media (max-width: 800px) {
+  body.journal-page main.read figure img.atlas-map { cursor: zoom-in; }
+  html.map-zoom-open, html.map-zoom-open body { overflow: hidden; }
+  #map-zoom { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; background: rgba(5,5,5,0.94); overflow: hidden; touch-action: none; }
+  #map-zoom[hidden] { display: none; }
+  #map-zoom img { display: block; max-width: 100vw; max-height: 100vh; width: auto; height: auto; object-fit: contain; border: 0; transform-origin: center center; cursor: zoom-in; touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform; }
+  #map-zoom.zoomed img { cursor: grab; }
+  #map-zoom.zoomed img:active { cursor: grabbing; }
+  #map-zoom .map-zoom-close { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px; z-index: 2; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; background: none; border: 0; color: rgba(243,238,230,0.6); cursor: pointer; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.85)); -webkit-tap-highlight-color: transparent; }
+  #map-zoom .map-zoom-close:hover, #map-zoom .map-zoom-close:focus-visible { color: rgba(243,238,230,0.95); }
+  #map-zoom .map-zoom-close svg { width: 14px; height: 14px; overflow: visible; }
+}
+
+/* Journal chapter dividers: a hairline above each chapter head except the first. */
+@media (min-width: 801px) {
+  body.journal-flow .read > h1 ~ h1 { margin-top: 64px; padding-top: 56px; border-top: 1px solid rgba(243,238,230,0.14); }
+}
+@media (max-width: 800px) {
+  body.journal-flow .read > h1 ~ h1 { margin-top: 44px; padding-top: 40px; border-top: 1px solid rgba(243,238,230,0.14); }
+}
+
+/* Journal: breathing room around in-column art and captions. */
+@media (min-width: 801px) {
+  body.journal-flow .read figure { margin: 2em 0; }
+  body.journal-flow .read figcaption { margin-top: 12px; }
+}
+@media (max-width: 800px) {
+  body.journal-flow .read figure { margin: 1.5em 0; }
+  body.journal-flow .read figcaption { margin-top: 10px; }
+}
+
+/* Journal background follows the column (journal-scroll.js stacks two layers and crossfades). */
+@media (min-width: 801px) {
+  body.journal-flow .journal-bg img { position: absolute; inset: 0; opacity: 1; transition: opacity .4s ease; }
+  body.journal-flow .journal-bg img.bg-off { opacity: 0; }
+}
+@media (max-width: 800px) {
+  body.journal-flow .journal-bg img { position: absolute; inset: 0; opacity: 1; transition: opacity .4s ease; }
+  body.journal-flow .journal-bg img.bg-off { opacity: 0; }
+}
+
+/* Seal page: the phrase and the welcome sit in a lifted square box over a soft ambient glow
+   (seal2). The glow takes the signed-in friend's --glow tone, an ember tone before entry. */
+@media (min-width: 801px) {
+  body.seal-page { --seal-glow: var(--glow, rgba(214,128,64,.34)); }
+  body.seal-page .seal-card { position: relative; overflow: hidden; box-sizing: border-box; }
+  body.seal-page .seal-card::before {
+    content: ""; position: absolute; z-index: 0; left: 50%; top: 50%;
+    width: 820px; height: 820px; transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, var(--seal-glow), transparent);
+    filter: blur(70px); opacity: .7; pointer-events: none;
+  }
+  body.seal-page .seal-box {
+    position: relative; z-index: 1; box-sizing: border-box;
+    width: 400px; aspect-ratio: 1 / 1; padding: 48px 44px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #0b0b0b; border: 1px solid rgba(243,238,230,.09); border-radius: 4px;
+    box-shadow: 0 34px 70px -24px rgba(0,0,0,.9), 0 12px 28px -14px rgba(0,0,0,.75);
+  }
+  body.seal-page #seal-form { width: 100%; }
+  body.seal-page #seal-form[hidden] { display: none; }
+  body.seal-page .seal-box #seal-code { box-sizing: border-box; width: 100%; max-width: 280px; }
+  body.seal-page .seal-name a { color: inherit; text-decoration: none; }
+  body.seal-page .seal-name a:hover { color: #fff; }
+  body.seal-page .seal-box > :last-child { margin-bottom: 0; }
+}
+@media (max-width: 800px) {
+  body.seal-page { --seal-glow: var(--glow, rgba(214,128,64,.34)); }
+  body.seal-page .seal-card { position: relative; overflow: hidden; box-sizing: border-box; }
+  body.seal-page .seal-card::before {
+    content: ""; position: absolute; z-index: 0; left: 50%; top: 50%;
+    width: 520px; height: 520px; transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, var(--seal-glow), transparent);
+    filter: blur(48px); opacity: .7; pointer-events: none;
+  }
+  body.seal-page .seal-box {
+    position: relative; z-index: 1; box-sizing: border-box;
+    width: min(330px, 100%); aspect-ratio: 1 / 1; padding: 36px 28px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #0b0b0b; border: 1px solid rgba(243,238,230,.09); border-radius: 4px;
+    box-shadow: 0 26px 54px -20px rgba(0,0,0,.9), 0 10px 22px -12px rgba(0,0,0,.75);
+  }
+  body.seal-page #seal-form { width: 100%; }
+  body.seal-page #seal-form[hidden] { display: none; }
+  body.seal-page .seal-box #seal-code { box-sizing: border-box; width: 100%; max-width: 280px; }
+  body.seal-page .seal-name a { color: inherit; text-decoration: none; }
+  body.seal-page .seal-box > :last-child { margin-bottom: 0; }
+}
+
+/* search-page seek3 */
+body.search-page .tile .label {
+  opacity: 1;
+}
+body.search-page .tile::after {
+  opacity: 1;
+}
+#seek-show {
+  margin: 0;
+  padding: 10px 22px 0;
+  text-align: center;
+  font-family: "Iowan Old Style", Palatino, "Times New Roman", serif;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: #f3eee6;
+}
+#search-hits {
+  max-width: 720px;
+  margin: 28px auto 80px;
+  padding: 0 22px;
+}
+#search-hits h2 {
+  margin: 0 0 18px;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 22px;
+  color: #f3eee6;
+}
+#search-hits a.hit {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-top: 1px solid rgba(143,138,130,0.28);
+  color: inherit;
+  text-decoration: none;
+}
+#search-hits a.hit:last-child { border-bottom: 1px solid rgba(143,138,130,0.28); }
+#search-hits .hit-art {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 96px;
+  object-fit: cover;
+  background: #111;
+  display: block;
+}
+#search-hits .hit-art-empty { border: 1px solid rgba(143,138,130,0.25); }
+#search-hits .hit-body { min-width: 0; flex: 1; }
+#search-hits .hit-title {
+  display: block;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f3eee6;
+}
+#search-hits .hit-kind {
+  display: inline-block;
+  margin: 4px 0 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+#search-hits .hit-snip {
+  margin: 8px 0 0;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #d2cbc0;
+}
+#search-hits mark {
+  background: transparent;
+  color: #f3eee6;
+  font-weight: 700;
+}
+@media (min-width: 801px) {
+  #seek-show { font-size: 28px; padding-top: 16px; }
+  #search-hits .hit-art { flex-basis: 88px; width: 88px; height: 118px; }
+}
+@media (max-width: 800px) {
+  #seek-show { font-size: 18px; padding: 8px 16px 0; }
+  #search-hits { margin-top: 18px; padding: 0 16px 64px; }
+  #search-hits .hit-art { flex-basis: 56px; width: 56px; height: 74px; }
+  #search-hits .hit-snip { font-size: 15px; }
+}
+
+/* journal article links */
+@media (min-width: 801px) {
+  body.journal-page main.read p a,
+  body.journal-page main.read figcaption a {
+    color: #f3eee6;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(243,238,230,0.28);
+  }
+  body.journal-page main.read p a:hover,
+  body.journal-page main.read figcaption a:hover {
+    border-bottom-color: rgba(243,238,230,0.7);
+  }
+}
+@media (max-width: 800px) {
+  body.journal-page main.read p a,
+  body.journal-page main.read figcaption a {
+    color: #f3eee6;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(243,238,230,0.28);
+  }
+  body.journal-page main.read p a:hover,
+  body.journal-page main.read figcaption a:hover {
+    border-bottom-color: rgba(243,238,230,0.7);
+  }
+}
+
+/* timeline first cut */
+.timeline-list {
+  list-style: none;
+  margin: 0 0 36px;
+  padding: 0;
+}
+.timeline-list li {
+  display: grid;
+  grid-template-columns: 7.5em 1fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(143,138,130,0.22);
+  align-items: baseline;
+}
+.timeline-list li:last-child { border-bottom: 1px solid rgba(143,138,130,0.22); }
+.timeline-list .tl-when {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+.timeline-list .tl-what {
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-size: 17px;
+  line-height: 1.45;
+  color: #d2cbc0;
+}
+.timeline-list .tl-what a { color: #f3eee6; text-decoration: none; border-bottom: 1px solid rgba(243,238,230,0.28); }
+.timeline-list .tl-what a:hover { border-bottom-color: rgba(243,238,230,0.7); }
+@media (min-width: 801px) {
+  .timeline-list li { grid-template-columns: 8.5em 1fr; gap: 22px; padding: 12px 0; }
+  .timeline-list .tl-what { font-size: 18px; }
+}
+@media (max-width: 800px) {
+  .timeline-list li { grid-template-columns: 1fr; gap: 4px; padding: 12px 0; }
+  .timeline-list .tl-when { font-size: 11px; }
+  .timeline-list .tl-what { font-size: 16px; }
+}
+
+/* era-years under headers */
+body.journal-page .read h2 + .era-years {
+  margin: -14px 0 28px;
+  padding: 0;
+  text-align: center;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: none;
+  color: #8f8a82;
+  text-shadow: none;
+  line-height: 1.4;
+}
+.timeline-list .era-years {
+  display: block;
+  margin: 4px 0 2px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #8f8a82;
+}
+@media (min-width: 801px) {
+  body.journal-page .read h2 + .era-years { font-size: 14px; margin: -10px 0 32px; }
+  .timeline-list .era-years { font-size: 13px; }
+}
+@media (max-width: 800px) {
+  body.journal-page .read h2 + .era-years { font-size: 12px; margin: -8px 0 22px; }
+  .timeline-list .era-years { font-size: 11px; }
+}
+
+/* Codex + Atlas article paragraph gaps, matching LegendKeeper.
+   LK source (public Encyclopedia Ward CSS): .prose :where(p) {
+   margin-top: 1.25em; margin-bottom: 1.25em } — consecutive p collapse to 1.25em.
+   Scoped to pages with #section-bar (Codex + Atlas only; not Journal).
+   Does not touch body.book column width (narrower lore rail stays). */
+@media (min-width: 801px) {
+  body.journal-page:has(#section-bar) main.read > p + p {
+    margin-top: 1.25em;
+  }
+}
+@media (max-width: 800px) {
+  body.journal-page:has(#section-bar) main.read > p + p {
+    margin-top: 1.25em;
+  }
+}
+
+
+/* seek4: center search panel + nav glyph + hide-filter */
+.seek-glyph {
+  position: relative;
+  z-index: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  margin: 0 0 0 12px;
+  padding: 4px;
+  color: #8f8a82;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+}
+.seek-glyph:hover,
+.seek-glyph:focus {
+  color: #f3eee6;
+  outline: none;
+}
+.seek-glyph svg { display: block; }
+
+#seek-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+#seek-panel[hidden] { display: none !important; }
+.seek-panel-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+}
+.seek-panel-box {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: min(560px, 100%);
+  max-height: min(72vh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: #0b0b0b;
+  border: 1px solid rgba(243,238,230,.09);
+  border-radius: 4px;
+  box-shadow: 0 34px 70px -24px rgba(0,0,0,.9), 0 12px 28px -14px rgba(0,0,0,.75);
+  overflow: hidden;
+}
+.seek-panel-box::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 18%;
+  width: 520px;
+  height: 520px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(214,128,64,.28), transparent);
+  filter: blur(60px);
+  opacity: .65;
+  pointer-events: none;
+}
+#seek-panel-input {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(143,138,130,.28);
+  color: #f3eee6;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-size: 22px;
+  letter-spacing: .04em;
+  padding: 20px 48px 16px 22px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#seek-panel-input::placeholder { color: #8f8a82; }
+/* Kill UA search-cancel (blue X) — panel close glyph is the only dismiss control. */
+#seek-panel-input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+#seek-panel-input::-webkit-search-cancel-button,
+#seek-panel-input::-webkit-search-decoration,
+#seek-panel-input::-ms-clear {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+  width: 0;
+  height: 0;
+}
+.seek-panel-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: #f3eee6;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .14s ease, filter .14s ease, opacity .14s ease;
+}
+.seek-panel-close:hover,
+.seek-panel-close:focus-visible {
+  color: #f3eee6;
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 6px rgba(243,238,230,.55));
+  outline: none;
+}
+.seek-panel-close:active {
+  transform: scale(0.92);
+  filter: drop-shadow(0 0 3px rgba(243,238,230,.4));
+}
+.seek-panel-close svg {
+  width: 11px;
+  height: 11px;
+  overflow: visible;
+  display: block;
+  color: #f3eee6;
+  stroke: #f3eee6;
+  fill: none;
+  pointer-events: none;
+}
+.seek-panel-close svg path {
+  stroke: #f3eee6;
+  fill: none;
+}
+.seek-panel-card.is-seek-focus img,
+.seek-panel-ment.is-seek-focus {
+  outline: 1px solid rgba(243,238,230,.55);
+  outline-offset: 3px;
+}
+.seek-panel-ment.is-seek-focus {
+  background: rgba(243,238,230,.04);
+}
+a.index-card.is-seek-flash {
+  outline: 1px solid rgba(243,238,230,.55);
+  outline-offset: 3px;
+  transition: outline-color .8s ease;
+}
+#seek-panel-results {
+  position: relative;
+  z-index: 1;
+  overflow: auto;
+  flex: 1;
+  padding: 12px 16px 20px;
+  -webkit-overflow-scrolling: touch;
+}
+.seek-panel-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.seek-panel-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #f3eee6;
+  text-decoration: none;
+  min-width: 0;
+}
+.seek-panel-card img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: #111;
+  display: block;
+  border: 1px solid rgba(143,138,130,.18);
+}
+.seek-panel-card span {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+.seek-panel-ments h3 {
+  margin: 4px 0 10px;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 18px;
+  color: #f3eee6;
+}
+.seek-panel-ment {
+  display: block;
+  padding: 12px 0;
+  border-top: 1px solid rgba(143,138,130,.28);
+  color: inherit;
+  text-decoration: none;
+}
+.seek-panel-ment:last-child { border-bottom: 1px solid rgba(143,138,130,.28); }
+.seek-panel-ment-title {
+  display: block;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #f3eee6;
+}
+.seek-panel-kind {
+  display: inline-block;
+  margin-top: 4px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+.seek-panel-snip {
+  margin: 8px 0 0;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #d2cbc0;
+}
+.seek-panel-snip mark {
+  background: transparent;
+  color: #f3eee6;
+  font-weight: 700;
+}
+.seek-panel-empty {
+  margin: 18px 8px;
+  text-align: center;
+  color: #8f8a82;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+body.seek-panel-open { overflow: hidden; }
+
+@media (min-width: 801px) {
+  .seek-glyph { margin-left: 14px; }
+  .seek-glyph svg { width: 15px; height: 15px; }
+  .seek-panel-box {
+    width: min(640px, 92vw);
+    max-height: min(74vh, 760px);
+  }
+  .seek-panel-box::before {
+    width: 640px; height: 640px; opacity: .7; filter: blur(70px);
+  }
+  #seek-panel-input { font-size: 26px; padding: 24px 52px 18px 26px; }
+  .seek-panel-cards { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 14px; }
+  .seek-panel-snip { font-size: 16px; }
+}
+
+@media (max-width: 800px) {
+  .seek-glyph { margin-left: 8px; padding: 6px; }
+  .seek-glyph svg { width: 13px; height: 13px; }
+  #seek-panel {
+    padding: 12px;
+    align-items: flex-start;
+    padding-top: max(12px, env(safe-area-inset-top));
+    /* Keep touch scrolling on the panel, not the page behind. */
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+  .seek-panel-box {
+    width: 100%;
+    max-height: min(86vh, 900px);
+    margin-top: 8vh;
+    min-height: 0;
+    /* flex column already; results flex:1 + overflow:auto scrolls inside */
+    overscroll-behavior: contain;
+    touch-action: auto;
+  }
+  .seek-panel-box::before {
+    width: 420px; height: 420px; filter: blur(48px);
+  }
+  #seek-panel-input { font-size: 18px; padding: 16px 44px 12px 16px; flex: 0 0 auto; }
+  #seek-panel-results {
+    padding: 10px 12px 16px;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+  .seek-panel-cards { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+  /* iOS: overflow:hidden alone still lets the page behind rubber-band; lock with fixed. */
+  html.seek-panel-lock,
+  html.seek-panel-lock body {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+    touch-action: none;
+    height: 100%;
+  }
+  html.seek-panel-lock body.seek-panel-open {
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+}
+
+/* Phone: flush opaque mast — no gap above bar; cards never paint through (nav2). */
+@media (max-width: 800px) {
+  /* Keep fixed to the visual viewport. Safe-area padding lives ON the opaque mast
+     (not empty body space above it). Paint upward so iOS overscroll cannot reveal cards. */
+  .mast {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    margin: 0;
+    background: #070707;
+    background-color: #070707;
+    background-clip: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    box-sizing: border-box;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  /* Opaque curtain above the mast for rubber-band / unsafe-area bleed. */
+  body:not(.article):not(.entry) .mast::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: max(100vh, 100dvh);
+    background: #070707;
+    pointer-events: none;
+  }
+  .mast .topbar,
+  .journal-page .mast .topbar {
+    position: relative;
+    top: auto;
+    padding-top: 8px;
+    padding-bottom: 6px;
+    background: #070707;
+    background-color: #070707;
+  }
+  /* Hero pages keep overlay mast (not a scrolling chrome bar). */
+  body.article .mast {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: transparent;
+    background-color: transparent;
+    -webkit-transform: none;
+    transform: none;
+  }
+  body.article .mast::before { content: none; display: none; }
+  body.article .mast .topbar {
+    background: transparent;
+    background-color: transparent;
+    padding-top: 8px;
+  }
+  /* Scroll content starts below the fixed mast (match measured phone heights). */
+  body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
+    padding-top: calc(56px + env(safe-area-inset-top, 0px));
+  }
+  body.journal-page:not(.article) {
+    padding-top: calc(72px + env(safe-area-inset-top, 0px));
+  }
+  body.seal-page {
+    padding-top: calc(28px + env(safe-area-inset-top, 0px));
+  }
+  body.seal-page .seal-card {
+    padding-top: 36px;
+  }
+}
+
+
+/* Phone: larger seek glyph + filter tap targets (>=44px) (tap1). */
+@media (max-width: 800px) {
+  .seek-glyph {
+    min-width: 44px;
+    min-height: 44px;
+    margin-left: 4px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  .seek-glyph svg { width: 16px; height: 16px; }
+  .mast .topbar .filters a {
+    min-height: 44px;
+    padding: 12px 0;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .mast .topbar > .mark,
+  .mast .topbar > .mark a,
+  .mast .topbar > a[href$="seal.html"] {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Mast grows with 44px filter row; keep body clear. */
+  body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
+    padding-top: calc(102px + env(safe-area-inset-top, 0px));
+  }
+  body.journal-page:not(.article) {
+    padding-top: calc(118px + env(safe-area-inset-top, 0px));
+  }
+}
+
+
+/* Phone: seal back + Enter tap targets; keep Back left-aligned (seal-tap1). */
+@media (max-width: 800px) {
+  body.seal-page .mast .topbar.seal-top {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 8px;
+    background: #070707;
+  }
+  body.seal-page .mast .topbar.seal-top #seal-back {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 12px 14px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  body.seal-page {
+    padding-top: calc(44px + env(safe-area-inset-top, 0px));
+  }
+  body.seal-page .seal-card {
+    padding-top: 28px;
+  }
+  body.seal-page .seal-card button {
+    min-height: 44px;
+    min-width: 88px;
+    padding: 12px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  body.seal-page .seal-box #seal-code {
+    min-height: 44px;
+    font-size: 18px;
+  }
+}
+
+
+/* Phone: art-index cue + Index toc toggles/rows hit 44px (tap2). */
+@media (max-width: 800px) {
+  body.article .art-index-cue {
+    width: 44px;
+    height: 44px;
+  }
+  body.index-page .toc-tog,
+  body.article .art-index .toc-tog {
+    width: 44px;
+    height: 44px;
+  }
+  body.index-page .toc-row > a {
+    min-height: 44px;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  body.index-page .toc-name,
+  body.index-page .toc-sub {
+    min-height: 44px;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .journal-page .toc a {
+    min-height: 44px;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  #section-bar a {
+    min-height: 44px;
+    padding: 12px 8px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+}
+
+
+/* Phone: keep nav filters on-screen; jump targets clear taller mast (land2). */
+@media (max-width: 800px) {
+  /* Clip sideways overflow on body only — setting overflow on BOTH html and body
+     makes position:fixed detach from the visual viewport on iOS Safari, which
+     reopened the card-bleed gap above the mast. */
+  body { overflow-x: clip; }
+  .mast .topbar .filters {
+    max-width: calc(100% - 48px);
+  }
+  .seek-glyph {
+    margin-left: 2px;
+    padding: 14px 8px;
+  }
+  /* art-index phone tops handled by sticky top-dropdown block above. */
+}
+
+
+/* Phone: keep sealed friend marks on one mast row (friends1). */
+@media (max-width: 800px) {
+  .mast .topbar > .mark {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 8px;
+    justify-content: center;
+  }
+  .mast .topbar > .mark::-webkit-scrollbar { display: none; height: 0; }
+  .mast .topbar > .mark a {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 0 1px;
+  }
+  /* Keep sealed marks; only reveal when owner matches (same as shared .friend). */
+  body.seal-jack .mast .topbar > .mark > .friend[data-owner=jack],
+  body.seal-jon .mast .topbar > .mark > .friend[data-owner=jon],
+  body.seal-julie .mast .topbar > .mark > .friend[data-owner=julie],
+  body.seal-sawyer .mast .topbar > .mark > .friend[data-owner=sawyer] {
+    display: inline-flex;
+    gap: 6px;
+  }
+}
+
+
+/* Phone: article Index return link hits 44px (art-back1). */
+@media (max-width: 800px) {
+  body.article .art-back {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 10px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+}
+
+
+/* Nav chrome: main nav (.mast/.topbar) and secondary nav (#section-bar) are
+   HARD opaque #070707 with a crisp bottom edge -- no gradient on the bars.
+   Only page content fades, via a veil hung BELOW the bottommost chrome
+   (::after at top:100%). Desktop + phone; entry hero overlays untouched. */
+body:not(.entry) .mast,
+body:not(.entry) .mast .topbar,
+body.journal-page .topbar,
+body.journal-page .mast .topbar,
+#section-bar,
+#section-bar:has(a),
+#section-bar.show,
+body.has-section-bar #section-bar {
+  background: #070707;
+  background-image: none;
+  background-color: #070707;
+}
+body.journal-page .topbar,
+body.journal-page .mast .topbar {
+  text-shadow: none;
+}
+body:not(.entry) .mast,
+#section-bar:has(a),
+#section-bar.show,
+body.has-section-bar #section-bar {
+  overflow: visible;
+}
+body:not(.entry) .mast::after,
+#section-bar:has(a)::after,
+#section-bar.show::after,
+body.has-section-bar #section-bar::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 24px;
+  pointer-events: none;
+  z-index: 1;
+  /* Bar stays 100% opaque to its last pixel; the veil starts a step lower
+     (0.72) so the chrome edge reads crisp, then content dissolves. */
+  background: linear-gradient(
+    to bottom,
+    rgba(7, 7, 7, 0.72) 0%,
+    rgba(7, 7, 7, 0.32) 45%,
+    rgba(7, 7, 7, 0) 100%
+  );
+}
+
+/* Secondary bar present (Codex/Atlas): no veil on the mast (it would wash
+   over the secondary bar); the veil hangs under #section-bar only. Static
+   multipage (#section-bar a) and SPA (#section-bar.show / body.has-section-bar). */
+body:has(#section-bar a) .mast::after,
+body.has-section-bar .mast::after,
+body:has(#section-bar.show) .mast::after {
+  content: none;
+  display: none;
+}
+
+/* Phone article: mast overlays hero art (transparent); skip content veil. */
+@media (max-width: 800px) {
+  body.article .mast,
+  body.article .mast .topbar {
+    background: transparent;
+    background-color: transparent;
+  }
+  body.article .mast::after {
+    content: none;
+    display: none;
+  }
+}
+
+
+/* Seal page: after sign-in, figure name(s) sit in the top-right mark (friends2).
+   Jon shows both Telorin and Silar. Back stays left. */
+body.seal-page .mast .topbar.seal-top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+}
+body.seal-page .mast .topbar.seal-top > .mark {
+  position: absolute;
+  right: 36px;
+  top: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 2;
+}
+body.seal-page .mast .topbar.seal-top > .mark .friend {
+  display: none;
+  align-items: center;
+  gap: 14px;
+}
+body.seal-page.seal-jack .mast .topbar.seal-top > .mark .friend[data-owner=jack],
+body.seal-page.seal-jon .mast .topbar.seal-top > .mark .friend[data-owner=jon],
+body.seal-page.seal-julie .mast .topbar.seal-top > .mark .friend[data-owner=julie],
+body.seal-page.seal-sawyer .mast .topbar.seal-top > .mark .friend[data-owner=sawyer] {
+  display: inline-flex;
+}
+@media (max-width: 800px) {
+  body.seal-page .mast .topbar.seal-top > .mark {
+    right: 12px;
+    height: 44px;
+    gap: 8px;
+  }
+  body.seal-page .mast .topbar.seal-top > .mark .friend {
+    gap: 8px;
+  }
+  body.seal-page .mast .topbar.seal-top > .mark a {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+}
+
+
+/* Jon success ambient: green ↔ red-orange pulse behind the seal box (glow1). */
+@keyframes jon-seal-wash {
+  0% { background: radial-gradient(closest-side, rgba(80,180,90,.55), transparent); }
+  50% { background: radial-gradient(closest-side, rgba(230,90,40,.55), transparent); }
+  100% { background: radial-gradient(closest-side, rgba(80,180,90,.55), transparent); }
+}
+body.seal-page.seal-jon .seal-card::before {
+  animation: jon-seal-wash 3.2s linear infinite;
+}
+
+
+/* Devin: white glow; Log out in the mast instead of a profile name (devin1). */
+.seal-logout {
+  display: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f3eee6;
+  cursor: pointer;
+  text-shadow: 0 0 12px var(--glow), 0 0 24px var(--glow);
+}
+body.seal-devin .seal-logout {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.seal-logout:hover,
+.seal-logout:focus-visible {
+  color: #fff;
+  text-shadow: 0 0 16px rgba(243,238,230,.95), 0 0 32px rgba(243,238,230,.55);
+}
+body.seal-devin .friend { display: none !important; }
+
+
+/* Codex Contents: <details class="toc-drop"> inside aside.toc (tocdrop1).
+   Desktop: always open (codex-scroll.js), summary hidden -> the fixed side rail is unchanged.
+   Phone: a compact "Contents" row frozen under the secondary nav; the list drops over the page. */
+.toc-drop > summary { list-style: none; }
+.toc-drop > summary::-webkit-details-marker { display: none; }
+@media (min-width: 801px) {
+  .toc-drop > summary { display: none; }
+}
+@media (max-width: 800px) {
+  body.journal-page aside.toc:has(> .toc-drop) {
+    position: -webkit-sticky;
+    position: sticky;
+    /* Journal continuous (no section-bar): under mast only.
+       Codex/Atlas with #section-bar: under mast + secondary row (override below). */
+    top: calc(118px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    left: auto;
+    right: auto;
+    z-index: 29;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    background: #070707;
+  }
+  body.journal-page:has(#section-bar) aside.toc:has(> .toc-drop) {
+    /* mast (118px journal-page) + one-row #section-bar (44px) */
+    top: calc(162px + env(safe-area-inset-top, 0px));
+  }
+  /* Contents row sits at a fixed offset under the nav, so the nav must stay one row:
+     no wrap; on the narrowest phones it scrolls sideways instead (its veil is off here). */
+  body:has(aside.toc > .toc-drop) #section-bar {
+    flex-wrap: nowrap;
+    justify-content: safe center;
+    height: 44px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  body:has(aside.toc > .toc-drop) #section-bar::-webkit-scrollbar { display: none; }
+  /* The content veil hangs under the lowest chrome: the Contents row, not the nav above it. */
+  body:has(aside.toc > .toc-drop) #section-bar::after { content: none; display: none; }
+  body.journal-page aside.toc:has(> .toc-drop)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 24px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(7,7,7,0.72) 0%, rgba(7,7,7,0.32) 45%, rgba(7,7,7,0) 100%);
+  }
+  body.journal-page aside.toc:has(> .toc-drop[open])::after { display: none; }
+  .toc-drop > summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px;
+    margin: 0;
+    padding: 0 16px;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b7b0a4;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .toc-drop > summary::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    opacity: 0.7;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+  .toc-drop[open] > summary { color: #f3eee6; }
+  .toc-drop[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
+  .toc-drop > summary:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: -4px; }
+  .toc-drop > .toc-list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    max-height: min(58vh, 520px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+    padding: 0 22px 14px;
+    box-sizing: border-box;
+    background: #070707;
+    border-bottom: 1px solid rgba(243,238,230,0.12);
+    box-shadow: 0 20px 28px 6px rgba(7,7,7,0.88);
+  }
+  .toc-drop > .toc-list > h3 { display: none; }
+  body.journal-page .toc-drop > .toc-list a {
+    font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+    font-size: 16px;
+    line-height: 1.35;
+    color: #d2cbc0;
+    text-align: left;
+  }
+  body.journal-page .toc-drop > .toc-list a:last-child { border-bottom: 0; }
+  body.journal-page .toc-drop > .toc-list a.on { color: #f3eee6; }
+  /* Headings reached from Contents / links land below mast + nav + Contents row. */
+  body.journal-page:has(#section-bar) main.read h2[id] {
+    scroll-margin-top: calc(178px + env(safe-area-inset-top, 0px));
+  }
+  body.journal-page:has(#section-bar):has(aside.toc > .toc-drop) main.read h2[id] {
+    scroll-margin-top: calc(222px + env(safe-area-inset-top, 0px));
+  }
+  /* Journal chapters list stays in the flow but must paint above the fixed art bg. */
+  body.journal-page aside.toc:not(:has(> .toc-drop)) {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    z-index: 2;
+  }
+}
+
+/* Narrow phones (<=380px, e.g. iPhone SE / mini): keep the secondary nav on one row (sticky1). */
+@media (max-width: 380px) {
+  #section-bar a,
+  .journal-page #section-bar a {
+    padding-left: 4px;
+    padding-right: 4px;
+    letter-spacing: 0.04em;
+  }
+}
+@media (max-width: 340px) {
+  #section-bar,
+  .journal-page #section-bar { gap: 0; padding-left: 4px; padding-right: 4px; }
+  #section-bar a,
+  .journal-page #section-bar a { padding-left: 3px; padding-right: 3px; font-size: 10.5px; }
+}
+
+
+/* ---- Phone audit fixes (audit1) ---- */
+
+/* Seal: the phone mast rule made the figure mark full-width (left -12px), so it sat on top of
+   Back and swallowed taps; names also centered instead of top-right. Right-align, auto width,
+   same 56px row as Back. */
+@media (max-width: 800px) {
+  body.seal-page .mast .topbar.seal-top > .mark {
+    left: auto;
+    right: 12px;
+    width: auto;
+    max-width: calc(100% - 110px);
+    height: 56px;
+    min-height: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* Phone side-rail audit overrides retired: Index/article Categories now use the sticky
+   top-dropdown under the mast (see phone blocks above). Keep 44px rows + map close. */
+@media (max-width: 800px) {
+  body.article .art-index .toc-row > a,
+  body.article .art-index .toc-name,
+  body.article .art-index .toc-sub,
+  body.index-page .index-toc-panel .toc-row > a,
+  body.index-page .index-toc-panel .toc-name,
+  body.index-page .index-toc-panel .toc-sub {
+    min-height: 44px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  body.article .art-index-panel,
+  body.index-page .index-toc-panel { background: #070707; }
+  /* Atlas map lightbox close: 40px -> 44px target. */
+  #map-zoom .map-zoom-close { width: 44px; height: 44px; }
+}
+
+/* Figure pages: the Full/fit toggle was an unstyled default button (a grey 4x19 sliver; its
+   SVG had no stroke). Shared desktop + phone: 44px icon button like the old fit-mobile.js. */
+body.entry .topbar .fit-toggle {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #efe8dc;
+  opacity: 0.8;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+body.entry .topbar .fit-toggle:hover,
+body.entry .topbar .fit-toggle:focus-visible { opacity: 1; }
+body.entry .topbar .fit-toggle svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: square;
+  pointer-events: none;
+}
+
+/* Figure lore quote: the HTML already carries the curly quotes and the em dash, so the
+   figure-lore.css pseudo marks doubled them (""The Wild."" / "- — Hesk"). Shared fix. */
+body.entry .life-sheet .life-quote p::before,
+body.entry .life-sheet .life-quote p::after,
+body.entry .life-sheet .life-quote cite::before { content: none; }
+
+/* ---- Phone: figure Lore from top dropdown, not the side dock (figdrop1) ---- */
+@media (max-width: 800px) {
+  /* Keep the cinematic hero topbar (Gallery + fit); Lore opens as a top sheet. */
+  body.entry .life-dock {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    height: auto;
+    z-index: 25;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    pointer-events: none;
+    background: none;
+  }
+  body.entry .life-dock .life-toggle {
+    pointer-events: auto;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    z-index: 26;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0 16px;
+    box-sizing: border-box;
+    background: rgba(7,7,7,0.88);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: #b7b0a4;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* "+ Lore" label → "Lore" with caret; strip the plus via text replacement is JS-less:
+     hide raw text visually is hard; restyle as Contents-like row. */
+  body.entry .life-dock:has(.life-sheet.open) .life-toggle {
+    color: #f3eee6;
+    background: #070707;
+  }
+  body.entry .life-dock .life-toggle::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    opacity: 0.7;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+  body.entry .life-dock:has(.life-sheet.open) .life-toggle::after {
+    transform: translateY(2px) rotate(-135deg);
+  }
+  body.entry .life-sheet {
+    pointer-events: auto;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: calc(100px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    z-index: 25;
+    width: 100%;
+    max-width: none;
+    max-height: 0;
+    margin: 0;
+    padding: 0 18px;
+    overflow: hidden;
+    opacity: 0;
+    background: #070707;
+    border-bottom: 0;
+    box-shadow: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+  }
+  body.entry .life-sheet.open {
+    max-height: min(70vh, 640px);
+    opacity: 1;
+    padding: 12px 18px max(20px, env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    border-bottom: 1px solid rgba(243,238,230,0.12);
+    box-shadow: 0 20px 28px 6px rgba(7,7,7,0.88);
+    flex: none;
+    height: auto;
+  }
+  /* Open lore no longer full-bleed side sheet; keep hero topbar usable. */
+  body.entry:has(.life-sheet.open) .topbar {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  body.entry .life-dock:has(.life-sheet.open) {
+    top: 0;
+    padding: 0;
+    height: auto;
+    background: none;
+  }
+  body.entry .life-dock:has(.life-sheet.open)::after { display: none; content: none; }
+}
+
+/* ---- Phone hard-kill: never a left full-height Categories panel (railkill1) ----
+   Base Index/article rail still uses fixed+translateX for desktop; phone must not
+   inherit bottom:0 / translateX slide-in even if an earlier rule races. */
+@media (max-width: 800px) {
+  body.index-page aside.toc.index-toc,
+  body.article .art-index {
+    bottom: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    transform: none !important;
+  }
+  body.index-page .index-toc-cue,
+  body.article .art-index-cue {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+  body.index-page .index-toc-panel,
+  body.article .art-index-panel {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 100% !important;
+    bottom: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: min(58vh, 520px) !important;
+    transform: none !important;
+  }
+  body.index-page aside.toc.index-toc.open .index-toc-panel,
+  body.article .art-index.open .art-index-panel,
+  body.article .art-index:hover .art-index-panel,
+  body.article .art-index:focus-within .art-index-panel {
+    transform: none !important;
+  }
+}

@@ -1,0 +1,19 @@
+window.CODEX = window.CODEX || [];
+window.CODEX.push({
+  id: "hesk",
+  section: "world",
+  sectionTitle: "World",
+  tab: "Hesk",
+  title: "Hesk",
+  heading: "Hesk",
+  banner: "assets/Godtree.png",
+  blocks: [
+    { type: "p", text: "The Great Green Domain of Hesk lays east of Essen Revir and west of Ilium Aghor. Much of Hesk has yet been unplumbed, resting protected and secluded from the engines of progress present throughout Elorae. The continent of Hesk takes its name from the Ancient of the Wild, Hesk. It was also once called 'Hesk Felinel (The Forest of Hesk)' in ages past and is still colloquially known as the Greenrealm, the Great Wild, the Archwood, and the Great Forest. Generally, common opinion toward Hesk is that it is a far-away, mystical place, where commonfolk are forbidden to go. Travel by boat is rare, there are no bustling cities to visit, and its forests are both revered and feared for their mystery. However, it is said that there are small villages of inhabitants - the people of the green domain are simply called Hesk-kin, or Heskan." },
+    { type: "caption", text: "An ancient sylvan village rests within the boughs of totem oaks, inundated in Green magic." },
+    { type: "p", text: "The Great Forest is separated by scholars into three distinct regions., the north, central, and south forests. The northern forest is known as the Great Northern Wood. The furthest tip of the continent is rather cold, with evergreens abundant like white pines and totem firs. There are said to be dire bears gargantuan in size, and snow stags that tower over the tallest men." },
+    { type: "p", text: "As you approach the center mass of the land, you enter the legendary Archwood. Aptly named, all other forests pale in comparison to the sheer scale of the Arch-trees, who tower into the clouds. Some great apothecaries have written that the bark of these godly trees can be an ingredient in immortality elixirs. It is thought that the Archwood was where the Ancient, Hesk, was born, or possibly where he was laid to rest - and the trees grew out of his spirit as it infused the soil." },
+    { type: "p", text: "In the greater south, the green realm expands into the domain dominated by the terrible goddess, Shiok, and her spawn. It is known as the Feral Wilds, and it is a place of horrific savagery and predation. Wild, ferocious animals rip one another to pieces and bones and carcasses litter the forest floor. Truly, it is a battleground - of creatures living in fear, starvation, disease - where the night brings terror, and each day is brutal and uncertain. Tales tell of these wild lands as also being the home of the horrifying Ferals - Greenmen who have devolved into savage beasts, followers of Shiok's vicious design, who hunt other living creatures and eat them alive, dining on blood and bone." },
+    { type: "caption", text: "The terrifying feral forests of Shiok are filled with the shrieks of ferocious beasts." },
+    { type: "p", text: "Heskan culture is largely unknown. Certain scholars state there are hidden villages within the roots of trees and amongst the high-leafed canopy. Heskans are said to have earth-shaded skin, from dark brown to light olive and sage, with hair of matching color. Their limbs are long and are generally of tall and lithe stature. Besides the Ferals who feed on flesh, it is assumed the Heskan subsist on nutritious berries, seeds, and other plants. Greenmen, druidic adherents of green magics, are sylvan naturalists who revere the forests as sacred - often they will protect them with their lives against those who encroach upon the wooded grounds. Historically, Greenmen have also been present outside of Hesk, as in the monumental Fall of Isindyl, a once-magnificent Arch-tree far south of Shasir, when vengeant Greenmen warred against the incursion of the Demonic Kings." }
+  ]
+});

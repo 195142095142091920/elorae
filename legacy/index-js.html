@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Elorae</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#070707">
+  <link rel="stylesheet" href="styles.css?v=41">
+  <link rel="stylesheet" href="figure-lore.css?v=147">
+  <link rel="stylesheet" href="codex.css?v=192">
+  <link rel="stylesheet" href="nav-size.css?v=5">
+  <link rel="stylesheet" href="column-veil.css?v=2">
+  <link rel="stylesheet" href="scroll-hide.css?v=1">
+  <style>
+    html { background: #070707; }
+    .seal-page { background: #070707; min-height: 100dvh; }
+    .seal-page .topbar {
+      position: fixed !important; top: 0; left: 0; right: 0; z-index: 200;
+      background: #070707 !important; justify-content: flex-start;
+    }
+    .seal-page .subbar { display: none !important; }
+    .filters { position: relative; z-index: 220; }
+    .seal-card {
+      min-height: 100dvh; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; padding: 88px 24px 72px;
+    }
+    .seal-card h1 { font-weight: 400; letter-spacing: 0.14em; font-size: clamp(28px, 4vw, 40px); }
+    .seal-note { margin-top: 16px; max-width: 36ch; color: #cfc6b8; font-size: 16px; line-height: 1.5; }
+    .seal-card form { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .seal-card input {
+      background: transparent; border: 0; border-bottom: 1px solid #8f8a82; color: #f3eee6;
+      text-align: center; font: inherit; font-size: 18px; letter-spacing: 0.08em;
+      padding: 10px 12px; width: min(280px, 80vw); outline: none;
+    }
+    .seal-card button[type="submit"] {
+      background: none; border: 0; color: #8f8a82; letter-spacing: 0.22em; text-transform: uppercase;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 11px; cursor: pointer;
+    }
+    .seal-err {
+      margin-top: 14px; color: #8f8a82; letter-spacing: 0.16em; text-transform: uppercase;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 11px;
+    }
+    .seal-leave {
+      position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+      background: none; border: 0; color: #8f8a82; letter-spacing: 0.2em; text-transform: uppercase;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 11px;
+      padding: 18px 28px; opacity: 0; cursor: pointer;
+    }
+    .seal-leave:hover { opacity: 1; }
+    body:has(.mast), body.journal-page, body.atlas-page, body.room:not(.journal-page) {
+      overflow: hidden; height: 100dvh;
+    }
+    .mast {
+      position: fixed !important; top: 0; left: 0; right: 0; z-index: 200;
+      background: #070707 !important; overflow: visible !important;
+    }
+    .journal-page .topbar {
+      position: fixed !important; top: 0; left: 0; right: 0; z-index: 200;
+      background: #070707 !important;
+    }
+    .mast .topbar,
+    .room:not(.journal-page) .topbar, .atlas-page .topbar {
+      position: relative !important; top: auto; left: auto; right: auto;
+      background: #070707 !important; overflow: visible !important; z-index: 200;
+    }
+    .subbar { display: none !important; }
+    .filters { position: relative; z-index: 220; }
+    .nav-drop { position: relative; display: inline-flex; z-index: 230; }
+    .nav-menu {
+      display: none; position: absolute; top: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%); min-width: 168px; padding: 12px 16px 14px;
+      background: #070707; z-index: 240; flex-direction: column; align-items: center;
+      gap: 10px; text-align: center; box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+    }
+    .nav-drop::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 12px; }
+    .nav-drop:hover .nav-menu, .nav-drop.open .nav-menu { display: flex; }
+    .nav-menu a {
+      display: block; padding: 5px 0; white-space: nowrap; font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: #8f8a82;
+    }
+    .nav-menu a:hover, .nav-menu a.active { color: #f3eee6; }
+    .wall {
+      position: fixed !important; top: calc(env(safe-area-inset-top) + 46px); left: 0; right: 0; bottom: 0;
+      /* replaced: top: var(--stack-h, 56px) kept the secondary-bar gap on Gallery. */
+      overflow-y: auto; z-index: 1; align-content: start; grid-auto-rows: min-content;
+    }
+    /* replaced: top: 96px reserved a secondary bar on Gallery. */
+    .tile { aspect-ratio: 4 / 3 !important; height: auto !important; }
+    .sheet, .index-list, .room-body, .atlas-stage {
+      position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+      overflow-y: auto; overflow-x: hidden; z-index: 3;
+    }
+    .journal-page .journal-bg { z-index: 0 !important; }
+    .journal-page .journal-bg::after {
+      content: ""; position: fixed; top: var(--chrome-bottom, 96px); bottom: 0; left: 50%;
+      width: min(1980px, 100vw); transform: translateX(-50%);
+      background: linear-gradient(to right, rgba(7,7,7,0) 0%, rgba(7,7,7,0.2) 12%, rgba(7,7,7,0.55) 22%, rgba(7,7,7,0.9) 32%, #070707 40%, #070707 60%, rgba(7,7,7,0.9) 68%, rgba(7,7,7,0.55) 78%, rgba(7,7,7,0.2) 88%, rgba(7,7,7,0) 100%);
+      z-index: 2; pointer-events: none;
+    }
+    .journal-page .sheet {
+      z-index: 3;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 100%);
+    }
+    .journal-page .journal-read { position: relative; z-index: 1; padding-top: 36px; }
+    body.lore-page .journal-read { padding-top: 48px; }
+    .journal-read h2 { border-bottom: 0 !important; }
+    .journal-read .atlas-map { margin: 48px 0 24px; }
+    .journal-read .atlas-map img { max-height: none !important; width: 100%; height: auto; object-fit: contain; border: 1px solid #000; }
+    .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs {
+      display: flex !important; justify-content: center; align-items: center; flex-wrap: wrap;
+      gap: 16px !important; min-height: 40px; padding: 0 28px 16px !important;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 11px !important; letter-spacing: 0.22em !important; text-transform: uppercase;
+      color: #8f8a82; background: #070707 !important;
+    }
+    .atlas-page .atlas-tabs, .journal-page .chapter-tabs, body:has(.mast) .subbar {
+      position: fixed !important; top: var(--nav-h, 56px) !important; left: 0; right: 0; z-index: 40;
+    }
+    .atlas-page .atlas-tabs a, .journal-page .chapter-tabs a, .subbar a {
+      padding: 0 !important; border: 0 !important; color: #8f8a82;
+    }
+    .atlas-page .atlas-tabs a.active, .atlas-page .atlas-tabs a:hover,
+    .journal-page .chapter-tabs a.active, .journal-page .chapter-tabs a:hover,
+    .subbar a.active, .subbar a:hover { color: #f3eee6; }
+    .atlas-page:has(.atlas-tabs) .atlas-stage,
+    .journal-page:has(.chapter-tabs) .sheet { top: 96px; }
+    @media (min-width: 801px) {
+      .topbar, .mast .topbar, .topbar .filters, .topbar .filters a, .mast .filters a, #friend-link, #friend-link a {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+        font-size: 17.3px !important; letter-spacing: 0.12em !important; font-weight: 400 !important; line-height: 1 !important;
+      }
+      .topbar .filters a.active { font-weight: 700 !important; }
+      #section-bar, #section-bar a { font-size: 14.4px !important; letter-spacing: 0.12em !important; }
+      .subbar, .subbar a,
+      .atlas-page .atlas-tabs, .atlas-page .atlas-tabs a,
+      .journal-page .chapter-tabs, .journal-page .chapter-tabs a {
+        font-size: 14.4px !important;
+        letter-spacing: 0.12em !important;
+      }
+      .subbar a, .atlas-page .atlas-tabs a, .journal-page .chapter-tabs a {
+        padding: 0 18px !important;
+      }
+      .atlas-page .atlas-tabs, .journal-page .chapter-tabs, body:has(.mast) .subbar {
+        position: static !important;
+      }
+      .atlas-page:has(.atlas-tabs) .atlas-stage,
+      .journal-page:has(.chapter-tabs) .sheet { top: 56px; }
+      body.room:has(.index-list) {
+        overflow: auto !important;
+        height: auto !important;
+      }
+      body.room:has(.index-list) .index-list {
+        position: relative !important;
+        top: auto !important;
+        overflow: visible !important;
+      }
+      .nav-drop.open .nav-menu, .nav-drop:hover .nav-menu { display: flex !important; }
+    }
+    @media (max-width: 980px), (hover: none) {
+      .nav-menu, .nav-drop:hover .nav-menu, .nav-drop.open .nav-menu { display: none !important; }
+    }
+    @media (max-width: 800px) {
+      .mast, .topbar { padding-right: 0 !important; }
+      .subbar { display: none !important; }
+      .nav-menu, .nav-drop:hover .nav-menu, .nav-drop.open .nav-menu { display: none !important; }
+      .mast { display: block !important; padding: 0 !important; height: auto !important; }
+      .mast .topbar,
+      .journal-page .topbar, .room:not(.journal-page) .topbar, .atlas-page .topbar {
+        display: flex !important; flex-wrap: wrap; align-items: center; justify-content: center;
+        gap: 8px 14px !important; padding: 10px 10px 0 !important; overflow: visible !important;
+        height: auto !important; min-height: 0; letter-spacing: 0.1em;
+      }
+      .journal-page .topbar { position: fixed !important; top: 0; left: 0; right: 0; }
+      .mast .filters, .journal-page .topbar .filters, .room .topbar .filters, .atlas-page .topbar .filters {
+        display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+        gap: 8px 14px !important; font-size: 10px !important; letter-spacing: 0.1em !important;
+      }
+      .mast .dot, .journal-page .topbar .dot, .room .topbar .dot, .atlas-page .topbar .dot, .subbar .dot { display: none !important; }
+      /* replaced: .wall { top: 88px; } reserved a secondary bar on mobile Gallery. */
+      .sheet, .index-list, .room-body, .atlas-stage { top: 48px; }
+      .journal-page .journal-bg::after {
+        top: var(--chrome-bottom, 88px); left: 0; width: 100%; transform: none; background: rgba(7,7,7,0.80);
+      }
+      .journal-page .journal-read::before { display: none !important; }
+      .subbar, .atlas-page .atlas-tabs, .journal-page .chapter-tabs {
+        gap: 12px !important; letter-spacing: 0.12em !important; padding: 8px 12px 8px !important; min-height: 36px;
+        top: var(--nav-h, 44px) !important;
+      }
+      .atlas-page:has(.atlas-tabs) .atlas-stage, .journal-page:has(.chapter-tabs) .sheet { top: 88px; }
+      body.lore-page .sheet { top: 124px; }
+      .entry .topbar #fit {
+        position: absolute; right: 10px; top: calc(env(safe-area-inset-top) + 6px);
+        width: 44px; min-width: 44px; min-height: 44px;
+        display: grid; place-items: center; padding: 0;
+        font-size: 0 !important; line-height: 0; color: #efe8dc; background: none; border: 0; z-index: 50;
+      }
+      .entry .topbar #fit svg { width: 18px; height: 18px; display: block; }
+    }
+  </style>
+<style id="elorae-brand-hide">.topbar > a[href="#/seal"]{position:absolute;width:0;height:0;overflow:hidden}.chapter-tabs{display:none!important}@media (max-width:800px){#journal-rail{display:none!important}}</style><style id="epithet-face">.entry .title-block .caption,.entry .title-block .caption .more,.entry .caption{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif!important;font-weight:400!important;font-style:normal!important;letter-spacing:.01em!important;text-transform:none!important;margin-left:0!important;padding-left:0!important}</style></head>
+<body>
+  <script src="pre-route.js?v=10"></script>
+  <script src="entries.js?v=139"></script>
+  <script src="journal.js?v=133"></script>
+  <script src="codex.js?v=147"></script>
+  <script src="codex-eras.js?v=2"></script>
+  <script src="codex-world-more.js?v=145"></script>
+  <script src="codex-hesk.js?v=145"></script>
+  <script src="codex-calendar.js?v=145"></script>
+  <script src="codex-souls.js?v=170"></script>
+  <script src="codex-magics.js?v=157"></script>
+  <script src="codex-lore.js?v=145"></script>
+  <script src="codex-lore-b.js?v=145"></script>
+  <script src="vault.js?v=133"></script>
+  <script src="nav-mobile.js?v=1"></script>
+  <script src="app.js?v=9"></script>
+  <script src="veil.js?v=132"></script>
+  <script src="codex-ui.js?v=199"></script>
+  <script src="fit-mobile.js?v=3"></script>
+  <script src="swipe.js?v=1"></script>
+  <script src="atlas-overview.js?v=5"></script>
+  <script src="restore-hash.js?v=3"></script>
+  <script src="atlas-nav-fix.js?v=2"></script>
+  <script src="persist-drop.js?v=60"></script>
+  <script>
+    (function () {
+      if (!location.hash || location.hash === "#" || location.hash === "#/") location.replace("#/gallery");
+      window._from = window._from || "#/gallery";
+      function goBack() {
+        const to = window._from && window._from !== "#/seal" ? window._from : "#/gallery";
+        location.hash = to;
+        location.reload();
+      }
+      function drawSeal() {
+        document.title = "Elorae";
+        document.body.className = "seal-page";
+        const v = typeof vaultOf === "function" ? vaultOf() : null;
+        if (v) {
+          document.body.innerHTML =
+            '<header class="topbar"><a href="#" id="seal-back">Back</a></header>' +
+            '<main class="seal-card"><h1>' + escapeHtml(v.name) + '</h1>' +
+            '<p class="seal-note">You may now view your private material.</p>' +
+            '<button class="seal-leave" id="leave" type="button">Close the seal</button></main>';
+          document.querySelector("#leave").addEventListener("click", function (e) {
+            e.preventDefault();
+            closeSeal();
+            drawSeal();
+          });
+        } else {
+          document.body.innerHTML =
+            '<header class="topbar"><a href="#" id="seal-back">Back</a></header>' +
+            '<main class="seal-card"><form id="seal-form">' +
+            '<input id="seal-code" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">' +
+            '<button type="submit">Enter</button></form>' +
+            '<p class="seal-err" id="seal-err" hidden>Try again.</p></main>';
+          const form = document.querySelector("#seal-form");
+          const input = document.querySelector("#seal-code");
+          const err = document.querySelector("#seal-err");
+          input.focus();
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const hit = matchSeal(input.value);
+            if (!hit) { err.hidden = false; input.value = ""; input.focus(); return; }
+            openSeal(hit.id);
+            drawSeal();
+          });
+        }
+        const back = document.querySelector("#seal-back");
+        if (back) back.addEventListener("click", function (e) { e.preventDefault(); goBack(); });
+      }
+      window.renderSeal = drawSeal;
+      document.addEventListener("click", function (e) {
+        const a = e.target.closest(".topbar a, .mast a");
+        if (!a) return;
+        const label = a.textContent.trim();
+        if (label === "Atlas" && (a.getAttribute("href") === "#/atlas" || a.closest(".nav-drop"))) {
+          if (a.closest(".nav-menu, .chapter-tabs, .atlas-tabs")) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (typeof window.renderAtlasWorld === "function") {
+            history.replaceState(null, "", "#/atlas/world");
+            window.renderAtlasWorld("world");
+          } else {
+            location.hash = "#/atlas/world";
+          }
+          return;
+        }
+        if (label !== "Elorae" && a.getAttribute("href") !== "#/seal") return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (location.hash && location.hash !== "#/seal") window._from = location.hash;
+        history.replaceState(null, "", "#/seal");
+        drawSeal();
+      }, true);
+      window.addEventListener("hashchange", function () {
+        if ((location.hash || "").replace(/^#\/?/, "") === "seal") drawSeal();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape" || !document.body.classList.contains("seal-page")) return;
+        e.preventDefault();
+        goBack();
+      });
+      if ((location.hash || "").replace(/^#\/?/, "") === "seal") drawSeal();
+      function pinChrome() {
+        if (document.body.classList.contains("seal-page")) return;
+        const bar = document.querySelector(".mast .topbar") || document.querySelector(".topbar") || document.querySelector(".mast");
+        const tabs = document.querySelector(".chapter-tabs, .atlas-tabs, .subbar");
+        const rail = document.querySelector(".lore-rail");
+        const sheet = document.querySelector(".sheet");
+        if (bar) {
+          const top = Math.round(bar.getBoundingClientRect().bottom);
+          document.documentElement.style.setProperty("--nav-h", top + "px");
+          if (tabs && tabs.parentElement !== bar && window.innerWidth <= 800) {
+            tabs.style.setProperty("top", top + "px", "important");
+          }
+        }
+        const chrome = (tabs && tabs.parentElement !== bar ? tabs : null) || bar;
+        if (chrome) {
+          document.documentElement.style.setProperty("--chrome-bottom", Math.round(chrome.getBoundingClientRect().bottom) + "px");
+        }
+        if (rail && bar) {
+          /* replaced: hidden chapter-tabs reported a top of 0, so Contents slid under the nav.
+          const top = Math.round(((tabs && tabs.parentElement !== bar) ? tabs : bar).getBoundingClientRect().bottom);
+          */
+          var section = document.getElementById("section-bar");
+          var edge = bar.getBoundingClientRect().bottom;
+          if (section && section.classList.contains("show")) edge = Math.max(edge, section.getBoundingClientRect().bottom);
+          else if (tabs && tabs.parentElement !== bar && window.innerWidth > 800) edge = tabs.getBoundingClientRect().bottom;
+          const top = Math.round(edge);
+          rail.style.setProperty("top", top + "px", "important");
+          rail.style.setProperty("display", "block", "important");
+          rail.style.setProperty("z-index", "80", "important");
+          if (sheet) {
+            const extra = (document.body.classList.contains("lore-page") && window.innerWidth <= 980)
+              ? rail.offsetHeight : 0;
+            sheet.style.setProperty("top", (top + extra) + "px", "important");
+          }
+        }
+      }
+      function fixJournalTabs() {
+        const hash = (location.hash || "").replace(/^#\/?/, "");
+        if (hash !== "journal" && hash.indexOf("journal/") !== 0) return;
+        const bar = document.querySelector(".topbar");
+        let tabs = document.querySelector(".chapter-tabs");
+        if (!tabs && bar && (window.JOURNAL || []).length) {
+          const first = window.JOURNAL[0];
+          bar.insertAdjacentHTML("afterend", '<nav class="chapter-tabs"></nav>');
+          tabs = document.querySelector(".chapter-tabs");
+          tabs.innerHTML = window.JOURNAL.map(function (j) {
+            const act = String(j.act || "").replace(/^act\s+/i, "").trim();
+            const chap = String(j.chapter || "").replace(/^chapter\s+/i, "").trim();
+            const label = act && chap ? act + ". " + chap : (chap || act || j.title || j.id);
+            const on = (hash === "journal/" + j.id || (!hash.slice(8) && j.id === first.id)) ? " active" : "";
+            return '<a class="' + on + '" href="#/journal/' + j.id + '">' + label + '</a>';
+          }).join("");
+        }
+        if (!tabs || !bar) return;
+        if (window.innerWidth > 800) {
+          const filters = bar.querySelector(".filters");
+          if (tabs.parentElement !== bar) {
+            if (filters) bar.insertBefore(tabs, filters);
+            else bar.appendChild(tabs);
+          }
+        } else if (tabs.parentElement !== document.body && tabs.parentElement !== bar.parentElement) {
+          bar.insertAdjacentElement("afterend", tabs);
+        }
+        (window.JOURNAL || []).forEach(function (j) {
+          const a = tabs.querySelector('a[href="#/journal/' + j.id + '"]');
+          if (!a) return;
+          const act = String(j.act || "").replace(/^act\s+/i, "").trim();
+          const chap = String(j.chapter || "").replace(/^chapter\s+/i, "").trim();
+          const label = act && chap ? act + ". " + chap : (chap || act || j.title || j.id);
+          if (a.textContent.trim() !== label) a.textContent = label;
+        });
+      }
+      window.pinChrome = pinChrome;
+      document.addEventListener("click", function () {
+        requestAnimationFrame(pinChrome);
+        requestAnimationFrame(fixJournalTabs);
+      });
+      window.addEventListener("resize", pinChrome);
+      setInterval(function () { pinChrome(); fixJournalTabs(); }, 200);
+    })();
+  </script>
+  <script src="pin-lore.js?v=2"></script>
+  <script src="nav-merge.js?v=1"></script>
+</body>
+</html>
