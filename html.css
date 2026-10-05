@@ -2370,50 +2370,63 @@ body.seek-panel-open { overflow: hidden; }
 }
 
 
-/* Nav chrome: mast / #section-bar are HARD opaque (#070707) with a crisp
-   bottom edge. Content fades underneath via a veil hung BELOW the bar
-   (not a soft gradient on the bar itself). Phone + desktop. */
-.mast,
+/* Nav chrome: main nav (.mast/.topbar) and secondary nav (#section-bar) are
+   HARD opaque #070707 with a crisp bottom edge -- no gradient on the bars.
+   Only page content fades, via a veil hung BELOW the bottommost chrome
+   (::after at top:100%). Desktop + phone; entry hero overlays untouched. */
+body:not(.entry) .mast,
+body:not(.entry) .mast .topbar,
+body.journal-page .topbar,
+body.journal-page .mast .topbar,
 #section-bar,
 #section-bar:has(a),
 #section-bar.show,
 body.has-section-bar #section-bar {
   background: #070707;
+  background-image: none;
   background-color: #070707;
 }
-.mast::after,
+body.journal-page .topbar,
+body.journal-page .mast .topbar {
+  text-shadow: none;
+}
+body:not(.entry) .mast,
+#section-bar:has(a),
+#section-bar.show,
+body.has-section-bar #section-bar {
+  overflow: visible;
+}
+body:not(.entry) .mast::after,
 #section-bar:has(a)::after,
-#section-bar.show::after {
+#section-bar.show::after,
+body.has-section-bar #section-bar::after {
   content: "";
+  display: block;
   position: absolute;
   left: 0;
   right: 0;
   top: 100%;
-  height: 28px;
+  height: 24px;
   pointer-events: none;
   z-index: 1;
-  /* Veil below chrome: solid at the hard edge, then content dissolves. */
+  /* Bar stays 100% opaque to its last pixel; the veil starts a step lower
+     (0.72) so the chrome edge reads crisp, then content dissolves. */
   background: linear-gradient(
     to bottom,
-    #070707 0%,
-    rgba(7, 7, 7, 0.55) 40%,
+    rgba(7, 7, 7, 0.72) 0%,
+    rgba(7, 7, 7, 0.32) 45%,
     rgba(7, 7, 7, 0) 100%
   );
 }
 
-/* Secondary bar (Calendar/Lore/…): hang content veil under the full chrome
-   stack so the section-bar itself stays fully opaque. Static multipage
-   (#section-bar a) and SPA (#section-bar.show / body.has-section-bar). */
+/* Secondary bar present (Codex/Atlas): no veil on the mast (it would wash
+   over the secondary bar); the veil hangs under #section-bar only. Static
+   multipage (#section-bar a) and SPA (#section-bar.show / body.has-section-bar). */
 body:has(#section-bar a) .mast::after,
 body.has-section-bar .mast::after,
 body:has(#section-bar.show) .mast::after {
   content: none;
   display: none;
-}
-#section-bar:has(a),
-#section-bar.show,
-body.has-section-bar #section-bar {
-  overflow: visible;
 }
 
 /* Phone article: mast overlays hero art (transparent); skip content veil. */
