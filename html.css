@@ -962,6 +962,214 @@ body.index-page .toc-group .toc-name { padding-left: 8px; }
   body.index-page .toc-sub { font-size: 12px; padding: 4px 0; }
 }
 
+
+/* Article Index slide-in. Same nest as the Index rail; cue only while hidden. */
+body.article .art-index {
+  position: fixed;
+  left: 0;
+  top: 72px;
+  bottom: 0;
+  z-index: 18;
+  width: 12px;
+  pointer-events: none;
+}
+/* Thin full-height bridge so the cue and panel share one hover. */
+body.article .art-index::before {
+  content: "";
+  pointer-events: auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+}
+body.article .art-index-cue {
+  pointer-events: auto;
+  position: fixed;
+  left: 0;
+  top: calc(72px + 42vh);
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: rgba(243,238,230,0.45);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color .15s ease;
+}
+body.article .art-index-cue:hover,
+body.article .art-index-cue:focus-visible { color: rgba(243,238,230,0.9); }
+body.article .art-index-cue:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
+body.article .art-index-cue svg {
+  display: block;
+  width: 6px;
+  height: 10px;
+  overflow: visible;
+}
+body.article .art-index-panel {
+  pointer-events: auto;
+  position: fixed;
+  left: 0;
+  top: 72px;
+  bottom: 0;
+  width: 220px;
+  max-width: 78vw;
+  padding: 22px 18px 32px;
+  overflow: auto;
+  scrollbar-width: none;
+  background: rgba(7,7,7,0.92);
+  transform: translateX(-105%);
+  transition: transform .2s ease;
+  z-index: 18;
+}
+body.article .art-index-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
+body.article .art-index-panel > h3 {
+  margin: 0 0 12px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f3eee6;
+}
+body.article .art-index .toc-cat { margin: 0; }
+body.article .art-index .toc-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+body.article .art-index .toc-row > a {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+  margin: 0;
+  padding: 2px 0;
+  border: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  text-decoration: none;
+}
+body.article .art-index .toc-row > a.on,
+body.article .art-index .toc-row > a:hover { color: #f3eee6; }
+body.article .art-index .toc-tog {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  color: #8f8a82;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+body.article .art-index .toc-tog:hover,
+body.article .art-index .toc-tog:focus-visible { color: #f3eee6; }
+body.article .art-index .toc-tog svg {
+  display: block;
+  width: 6px;
+  height: 10px;
+  overflow: visible;
+  transition: transform .15s ease;
+}
+body.article .art-index .toc-cat.open .toc-tog svg { transform: rotate(90deg); }
+body.article .art-index .toc-nest {
+  display: none;
+  padding: 2px 0 8px 8px;
+}
+body.article .art-index .toc-cat.open > .toc-nest { display: block; }
+body.article .art-index .toc-name,
+body.article .art-index .toc-sub {
+  display: block;
+  padding: 2px 0;
+  margin: 0;
+  border: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  text-decoration: none;
+}
+body.article .art-index .toc-sub {
+  margin-top: 6px;
+  letter-spacing: 0.14em;
+  color: #a39c92;
+}
+body.article .art-index .toc-group:first-child .toc-sub { margin-top: 0; }
+body.article .art-index .toc-name.on,
+body.article .art-index .toc-name:hover,
+body.article .art-index .toc-sub.on,
+body.article .art-index .toc-sub:hover { color: #f3eee6; }
+body.article .art-index .toc-group .toc-name { padding-left: 8px; }
+
+@media (min-width: 801px) {
+  body.article .art-index:hover .art-index-panel,
+  body.article .art-index:focus-within .art-index-panel,
+  body.article .art-index.open .art-index-panel {
+    transform: translateX(0);
+  }
+  /* Widen the hover bridge so leaving the cue onto the panel stays open. */
+  body.article .art-index:hover,
+  body.article .art-index:focus-within,
+  body.article .art-index.open {
+    width: 220px;
+  }
+  body.article .art-index:hover::before,
+  body.article .art-index:focus-within::before,
+  body.article .art-index.open::before {
+    width: 220px;
+  }
+  body.article .art-index:hover .art-index-cue,
+  body.article .art-index:focus-within .art-index-cue,
+  body.article .art-index.open .art-index-cue {
+    color: rgba(243,238,230,0.85);
+  }
+}
+
+@media (max-width: 800px) {
+  body.article .art-index {
+    top: 56px;
+  }
+  body.article .art-index-cue {
+    top: calc(56px + 38vh);
+    width: 22px;
+    height: 40px;
+  }
+  body.article .art-index-panel {
+    top: 56px;
+    width: min(240px, 82vw);
+    padding: 18px 16px 28px;
+    background: rgba(7,7,7,0.96);
+  }
+  body.article .art-index.open .art-index-panel {
+    transform: translateX(0);
+  }
+  body.article .art-index .toc-name,
+  body.article .art-index .toc-sub { font-size: 12px; padding: 4px 0; }
+}
+
+
 /* Gallery art pages. Full-screen art like the figure pages (body.entry, .hero, .dock, .title-block),
    with the name, epithet, and one-line. No lore, pager, or fit toggle. */
 @media (min-width: 801px) {
