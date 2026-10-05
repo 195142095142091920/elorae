@@ -798,38 +798,17 @@ table.day-names td {
    Collapsed strip stays hoverable; hover/focus peeks + pushes (body.index-toc-open);
    pin sticks open. Categories keep section headers + spacing; labels sit on the art. */
 body.index-page aside.toc.index-toc {
-  position: fixed;
-  left: 0;
-  top: 72px;
-  bottom: 0;
   z-index: 18;
-  width: 12px;
   margin: 0;
   padding: 0;
   overflow: visible;
   background: none;
-  pointer-events: none;
-}
-body.index-page aside.toc.index-toc::before {
-  content: "";
-  pointer-events: auto;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 12px;
 }
 body.index-page .index-toc-cue {
   pointer-events: auto;
-  position: fixed;
-  left: 0;
-  top: calc(72px + 42vh);
-  z-index: 19;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 36px;
   padding: 0;
   margin: 0;
   background: none;
@@ -842,6 +821,33 @@ body.index-page .index-toc-cue {
   appearance: none;
   transition: color .15s ease;
 }
+@media (min-width: 801px) {
+  body.index-page aside.toc.index-toc {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 12px;
+    pointer-events: none;
+  }
+  body.index-page aside.toc.index-toc::before {
+    content: "";
+    pointer-events: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+  }
+  body.index-page .index-toc-cue {
+    position: fixed;
+    left: 0;
+    top: calc(72px + 42vh);
+    z-index: 19;
+    width: 18px;
+    height: 36px;
+  }
+}
 body.index-page .index-toc-cue:hover,
 body.index-page .index-toc-cue:focus-visible { color: rgba(243,238,230,0.9); }
 body.index-page .index-toc-cue:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
@@ -851,21 +857,26 @@ body.index-page .index-toc-cue svg {
   height: 10px;
   overflow: visible;
 }
+/* Desktop slide-rail panel layout lives under min-width:801px; shared look here. */
 body.index-page .index-toc-panel {
   pointer-events: auto;
-  position: fixed;
-  left: 0;
-  top: 72px;
-  bottom: 0;
-  width: 220px;
-  max-width: 78vw;
   padding: 22px 18px 32px;
   overflow: auto;
   scrollbar-width: none;
   background: rgba(7,7,7,0.92);
-  transform: translateX(-105%);
-  transition: transform .2s ease;
   z-index: 18;
+}
+@media (min-width: 801px) {
+  body.index-page .index-toc-panel {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 220px;
+    max-width: 78vw;
+    transform: translateX(-105%);
+    transition: transform .2s ease;
+  }
 }
 body.index-page .index-toc-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
 body.index-page .index-toc-head {
@@ -1318,35 +1329,13 @@ body.index-page .toc-group .toc-name { padding-left: 8px; }
 
 /* Article Index slide-in. Same nest as the Index rail; cue only while hidden. */
 body.article .art-index {
-  position: fixed;
-  left: 0;
-  top: 72px;
-  bottom: 0;
   z-index: 18;
-  width: 12px;
-  pointer-events: none;
-}
-/* Thin full-height bridge so the cue and panel share one hover. */
-body.article .art-index::before {
-  content: "";
-  pointer-events: auto;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 12px;
 }
 body.article .art-index-cue {
   pointer-events: auto;
-  position: fixed;
-  left: 0;
-  top: calc(72px + 42vh);
-  z-index: 19;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 36px;
   padding: 0;
   margin: 0;
   background: none;
@@ -1359,6 +1348,34 @@ body.article .art-index-cue {
   appearance: none;
   transition: color .15s ease;
 }
+@media (min-width: 801px) {
+  body.article .art-index {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 12px;
+    pointer-events: none;
+  }
+  /* Thin full-height bridge so the cue and panel share one hover. */
+  body.article .art-index::before {
+    content: "";
+    pointer-events: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 12px;
+  }
+  body.article .art-index-cue {
+    position: fixed;
+    left: 0;
+    top: calc(72px + 42vh);
+    z-index: 19;
+    width: 18px;
+    height: 36px;
+  }
+}
 body.article .art-index-cue:hover,
 body.article .art-index-cue:focus-visible { color: rgba(243,238,230,0.9); }
 body.article .art-index-cue:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
@@ -1368,21 +1385,26 @@ body.article .art-index-cue svg {
   height: 10px;
   overflow: visible;
 }
+/* Desktop slide-rail panel layout lives under min-width:801px; shared look here. */
 body.article .art-index-panel {
   pointer-events: auto;
-  position: fixed;
-  left: 0;
-  top: 72px;
-  bottom: 0;
-  width: 220px;
-  max-width: 78vw;
   padding: 22px 18px 32px;
   overflow: auto;
   scrollbar-width: none;
   background: rgba(7,7,7,0.92);
-  transform: translateX(-105%);
-  transition: transform .2s ease;
   z-index: 18;
+}
+@media (min-width: 801px) {
+  body.article .art-index-panel {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 220px;
+    max-width: 78vw;
+    transform: translateX(-105%);
+    transition: transform .2s ease;
+  }
 }
 body.article .art-index-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
 body.article .art-index-panel > h3 {
@@ -3288,4 +3310,46 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
     background: none;
   }
   body.entry .life-dock:has(.life-sheet.open)::after { display: none; content: none; }
+}
+
+/* ---- Phone hard-kill: never a left full-height Categories panel (railkill1) ----
+   Base Index/article rail still uses fixed+translateX for desktop; phone must not
+   inherit bottom:0 / translateX slide-in even if an earlier rule races. */
+@media (max-width: 800px) {
+  body.index-page aside.toc.index-toc,
+  body.article .art-index {
+    bottom: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    transform: none !important;
+  }
+  body.index-page .index-toc-cue,
+  body.article .art-index-cue {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+  body.index-page .index-toc-panel,
+  body.article .art-index-panel {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 100% !important;
+    bottom: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: min(58vh, 520px) !important;
+    transform: none !important;
+  }
+  body.index-page aside.toc.index-toc.open .index-toc-panel,
+  body.article .art-index.open .art-index-panel,
+  body.article .art-index:hover .art-index-panel,
+  body.article .art-index:focus-within .art-index-panel {
+    transform: none !important;
+  }
 }
