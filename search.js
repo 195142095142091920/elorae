@@ -98,6 +98,26 @@
     });
   }
 
+  /* Canonical page identity: path without hash (one result per page/article/journal). */
+  function pageKey(href) {
+    return String(href || "").split("#")[0];
+  }
+
+  /* Higher = better single hit to keep when collapsing same-page rows. */
+  function hitScore(entry, titleHit, textHit, q) {
+    var score = 0;
+    if (titleHit) score += 100;
+    if (textHit) score += 10;
+    var kindBoost = { article: 50, journal: 40, codex: 30, atlas: 20, lore: 15, figure: 5 };
+    score += kindBoost[entry.kind] || 0;
+    if (entry.image && entry.kind === "article") score += 25;
+    if (textHit && entry.text && q) {
+      var i = entry.text.toLowerCase().indexOf(q);
+      if (i >= 0) score += Math.max(0, 8 - Math.min(8, Math.floor(i / 250)));
+    }
+    return score;
+  }
+
   function renderHits(q) {
     if (!hits || !isSearchPage) return;
     if (!q || !window.SEARCH_INDEX) {
@@ -105,18 +125,28 @@
       hits.innerHTML = "";
       return;
     }
-    var seen = {};
-    var rows = [];
+    var best = {};
     window.SEARCH_INDEX.forEach(function (entry) {
       if (!canSee(entry)) return;
       var titleHit = entry.title.toLowerCase().indexOf(q) !== -1;
-      var textHit = entry.text && entry.text.toLowerCase().indexOf(q) !== -1;
+      var textHit = !!(entry.text && entry.text.toLowerCase().indexOf(q) !== -1);
       if (!titleHit && !textHit) return;
-      var key = entry.href.split("#")[0] + "::" + entry.title;
-      if (seen[key]) return;
-      seen[key] = true;
-      var snip = textHit ? makeSnippet(entry.text, q) : "";
-      rows.push({ entry: entry, snip: snip, titleHit: titleHit });
+      var key = pageKey(entry.href);
+      if (!key) return;
+      var score = hitScore(entry, titleHit, textHit, q);
+      var prev = best[key];
+      if (prev && prev.score >= score) return;
+      best[key] = {
+        score: score,
+        entry: entry,
+        snip: textHit ? makeSnippet(entry.text || "", q) : "",
+        titleHit: titleHit
+      };
+    });
+    var rows = Object.keys(best).map(function (k) { return best[k]; });
+    rows.sort(function (a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.entry.title.localeCompare(b.entry.title);
     });
     if (!rows.length) {
       hits.hidden = true;
@@ -140,7 +170,8 @@
     var cards = [];
     var mentions = [];
     var seenCard = {};
-    var seenMent = {};
+    var cardPages = {};
+    var bestMent = {};
     if (!q || !window.SEARCH_INDEX) return { cards: cards, mentions: mentions };
     window.SEARCH_INDEX.forEach(function (entry) {
       if (!canSee(entry)) return;
@@ -156,20 +187,32 @@
 
       var mentKind = entry.kind === "journal" || entry.kind === "codex" || entry.kind === "atlas" || entry.kind === "lore";
       if (textHit || (titleHit && mentKind && !entry.image)) {
-        var mk = entry.href.split("#")[0] + "::" + entry.title;
-        if (seenMent[mk]) return;
-        /* Prefer mention rows for corpus kinds; skip pure article title cards already shown. */
+        /* Prefer mention rows for corpus kinds; skip pure article/figure title cards. */
         if (entry.kind === "article" && titleHit && !textHit) return;
         if (entry.kind === "figure" && titleHit && !textHit) return;
-        seenMent[mk] = true;
-        mentions.push({
+        var mk = pageKey(entry.href);
+        if (!mk) return;
+        var score = hitScore(entry, titleHit, textHit, q);
+        var prev = bestMent[mk];
+        if (prev && prev.score >= score) return;
+        bestMent[mk] = {
+          score: score,
           entry: entry,
           snip: textHit ? makeSnippet(entry.text || "", q) : ""
-        });
+        };
       }
     });
-    Object.keys(seenCard).forEach(function (k) { cards.push(seenCard[k]); });
+    Object.keys(seenCard).forEach(function (k) {
+      cards.push(seenCard[k]);
+      var pk = pageKey(seenCard[k].href);
+      if (pk) cardPages[pk] = true;
+    });
     cards.sort(function (a, b) { return a.title.localeCompare(b.title); });
+    /* One mention per page; drop pages already shown as primary cards. */
+    Object.keys(bestMent).forEach(function (mk) {
+      if (cardPages[mk]) return;
+      mentions.push(bestMent[mk]);
+    });
     var mentRank = { journal: 0, codex: 1, atlas: 2, lore: 3 };
     mentions.sort(function (a, b) {
       var ra = mentRank[a.entry.kind];
