@@ -1,15 +1,17 @@
-/* Article Index: slide-in nested category list. Desktop opens on hover; phone taps the cue.
-   Current article is marked .on in HTML; keep it in view when the sticky panel is used. */
+/* Article Index: desktop slide-in rail; phone Categories opens from #section-bar .sec-toggle.
+   Current article is marked .on in HTML; keep it in view when the panel is used. */
 (function () {
   var root = document.getElementById("art-index");
   if (!root) return;
   var cue = root.querySelector(".art-index-cue");
   var panel = root.querySelector(".art-index-panel");
+  var secToggle = document.querySelector('#section-bar .sec-toggle[data-sec-for="art-index"]');
   var desk = window.matchMedia("(min-width: 801px)");
 
   function setOpen(on) {
     root.classList.toggle("open", !!on);
     if (cue) cue.setAttribute("aria-expanded", on ? "true" : "false");
+    if (secToggle) secToggle.setAttribute("aria-expanded", on ? "true" : "false");
     if (on) keepCurrentInView();
   }
 
@@ -30,11 +32,19 @@
       setOpen(!root.classList.contains("open"));
     });
   }
+  if (secToggle) {
+    secToggle.addEventListener("click", function (e) {
+      if (desk.matches) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(!root.classList.contains("open"));
+    });
+  }
 
   document.addEventListener("click", function (e) {
     if (desk.matches) return;
     if (!root.classList.contains("open")) return;
-    if (e.target.closest && e.target.closest("#art-index")) return;
+    if (e.target.closest && (e.target.closest("#art-index") || e.target.closest("#section-bar .sec-toggle"))) return;
     setOpen(false);
   }, true);
 

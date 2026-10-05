@@ -16,18 +16,44 @@
   var drop = toc.querySelector("details.toc-drop");
   var phone = window.matchMedia("(max-width: 800px)");
   if (drop) {
-    var syncDrop = function () { drop.open = !phone.matches; };
+    var secToggle = document.querySelector('#section-bar .sec-toggle[data-sec-for="toc-drop"]');
+    var syncAria = function () {
+      if (secToggle) secToggle.setAttribute("aria-expanded", drop.open ? "true" : "false");
+    };
+    var syncDrop = function () {
+      drop.open = !phone.matches;
+      syncAria();
+    };
     syncDrop();
     if (phone.addEventListener) phone.addEventListener("change", syncDrop);
     else if (phone.addListener) phone.addListener(syncDrop);
+    if (secToggle) {
+      secToggle.addEventListener("click", function (e) {
+        if (!phone.matches) return;
+        e.preventDefault();
+        e.stopPropagation();
+        drop.open = !drop.open;
+        syncAria();
+      });
+    }
     toc.addEventListener("click", function (e) {
-      if (phone.matches && e.target.closest && e.target.closest("a[href^='#']")) drop.open = false;
+      if (phone.matches && e.target.closest && e.target.closest("a[href^='#']")) {
+        drop.open = false;
+        syncAria();
+      }
     });
     document.addEventListener("click", function (e) {
-      if (phone.matches && drop.open && !toc.contains(e.target)) drop.open = false;
+      if (!phone.matches || !drop.open) return;
+      if (toc.contains(e.target)) return;
+      if (e.target.closest && e.target.closest("#section-bar .sec-toggle")) return;
+      drop.open = false;
+      syncAria();
     });
     document.addEventListener("keydown", function (e) {
-      if (phone.matches && drop.open && e.key === "Escape") drop.open = false;
+      if (phone.matches && drop.open && e.key === "Escape") {
+        drop.open = false;
+        syncAria();
+      }
     });
   }
   var items = Array.prototype.map.call(toc.querySelectorAll("a[href^='#']"), function (a) {

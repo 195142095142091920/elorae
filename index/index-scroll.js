@@ -1,7 +1,7 @@
 /* Index rail: Chromium-style category sidebar.
    Collapsed strip stays hoverable; hover/focus peeks the panel and pushes the
    card grid (body.index-toc-open). Pin sticks the rail open; unpin collapses.
-   Phone: cue opens a sticky top Categories dropdown (not the side rail); pin hidden;
+   Phone: Categories opens from #section-bar .sec-toggle (regular secondary nav); pin/cue hidden;
    tap-outside / link / Escape closes.
    Nests stay closed until the chevron is tapped; no card highlight while scrolling. */
 (function () {
@@ -10,6 +10,7 @@
   var panel = toc.querySelector(".index-toc-panel") || toc;
   var cue = toc.querySelector(".index-toc-cue");
   var pin = toc.querySelector(".index-toc-pin");
+  var secToggle = document.querySelector('#section-bar .sec-toggle[data-sec-for="index-toc"]');
   var desk = window.matchMedia("(min-width: 801px)");
   function byHref(a) { return document.getElementById(a.getAttribute("href").slice(1)); }
   var cats = Array.prototype.map.call(toc.querySelectorAll(".toc-cat"), function (box) {
@@ -42,6 +43,7 @@
     toc.classList.toggle("open", !!on);
     document.body.classList.toggle("index-toc-open", !!on);
     if (cue) cue.setAttribute("aria-expanded", on ? "true" : "false");
+    if (secToggle) secToggle.setAttribute("aria-expanded", on ? "true" : "false");
   }
   function setPinned(on) {
     pinned = !!on;
@@ -108,6 +110,18 @@
       sync();
     });
   }
+
+  if (secToggle) {
+    secToggle.addEventListener("click", function (e) {
+      if (desk.matches) return;
+      e.preventDefault();
+      e.stopPropagation();
+      phoneOpen = !phoneOpen;
+      if (pinned && !phoneOpen) setPinned(false);
+      sync();
+    });
+  }
+
   /* Desktop: open while hovered, focused, or pinned. */
   toc.addEventListener("mouseenter", function () { hover = true; sync(); });
   toc.addEventListener("mouseleave", function () { hover = false; sync(); });
@@ -117,7 +131,7 @@
     if (desk.matches) return;
     if (pinned) return;
     if (!toc.classList.contains("open")) return;
-    if (e.target.closest && e.target.closest("aside.toc")) return;
+    if (e.target.closest && (e.target.closest("aside.toc") || e.target.closest("#section-bar .sec-toggle"))) return;
     phoneOpen = false;
     sync();
   }, true);

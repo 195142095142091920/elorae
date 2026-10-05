@@ -33,9 +33,9 @@
   }
   if ([].some.call(document.scripts, function (s) { return (s.src || "").indexOf("nav-boot.js?v=26") !== -1; })) return;
   var n = document.createElement("script");
-  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=47") !== -1; })) {
+  if (![].some.call(document.scripts, function (s) { return (s.src || "").indexOf("mobile-fix.js?v=48") !== -1; })) {
     var m = document.createElement("script");
-    m.src = "mobile-fix.js?v=47";
+    m.src = "mobile-fix.js?v=48";
     document.documentElement.appendChild(m);
   }
   n.src = "nav-boot.js?v=26";

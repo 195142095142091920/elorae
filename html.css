@@ -1053,67 +1053,32 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
 }
 
 @media (max-width: 800px) {
-  /* Phone: Categories is a sticky top dropdown under the mast (like Codex Contents),
-     not a left side slide-out. Desktop Chromium rail stays in min-width 801px. */
+  /* Phone: Categories lives in the regular #section-bar secondary nav (same chrome
+     as Atlas/Codex Calendar/Lore). Cue hidden; panel drops from under the bar. */
+  body.index-page .index-toc-cue { display: none !important; }
   body.index-page aside.toc.index-toc {
-    position: -webkit-sticky;
-    position: sticky;
-    top: calc(102px + env(safe-area-inset-top, 0px));
-    left: auto;
-    right: auto;
+    position: fixed;
+    top: calc(146px + env(safe-area-inset-top, 0px)); /* mast 102 + section-bar 44 */
+    left: 0;
+    right: 0;
     bottom: auto;
     z-index: 29;
     width: 100%;
     max-width: none;
-    height: auto;
+    height: 0;
     margin: 0;
     padding: 0;
     overflow: visible;
-    background: #070707;
-    pointer-events: auto;
+    background: none;
+    pointer-events: none;
   }
   body.index-page aside.toc.index-toc::before { display: none; content: none; }
-  body.index-page .index-toc-cue {
-    position: relative;
-    left: auto;
-    top: auto;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    height: 44px;
-    min-height: 44px;
-    padding: 0 16px;
-    box-sizing: border-box;
-    color: #b7b0a4;
-    -webkit-tap-highlight-color: transparent;
-  }
-  body.index-page .index-toc-cue::before {
-    content: "Categories";
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-  }
-  body.index-page .index-toc-cue svg {
-    width: 6px;
-    height: 6px;
-    transform: translateY(-2px) rotate(45deg);
-    border-right: 0;
-    overflow: visible;
-  }
-  /* Cue chevron: reuse the polyline as a down caret via rotate */
-  body.index-page .index-toc-cue svg { transform: rotate(90deg); opacity: 0.7; transition: transform 0.2s ease, opacity 0.2s ease; }
-  body.index-page aside.toc.index-toc.open .index-toc-cue { color: #f3eee6; left: auto; }
-  body.index-page aside.toc.index-toc.open .index-toc-cue svg { transform: rotate(-90deg); opacity: 1; }
   body.index-page .index-toc-panel {
+    pointer-events: auto;
     position: absolute;
     left: 0;
     right: 0;
-    top: 100%;
+    top: 0;
     bottom: auto;
     z-index: 2;
     width: 100%;
@@ -1134,25 +1099,13 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     display: block;
     transform: none;
   }
-  /* Pin is desktop Chromium stick; hide on phone top-dropdown. */
   body.index-page .index-toc-pin,
   body.index-page .index-toc-head { display: none; }
-  body.index-page aside.toc.index-toc.open .index-toc-cue,
-  body.index-page aside.toc.index-toc.pinned .index-toc-cue {
-    color: #f3eee6;
-  }
-  body.index-page .index-toc-pin {
-    width: 28px;
-    height: 28px;
-  }
-  body.index-page .index-toc-pin svg {
-    width: 14px;
-    height: 14px;
-  }
   body.index-page main.with-toc.index-flow {
     display: block;
     margin-left: 0;
-    /* Phone: tighter sides than Gallery's 12px so art tiles read larger. */
+    /* Phone: tighter sides than Gallery's 12px so art tiles read larger.
+       Top clearance: mast + section-bar (handled by sticky bar in flow / fixed mast). */
     padding: 8px 6px 56px;
   }
   body.index-page .index-cat,
@@ -1523,54 +1476,27 @@ body.article .art-index .toc-group .toc-name { padding-left: 8px; }
 }
 
 @media (max-width: 800px) {
-  /* Phone: article Categories drops from a fixed strip under the mast, not a side rail.
-     Fixed (not sticky) so the hero art is not pushed down in the flow. */
+  /* Phone: article Categories in regular #section-bar; cue hidden; panel under bar. */
+  body.article .art-index-cue { display: none !important; }
   body.article .art-index {
     position: fixed;
-    top: calc(102px + env(safe-area-inset-top, 0px));
+    top: calc(146px + env(safe-area-inset-top, 0px));
     left: 0;
     right: 0;
     bottom: auto;
     z-index: 29;
     width: 100%;
-    height: auto;
-    pointer-events: auto;
-    background: #070707;
+    height: 0;
+    pointer-events: none;
+    background: none;
   }
   body.article .art-index::before { display: none; content: none; }
-  body.article .art-index-cue {
-    position: relative;
-    left: auto;
-    top: auto;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    height: 44px;
-    min-height: 44px;
-    padding: 0 16px;
-    box-sizing: border-box;
-    color: #b7b0a4;
-    -webkit-tap-highlight-color: transparent;
-  }
-  body.article .art-index-cue::before {
-    content: "Categories";
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-  }
-  body.article .art-index-cue svg { transform: rotate(90deg); opacity: 0.7; transition: transform 0.2s ease; }
-  body.article .art-index.open .art-index-cue { color: #f3eee6; left: auto; }
-  body.article .art-index.open .art-index-cue svg { transform: rotate(-90deg); opacity: 1; }
   body.article .art-index-panel {
+    pointer-events: auto;
     position: absolute;
     left: 0;
     right: 0;
-    top: 100%;
+    top: 0;
     bottom: auto;
     z-index: 2;
     width: 100%;
@@ -1594,6 +1520,15 @@ body.article .art-index .toc-group .toc-name { padding-left: 8px; }
   body.article .art-index-panel > h3 { display: none; }
   body.article .art-index .toc-name,
   body.article .art-index .toc-sub { font-size: 12px; padding: 4px 0; }
+  /* Article mast is transparent over hero; keep #section-bar hard opaque. */
+  body.article #section-bar {
+    position: fixed;
+    top: calc(102px + env(safe-area-inset-top, 0px));
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: #070707;
+  }
 }
 
 
@@ -3312,6 +3247,192 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
   body.entry .life-dock:has(.life-sheet.open)::after { display: none; content: none; }
 }
 
+
+/* ---- Phone: secondary dropdowns use regular #section-bar chrome (secbar1) ----
+   Categories / Chapters / Lore match Atlas-Codex secondary links (type, spacing, height).
+   Desktop Chromium rails / docks unchanged. */
+@media (min-width: 801px) {
+  body.index-page #section-bar,
+  body.article #section-bar,
+  body.journal-flow #section-bar { display: none; }
+}
+@media (max-width: 800px) {
+  /* sec-toggle: same row language as #section-bar a */
+  #section-bar .sec-toggle {
+    -webkit-appearance: none;
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 6px 6px;
+    min-height: 44px;
+    height: 44px;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    cursor: pointer;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8f8a82;
+    line-height: 1;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #section-bar .sec-toggle::after {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    opacity: 0.65;
+    transform: translateY(-1px) rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+  #section-bar .sec-toggle[aria-expanded="true"],
+  body.index-toc-open #section-bar .sec-toggle[data-sec-for="index-toc"],
+  body.article:has(.art-index.open) #section-bar .sec-toggle[data-sec-for="art-index"],
+  body.journal-flow:has(.toc-drop[open]) #section-bar .sec-toggle[data-sec-for="toc-drop"] {
+    color: #f3eee6;
+  }
+  #section-bar .sec-toggle[aria-expanded="true"]::after,
+  body.index-toc-open #section-bar .sec-toggle[data-sec-for="index-toc"]::after,
+  body.article:has(.art-index.open) #section-bar .sec-toggle[data-sec-for="art-index"]::after,
+  body.journal-flow:has(.toc-drop[open]) #section-bar .sec-toggle[data-sec-for="toc-drop"]::after {
+    transform: translateY(1px) rotate(-135deg);
+  }
+  #section-bar .sec-toggle:focus-visible {
+    outline: 1px solid rgba(243,238,230,0.35);
+    outline-offset: -4px;
+  }
+
+  /* Index / article / journal-flow: section-bar is the only secondary chrome row.
+     Hard opaque; veil under the bar (not under a custom strip). */
+  body.index-page #section-bar,
+  body.article #section-bar,
+  body.journal-flow #section-bar {
+    display: flex;
+    position: -webkit-sticky;
+    position: sticky;
+    top: calc(102px + env(safe-area-inset-top, 0px));
+    z-index: 30;
+    width: 100%;
+    min-height: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0 6px;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+    gap: 0 2px;
+    background: #070707;
+    background-image: none;
+    overflow: visible;
+  }
+  body.journal-flow #section-bar,
+  body.journal-page.journal-flow #section-bar {
+    top: calc(118px + env(safe-area-inset-top, 0px));
+  }
+  body.index-page #section-bar::after,
+  body.article #section-bar::after,
+  body.journal-flow #section-bar::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 24px;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(to bottom, rgba(7,7,7,0.72) 0%, rgba(7,7,7,0.32) 45%, rgba(7,7,7,0) 100%);
+  }
+  body.index-page:has(aside.toc.index-toc.open) #section-bar::after,
+  body.article:has(.art-index.open) #section-bar::after,
+  body.journal-flow:has(.toc-drop[open]) #section-bar::after {
+    display: none;
+    content: none;
+  }
+  body.index-page:has(#section-bar) .mast::after,
+  body.article:has(#section-bar) .mast::after,
+  body.journal-flow:has(#section-bar) .mast::after {
+    content: none;
+    display: none;
+  }
+
+  /* Journal Chapters: control is #section-bar; hide the old toc-drop summary strip. */
+  body.journal-flow aside.toc:has(> .toc-drop) {
+    position: fixed;
+    top: calc(162px + env(safe-area-inset-top, 0px)); /* journal mast 118 + bar 44 */
+    left: 0;
+    right: 0;
+    bottom: auto;
+    z-index: 29;
+    width: 100%;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    background: none;
+    pointer-events: none;
+  }
+  body.journal-flow .toc-drop > summary { display: none !important; }
+  body.journal-flow .toc-drop > .toc-list {
+    pointer-events: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+  }
+  body.journal-flow aside.toc:has(> .toc-drop)::after { display: none; content: none; }
+
+  /* Codex/Atlas Contents (and any remaining toc-drop summary): match section-bar a, not custom strip. */
+  .toc-drop > summary {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: #8f8a82;
+    gap: 8px;
+  }
+  .toc-drop[open] > summary { color: #f3eee6; }
+  .toc-drop > summary::after {
+    width: 5px;
+    height: 5px;
+    transform: translateY(-1px) rotate(45deg);
+  }
+  .toc-drop[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+
+  /* Figure Lore: same secondary-nav language as #section-bar a. */
+  body.entry .life-dock .life-toggle {
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    background: #070707;
+    color: #8f8a82;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    gap: 8px;
+  }
+  body.entry .life-dock:has(.life-sheet.open) .life-toggle {
+    color: #f3eee6;
+    background: #070707;
+  }
+  body.entry .life-dock .life-toggle::after {
+    width: 5px;
+    height: 5px;
+    transform: translateY(-1px) rotate(45deg);
+  }
+  body.entry .life-dock:has(.life-sheet.open) .life-toggle::after {
+    transform: translateY(1px) rotate(-135deg);
+  }
+}
+
 /* ---- Phone hard-kill: never a left full-height Categories panel (railkill1) ----
    Base Index/article rail still uses fixed+translateX for desktop; phone must not
    inherit bottom:0 / translateX slide-in even if an earlier rule races. */
@@ -3321,17 +3442,11 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
     bottom: auto !important;
     width: 100% !important;
     max-width: none !important;
-    height: auto !important;
     transform: none !important;
   }
   body.index-page .index-toc-cue,
   body.article .art-index-cue {
-    position: relative !important;
-    left: auto !important;
-    top: auto !important;
-    width: 100% !important;
-    height: 44px !important;
-    min-height: 44px !important;
+    display: none !important;
   }
   body.index-page .index-toc-panel,
   body.article .art-index-panel {
