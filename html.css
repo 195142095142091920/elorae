@@ -1064,7 +1064,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
 @keyframes art-lift { to { transform: translateY(18%) scale(1.04); opacity: 0.45; } }
 
 @media (min-width: 801px) {
-  body.article .mast { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 28px; }
+  body.article .mast { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 0; background: #070707; }
   body.article .art-back { position: fixed; top: 0; left: 28px; height: 56px; display: flex; align-items: center; font-size: 16px; }
   body.article .art-title { width: min(46vw, 560px); padding: 40px 28px 28px; }
   body.article .art-title h1 { font-size: clamp(28px, 4vw, 42px); }
