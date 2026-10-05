@@ -1064,6 +1064,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
 @keyframes art-lift { to { transform: translateY(18%) scale(1.04); opacity: 0.45; } }
 
 @media (min-width: 801px) {
+  /* Previous always-visible thumbnail row (replaced by arrows, art5):
   body.article .art-swap { position: absolute; z-index: 3; display: flex; gap: 8px; }
   body.article .art-swap button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
   body.article .art-swap button:hover { opacity: 0.9; }
@@ -1071,6 +1072,20 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-swap img { position: static; inset: auto; display: block; width: 100%; height: 100%; object-fit: cover; transform: none; animation: none; opacity: 1; }
   body.article .art-swap { right: 28px; bottom: 28px; }
   body.article .art-swap button { width: 56px; height: 70px; }
+  */
+  body.article .art-swap { position: absolute; z-index: 3; display: flex; flex-direction: column; gap: 10px; }
+  body.article .art-swap-nav { display: flex; gap: 6px; }
+  body.article .art-swap-nav button { padding: 0; margin: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(7,7,7,0.55); border: 1px solid rgba(243,238,230,0.3); color: #f3eee6; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 26px; line-height: 1; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+  body.article .art-swap-nav button:hover { border-color: #f3eee6; background: rgba(7,7,7,0.8); }
+  body.article .art-swap-thumbs { display: flex; gap: 8px; }
+  body.article .art-swap-thumbs button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
+  body.article .art-swap-thumbs button:hover { opacity: 0.9; }
+  body.article .art-swap-thumbs button.on { opacity: 1; border-color: #f3eee6; }
+  body.article .art-swap-thumbs img { position: static; inset: auto; display: block; width: 100%; height: 100%; object-fit: cover; transform: none; animation: none; opacity: 1; }
+  body.article .art-swap { right: 28px; bottom: 28px; align-items: flex-end; }
+  body.article .art-swap-thumbs { opacity: 0; pointer-events: none; transform: translateY(6px); transition: opacity .2s ease, transform .2s ease; }
+  body.article .art-swap:hover .art-swap-thumbs, body.article .art-swap:has(:focus-visible) .art-swap-thumbs { opacity: 1; pointer-events: auto; transform: none; }
+  body.article .art-swap-thumbs button { width: 56px; height: 70px; }
   body.article .art-life + .art-life { margin-top: 1.1em; }
   body.article .art-related + .art-rel-head, body.article .art-related + .art-related, body.article .art-rel-head + .art-rel-head { margin-top: 28px; }
   body.article .mast { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 0; background: #070707; }
@@ -1083,6 +1098,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 800px) {
+  /* Previous always-visible thumbnail row (replaced by arrows, art5):
   body.article .art-swap { position: absolute; z-index: 3; display: flex; gap: 8px; }
   body.article .art-swap button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
   body.article .art-swap button:hover { opacity: 0.9; }
@@ -1091,6 +1107,21 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-swap { left: 0; right: 0; bottom: max(22px, env(safe-area-inset-bottom)); justify-content: center; }
   body.article .art-swap button { width: 44px; height: 54px; }
   body.article .art-hero.has-swap .art-title { padding-bottom: calc(max(22px, env(safe-area-inset-bottom)) + 70px); }
+  */
+  body.article .art-swap { position: absolute; z-index: 3; display: flex; flex-direction: column; gap: 10px; }
+  body.article .art-swap-nav { display: flex; gap: 6px; }
+  body.article .art-swap-nav button { padding: 0; margin: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(7,7,7,0.55); border: 1px solid rgba(243,238,230,0.3); color: #f3eee6; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 26px; line-height: 1; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+  body.article .art-swap-nav button:hover { border-color: #f3eee6; background: rgba(7,7,7,0.8); }
+  body.article .art-swap-thumbs { display: flex; gap: 8px; }
+  body.article .art-swap-thumbs button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
+  body.article .art-swap-thumbs button:hover { opacity: 0.9; }
+  body.article .art-swap-thumbs button.on { opacity: 1; border-color: #f3eee6; }
+  body.article .art-swap-thumbs img { position: static; inset: auto; display: block; width: 100%; height: 100%; object-fit: cover; transform: none; animation: none; opacity: 1; }
+  body.article .art-swap { left: 0; right: 0; bottom: max(22px, env(safe-area-inset-bottom)); align-items: center; }
+  body.article .art-swap-thumbs { display: none; }
+  body.article .art-swap-nav button { width: 44px; height: 44px; -webkit-tap-highlight-color: transparent; }
+  body.article .art-swap-nav button:focus:not(:focus-visible) { outline: none; }
+  body.article .art-hero.has-swap .art-title { padding-bottom: calc(max(22px, env(safe-area-inset-bottom)) + 60px); }
   body.article .art-life + .art-life { margin-top: 1.1em; }
   body.article .art-related + .art-rel-head, body.article .art-related + .art-related, body.article .art-rel-head + .art-rel-head { margin-top: 28px; }
   body.article .mast { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 18px; }
