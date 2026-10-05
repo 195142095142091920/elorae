@@ -31,6 +31,47 @@
       if (item.el.getBoundingClientRect().top <= line) id = item.el.id;
     });
     highlight(id);
+    follow(line);
+  }
+  /* Background art follows the column: when a chapter's first in-column image reaches the
+     highlight line, the fixed background crossfades to it (two stacked layers in .journal-bg). */
+  var layer = document.querySelector(".journal-bg img");
+  var marks = [];
+  if (layer) {
+    var heads = Array.prototype.slice.call(document.querySelectorAll("main.read > h1[id]"));
+    heads.forEach(function (h, i) {
+      var next = heads[i + 1], node = h.nextElementSibling;
+      while (node && node !== next) {
+        var art = node.matches("figure") ? node.querySelector("img") : null;
+        if (art) { marks.push(art); break; }
+        node = node.nextElementSibling;
+      }
+    });
+    var back = layer.cloneNode(false);
+    back.classList.add("bg-off");
+    layer.parentNode.appendChild(back);
+    var layers = [layer, back], front = 0, shown = layer.getAttribute("src"), base = shown, want = shown;
+  }
+  function swapTo(src) {
+    if (src === want) return;
+    want = src;
+    var next = layers[1 - front];
+    function show() {
+      if (want !== src) return;
+      next.classList.remove("bg-off");
+      layers[front].classList.add("bg-off");
+      front = 1 - front;
+      shown = src;
+    }
+    if (next.getAttribute("src") === src && next.complete) { show(); return; }
+    next.onload = show;
+    next.setAttribute("src", src);
+  }
+  function follow(line) {
+    if (!marks.length) return;
+    var src = base;
+    marks.forEach(function (art) { if (art.getBoundingClientRect().top <= line) src = art.getAttribute("src"); });
+    if (src !== want) swapTo(src);
   }
   update();
   window.addEventListener("scroll", update, { passive: true });

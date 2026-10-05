@@ -1240,3 +1240,13 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.journal-flow .read figure { margin: 1.5em 0; }
   body.journal-flow .read figcaption { margin-top: 10px; }
 }
+
+/* Journal background follows the column (journal-scroll.js stacks two layers and crossfades). */
+@media (min-width: 801px) {
+  body.journal-flow .journal-bg img { position: absolute; inset: 0; opacity: 1; transition: opacity .4s ease; }
+  body.journal-flow .journal-bg img.bg-off { opacity: 0; }
+}
+@media (max-width: 800px) {
+  body.journal-flow .journal-bg img { position: absolute; inset: 0; opacity: 1; transition: opacity .4s ease; }
+  body.journal-flow .journal-bg img.bg-off { opacity: 0; }
+}
