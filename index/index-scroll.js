@@ -15,7 +15,7 @@
   }
   function update() {
     var mast = document.querySelector(".mast");
-    var line = mast ? mast.getBoundingClientRect().bottom : 110;
+    var line = mast ? mast.getBoundingClientRect().bottom + 72 : 180;
     var id = items[0].el.id;
     items.forEach(function (item) {
       var heading = item.el.querySelector("h2");
