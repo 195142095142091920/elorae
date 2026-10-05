@@ -1898,6 +1898,20 @@ body.journal-page .read h2 + .era-years {
   outline: none;
 }
 #seek-panel-input::placeholder { color: #8f8a82; }
+/* Kill UA search-cancel (blue X) — panel close glyph is the only dismiss control. */
+#seek-panel-input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+#seek-panel-input::-webkit-search-cancel-button,
+#seek-panel-input::-webkit-search-decoration,
+#seek-panel-input::-ms-clear {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+  width: 0;
+  height: 0;
+}
 .seek-panel-close {
   position: absolute;
   top: 8px;
@@ -1906,11 +1920,16 @@ body.journal-page .read h2 + .era-years {
   width: 36px;
   height: 36px;
   padding: 0;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
   border: 0;
+  border-radius: 0;
+  box-shadow: none;
   color: #f3eee6;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -1918,19 +1937,36 @@ body.journal-page .read h2 + .era-years {
 }
 .seek-panel-close:hover,
 .seek-panel-close:focus-visible {
-  transform: scale(1.14);
-  filter: drop-shadow(0 0 7px rgba(243,238,230,.65));
+  color: #f3eee6;
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 6px rgba(243,238,230,.55));
   outline: none;
 }
 .seek-panel-close:active {
-  transform: scale(0.9);
-  filter: drop-shadow(0 0 4px rgba(243,238,230,.45));
+  transform: scale(0.92);
+  filter: drop-shadow(0 0 3px rgba(243,238,230,.4));
 }
 .seek-panel-close svg {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   overflow: visible;
   display: block;
+  color: #f3eee6;
+  stroke: #f3eee6;
+  fill: none;
+  pointer-events: none;
+}
+.seek-panel-close svg path {
+  stroke: #f3eee6;
+  fill: none;
+}
+.seek-panel-card.is-seek-focus img,
+.seek-panel-ment.is-seek-focus {
+  outline: 1px solid rgba(243,238,230,.55);
+  outline-offset: 3px;
+}
+.seek-panel-ment.is-seek-focus {
+  background: rgba(243,238,230,.04);
 }
 a.index-card.is-seek-flash {
   outline: 1px solid rgba(243,238,230,.55);

@@ -25,6 +25,22 @@
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
+  /* SEARCH_INDEX (and some HTML attrs) may store apostrophes as &#x27; — decode before URL use. */
+  function decodeEntities(s) {
+    return String(s == null ? "" : s)
+      .replace(/&#x27;/gi, "'")
+      .replace(/&#39;/g, "'")
+      .replace(/&apos;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&");
+  }
+
+  function safeAssetUrl(href) {
+    return absHref(decodeEntities(href || ""));
+  }
+
   function assetBase() {
     var el = document.querySelector('script[src*="search.js"]');
     if (!el || !el.src) return "";
@@ -111,7 +127,7 @@
     hits.innerHTML = "<h2>Mentions</h2>" + rows.map(function (r) {
       var e = r.entry;
       var thumb = e.image
-        ? '<img class="hit-art" src="' + escapeHtml(absHref(e.image)) + '" alt="">'
+        ? '<img class="hit-art" src="' + escapeHtml(safeAssetUrl(e.image)) + '" alt="">'
         : '<span class="hit-art hit-art-empty" aria-hidden="true"></span>';
       var kind = e.kind ? '<span class="hit-kind">' + escapeHtml(e.kind) + "</span>" : "";
       var sn = r.snip ? '<p class="hit-snip">' + r.snip + "</p>" : "";
@@ -178,7 +194,7 @@
       html += '<div class="seek-panel-cards">' + pack.cards.map(function (e) {
         var indexHref = absHref("index/ancients.html") + "?card=" + encodeURIComponent(e.href);
         return '<a class="seek-panel-card" href="' + escapeHtml(indexHref) + '" data-article="' + escapeHtml(e.href) + '" title="Click: Index · Double-click: article">' +
-          '<img src="' + escapeHtml(absHref(e.image)) + '" alt="">' +
+          '<img src="' + escapeHtml(safeAssetUrl(e.image)) + '" alt="">' +
           '<span>' + escapeHtml(e.title) + "</span></a>";
       }).join("") + "</div>";
     }
@@ -195,6 +211,8 @@
       html = '<p class="seek-panel-empty">No matches</p>';
     }
     panelResults.innerHTML = html;
+    panelFocusIdx = -1;
+    if (pack.cards.length || pack.mentions.length) setPanelFocus(0);
   }
 
   function ensureIndex(cb) {
@@ -209,7 +227,7 @@
     }
     indexLoading = new Promise(function (resolve) {
       var s = document.createElement("script");
-      s.src = assetBase() + "search-index.js?v=s2";
+      s.src = assetBase() + "search-index.js?v=s3";
       s.onload = function () { indexReady = true; resolve(); };
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);
@@ -236,6 +254,51 @@
     location.href = absHref(articleHref);
   }
 
+  var panelFocusIdx = -1;
+
+  function panelItems() {
+    if (!panelResults) return [];
+    return Array.prototype.slice.call(panelResults.querySelectorAll("a.seek-panel-card, a.seek-panel-ment"));
+  }
+
+  function setPanelFocus(idx) {
+    var items = panelItems();
+    if (!items.length) {
+      panelFocusIdx = -1;
+      return;
+    }
+    if (idx < 0) idx = items.length - 1;
+    if (idx >= items.length) idx = 0;
+    panelFocusIdx = idx;
+    items.forEach(function (el, i) {
+      el.classList.toggle("is-seek-focus", i === panelFocusIdx);
+    });
+    try {
+      items[panelFocusIdx].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    } catch (err) {
+      try { items[panelFocusIdx].scrollIntoView(false); } catch (e2) {}
+    }
+  }
+
+  function activateFocusedResult() {
+    var items = panelItems();
+    if (!items.length) return false;
+    var el = items[panelFocusIdx >= 0 ? panelFocusIdx : 0];
+    if (!el) return false;
+    var art = el.getAttribute("data-article");
+    if (art) {
+      goArticle(art);
+      return true;
+    }
+    var href = el.getAttribute("href");
+    if (href) {
+      closePanel();
+      location.href = href;
+      return true;
+    }
+    return false;
+  }
+
   function ensurePanel() {
     if (panel) return panel;
     panel = document.createElement("div");
@@ -245,7 +308,7 @@
       '<div class="seek-panel-scrim" data-seek-close="1"></div>' +
       '<div class="seek-panel-box" role="dialog" aria-modal="true" aria-label="Search">' +
       '<button type="button" class="seek-panel-close" data-seek-close="1" aria-label="Close">' +
-      '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>' +
+      '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5L12.5 12.5M12.5 1.5L1.5 12.5" fill="none" stroke="#f3eee6" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>' +
       '</button>' +
       '<input id="seek-panel-input" type="search" placeholder="Search" autocomplete="off" spellcheck="false">' +
       '<div id="seek-panel-results"></div></div>';
@@ -418,18 +481,25 @@
     }
 
     if (isPanelOpen()) {
-      if (e.key === "Enter" && t === panelInput) {
-        var firstCard = panelResults && panelResults.querySelector("a.seek-panel-card");
-        if (firstCard) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        var items = panelItems();
+        if (items.length) {
           e.preventDefault();
-          goIndexCard(firstCard.getAttribute("data-article"));
-          return;
+          e.stopPropagation();
+          if (panelFocusIdx < 0) {
+            setPanelFocus(0);
+          } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+            setPanelFocus(panelFocusIdx + 1);
+          } else {
+            setPanelFocus(panelFocusIdx - 1);
+          }
         }
-        var firstMent = panelResults && panelResults.querySelector("a.seek-panel-ment");
-        if (firstMent && firstMent.getAttribute("href")) {
-          e.preventDefault();
-          location.href = firstMent.getAttribute("href");
-        }
+        return;
+      }
+      if (e.key === "Enter" && (t === panelInput || (t && t.closest && t.closest("#seek-panel")))) {
+        e.preventDefault();
+        e.stopPropagation();
+        activateFocusedResult();
         return;
       }
       return;
