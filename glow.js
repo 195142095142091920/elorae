@@ -2,7 +2,7 @@ var canvas = document.getElementById("friend-glow");
 if (canvas) {
   var ctx = canvas.getContext("2d");
   /* Login / success tones: Jack yellow-gold, Julie pink, Sawyer red-orange,
-     Jon green↔red alternate, Devin white. */
+     Jon smooth green↔red continuous blend, Devin white. */
   var tones = {
     jack: [230, 190, 80],
     julie: [255, 210, 220],
@@ -17,10 +17,18 @@ if (canvas) {
     var m = c.match(/seal-(jack|jon|julie|sawyer|devin)/);
     return m ? m[1] : "";
   }
+  function lerpTone(a, b, t) {
+    return [
+      Math.round(a[0] + (b[0] - a[0]) * t),
+      Math.round(a[1] + (b[1] - a[1]) * t),
+      Math.round(a[2] + (b[2] - a[2]) * t)
+    ];
+  }
   function toneOf(name, t) {
     if (name !== "jon") return tones[name] || tones.devin;
-    /* Jon: alternate green (Telorin) and red (Silar) every ~1.6s. */
-    return (Math.floor(t / 1600) % 2 === 0) ? tones.jon : tones.jon2;
+    /* Jon: smooth continuous sine blend green (Telorin) ↔ red (Silar), ~3.2s cycle. */
+    var u = (Math.sin((t / 3200) * Math.PI * 2) + 1) / 2;
+    return lerpTone(tones.jon, tones.jon2, u);
   }
   function frame(now) {
     var name = who();
@@ -58,7 +66,8 @@ if (canvas) {
       });
     }
 
-    paint(canvas, anchors[0], name === "jon" ? tones.jon : tone);
+    /* Particles and wash blend continuously; mast link text-shadow stays per-figure. */
+    paint(canvas, anchors[0], tone);
     var second = document.getElementById("friend-glow-2");
     if (anchors.length > 1) {
       if (!second) {
@@ -66,7 +75,7 @@ if (canvas) {
         second.id = "friend-glow-2";
         document.documentElement.appendChild(second);
       }
-      paint(second, anchors[1], tones.jon2);
+      paint(second, anchors[1], tone);
     } else if (second) {
       second.style.display = "none";
     }
