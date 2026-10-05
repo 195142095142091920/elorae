@@ -1,1 +1,1 @@
-art47-seek-panel
+art48-section-bar-fade
