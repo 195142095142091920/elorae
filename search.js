@@ -70,7 +70,8 @@
     document.querySelectorAll(".index-cat").forEach(function (sec) {
       var cards = sec.querySelectorAll(".index-card");
       if (!cards.length) {
-        sec.classList.remove("is-seek-empty");
+        /* Hide placeholder "none filed" cats while filtering. */
+        sec.classList.toggle("is-seek-empty", !!q);
         return;
       }
       var any = false;
@@ -156,6 +157,15 @@
     });
     Object.keys(seenCard).forEach(function (k) { cards.push(seenCard[k]); });
     cards.sort(function (a, b) { return a.title.localeCompare(b.title); });
+    var mentRank = { journal: 0, codex: 1, atlas: 2, lore: 3 };
+    mentions.sort(function (a, b) {
+      var ra = mentRank[a.entry.kind];
+      var rb = mentRank[b.entry.kind];
+      if (ra === undefined) ra = 9;
+      if (rb === undefined) rb = 9;
+      if (ra !== rb) return ra - rb;
+      return a.entry.title.localeCompare(b.entry.title);
+    });
     return { cards: cards, mentions: mentions };
   }
 
