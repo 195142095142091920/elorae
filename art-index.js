@@ -1,13 +1,25 @@
-/* Article Index: slide-in nested category list. Desktop opens on hover; phone taps the cue. */
+/* Article Index: slide-in nested category list. Desktop opens on hover; phone taps the cue.
+   Current article is marked .on in HTML; keep it in view when the sticky panel is used. */
 (function () {
   var root = document.getElementById("art-index");
   if (!root) return;
   var cue = root.querySelector(".art-index-cue");
+  var panel = root.querySelector(".art-index-panel");
   var desk = window.matchMedia("(min-width: 801px)");
 
   function setOpen(on) {
     root.classList.toggle("open", !!on);
     if (cue) cue.setAttribute("aria-expanded", on ? "true" : "false");
+    if (on) keepCurrentInView();
+  }
+
+  function keepCurrentInView() {
+    if (!panel) return;
+    var on = panel.querySelector(".toc-name.on");
+    if (!on) return;
+    var t = on.getBoundingClientRect(), r = panel.getBoundingClientRect();
+    if (t.top < r.top + 24) panel.scrollTop -= r.top + 24 - t.top;
+    else if (t.bottom > r.bottom - 24) panel.scrollTop += t.bottom - (r.bottom - 24);
   }
 
   if (cue) {
@@ -35,6 +47,7 @@
       var on = !box.classList.contains("open");
       box.classList.toggle("open", on);
       btn.setAttribute("aria-expanded", on ? "true" : "false");
+      if (on) keepCurrentInView();
     });
   });
 
@@ -50,4 +63,9 @@
   if (desk.addEventListener) {
     desk.addEventListener("change", function () { setOpen(false); });
   }
+
+  /* Desktop hover opens via CSS :hover / :focus-within; still bring the current article into view. */
+  root.addEventListener("mouseenter", keepCurrentInView);
+  window.addEventListener("load", keepCurrentInView);
+  keepCurrentInView();
 })();

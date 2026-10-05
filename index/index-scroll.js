@@ -1,5 +1,5 @@
-/* Index rail: highlights the category and card in view, opens the active category's names,
-   and lets the small glyph open or close any category by hand (nest1). */
+/* Index rail: highlight the category in view only (categories-only on scroll).
+   Nests stay closed until the chevron is tapped; no card highlight while scrolling. */
 (function () {
   var toc = document.querySelector("aside.toc");
   if (!toc) return;
@@ -8,13 +8,11 @@
   var cats = Array.prototype.map.call(toc.querySelectorAll(".toc-cat"), function (box) {
     var link = box.querySelector(".toc-row > a");
     return {
-      box: box, link: link, el: link && byHref(link), tog: box.querySelector(".toc-tog"),
-      subs: Array.prototype.map.call(box.querySelectorAll(".toc-sub"), function (a) { return { a: a, el: byHref(a) }; }),
-      names: Array.prototype.map.call(box.querySelectorAll(".toc-name"), function (a) { return { a: a, el: byHref(a) }; }).filter(function (n) { return n.el; })
+      box: box, link: link, el: link && byHref(link), tog: box.querySelector(".toc-tog")
     };
   }).filter(function (c) { return c.el; });
   if (!cats.length) return;
-  var current = null, manual = {}, pinned = "", jump = "";
+  var current = null, manual = {}, jump = "";
   /* jump: the section a link or hash just sent the reader to. Near the page bottom the last
      sections can never reach the highlight line, so the jumped-to one wins there until the
      reader scrolls by hand (end1). */
@@ -36,7 +34,8 @@
     cats.forEach(function (c) {
       if (!c.tog) return;
       var id = c.el.id;
-      var open = id in manual ? manual[id] : (desk.matches && c === current);
+      /* Categories-only on scroll: open only from the chevron (manual), never from scroll. */
+      var open = id in manual ? manual[id] : false;
       c.box.classList.toggle("open", open);
       c.tog.setAttribute("aria-expanded", open ? "true" : "false");
     });
@@ -48,25 +47,6 @@
       layout();
     });
   });
-  toc.addEventListener("click", function (e) {
-    var a = e.target.closest && e.target.closest("a.toc-name");
-    if (a) pinned = a.getAttribute("href").slice(1);
-  });
-  function pickCard(c, line) {
-    var hit = null;
-    for (var i = 0; i < c.names.length; i++) {
-      var r = c.names[i].el.getBoundingClientRect();
-      if (r.bottom > line) { hit = c.names[i]; break; }
-    }
-    if (!hit) return c.names[c.names.length - 1] || null;
-    if (pinned) {
-      var top = hit.el.getBoundingClientRect().top;
-      for (var j = 0; j < c.names.length; j++) {
-        if (c.names[j].el.id === pinned && Math.abs(c.names[j].el.getBoundingClientRect().top - top) < 2) return c.names[j];
-      }
-    }
-    return hit;
-  }
   function keepInView(a) {
     if (!desk.matches || toc.scrollHeight <= toc.clientHeight) return;
     var t = a.getBoundingClientRect(), r = toc.getBoundingClientRect();
@@ -88,60 +68,20 @@
     if (jc && jc.el.getBoundingClientRect().bottom > 0 && jc.el.getBoundingClientRect().top < window.innerHeight) cat = jc;
     if (cat !== current) {
       current = cat;
-      if (desk.matches) manual = {};
       cats.forEach(function (c) { c.link.classList.toggle("on", c === cat); });
       layout();
+      if (cat && cat.link) keepInView(cat.link);
     }
-    var card = pickCard(cat, line);
-    cats.forEach(function (c) {
-      c.names.forEach(function (n) { n.a.classList.toggle("on", n === card); });
-      c.subs.forEach(function (s) { s.a.classList.toggle("on", !!card && c === cat && s.a.parentNode === card.a.parentNode); });
-    });
-    if (card) keepInView(card.a);
   }
+  layout();
   update();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
-  if (desk.addEventListener) desk.addEventListener("change", function () { manual = {}; layout(); update(); });
+  if (desk.addEventListener) desk.addEventListener("change", function () { layout(); update(); });
   toc.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href^='#']");
     if (a) { jump = a.getAttribute("href").slice(1); window.setTimeout(update, 0); }
   });
-  window.addEventListener("hashchange", function () { pinned = jump = location.hash.slice(1); window.setTimeout(update, 0); });
-  window.addEventListener("load", function () { if (location.hash) pinned = jump = location.hash.slice(1); update(); });
+  window.addEventListener("hashchange", function () { jump = location.hash.slice(1); window.setTimeout(update, 0); });
+  window.addEventListener("load", function () { if (location.hash) jump = location.hash.slice(1); update(); });
 })();
-
-/* Previous flat category highlighter (replaced by the nested rail above, nest1):
-(function () {
-  var toc = document.querySelector("aside.toc");
-  if (!toc) return;
-  var items = Array.prototype.map.call(toc.querySelectorAll("a[href^='#']"), function (a) {
-    return { a: a, el: document.getElementById(a.getAttribute("href").slice(1)) };
-  }).filter(function (item) { return item.el; });
-  if (!items.length) return;
-  var current = "";
-  function highlight(id) {
-    if (id === current) return;
-    current = id;
-    items.forEach(function (item) {
-      item.a.classList.toggle("on", item.el.id === id);
-    });
-  }
-  function update() {
-    var mast = document.querySelector(".mast");
-    var line = mast ? mast.getBoundingClientRect().bottom + 72 : 180;
-    var id = items[0].el.id;
-    items.forEach(function (item) {
-      var heading = item.el.querySelector("h2");
-      if (!heading) return;
-      if (heading.getBoundingClientRect().top <= line) id = item.el.id;
-    });
-    highlight(id);
-  }
-  update();
-  window.addEventListener("scroll", update, { passive: true });
-  window.addEventListener("resize", update);
-  window.addEventListener("hashchange", function () { window.setTimeout(update, 0); });
-  window.addEventListener("load", update);
-})();
-*/
