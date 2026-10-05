@@ -246,6 +246,8 @@ body.lore-page .read p {
       rgba(7,7,7,0) 100%
     );
   }
+  /* The veil reaches 340px past the column; keep it from adding a sideways scroll (veil1). */
+  body.journal-page { overflow-x: clip; }
   .journal-page .toc {
     width: 300px;
     top: 102px;
