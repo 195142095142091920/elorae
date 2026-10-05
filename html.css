@@ -1185,3 +1185,14 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.book .toc a.on,
   body.book .toc a:hover { color: #f3eee6; }
 }
+
+/* Continuous Journal. All chapters in one column; no divider under chapter heads.
+   Desktop rail stays fixed (existing .journal-page .toc); phone list sits in the flow. */
+@media (min-width: 801px) {
+  body.journal-flow .read > h1 { border-bottom: 0; padding-bottom: 0; scroll-margin-top: 96px; }
+  body.journal-flow .read > h1 ~ h1 { margin-top: 88px; }
+}
+@media (max-width: 800px) {
+  body.journal-flow .read > h1 { border-bottom: 0; padding-bottom: 0; scroll-margin-top: 24px; }
+  body.journal-flow .read > h1 ~ h1 { margin-top: 64px; }
+}
