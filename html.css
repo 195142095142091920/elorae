@@ -851,7 +851,7 @@ table.day-names td {
   }
   body.index-page .index-cat,
   body.index-page .index-card {
-    scroll-margin-top: 12px;
+    scroll-margin-top: 114px;
   }
   body.index-page .index-cat > h2 {
     margin: 28px 18px 4px;
@@ -864,7 +864,7 @@ table.day-names td {
   }
   body.index-page .index-sub {
     margin: 22px 18px 0;
-    scroll-margin-top: 12px;
+    scroll-margin-top: 114px;
     text-align: center;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 400;
@@ -1494,7 +1494,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.journal-flow .read > h1 ~ h1 { margin-top: 88px; }
 }
 @media (max-width: 800px) {
-  body.journal-flow .read > h1 { border-bottom: 0; padding-bottom: 0; scroll-margin-top: 24px; }
+  body.journal-flow .read > h1 { border-bottom: 0; padding-bottom: 0; scroll-margin-top: 130px; }
   body.journal-flow .read > h1 ~ h1 { margin-top: 64px; }
 }
 
@@ -1504,7 +1504,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.journal-page main.read h2[id] { scroll-margin-top: 136px; }
 }
 @media (max-width: 800px) {
-  body.journal-page main.read h2[id] { scroll-margin-top: 98px; }
+  body.journal-page main.read h2[id] { scroll-margin-top: 130px; }
 }
 
 /* Atlas map lightbox (atlas-zoom.js). */
@@ -2084,7 +2084,7 @@ body.seek-panel-open { overflow: hidden; }
   .seek-glyph svg { width: 16px; height: 16px; }
   .mast .topbar .filters a {
     min-height: 44px;
-    padding: 12px 6px;
+    padding: 12px 0;
     display: inline-flex;
     align-items: center;
     box-sizing: border-box;
@@ -2186,5 +2186,31 @@ body.seek-panel-open { overflow: hidden; }
     display: inline-flex;
     align-items: center;
     box-sizing: border-box;
+  }
+}
+
+
+/* Phone: keep nav filters on-screen; jump targets clear taller mast (land2). */
+@media (max-width: 800px) {
+  html, body { overflow-x: clip; }
+  .mast .topbar .filters {
+    max-width: calc(100% - 48px);
+  }
+  .seek-glyph {
+    margin-left: 2px;
+    padding: 14px 8px;
+  }
+  /* Closed art-index panel stays off-canvas without widening the page. */
+  body.article .art-index-panel {
+    max-width: min(240px, 82vw);
+  }
+  body.article .art-index {
+    top: 102px;
+  }
+  body.article .art-index-cue {
+    top: calc(102px + 38vh);
+  }
+  body.article .art-index-panel {
+    top: 102px;
   }
 }
