@@ -2238,3 +2238,16 @@ body.seek-panel-open { overflow: hidden; }
     gap: 6px;
   }
 }
+
+
+/* Phone: article Index return link hits 44px (art-back1). */
+@media (max-width: 800px) {
+  body.article .art-back {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 10px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+}
