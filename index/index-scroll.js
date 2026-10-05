@@ -14,10 +14,13 @@
     });
   }
   function update() {
-    var line = 110;
+    var mast = document.querySelector(".mast");
+    var line = mast ? mast.getBoundingClientRect().bottom : 110;
     var id = items[0].el.id;
     items.forEach(function (item) {
-      if (item.el.getBoundingClientRect().top <= line) id = item.el.id;
+      var heading = item.el.querySelector("h2");
+      if (!heading) return;
+      if (heading.getBoundingClientRect().top <= line) id = item.el.id;
     });
     highlight(id);
   }
