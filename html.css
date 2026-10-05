@@ -2070,3 +2070,38 @@ body.seek-panel-open { overflow: hidden; }
     padding-top: 36px;
   }
 }
+
+
+/* Phone: larger seek glyph + filter tap targets (>=44px) (tap1). */
+@media (max-width: 800px) {
+  .seek-glyph {
+    min-width: 44px;
+    min-height: 44px;
+    margin-left: 4px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  .seek-glyph svg { width: 16px; height: 16px; }
+  .mast .topbar .filters a {
+    min-height: 44px;
+    padding: 12px 6px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .mast .topbar > .mark,
+  .mast .topbar > .mark a,
+  .mast .topbar > a[href$="seal.html"] {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Mast grows with 44px filter row; keep body clear. */
+  body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
+    padding-top: calc(102px + env(safe-area-inset-top, 0px));
+  }
+  body.journal-page:not(.article) {
+    padding-top: calc(118px + env(safe-area-inset-top, 0px));
+  }
+}
