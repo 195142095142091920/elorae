@@ -1012,7 +1012,7 @@ body.article .art-dossier { display: grid; grid-template-columns: max-content 1f
 body.article .art-dossier dt,
 body.article .art-facts li,
 body.article .art-quote cite,
-body.article .art-strip figcaption,
+/* body.article .art-strip figcaption, (Arts section retired) */
 body.article .art-rel-head {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
@@ -1039,12 +1039,12 @@ body.article .art-facts {
 }
 body.article .art-facts li { margin: 0; font-size: 12px; line-height: 1.7; color: #b7b0a4; }
 body.article .art-life { margin: 0; font-size: 17px; line-height: 1.65; }
-body.article .art-strip { display: grid; gap: 18px; }
-body.article .art-piece { margin: 0; }
-body.article .art-piece a { display: block; }
-body.article .art-piece img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: #000; border: 1px solid transparent; }
-body.article .art-piece a:hover img { border-color: rgba(243,238,230,0.45); }
-body.article .art-strip figcaption { margin: 10px 0 0; font-size: 11px; line-height: 1.4; color: #cfc6b8; }
+/* Arts section retired: body.article .art-strip { display: grid; gap: 18px; } */
+/* Arts section retired: body.article .art-piece { margin: 0; } */
+/* Arts section retired: body.article .art-piece a { display: block; } */
+/* Arts section retired: body.article .art-piece img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: #000; border: 1px solid transparent; } */
+/* Arts section retired: body.article .art-piece a:hover img { border-color: rgba(243,238,230,0.45); } */
+/* Arts section retired: body.article .art-strip figcaption { margin: 10px 0 0; font-size: 11px; line-height: 1.4; color: #cfc6b8; } */
 body.article .art-rel-head { margin: 0 0 14px; font-size: 12px; }
 body.article .art-rel-head a { color: #f3eee6; }
 body.article .art-related { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 26px; }
@@ -1097,7 +1097,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-title .art-epithet { font-size: 16px; }
   body.article .art-body { padding: 72px 28px 96px; }
   body.article .art-line { font-size: 22px; }
-  body.article .art-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* Arts section retired: body.article .art-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } */
 }
 @media (max-width: 800px) {
   /* Previous always-visible thumbnail row (replaced by arrows, art5):
@@ -1140,8 +1140,8 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-dossier dd { margin-bottom: 12px; }
   body.article .art-quote p { font-size: 18px; }
   body.article .art-life { font-size: 16px; }
-  body.article .art-strip { grid-template-columns: 1fr; gap: 26px; }
-  body.article .art-piece img { aspect-ratio: auto; height: auto; }
+  /* Arts section retired: body.article .art-strip { grid-template-columns: 1fr; gap: 26px; } */
+  /* Arts section retired: body.article .art-piece img { aspect-ratio: auto; height: auto; } */
 }
 
 /* Old JS site typography (art7). Copied from the pre-rebuild site at commit c1113ef. */
