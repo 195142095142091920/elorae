@@ -826,6 +826,10 @@ table.day-names td {
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
+  /* Breathing room above each heading (gap1): the space sits after the previous
+     section's last row, outside the next section, so jumps and the rail line still meet the h2. */
+  body.index-page .index-cat:not(:last-child) > .index-cards:last-child { padding-bottom: 96px; }
+  body.index-page .index-cards + .index-sub { margin-top: 76px; }
 }
 @media (max-width: 800px) {
   body.index-page aside.toc {
@@ -881,6 +885,9 @@ table.day-names td {
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
+  /* Breathing room above each heading, a little less than desktop (gap1). */
+  body.index-page .index-cat:not(:last-child) > .index-cards:last-child { padding-bottom: 72px; }
+  body.index-page .index-cards + .index-sub { margin-top: 58px; }
 }
 
 /* Index nested category list. Names fold under the active (or manually opened) category. */
