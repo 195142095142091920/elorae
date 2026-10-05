@@ -2233,7 +2233,12 @@ body.seek-panel-open { overflow: hidden; }
     letter-spacing: 0.06em;
     padding: 0 1px;
   }
-  .mast .topbar > .mark > .friend {
+  /* Keep sealed marks; only reveal when owner matches (same as shared .friend). */
+  body.seal-jack .mast .topbar > .mark > .friend[data-owner=jack],
+  body.seal-jon .mast .topbar > .mark > .friend[data-owner=jon],
+  body.seal-julie .mast .topbar > .mark > .friend[data-owner=julie],
+  body.seal-sawyer .mast .topbar > .mark > .friend[data-owner=sawyer],
+  body.seal-devin .mast .topbar > .mark > .friend {
     display: inline-flex;
     gap: 6px;
   }
