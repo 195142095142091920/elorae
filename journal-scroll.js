@@ -33,21 +33,26 @@
     highlight(id);
     follow(line);
   }
-  /* Background art follows the chapter heading: when a chapter h1 reaches the highlight
-     line, the fixed background crossfades to that chapter's first in-column image so
-     the art is present for the whole chapter while reading (not delayed until the art). */
+  /* Background art: chapter h1 → that chapter's first figure; then each later in-column
+     figure switches the fixed bg as it crosses the highlight line (scroll order). */
   var layer = document.querySelector(".journal-bg img");
   var marks = [];
   if (layer) {
     var heads = Array.prototype.slice.call(document.querySelectorAll("main.read > h1[id]"));
     heads.forEach(function (h, i) {
-      var next = heads[i + 1], node = h.nextElementSibling, src = null;
+      var next = heads[i + 1], node = h.nextElementSibling, first = true;
       while (node && node !== next) {
         var art = node.matches("figure") ? node.querySelector("img") : null;
-        if (art) { src = art.getAttribute("src"); break; }
+        if (art) {
+          var src = art.getAttribute("src");
+          if (src) {
+            /* Heading triggers first chapter art; later figures trigger on their own. */
+            marks.push({ el: first ? h : art, src: src });
+            first = false;
+          }
+        }
         node = node.nextElementSibling;
       }
-      if (src) marks.push({ el: h, src: src });
     });
     var back = layer.cloneNode(false);
     back.classList.add("bg-off");
