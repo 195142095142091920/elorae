@@ -43,7 +43,7 @@ body.entry .mast{background:transparent}
 body.entry .topbar{background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0,0,0))}
 
 @media(max-width:800px){
-  .mast .topbar{padding-top:max(18px,env(safe-area-inset-top));padding-left:16px;padding-right:16px}
+  .mast .topbar{padding-top:8px;padding-left:16px;padding-right:16px}
   .entry .topbar a{top:max(16px,env(safe-area-inset-top));left:16px}
   .dock{padding-bottom:max(28px,env(safe-area-inset-bottom))}
 }
@@ -650,7 +650,7 @@ body.index-page .toc a {
     min-height: 0;
     margin: 0;
     gap: 8px;
-    padding: 22px 8px 4px;
+    padding: 8px 8px 4px;
     background: #070707;
     text-align: center;
   }
@@ -2025,22 +2025,44 @@ body.seek-panel-open { overflow: hidden; }
   .seek-panel-cards { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
 }
 
-/* Phone: flush opaque mast — no gap above bar; cards never paint through (nav1). */
+/* Phone: flush opaque mast — no gap above bar; cards never paint through (nav2). */
 @media (max-width: 800px) {
+  /* Keep fixed to the visual viewport. Safe-area padding lives ON the opaque mast
+     (not empty body space above it). Paint upward so iOS overscroll cannot reveal cards. */
   .mast {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 40;
+    margin: 0;
     background: #070707;
+    background-color: #070707;
+    background-clip: border-box;
     padding-top: env(safe-area-inset-top, 0px);
+    box-sizing: border-box;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  /* Opaque curtain above the mast for rubber-band / unsafe-area bleed. */
+  body:not(.article):not(.entry) .mast::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: max(100vh, 100dvh);
+    background: #070707;
+    pointer-events: none;
   }
   .mast .topbar,
   .journal-page .mast .topbar {
+    position: relative;
+    top: auto;
     padding-top: 8px;
     padding-bottom: 6px;
     background: #070707;
+    background-color: #070707;
   }
   /* Hero pages keep overlay mast (not a scrolling chrome bar). */
   body.article .mast {
@@ -2051,9 +2073,14 @@ body.seek-panel-open { overflow: hidden; }
     z-index: 20;
     padding-top: env(safe-area-inset-top, 0px);
     background: transparent;
+    background-color: transparent;
+    -webkit-transform: none;
+    transform: none;
   }
+  body.article .mast::before { content: none; display: none; }
   body.article .mast .topbar {
     background: transparent;
+    background-color: transparent;
     padding-top: 8px;
   }
   /* Scroll content starts below the fixed mast (match measured phone heights). */
@@ -2192,7 +2219,10 @@ body.seek-panel-open { overflow: hidden; }
 
 /* Phone: keep nav filters on-screen; jump targets clear taller mast (land2). */
 @media (max-width: 800px) {
-  html, body { overflow-x: clip; }
+  /* Clip sideways overflow on body only — setting overflow on BOTH html and body
+     makes position:fixed detach from the visual viewport on iOS Safari, which
+     reopened the card-bleed gap above the mast. */
+  body { overflow-x: clip; }
   .mast .topbar .filters {
     max-width: calc(100% - 48px);
   }
