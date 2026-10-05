@@ -26,9 +26,9 @@
   function update() {
     var mast = document.querySelector(".mast");
     var mastBottom = mast ? mast.getBoundingClientRect().bottom : 108;
-    /* TOC highlight stays at +72; bg art fires a bit earlier so chapters feel present sooner. */
+    /* TOC highlight stays near the mast; bg art switches when art is near viewport center. */
     var line = mastBottom + 72;
-    var artLine = mastBottom + 28;
+    var artLine = window.innerHeight * 0.5;
     var id = items[0].el.id;
     items.forEach(function (item) {
       if (item.el.getBoundingClientRect().top <= line) id = item.el.id;
