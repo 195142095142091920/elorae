@@ -2024,3 +2024,49 @@ body.seek-panel-open { overflow: hidden; }
   #seek-panel-results { padding: 10px 12px 16px; }
   .seek-panel-cards { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
 }
+
+/* Phone: flush opaque mast — no gap above bar; cards never paint through (nav1). */
+@media (max-width: 800px) {
+  .mast {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    background: #070707;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .mast .topbar,
+  .journal-page .mast .topbar {
+    padding-top: 8px;
+    padding-bottom: 6px;
+    background: #070707;
+  }
+  /* Hero pages keep overlay mast (not a scrolling chrome bar). */
+  body.article .mast {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: transparent;
+  }
+  body.article .mast .topbar {
+    background: transparent;
+    padding-top: 8px;
+  }
+  /* Scroll content starts below the fixed mast (match measured phone heights). */
+  body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
+    padding-top: calc(56px + env(safe-area-inset-top, 0px));
+  }
+  body.journal-page:not(.article) {
+    padding-top: calc(72px + env(safe-area-inset-top, 0px));
+  }
+  body.seal-page {
+    padding-top: calc(28px + env(safe-area-inset-top, 0px));
+  }
+  body.seal-page .seal-card {
+    padding-top: 36px;
+  }
+}
