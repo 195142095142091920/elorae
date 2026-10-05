@@ -1763,3 +1763,34 @@ body.search-page .tile::after {
   .timeline-list .tl-when { font-size: 11px; }
   .timeline-list .tl-what { font-size: 16px; }
 }
+
+/* era-years under headers */
+body.journal-page .read h2 + .era-years {
+  margin: -14px 0 28px;
+  padding: 0;
+  text-align: center;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: none;
+  color: #8f8a82;
+  text-shadow: none;
+  line-height: 1.4;
+}
+.timeline-list .era-years {
+  display: block;
+  margin: 4px 0 2px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #8f8a82;
+}
+@media (min-width: 801px) {
+  body.journal-page .read h2 + .era-years { font-size: 14px; margin: -10px 0 32px; }
+  .timeline-list .era-years { font-size: 13px; }
+}
+@media (max-width: 800px) {
+  body.journal-page .read h2 + .era-years { font-size: 12px; margin: -8px 0 22px; }
+  .timeline-list .era-years { font-size: 11px; }
+}
