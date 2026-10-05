@@ -867,23 +867,15 @@ body.index-page .index-toc-panel > h3 {
 }
 
 @media (min-width: 801px) {
-  body.index-page aside.toc.index-toc:hover,
-  body.index-page aside.toc.index-toc:focus-within,
   body.index-page aside.toc.index-toc.open {
     width: 220px;
   }
-  body.index-page aside.toc.index-toc:hover::before,
-  body.index-page aside.toc.index-toc:focus-within::before,
   body.index-page aside.toc.index-toc.open::before {
     width: 220px;
   }
-  body.index-page aside.toc.index-toc:hover .index-toc-panel,
-  body.index-page aside.toc.index-toc:focus-within .index-toc-panel,
   body.index-page aside.toc.index-toc.open .index-toc-panel {
     transform: translateX(0);
   }
-  body.index-page aside.toc.index-toc:hover .index-toc-cue,
-  body.index-page aside.toc.index-toc:focus-within .index-toc-cue,
   body.index-page aside.toc.index-toc.open .index-toc-cue {
     color: rgba(243,238,230,0.85);
   }
@@ -891,7 +883,11 @@ body.index-page .index-toc-panel > h3 {
     display: block;
     margin-left: 0;
     padding: 16px 28px 72px;
+    transition: margin-left .2s ease;
   }
+  /* Open rail pushes the column over (push1): body.index-toc-open is set by index-scroll.js,
+     the grid below reflows to the narrower width instead of the panel overlaying cards. */
+  body.index-page.index-toc-open main.with-toc.index-flow { margin-left: 220px; }
   body.index-page .index-cat,
   body.index-page .index-card {
     scroll-margin-top: 88px;
@@ -918,7 +914,8 @@ body.index-page .index-toc-panel > h3 {
   }
   body.index-page .index-cards {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    /* Up to 4 columns; drops to fewer (min 220px) as the column narrows, e.g. rail open. */
+    grid-template-columns: repeat(auto-fill, minmax(max(220px, calc((100% - 42px) / 4)), 1fr));
     gap: 14px;
     justify-content: stretch;
     padding: 18px 0 48px;

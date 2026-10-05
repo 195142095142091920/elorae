@@ -1,6 +1,7 @@
 /* Index rail: popout category sidebar + highlight category in view.
    Nests stay closed until the chevron is tapped; no card highlight while scrolling.
-   Desktop opens the rail on hover/focus; phone taps the cue (toggle). */
+   Desktop opens the rail on hover/focus and pushes the column (body.index-toc-open);
+   phone taps the cue (toggle) and the panel overlays. */
 (function () {
   var toc = document.querySelector("aside.toc");
   if (!toc) return;
@@ -33,8 +34,10 @@
     for (var i = 0; i < cats.length; i++) if (cats[i].el === sec) return cats[i];
     return null;
   }
+  var hover = false;
   function setOpen(on) {
     toc.classList.toggle("open", !!on);
+    document.body.classList.toggle("index-toc-open", !!on);
     if (cue) cue.setAttribute("aria-expanded", on ? "true" : "false");
   }
   function layout() {
@@ -62,6 +65,17 @@
       setOpen(!toc.classList.contains("open"));
     });
   }
+  /* Desktop: open while hovered or holding focus (push1). */
+  function focused() {
+    var a = document.activeElement;
+    if (!a || !toc.contains(a)) return false;
+    try { return a.matches(":focus-visible"); } catch (e) { return true; }
+  }
+  function sync() { if (desk.matches) setOpen(hover || focused()); }
+  toc.addEventListener("mouseenter", function () { hover = true; sync(); });
+  toc.addEventListener("mouseleave", function () { hover = false; sync(); });
+  toc.addEventListener("focusin", sync);
+  toc.addEventListener("focusout", function () { window.setTimeout(sync, 0); });
   document.addEventListener("click", function (e) {
     if (desk.matches) return;
     if (!toc.classList.contains("open")) return;
@@ -72,6 +86,7 @@
     if (e.key !== "Escape") return;
     var held = toc.contains(document.activeElement);
     if (!toc.classList.contains("open") && !held) return;
+    hover = false;
     setOpen(false);
     if (held && document.activeElement.blur) document.activeElement.blur();
   });
@@ -105,7 +120,7 @@
   update();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
-  if (desk.addEventListener) desk.addEventListener("change", function () { layout(); update(); setOpen(false); });
+  if (desk.addEventListener) desk.addEventListener("change", function () { layout(); update(); hover = false; setOpen(false); });
   toc.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href^='#']");
     if (a) {
