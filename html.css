@@ -763,3 +763,111 @@ table.day-names td {
   vertical-align: top;
   padding: 4px 20px 4px 0;
 }
+
+/* Continuous Index. Desktop rail stays fixed; phone list sits in the flow. */
+@media (min-width: 801px) {
+  body.index-page aside.toc {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    bottom: 0;
+    width: 220px;
+    overflow: auto;
+  }
+  body.index-page main.with-toc.index-flow {
+    display: block;
+    margin-left: 240px;
+  }
+  body.index-page .index-cat {
+    scroll-margin-top: 88px;
+  }
+  body.index-page .index-cat > h2 {
+    margin: 36px 0 4px;
+    text-align: center;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    color: #f3eee6;
+  }
+  body.index-page .index-sub {
+    margin: 28px 0 0;
+    scroll-margin-top: 88px;
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8f8a82;
+  }
+  body.index-page .index-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 34px 26px;
+    padding: 22px 0 48px;
+  }
+  body.index-page .index-empty {
+    margin: 0;
+    color: #8f8a82;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+}
+@media (max-width: 800px) {
+  body.index-page aside.toc {
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+  body.index-page main.with-toc.index-flow {
+    display: block;
+    margin-left: 0;
+  }
+  body.index-page .index-cat {
+    scroll-margin-top: 12px;
+  }
+  body.index-page .index-cat > h2 {
+    margin: 28px 18px 4px;
+    text-align: center;
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    color: #f3eee6;
+  }
+  body.index-page .index-sub {
+    margin: 22px 18px 0;
+    scroll-margin-top: 12px;
+    text-align: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8f8a82;
+  }
+  body.index-page .index-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 34px 26px;
+    padding: 16px 0 36px;
+  }
+  body.index-page .index-empty {
+    margin: 0;
+    color: #8f8a82;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+}
