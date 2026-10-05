@@ -1159,7 +1159,7 @@ body.article .art-index .toc-group .toc-name { padding-left: 8px; }
   body.article .art-index-panel {
     top: 56px;
     width: min(240px, 82vw);
-    padding: 18px 16px 28px;
+    padding: 52px 16px 28px; /* clear the Index return label */
     background: rgba(7,7,7,0.96);
   }
   body.article .art-index.open .art-index-panel {
