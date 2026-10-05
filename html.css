@@ -1497,6 +1497,15 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.journal-flow .read > h1 ~ h1 { margin-top: 64px; }
 }
 
+/* Codex and Atlas headings land below the sticky mast (and the fixed section bar on desktop)
+   when reached from the Contents rail or a link (land1). */
+@media (min-width: 801px) {
+  body.journal-page main.read h2[id] { scroll-margin-top: 136px; }
+}
+@media (max-width: 800px) {
+  body.journal-page main.read h2[id] { scroll-margin-top: 98px; }
+}
+
 /* Atlas map lightbox (atlas-zoom.js). */
 @media (min-width: 801px) {
   body.journal-page main.read figure img.atlas-map { cursor: zoom-in; }
