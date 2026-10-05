@@ -2410,3 +2410,49 @@ body.has-section-bar #section-bar {
     display: none;
   }
 }
+
+
+/* Seal page: after sign-in, figure name(s) sit in the top-right mark (friends2).
+   Jon shows both Telorin and Silar. Back stays left. */
+body.seal-page .mast .topbar.seal-top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+}
+body.seal-page .mast .topbar.seal-top > .mark {
+  position: absolute;
+  right: 36px;
+  top: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 2;
+}
+body.seal-page .mast .topbar.seal-top > .mark .friend {
+  display: none;
+  align-items: center;
+  gap: 14px;
+}
+body.seal-page.seal-jack .mast .topbar.seal-top > .mark .friend[data-owner=jack],
+body.seal-page.seal-jon .mast .topbar.seal-top > .mark .friend[data-owner=jon],
+body.seal-page.seal-julie .mast .topbar.seal-top > .mark .friend[data-owner=julie],
+body.seal-page.seal-sawyer .mast .topbar.seal-top > .mark .friend[data-owner=sawyer],
+body.seal-page.seal-devin .mast .topbar.seal-top > .mark .friend {
+  display: inline-flex;
+}
+@media (max-width: 800px) {
+  body.seal-page .mast .topbar.seal-top > .mark {
+    right: 12px;
+    height: 44px;
+    gap: 8px;
+  }
+  body.seal-page .mast .topbar.seal-top > .mark .friend {
+    gap: 8px;
+  }
+  body.seal-page .mast .topbar.seal-top > .mark a {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+}
