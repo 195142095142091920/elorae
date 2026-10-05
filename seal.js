@@ -1,4 +1,6 @@
 var PHRASE = {light:"jack",arcana:"jon",succor:"julie",vigor:"sawyer",fatalis:"devin"};
+/* Profile names shown on the seal page, matching the data-owner friend links (seal2). */
+var FRIENDS = {jack:[["Galand","articles/galand-helviath.html"]],jon:[["Telorin","figures/telorin.html"],["Silar","articles/silar-scorria.html"]],julie:[["Saoirse","articles/saoirse.html"]],sawyer:[["Vaerek","articles/vaerek.html"]]};
 var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",devin:"Devin"};
 function applySeal() {
   var who = "";
@@ -16,7 +18,17 @@ function applySeal() {
   if (welcome) welcome.hidden = !who;
   if (name) {
     name.hidden = !who;
-    name.textContent = NAMES[who] || "";
+    /* Old plain name (replaced by the friend links below, seal2): name.textContent = NAMES[who] || ""; */
+    name.textContent = "";
+    var links = FRIENDS[who];
+    if (!links) name.textContent = NAMES[who] || "";
+    else links.forEach(function (f, i) {
+      if (i) name.appendChild(document.createTextNode(" \u00b7 "));
+      var a = document.createElement("a");
+      a.href = f[1];
+      a.textContent = f[0];
+      name.appendChild(a);
+    });
   }
   return who;
 }
