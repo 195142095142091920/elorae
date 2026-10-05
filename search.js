@@ -607,3 +607,14 @@
     e.preventDefault();
   }, true);
 })();
+
+/* art67: phone page-name mark */
+(function () {
+  var body = document.body;
+  if (!body || (!body.classList.contains("article") && !body.classList.contains("entry"))) return;
+  var h1 = document.querySelector(".art-title h1, .title-block h1, .dock .title-block h1, .dock h1");
+  var seal = document.querySelector(".mast .topbar > .mark > a[href$=\"seal.html\"], .mast .mark > a[href$=\"seal.html\"]");
+  if (!h1 || !seal) return;
+  var name = (h1.textContent || "").trim().split(/\s+/)[0];
+  if (name) seal.textContent = name;
+})();
