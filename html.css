@@ -2214,3 +2214,27 @@ body.seek-panel-open { overflow: hidden; }
     top: 102px;
   }
 }
+
+
+/* Phone: keep sealed friend marks on one mast row (friends1). */
+@media (max-width: 800px) {
+  .mast .topbar > .mark {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 8px;
+    justify-content: center;
+  }
+  .mast .topbar > .mark::-webkit-scrollbar { display: none; height: 0; }
+  .mast .topbar > .mark a {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 0 1px;
+  }
+  .mast .topbar > .mark > .friend {
+    display: inline-flex;
+    gap: 6px;
+  }
+}
