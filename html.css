@@ -1781,8 +1781,9 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-hero.has-swap .art-title { padding-bottom: calc(max(22px, env(safe-area-inset-bottom)) + 60px); }
   body.article .art-life + .art-life { margin-top: 1.1em; }
   body.article .art-related + .art-rel-head, body.article .art-related + .art-related, body.article .art-rel-head + .art-rel-head { margin-top: 28px; }
-  body.article .mast { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 18px; }
-  body.article .art-back { position: absolute; top: calc(max(18px, env(safe-area-inset-top)) + 64px); left: 18px; font-size: 13px; }
+  body.article .mast { position: fixed; top: 0; left: 0; right: 0; z-index: 40; padding-bottom: 0; background: #070707; background-color: #070707; }
+  /* Phone: Index return is the main nav; hide leftover art-back "INDEX" label. */
+  body.article .art-back { display: none !important; }
   body.article .art-title { width: 100%; padding: 36px 18px max(22px, env(safe-area-inset-bottom)); }
   body.article .art-title h1 { font-size: clamp(26px, 7.2vw, 34px); line-height: 1.12; overflow-wrap: break-word; }
   body.article .art-title .art-epithet { font-size: 15px; }
@@ -2531,24 +2532,26 @@ body.seek-panel-open { overflow: hidden; }
     background: #070707;
     background-color: #070707;
   }
-  /* Hero pages keep overlay mast (not a scrolling chrome bar). */
+  /* Article phone chrome matches Index: fixed hard-opaque mast (not a transparent overlay). */
   body.article .mast {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 20;
+    z-index: 40;
     padding-top: env(safe-area-inset-top, 0px);
-    background: transparent;
-    background-color: transparent;
+    padding-bottom: 0;
+    background: #070707;
+    background-color: #070707;
     -webkit-transform: none;
     transform: none;
   }
   body.article .mast::before { content: none; display: none; }
   body.article .mast .topbar {
-    background: transparent;
-    background-color: transparent;
+    background: #070707;
+    background-color: #070707;
     padding-top: 8px;
+    padding-bottom: 0;
   }
   /* Scroll content starts below the fixed mast (match measured phone heights). */
   body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
@@ -2729,16 +2732,9 @@ body.seek-panel-open { overflow: hidden; }
 }
 
 
-/* Phone: article Index return link hits 44px (art-back1). */
+/* Phone: art-back Index label retired — Categories lives in #section-bar; main nav returns to Index. */
 @media (max-width: 800px) {
-  body.article .art-back {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 12px 10px;
-    display: inline-flex;
-    align-items: center;
-    box-sizing: border-box;
-  }
+  body.article .art-back { display: none !important; }
 }
 
 
@@ -2801,12 +2797,13 @@ body:has(#section-bar.show) .mast::after {
   display: none;
 }
 
-/* Phone article: mast overlays hero art (transparent); skip content veil. */
+/* Phone article: hard opaque mast like Index; veil hangs under #section-bar. */
 @media (max-width: 800px) {
   body.article .mast,
   body.article .mast .topbar {
-    background: transparent;
-    background-color: transparent;
+    background: #070707 !important;
+    background-color: #070707 !important;
+    background-image: none !important;
   }
   body.article .mast::after {
     content: none;
@@ -3466,5 +3463,143 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
   body.article .art-index:hover .art-index-panel,
   body.article .art-index:focus-within .art-index-panel {
     transform: none !important;
+  }
+}
+
+/* ---- Phone article chrome stack = Index (artchrome1) ----
+   Match Index exactly: opaque mast, same row geometry (8+44+44+6=102),
+   sticky #section-bar at 102+safe, no art-back INDEX ghost, no twin epithet. */
+@media (max-width: 800px) {
+  body.article .mast {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 40 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-bottom: 0 !important;
+    background: #070707 !important;
+    background-color: #070707 !important;
+    background-image: none !important;
+    overflow: visible;
+  }
+  body.article .mast::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: max(100vh, 100dvh);
+    background: #070707;
+    pointer-events: none;
+  }
+  body.article .mast .topbar {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    /* Same chrome padding as Index / shared phone mast (yields 102px content height). */
+    padding-top: 8px !important;
+    padding-bottom: 6px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    background: #070707 !important;
+    background-color: #070707 !important;
+    background-image: none !important;
+    box-sizing: border-box !important;
+  }
+  body.article .mast .topbar > .mark,
+  body.article .mast .topbar > a[href$="seal.html"] {
+    position: static !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+  body.article .mast .topbar .filters {
+    position: static !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    margin: 0 !important;
+    padding: 0 8px !important;
+    gap: 0 !important;
+    box-sizing: border-box !important;
+    background: #070707 !important;
+    background-color: #070707 !important;
+  }
+  body.article .mast .topbar .filters a {
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+  /* Seek form stays off-flow; glyph in filters is injected by JS (same as Index). */
+  body.article .mast .topbar > form {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* Row 3: FIXED under mast (hero stays full-bleed underneath opaque stack).
+     Index uses sticky + body padding; articles keep overlay chrome like a pinned bar. */
+  body.article #section-bar {
+    position: fixed !important;
+    top: calc(102px + env(safe-area-inset-top, 0px)) !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    z-index: 40 !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 6px !important;
+    background: #070707 !important;
+    background-color: #070707 !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  /* Kill leftover Index side-rail cue / art-back label on phone. */
+  body.article .art-back,
+  body.article .art-index-cue,
+  body.article .art-index-panel > h3 {
+    display: none !important;
+  }
+
+  /* Panel drops from under the solid chrome stack (102 mast + 44 bar). */
+  body.article .art-index {
+    top: calc(146px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  /* Duplicate epithet: hero .art-epithet is enough on phone; hide twin in Description. */
+  body.article #description > .art-line {
+    display: none !important;
   }
 }
