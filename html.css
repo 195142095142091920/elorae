@@ -2888,3 +2888,105 @@ body.seal-devin .friend { display: none !important; }
   #section-bar a,
   .journal-page #section-bar a { padding-left: 3px; padding-right: 3px; font-size: 10.5px; }
 }
+
+
+/* ---- Phone audit fixes (audit1) ---- */
+
+/* Seal: the phone mast rule made the figure mark full-width (left -12px), so it sat on top of
+   Back and swallowed taps; names also centered instead of top-right. Right-align, auto width,
+   same 56px row as Back. */
+@media (max-width: 800px) {
+  body.seal-page .mast .topbar.seal-top > .mark {
+    left: auto;
+    right: 12px;
+    width: auto;
+    max-width: calc(100% - 110px);
+    height: 56px;
+    min-height: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* Index category rail (phone): panel opened at top:56px, i.e. under the 102px fixed mast
+   (Categories heading hidden). Cue was a 22x40 target and sat on top of the open panel; it now
+   becomes a 44px close handle at the panel edge. */
+@media (max-width: 800px) {
+  body.index-page aside.toc.index-toc,
+  body.index-page .index-toc-panel {
+    top: calc(102px + env(safe-area-inset-top, 0px));
+  }
+  body.index-page .index-toc-cue {
+    top: calc(102px + env(safe-area-inset-top, 0px) + 34vh);
+    width: 44px;
+    height: 44px;
+    justify-content: flex-start;
+    padding-left: 8px;
+    box-sizing: border-box;
+    transition: color .15s ease, left .2s ease;
+  }
+  body.index-page aside.toc.index-toc.open .index-toc-cue { left: min(240px, 82vw); }
+  body.index-page .index-toc-cue svg { transition: transform .2s ease; }
+  body.index-page aside.toc.index-toc.open .index-toc-cue svg { transform: rotate(180deg); }
+}
+
+/* Article Index panel (phone): rows were 19-24px tall; match the Index rail's 44px rows.
+   Cue moves to the open panel's edge as a close handle instead of covering the list. */
+@media (max-width: 800px) {
+  body.article .art-index .toc-row > a,
+  body.article .art-index .toc-name,
+  body.article .art-index .toc-sub {
+    min-height: 44px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  /* Opaque panel: at 0.96 the article text behind read through the list. */
+  body.article .art-index-panel,
+  body.index-page .index-toc-panel { background: #070707; }
+  body.article .art-index-cue { transition: color .15s ease, left .2s ease; }
+  body.article .art-index.open .art-index-cue { left: min(240px, 82vw); }
+  body.article .art-index-cue svg { transition: transform .2s ease; }
+  body.article .art-index.open .art-index-cue svg { transform: rotate(180deg); }
+  /* Atlas map lightbox close: 40px -> 44px target. */
+  #map-zoom .map-zoom-close { width: 44px; height: 44px; }
+}
+
+/* Figure pages: the Full/fit toggle was an unstyled default button (a grey 4x19 sliver; its
+   SVG had no stroke). Shared desktop + phone: 44px icon button like the old fit-mobile.js. */
+body.entry .topbar .fit-toggle {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #efe8dc;
+  opacity: 0.8;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+body.entry .topbar .fit-toggle:hover,
+body.entry .topbar .fit-toggle:focus-visible { opacity: 1; }
+body.entry .topbar .fit-toggle svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: square;
+  pointer-events: none;
+}
+
+/* Figure lore quote: the HTML already carries the curly quotes and the em dash, so the
+   figure-lore.css pseudo marks doubled them (""The Wild."" / "- — Hesk"). Shared fix. */
+body.entry .life-sheet .life-quote p::before,
+body.entry .life-sheet .life-quote p::after,
+body.entry .life-sheet .life-quote cite::before { content: none; }
