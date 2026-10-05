@@ -541,6 +541,13 @@ body:not(.journal-page) .toc a {
 body:not(.journal-page) .toc a.on,
 body:not(.journal-page) .toc a:hover { color: #f3eee6; }
 
+body.index-page .toc a {
+  border-bottom: 0;
+  font-size: 12px;
+  padding: 2px 0;
+  line-height: 1.25;
+}
+
 @media (min-width: 801px) {
   body.journal-page:has(aside.toc) main.read {
     width: min(880px, calc(100vw - 348px));
