@@ -25,13 +25,16 @@
   }
   function update() {
     var mast = document.querySelector(".mast");
-    var line = mast ? mast.getBoundingClientRect().bottom + 72 : 180;
+    var mastBottom = mast ? mast.getBoundingClientRect().bottom : 108;
+    /* TOC highlight stays at +72; bg art fires a bit earlier so chapters feel present sooner. */
+    var line = mastBottom + 72;
+    var artLine = mastBottom + 28;
     var id = items[0].el.id;
     items.forEach(function (item) {
       if (item.el.getBoundingClientRect().top <= line) id = item.el.id;
     });
     highlight(id);
-    follow(line);
+    follow(artLine);
   }
   /* Background art: chapter h1 → that chapter's first figure; then each later in-column
      figure switches the fixed bg as it crosses the highlight line (scroll order). */
