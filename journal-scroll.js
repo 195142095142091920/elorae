@@ -33,19 +33,21 @@
     highlight(id);
     follow(line);
   }
-  /* Background art follows the column: when a chapter's first in-column image reaches the
-     highlight line, the fixed background crossfades to it (two stacked layers in .journal-bg). */
+  /* Background art follows the chapter heading: when a chapter h1 reaches the highlight
+     line, the fixed background crossfades to that chapter's first in-column image so
+     the art is present for the whole chapter while reading (not delayed until the art). */
   var layer = document.querySelector(".journal-bg img");
   var marks = [];
   if (layer) {
     var heads = Array.prototype.slice.call(document.querySelectorAll("main.read > h1[id]"));
     heads.forEach(function (h, i) {
-      var next = heads[i + 1], node = h.nextElementSibling;
+      var next = heads[i + 1], node = h.nextElementSibling, src = null;
       while (node && node !== next) {
         var art = node.matches("figure") ? node.querySelector("img") : null;
-        if (art) { marks.push(art); break; }
+        if (art) { src = art.getAttribute("src"); break; }
         node = node.nextElementSibling;
       }
+      if (src) marks.push({ el: h, src: src });
     });
     var back = layer.cloneNode(false);
     back.classList.add("bg-off");
@@ -70,7 +72,9 @@
   function follow(line) {
     if (!marks.length) return;
     var src = base;
-    marks.forEach(function (art) { if (art.getBoundingClientRect().top <= line) src = art.getAttribute("src"); });
+    marks.forEach(function (m) {
+      if (m.el.getBoundingClientRect().top <= line) src = m.src;
+    });
     if (src !== want) swapTo(src);
   }
   update();
