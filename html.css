@@ -1697,3 +1697,29 @@ body.search-page .tile::after {
   #search-hits .hit-art { flex-basis: 56px; width: 56px; height: 74px; }
   #search-hits .hit-snip { font-size: 15px; }
 }
+
+/* journal article links */
+@media (min-width: 801px) {
+  body.journal-page main.read p a,
+  body.journal-page main.read figcaption a {
+    color: #f3eee6;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(243,238,230,0.28);
+  }
+  body.journal-page main.read p a:hover,
+  body.journal-page main.read figcaption a:hover {
+    border-bottom-color: rgba(243,238,230,0.7);
+  }
+}
+@media (max-width: 800px) {
+  body.journal-page main.read p a,
+  body.journal-page main.read figcaption a {
+    color: #f3eee6;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(243,238,230,0.28);
+  }
+  body.journal-page main.read p a:hover,
+  body.journal-page main.read figcaption a:hover {
+    border-bottom-color: rgba(243,238,230,0.7);
+  }
+}
