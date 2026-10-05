@@ -310,7 +310,7 @@
       '<button type="button" class="seek-panel-close" data-seek-close="1" aria-label="Close">' +
       '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5L12.5 12.5M12.5 1.5L1.5 12.5" fill="none" stroke="#f3eee6" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>' +
       '</button>' +
-      '<input id="seek-panel-input" type="search" placeholder="Search" autocomplete="off" spellcheck="false">' +
+      '<input id="seek-panel-input" type="text" role="searchbox" placeholder="Search" autocomplete="off" spellcheck="false" enterkeyhint="search">' +
       '<div id="seek-panel-results"></div></div>';
     document.body.appendChild(panel);
     panelInput = document.getElementById("seek-panel-input");

@@ -1896,6 +1896,8 @@ body.journal-page .read h2 + .era-years {
   letter-spacing: .04em;
   padding: 20px 48px 16px 22px;
   outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 #seek-panel-input::placeholder { color: #8f8a82; }
 /* Kill UA search-cancel (blue X) — panel close glyph is the only dismiss control. */
