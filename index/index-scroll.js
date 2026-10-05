@@ -14,7 +14,24 @@
     };
   }).filter(function (c) { return c.el; });
   if (!cats.length) return;
-  var current = null, manual = {}, pinned = "";
+  var current = null, manual = {}, pinned = "", jump = "";
+  /* jump: the section a link or hash just sent the reader to. Near the page bottom the last
+     sections can never reach the highlight line, so the jumped-to one wins there until the
+     reader scrolls by hand (end1). */
+  function dropJump() { jump = ""; }
+  ["wheel", "touchstart", "keydown", "mousedown"].forEach(function (t) {
+    window.addEventListener(t, function (e) {
+      if (t === "mousedown" && e.target.closest && e.target.closest("aside.toc a")) return;
+      dropJump();
+    }, { passive: true });
+  });
+  function jumpCat() {
+    if (!jump) return null;
+    var el = document.getElementById(jump);
+    var sec = el && el.closest && el.closest(".index-cat");
+    for (var i = 0; i < cats.length; i++) if (cats[i].el === sec) return cats[i];
+    return null;
+  }
   function layout() {
     cats.forEach(function (c) {
       if (!c.tog) return;
@@ -67,6 +84,8 @@
       var top = h.getBoundingClientRect().top;
       if (top <= line || (atEnd && top < window.innerHeight)) cat = c;
     });
+    var jc = atEnd && jumpCat();
+    if (jc && jc.el.getBoundingClientRect().bottom > 0 && jc.el.getBoundingClientRect().top < window.innerHeight) cat = jc;
     if (cat !== current) {
       current = cat;
       if (desk.matches) manual = {};
@@ -84,8 +103,12 @@
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
   if (desk.addEventListener) desk.addEventListener("change", function () { manual = {}; layout(); update(); });
-  window.addEventListener("hashchange", function () { pinned = location.hash.slice(1); window.setTimeout(update, 0); });
-  window.addEventListener("load", function () { if (location.hash) pinned = location.hash.slice(1); update(); });
+  toc.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href^='#']");
+    if (a) { jump = a.getAttribute("href").slice(1); window.setTimeout(update, 0); }
+  });
+  window.addEventListener("hashchange", function () { pinned = jump = location.hash.slice(1); window.setTimeout(update, 0); });
+  window.addEventListener("load", function () { if (location.hash) pinned = jump = location.hash.slice(1); update(); });
 })();
 
 /* Previous flat category highlighter (replaced by the nested rail above, nest1):
