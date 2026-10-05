@@ -1074,9 +1074,11 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-swap button { width: 56px; height: 70px; }
   */
   body.article .art-swap { position: absolute; z-index: 3; display: flex; flex-direction: column; gap: 10px; }
-  body.article .art-swap-nav { display: flex; gap: 6px; }
-  body.article .art-swap-nav button { padding: 0; margin: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(7,7,7,0.55); border: 1px solid rgba(243,238,230,0.3); color: #f3eee6; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 26px; line-height: 1; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
-  body.article .art-swap-nav button:hover { border-color: #f3eee6; background: rgba(7,7,7,0.8); }
+  body.article .art-swap-nav { display: flex; gap: 10px; }
+  body.article .art-swap-nav button { padding: 0; margin: 0; width: 32px; height: 36px; display: flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 0; box-shadow: none; color: rgba(243,238,230,0.55); cursor: pointer; transition: color .2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.85); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.85)) drop-shadow(0 0 6px rgba(0,0,0,0.5)); -webkit-appearance: none; appearance: none; }
+  body.article .art-swap-nav button:hover, body.article .art-swap-nav button:focus-visible { color: rgba(243,238,230,0.95); }
+  body.article .art-swap-nav button:focus-visible { outline: 1px solid rgba(243,238,230,0.4); outline-offset: 2px; }
+  body.article .art-swap-nav svg { display: block; width: 8px; height: 14px; overflow: visible; }
   body.article .art-swap-thumbs { display: flex; gap: 8px; }
   body.article .art-swap-thumbs button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
   body.article .art-swap-thumbs button:hover { opacity: 0.9; }
@@ -1109,9 +1111,11 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-hero.has-swap .art-title { padding-bottom: calc(max(22px, env(safe-area-inset-bottom)) + 70px); }
   */
   body.article .art-swap { position: absolute; z-index: 3; display: flex; flex-direction: column; gap: 10px; }
-  body.article .art-swap-nav { display: flex; gap: 6px; }
-  body.article .art-swap-nav button { padding: 0; margin: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(7,7,7,0.55); border: 1px solid rgba(243,238,230,0.3); color: #f3eee6; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 26px; line-height: 1; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
-  body.article .art-swap-nav button:hover { border-color: #f3eee6; background: rgba(7,7,7,0.8); }
+  body.article .art-swap-nav { display: flex; gap: 10px; }
+  body.article .art-swap-nav button { padding: 0; margin: 0; width: 32px; height: 36px; display: flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 0; box-shadow: none; color: rgba(243,238,230,0.55); cursor: pointer; transition: color .2s ease; text-shadow: 0 1px 2px rgba(0,0,0,0.85); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.85)) drop-shadow(0 0 6px rgba(0,0,0,0.5)); -webkit-appearance: none; appearance: none; }
+  body.article .art-swap-nav button:hover, body.article .art-swap-nav button:focus-visible { color: rgba(243,238,230,0.95); }
+  body.article .art-swap-nav button:focus-visible { outline: 1px solid rgba(243,238,230,0.4); outline-offset: 2px; }
+  body.article .art-swap-nav svg { display: block; width: 8px; height: 14px; overflow: visible; }
   body.article .art-swap-thumbs { display: flex; gap: 8px; }
   body.article .art-swap-thumbs button { padding: 0; margin: 0; background: #000; border: 1px solid rgba(243,238,230,0.25); cursor: pointer; opacity: 0.62; transition: opacity .15s ease, border-color .15s ease; }
   body.article .art-swap-thumbs button:hover { opacity: 0.9; }
