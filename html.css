@@ -2367,8 +2367,8 @@ body.seek-panel-open { overflow: hidden; }
    Thin veil hangs just below the opaque bar — invisible over page bg,
    visible when tiles/text scrape under fixed (phone) or sticky (desktop) mast. */
 .mast::after,
-#section-bar.show::after,
-body.has-section-bar #section-bar::after {
+#section-bar:has(a)::after,
+#section-bar.show::after {
   content: "";
   position: absolute;
   left: 0;
@@ -2386,15 +2386,17 @@ body.has-section-bar #section-bar::after {
 }
 
 /* Secondary bar (Calendar/Lore/…): hang fade under the full chrome stack,
-   not over the section-bar links. Mast veil off while the bar is showing. */
+   not over the section-bar links. Covers static multipage (#section-bar a in HTML)
+   and SPA (#section-bar.show / body.has-section-bar). */
+body:has(#section-bar a) .mast::after,
 body.has-section-bar .mast::after,
 body:has(#section-bar.show) .mast::after {
   content: none;
   display: none;
 }
+#section-bar:has(a),
 #section-bar.show,
 body.has-section-bar #section-bar {
-  /* Fixed bar is already positioned; keep ::after anchored to its bottom. */
   overflow: visible;
 }
 
