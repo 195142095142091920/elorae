@@ -236,17 +236,20 @@
 
   function openPanel(preset) {
     ensurePanel();
-    ensureIndex(function () {
-      panel.hidden = false;
-      document.body.classList.add("seek-panel-open");
-      var val = typeof preset === "string" ? preset : (seek ? seek.value : "");
-      panelInput.value = val;
-      var q = val.trim().toLowerCase();
-      renderPanel(q);
-      setTimeout(function () {
+    var val = typeof preset === "string" ? preset : (seek ? seek.value : "");
+    panel.hidden = false;
+    document.body.classList.add("seek-panel-open");
+    panelInput.value = val;
+    panelResults.innerHTML = val.trim() ? '<p class="seek-panel-empty">Searching…</p>' : "";
+    setTimeout(function () {
+      try {
         panelInput.focus();
         panelInput.setSelectionRange(panelInput.value.length, panelInput.value.length);
-      }, 0);
+      } catch (err) {}
+    }, 0);
+    ensureIndex(function () {
+      if (!isPanelOpen()) return;
+      renderPanel(panelInput.value.trim().toLowerCase());
     });
   }
 
