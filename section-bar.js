@@ -10,7 +10,8 @@
     ["Calendar", "#/codex/calendar"],
     ["Lore", "#/codex/lore"],
     ["Magics", "#/codex/magics"],
-    ["Souls", "#/codex/souls"]
+    ["Souls", "#/codex/souls"],
+    ["Timeline", "#/codex/timeline"]
   ];
 
   if (!document.getElementById("section-bar-css")) {
