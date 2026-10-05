@@ -27,7 +27,9 @@ if (seek) document.addEventListener("keydown", function (e) {
   }
 
   if (e.key === "Enter" && seek.value.trim()) {
-    var hit = document.querySelector(".tile:not(.is-dim)");
+    /* First match the reader can actually see; hidden private tiles are skipped (seek2).
+    Old pick: var hit = document.querySelector(".tile:not(.is-dim)"); */
+    var hit = Array.prototype.find.call(document.querySelectorAll(".tile:not(.is-dim)"), function (t) { return t.getClientRects().length > 0; });
     if (hit && hit.getAttribute("href")) {
       e.preventDefault();
       location.href = hit.getAttribute("href");
