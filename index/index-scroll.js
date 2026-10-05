@@ -1,7 +1,8 @@
 /* Index rail: Chromium-style category sidebar.
    Collapsed strip stays hoverable; hover/focus peeks the panel and pushes the
    card grid (body.index-toc-open). Pin sticks the rail open; unpin collapses.
-   Phone: cue taps open; pin sticks; tap-outside / link closes when unpinned.
+   Phone: cue opens a sticky top Categories dropdown (not the side rail); pin hidden;
+   tap-outside / link / Escape closes.
    Nests stay closed until the chevron is tapped; no card highlight while scrolling. */
 (function () {
   var toc = document.querySelector("aside.toc");

@@ -395,10 +395,27 @@
     return panel;
   }
 
+  var seekLockY = 0;
+  function lockSeekScroll() {
+    if (!window.matchMedia("(max-width: 800px)").matches) return;
+    seekLockY = window.scrollY || window.pageYOffset || 0;
+    document.documentElement.classList.add("seek-panel-lock");
+    document.body.classList.add("seek-panel-open");
+    document.body.style.top = "-" + seekLockY + "px";
+  }
+  function unlockSeekScroll() {
+    document.documentElement.classList.remove("seek-panel-lock");
+    document.body.classList.remove("seek-panel-open");
+    if (document.body.style.top) {
+      document.body.style.top = "";
+      window.scrollTo(0, seekLockY || 0);
+    }
+  }
   function openPanel(preset) {
     ensurePanel();
     var val = typeof preset === "string" ? preset : (seek ? seek.value : "");
     panel.hidden = false;
+    lockSeekScroll();
     document.body.classList.add("seek-panel-open");
     panelInput.value = val;
     panelResults.innerHTML = val.trim() ? '<p class="seek-panel-empty">Searching…</p>' : "";
@@ -417,7 +434,7 @@
   function closePanel() {
     if (!panel || panel.hidden) return;
     panel.hidden = true;
-    document.body.classList.remove("seek-panel-open");
+    unlockSeekScroll();
   }
 
   function isPanelOpen() {

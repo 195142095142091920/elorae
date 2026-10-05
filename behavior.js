@@ -4,7 +4,9 @@ document.addEventListener('click', function (e) {
   var sheet = document.getElementById('life');
   if (!sheet) return;
   var open = sheet.classList.toggle('open');
-  life.textContent = open ? '- Lore' : '+ Lore';
+  /* Phone top-dropdown uses a CSS caret; keep the label as Lore. Desktop keeps +/- . */
+  if (window.matchMedia('(max-width: 800px)').matches) life.textContent = 'Lore';
+  else life.textContent = open ? '- Lore' : '+ Lore';
 });
 
 document.addEventListener("click", function (e) {
@@ -17,3 +19,8 @@ document.addEventListener("click", function (e) {
   var swap = e.target.closest("#art-swap button");
   if (swap) document.getElementById("art-swap").classList.toggle("open");
 });
+
+(function () {
+  if (!window.matchMedia("(max-width: 800px)").matches) return;
+  document.querySelectorAll(".life-toggle").forEach(function (el) { el.textContent = "Lore"; });
+})();

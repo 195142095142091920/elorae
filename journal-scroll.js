@@ -11,6 +11,25 @@
   fixOld();
   var toc = document.querySelector("aside.toc");
   if (!toc) return;
+  /* Chapters dropdown (tocdrop1): desktop rail always open; phone starts collapsed,
+     closes after a pick, on an outside tap, or Escape — same as Codex Contents. */
+  var drop = toc.querySelector("details.toc-drop");
+  var phone = window.matchMedia("(max-width: 800px)");
+  if (drop) {
+    var syncDrop = function () { drop.open = !phone.matches; };
+    syncDrop();
+    if (phone.addEventListener) phone.addEventListener("change", syncDrop);
+    else if (phone.addListener) phone.addListener(syncDrop);
+    toc.addEventListener("click", function (e) {
+      if (phone.matches && e.target.closest && e.target.closest("a[href^='#']")) drop.open = false;
+    });
+    document.addEventListener("click", function (e) {
+      if (phone.matches && drop.open && !toc.contains(e.target)) drop.open = false;
+    });
+    document.addEventListener("keydown", function (e) {
+      if (phone.matches && drop.open && e.key === "Escape") drop.open = false;
+    });
+  }
   var items = Array.prototype.map.call(toc.querySelectorAll("a[href^='#']"), function (a) {
     return { a: a, el: document.getElementById(a.getAttribute("href").slice(1)) };
   }).filter(function (item) { return item.el; });
