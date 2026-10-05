@@ -1283,8 +1283,8 @@ body.article .art-title .art-epithet {
   color: #e4ddd2;
   text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
 }
-body.article .mast { background: linear-gradient(to bottom, rgba(7,7,7,0.92) 0%, rgba(7,7,7,0.66) 55%, rgba(7,7,7,0) 100%); }
-body.article .mast .topbar { background: transparent; }
+body.article .mast { background: #070707; background-color: #070707; }
+body.article .mast .topbar { background: #070707; background-color: #070707; }
 body.article .art-back {
   z-index: 21;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -2370,9 +2370,17 @@ body.seek-panel-open { overflow: hidden; }
 }
 
 
-/* Soft chrome fade: content soft-fades under/into the mast (#070707).
-   Thin veil hangs just below the opaque bar — invisible over page bg,
-   visible when tiles/text scrape under fixed (phone) or sticky (desktop) mast. */
+/* Nav chrome: mast / #section-bar are HARD opaque (#070707) with a crisp
+   bottom edge. Content fades underneath via a veil hung BELOW the bar
+   (not a soft gradient on the bar itself). Phone + desktop. */
+.mast,
+#section-bar,
+#section-bar:has(a),
+#section-bar.show,
+body.has-section-bar #section-bar {
+  background: #070707;
+  background-color: #070707;
+}
 .mast::after,
 #section-bar:has(a)::after,
 #section-bar.show::after {
@@ -2384,6 +2392,7 @@ body.seek-panel-open { overflow: hidden; }
   height: 28px;
   pointer-events: none;
   z-index: 1;
+  /* Veil below chrome: solid at the hard edge, then content dissolves. */
   background: linear-gradient(
     to bottom,
     #070707 0%,
@@ -2392,9 +2401,9 @@ body.seek-panel-open { overflow: hidden; }
   );
 }
 
-/* Secondary bar (Calendar/Lore/…): hang fade under the full chrome stack,
-   not over the section-bar links. Covers static multipage (#section-bar a in HTML)
-   and SPA (#section-bar.show / body.has-section-bar). */
+/* Secondary bar (Calendar/Lore/…): hang content veil under the full chrome
+   stack so the section-bar itself stays fully opaque. Static multipage
+   (#section-bar a) and SPA (#section-bar.show / body.has-section-bar). */
 body:has(#section-bar a) .mast::after,
 body.has-section-bar .mast::after,
 body:has(#section-bar.show) .mast::after {
@@ -2407,9 +2416,13 @@ body.has-section-bar #section-bar {
   overflow: visible;
 }
 
-/* Phone article overlay mast already fades via its own gradient into
-   full-bleed hero art; absolute mast scrolls away — skip hard veil. */
+/* Phone article: mast overlays hero art (transparent); skip content veil. */
 @media (max-width: 800px) {
+  body.article .mast,
+  body.article .mast .topbar {
+    background: transparent;
+    background-color: transparent;
+  }
   body.article .mast::after {
     content: none;
     display: none;
