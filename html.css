@@ -893,7 +893,8 @@ body.index-page .index-toc-panel > h3 {
   body.index-page main.with-toc.index-flow {
     display: block;
     margin-left: 0;
-    padding: 16px 28px 72px;
+    /* Edge-to-edge like Gallery .wall (pad 6px sides, gap 6px); bigger tiles. */
+    padding: 16px 6px 72px;
     transition: margin-left .2s ease;
   }
   /* Open rail pushes the column over (push1): body.index-toc-open is set by index-scroll.js,
@@ -925,13 +926,13 @@ body.index-page .index-toc-panel > h3 {
   }
   body.index-page .index-cards {
     display: grid;
-    /* Up to 4 columns; drops to fewer (min 220px) as the column narrows, e.g. rail open. */
-    grid-template-columns: repeat(auto-fill, minmax(max(220px, calc((100% - 42px) / 4)), 1fr));
-    gap: 14px;
+    /* Full-bleed 4-col like Gallery .wall; rail open still pushes (margin-left) and tiles shrink. */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
     justify-content: stretch;
     padding: 18px 0 48px;
-    max-width: 1280px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
   }
   body.index-page .index-empty {
     margin: 0;
@@ -1020,7 +1021,8 @@ body.index-page .index-toc-panel > h3 {
   body.index-page main.with-toc.index-flow {
     display: block;
     margin-left: 0;
-    padding: 8px 12px 56px;
+    /* Phone: tighter sides than Gallery's 12px so art tiles read larger. */
+    padding: 8px 6px 56px;
   }
   body.index-page .index-cat,
   body.index-page .index-card {
@@ -1049,7 +1051,7 @@ body.index-page .index-toc-panel > h3 {
   body.index-page .index-cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 6px;
     justify-content: stretch;
     padding: 12px 0 36px;
   }
