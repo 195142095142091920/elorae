@@ -2145,3 +2145,46 @@ body.seek-panel-open { overflow: hidden; }
     font-size: 18px;
   }
 }
+
+
+/* Phone: art-index cue + Index toc toggles/rows hit 44px (tap2). */
+@media (max-width: 800px) {
+  body.article .art-index-cue {
+    width: 44px;
+    height: 44px;
+  }
+  body.index-page .toc-tog,
+  body.article .art-index .toc-tog {
+    width: 44px;
+    height: 44px;
+  }
+  body.index-page .toc-row > a {
+    min-height: 44px;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  body.index-page .toc-name,
+  body.index-page .toc-sub {
+    min-height: 44px;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .journal-page .toc a {
+    min-height: 44px;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  #section-bar a {
+    min-height: 44px;
+    padding: 12px 8px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+}
