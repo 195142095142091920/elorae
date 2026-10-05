@@ -38,6 +38,15 @@
     });
   });
 
+  /* Esc closes the slide-in, whether it was tapped open or held open by keyboard focus (esc1). */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var held = root.contains(document.activeElement);
+    if (!root.classList.contains("open") && !held) return;
+    setOpen(false);
+    if (held && document.activeElement.blur) document.activeElement.blur();
+  });
+
   if (desk.addEventListener) {
     desk.addEventListener("change", function () { setOpen(false); });
   }
