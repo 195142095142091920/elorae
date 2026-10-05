@@ -6,8 +6,9 @@ var PHRASE_HASH = {
   "340bbcf62fb5b430085a948675b2b76a33f7eb855f94b538a077973a96571c61":"sawyer",
   "0eedbe39d20f666a54f9fd82e2a7b8c7673ade3d1f86f530d68b56d3e6500740":"devin"
 };
-/* Profile names shown on the seal page, matching the data-owner friend links (seal2). */
+/* Figure links for the top-nav friend marks (not the welcome line). */
 var FRIENDS = {jack:[["Galand","articles/galand-helviath.html"]],jon:[["Telorin","figures/telorin.html"],["Silar","articles/silar-scorria.html"]],julie:[["Saoirse","articles/saoirse.html"]],sawyer:[["Vaerek","articles/vaerek.html"]]};
+/* Player names shown on the seal welcome after a successful phrase. */
 var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",devin:"Devin"};
 function hexDigest(buf) {
   return Array.prototype.map.call(new Uint8Array(buf), function (b) {
@@ -34,17 +35,9 @@ function applySeal() {
   if (welcome) welcome.hidden = !who;
   if (name) {
     name.hidden = !who;
-    /* Old plain name (replaced by the friend links below, seal2): name.textContent = NAMES[who] || ""; */
-    name.textContent = "";
-    var links = FRIENDS[who];
-    if (!links) name.textContent = NAMES[who] || "";
-    else links.forEach(function (f, i) {
-      if (i) name.appendChild(document.createTextNode(" \u00b7 "));
-      var a = document.createElement("a");
-      a.href = f[1];
-      a.textContent = f[0];
-      name.appendChild(a);
-    });
+    /* Welcome shows the player's name (Jack / Jon / …), not their figure (seal4).
+       Old figure-link welcome (seal2): built FRIENDS[who] anchors into #seal-name. */
+    name.textContent = NAMES[who] || "";
   }
   return who;
 }
