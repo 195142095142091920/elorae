@@ -1064,6 +1064,8 @@ body.article .art-dossier a:hover { color: #f3eee6; }
 @keyframes art-lift { to { transform: translateY(18%) scale(1.04); opacity: 0.45; } }
 
 @media (min-width: 801px) {
+  body.article .art-life + .art-life { margin-top: 1.1em; }
+  body.article .art-related + .art-rel-head, body.article .art-related + .art-related, body.article .art-rel-head + .art-rel-head { margin-top: 28px; }
   body.article .mast { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 0; background: #070707; }
   body.article .art-back { position: fixed; top: 0; left: 28px; height: 56px; display: flex; align-items: center; font-size: 16px; }
   body.article .art-title { width: min(46vw, 560px); padding: 40px 28px 28px; }
@@ -1074,6 +1076,8 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 800px) {
+  body.article .art-life + .art-life { margin-top: 1.1em; }
+  body.article .art-related + .art-rel-head, body.article .art-related + .art-related, body.article .art-rel-head + .art-rel-head { margin-top: 28px; }
   body.article .mast { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 18px; }
   body.article .art-back { position: absolute; top: calc(max(18px, env(safe-area-inset-top)) + 64px); left: 18px; font-size: 13px; }
   body.article .art-title { width: 100%; padding: 36px 18px max(22px, env(safe-area-inset-bottom)); }
