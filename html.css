@@ -921,3 +921,171 @@ table.day-names td {
     margin: 6px 0 0;
   }
 }
+
+/* Articles (one page per subject). The hero art fills the screen and scrolls up in the
+   normal flow; the dossier, lore, arts, and related rise beneath it. Pure CSS.
+   Everything is scoped under body.article. */
+body.article { overflow-x: hidden; background: #070707; }
+body.article .art-hero {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #000;
+}
+body.article .art-hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: center top;
+}
+body.article .art-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42vh;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to top, #070707 0%, rgba(7,7,7,0.62) 26%, rgba(0,0,0,0.22) 62%, rgba(0,0,0,0) 100%);
+}
+body.article .art-title {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+body.article .art-title h1 {
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  font-weight: 400;
+  color: #f3eee6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
+}
+body.article .art-title .art-epithet {
+  margin: 6px 0 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  color: #e4ddd2;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
+}
+body.article .mast { background: linear-gradient(to bottom, rgba(7,7,7,0.92) 0%, rgba(7,7,7,0.66) 55%, rgba(7,7,7,0) 100%); }
+body.article .mast .topbar { background: transparent; }
+body.article .art-back {
+  z-index: 21;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f3eee6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
+}
+body.article .art-body {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  color: #f3eee6;
+}
+body.article .art-sec { margin: 0 0 64px; }
+body.article .art-sec > h2 {
+  margin: 0 0 22px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(243,238,230,0.14);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+body.article .art-line { margin: 0; line-height: 1.45; color: #e4ddd2; }
+body.article .art-dossier { display: grid; grid-template-columns: max-content 1fr; gap: 12px 28px; margin: 0; align-items: baseline; }
+body.article .art-dossier dt,
+body.article .art-facts li,
+body.article .art-quote cite,
+body.article .art-strip figcaption,
+body.article .art-rel-head {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+body.article .art-dossier dt { font-size: 11px; color: #8f8a82; }
+body.article .art-dossier dd { margin: 0; font-size: 17px; line-height: 1.45; color: #f3eee6; }
+body.article .art-quote { margin: 0 0 28px; padding: 0; border: 0; text-align: center; }
+body.article .art-quote p {
+  margin: 0;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.55;
+  color: #f3eee6;
+}
+body.article .art-quote cite { display: block; margin: 14px 0 0; font-style: normal; font-size: 11px; color: #9a948a; }
+body.article .art-facts {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0 0 22px;
+  border-bottom: 1px solid rgba(243,238,230,0.14);
+}
+body.article .art-facts li { margin: 0; font-size: 12px; line-height: 1.7; color: #b7b0a4; }
+body.article .art-life { margin: 0; font-size: 17px; line-height: 1.65; }
+body.article .art-strip { display: grid; gap: 18px; }
+body.article .art-piece { margin: 0; }
+body.article .art-piece a { display: block; }
+body.article .art-piece img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: #000; border: 1px solid transparent; }
+body.article .art-piece a:hover img { border-color: rgba(243,238,230,0.45); }
+body.article .art-strip figcaption { margin: 10px 0 0; font-size: 11px; line-height: 1.4; color: #cfc6b8; }
+body.article .art-rel-head { margin: 0 0 14px; font-size: 12px; }
+body.article .art-rel-head a { color: #f3eee6; }
+body.article .art-related { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 26px; }
+body.article .art-related a { font-size: 17px; color: #cfc6b8; }
+body.article .art-related a:hover,
+body.article .art-rel-head a:hover,
+body.article .art-dossier a:hover { color: #f3eee6; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    body.article .art-hero img {
+      animation: art-lift linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+@keyframes art-lift { to { transform: translateY(18%) scale(1.04); opacity: 0.45; } }
+
+@media (min-width: 801px) {
+  body.article .mast { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 28px; }
+  body.article .art-back { position: fixed; top: 0; left: 28px; height: 56px; display: flex; align-items: center; font-size: 16px; }
+  body.article .art-title { width: min(46vw, 560px); padding: 40px 28px 28px; }
+  body.article .art-title h1 { font-size: clamp(28px, 4vw, 42px); }
+  body.article .art-title .art-epithet { font-size: 16px; }
+  body.article .art-body { padding: 72px 28px 96px; }
+  body.article .art-line { font-size: 22px; }
+  body.article .art-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+  body.article .mast { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 18px; }
+  body.article .art-back { position: absolute; top: calc(max(18px, env(safe-area-inset-top)) + 64px); left: 18px; font-size: 13px; }
+  body.article .art-title { width: 100%; padding: 36px 18px max(22px, env(safe-area-inset-bottom)); }
+  body.article .art-title h1 { font-size: clamp(26px, 7.2vw, 34px); line-height: 1.12; overflow-wrap: break-word; }
+  body.article .art-title .art-epithet { font-size: 15px; }
+  body.article .art-body { padding: 44px 20px 72px; }
+  body.article .art-sec { margin-bottom: 52px; }
+  body.article .art-line { font-size: 19px; }
+  body.article .art-dossier { grid-template-columns: 1fr; gap: 4px; }
+  body.article .art-dossier dd { margin-bottom: 12px; }
+  body.article .art-quote p { font-size: 18px; }
+  body.article .art-life { font-size: 16px; }
+  body.article .art-strip { grid-template-columns: 1fr; gap: 26px; }
+  body.article .art-piece img { aspect-ratio: auto; height: auto; }
+}
