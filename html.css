@@ -52,7 +52,12 @@ body.seal-page.seal-jack .friend[data-owner=jack] a,body.seal-page.seal-julie .f
 body.seal-jack{--glow:rgba(230,190,80,.55)}
 body.seal-julie{--glow:rgba(255,190,210,.5)}
 body.seal-sawyer{--glow:rgba(230,120,40,.5)}
-body.seal-jon{--glow:rgba(80,180,90,.5)}
+body.seal-jon{--glow:rgba(80,180,90,.5);--glow-b:rgba(230,90,40,.55)}
+@keyframes jon-glow-alt{0%,45%{--glow:rgba(80,180,90,.55)}55%,100%{--glow:rgba(230,90,40,.55)}}
+body.seal-page.seal-jon{animation:jon-glow-alt 3.2s ease-in-out infinite}
+/* Per-figure text glow on the seal mast: Telorin green, Silar red. */
+body.seal-page.seal-jon .friend[data-owner=jon] a[href*="telorin"]{text-shadow:0 0 12px rgba(80,180,90,.95),0 0 28px rgba(24,92,56,.85);--glow:rgba(80,180,90,.55)}
+body.seal-page.seal-jon .friend[data-owner=jon] a[href*="silar"]{text-shadow:0 0 12px rgba(255,150,72,.95),0 0 28px rgba(168,48,18,.85);--glow:rgba(230,90,40,.55)}
 body.seal-devin{--glow:rgba(180,180,180,.35)}
 
 .dock{padding:40px 28px max(28px,env(safe-area-inset-bottom))}
@@ -2455,4 +2460,14 @@ body.seal-page.seal-devin .mast .topbar.seal-top > .mark .friend {
     font-size: 11px;
     letter-spacing: 0.06em;
   }
+}
+
+
+/* Jon success ambient: green ↔ red-orange pulse behind the seal box (glow1). */
+@keyframes jon-seal-wash {
+  0%, 45% { background: radial-gradient(closest-side, rgba(80,180,90,.55), transparent); }
+  55%, 100% { background: radial-gradient(closest-side, rgba(230,90,40,.55), transparent); }
+}
+body.seal-page.seal-jon .seal-card::before {
+  animation: jon-seal-wash 3.2s ease-in-out infinite;
 }
