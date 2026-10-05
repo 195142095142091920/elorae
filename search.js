@@ -132,13 +132,10 @@
       var textHit = !!(entry.text && entry.text.toLowerCase().indexOf(q) !== -1);
       if (!titleHit && !textHit) return;
 
-      var cardKind = entry.kind === "article" || entry.kind === "figure" || entry.kind === "journal";
-      if (titleHit && entry.image && cardKind) {
+      /* Cards: primary Index/article subjects only — not gallery sub-arts (figures). */
+      if (titleHit && entry.image && entry.kind === "article") {
         var ck = entry.title.toLowerCase();
-        var prev = seenCard[ck];
-        if (!prev || (prev.kind !== "article" && entry.kind === "article")) {
-          seenCard[ck] = entry;
-        }
+        if (!seenCard[ck]) seenCard[ck] = entry;
       }
 
       var mentKind = entry.kind === "journal" || entry.kind === "codex" || entry.kind === "atlas" || entry.kind === "lore";
@@ -179,7 +176,8 @@
     var html = "";
     if (pack.cards.length) {
       html += '<div class="seek-panel-cards">' + pack.cards.map(function (e) {
-        return '<a class="seek-panel-card" href="' + escapeHtml(absHref(e.href)) + '">' +
+        var indexHref = absHref("index/ancients.html") + "?card=" + encodeURIComponent(e.href);
+        return '<a class="seek-panel-card" href="' + escapeHtml(indexHref) + '" data-article="' + escapeHtml(e.href) + '" title="Click: Index · Double-click: article">' +
           '<img src="' + escapeHtml(absHref(e.image)) + '" alt="">' +
           '<span>' + escapeHtml(e.title) + "</span></a>";
       }).join("") + "</div>";
@@ -219,6 +217,25 @@
     indexLoading.then(function () { cb && cb(); });
   }
 
+  var cardClickTimer = null;
+  var CARD_CLICK_MS = 280;
+
+  function indexHrefForArticle(articleHref) {
+    return absHref("index/ancients.html") + "?card=" + encodeURIComponent(articleHref || "");
+  }
+
+  function goIndexCard(articleHref) {
+    if (!articleHref) return;
+    closePanel();
+    location.href = indexHrefForArticle(articleHref);
+  }
+
+  function goArticle(articleHref) {
+    if (!articleHref) return;
+    closePanel();
+    location.href = absHref(articleHref);
+  }
+
   function ensurePanel() {
     if (panel) return panel;
     panel = document.createElement("div");
@@ -227,13 +244,41 @@
     panel.innerHTML =
       '<div class="seek-panel-scrim" data-seek-close="1"></div>' +
       '<div class="seek-panel-box" role="dialog" aria-modal="true" aria-label="Search">' +
+      '<button type="button" class="seek-panel-close" data-seek-close="1" aria-label="Close">' +
+      '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1L13 13M13 1L1 13" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>' +
+      '</button>' +
       '<input id="seek-panel-input" type="search" placeholder="Search" autocomplete="off" spellcheck="false">' +
       '<div id="seek-panel-results"></div></div>';
     document.body.appendChild(panel);
     panelInput = document.getElementById("seek-panel-input");
     panelResults = document.getElementById("seek-panel-results");
     panel.addEventListener("click", function (e) {
-      if (e.target && e.target.getAttribute("data-seek-close")) closePanel();
+      if (e.target && e.target.closest && e.target.closest("[data-seek-close]")) {
+        closePanel();
+        return;
+      }
+      var card = e.target && e.target.closest && e.target.closest("a.seek-panel-card");
+      if (!card || !panelResults.contains(card)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (cardClickTimer) return;
+      var art = card.getAttribute("data-article");
+      cardClickTimer = setTimeout(function () {
+        cardClickTimer = null;
+        goIndexCard(art);
+      }, CARD_CLICK_MS);
+    });
+    panel.addEventListener("dblclick", function (e) {
+      var card = e.target && e.target.closest && e.target.closest("a.seek-panel-card");
+      if (!card || !panelResults.contains(card)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (cardClickTimer) {
+        clearTimeout(cardClickTimer);
+        cardClickTimer = null;
+      }
+      var art = card.getAttribute("data-article");
+      if (art) goArticle(art);
     });
     panelInput.addEventListener("input", function () {
       var q = panelInput.value.trim().toLowerCase();
@@ -311,10 +356,35 @@
 
   if (seek) seek.addEventListener("input", applyQuery);
 
+  function scrollToIndexCard(articleHref) {
+    if (!articleHref) return;
+    var cards = document.querySelectorAll("a.index-card");
+    var target = null;
+    for (var i = 0; i < cards.length; i++) {
+      var h = cards[i].getAttribute("href") || "";
+      if (h === articleHref || h.slice(-articleHref.length) === articleHref) {
+        target = cards[i];
+        break;
+      }
+    }
+    if (!target) return;
+    try {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (err) {
+      target.scrollIntoView(true);
+    }
+    target.classList.add("is-seek-flash");
+    setTimeout(function () { target.classList.remove("is-seek-flash"); }, 1200);
+  }
+
   var params = new URLSearchParams(location.search);
   if (params.get("q") && seek) {
     seek.value = params.get("q");
     applyQuery();
+  }
+  var cardTarget = params.get("card");
+  if (cardTarget && document.querySelector("a.index-card")) {
+    setTimeout(function () { scrollToIndexCard(cardTarget); }, 60);
   }
 
   injectGlyph();
@@ -349,10 +419,16 @@
 
     if (isPanelOpen()) {
       if (e.key === "Enter" && t === panelInput) {
-        var first = panelResults && (panelResults.querySelector("a.seek-panel-card") || panelResults.querySelector("a.seek-panel-ment"));
-        if (first && first.getAttribute("href")) {
+        var firstCard = panelResults && panelResults.querySelector("a.seek-panel-card");
+        if (firstCard) {
           e.preventDefault();
-          location.href = first.getAttribute("href");
+          goIndexCard(firstCard.getAttribute("data-article"));
+          return;
+        }
+        var firstMent = panelResults && panelResults.querySelector("a.seek-panel-ment");
+        if (firstMent && firstMent.getAttribute("href")) {
+          e.preventDefault();
+          location.href = firstMent.getAttribute("href");
         }
         return;
       }
