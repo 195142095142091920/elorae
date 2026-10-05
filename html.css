@@ -2,6 +2,9 @@ body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;bac
 
 .private{display:none}body.seal-devin .private{display:block}body.seal-jack .private[data-owner=jack]{display:block}body.seal-jon .private[data-owner=jon]{display:block}body.seal-julie .private[data-owner=julie]{display:block}body.seal-sawyer .private[data-owner=sawyer]{display:block}#seek{background:#070707;color:#f3eee6;border:0;border-bottom:1px solid #8f8a82;font:13px Helvetica,Arial,sans-serif;letter-spacing:.08em;opacity:0;position:absolute;left:-9999px;width:0;height:0;margin:0;padding:0}.tile.is-seek-miss,.index-card.is-seek-miss{display:none!important}.index-cat.is-seek-empty{display:none!important}.tile.is-dim{display:none!important}
 
+/* Experimental: de-emphasize Gallery in primary nav; Index is the main browse. Gallery wall + /gallery/* stay reachable by URL. */
+nav.filters > a[href$="index.html"] { display: none !important; }
+
 .friend{display:none}
 body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],body.seal-julie .friend[data-owner=julie],body.seal-sawyer .friend[data-owner=sawyer]{display:inline}
 .friend a{margin-left:12px}
@@ -262,7 +265,7 @@ body.lore-page .read p {
     padding: 28px;
     z-index: 8;
   }
-  main.with-toc.index-flow { margin-left: 240px; }
+  main.with-toc.index-flow { margin-left: 0; }
 }
 .journal-page .toc h3 {
   margin: 0 0 12px;
@@ -780,28 +783,121 @@ table.day-names td {
   padding: 4px 20px 4px 0;
 }
 
-/* Continuous Index. Desktop rail stays fixed; phone list sits in the flow. */
+/* Continuous Index — experimental gallery-like cards + popout category nav (i1).
+   Categories keep section headers + spacing; labels sit on the art and stay visible. */
+body.index-page aside.toc.index-toc {
+  position: fixed;
+  left: 0;
+  top: 72px;
+  bottom: 0;
+  z-index: 18;
+  width: 12px;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  background: none;
+  pointer-events: none;
+}
+body.index-page aside.toc.index-toc::before {
+  content: "";
+  pointer-events: auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+}
+body.index-page .index-toc-cue {
+  pointer-events: auto;
+  position: fixed;
+  left: 0;
+  top: calc(72px + 42vh);
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: rgba(243,238,230,0.45);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color .15s ease;
+}
+body.index-page .index-toc-cue:hover,
+body.index-page .index-toc-cue:focus-visible { color: rgba(243,238,230,0.9); }
+body.index-page .index-toc-cue:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
+body.index-page .index-toc-cue svg {
+  display: block;
+  width: 6px;
+  height: 10px;
+  overflow: visible;
+}
+body.index-page .index-toc-panel {
+  pointer-events: auto;
+  position: fixed;
+  left: 0;
+  top: 72px;
+  bottom: 0;
+  width: 220px;
+  max-width: 78vw;
+  padding: 22px 18px 32px;
+  overflow: auto;
+  scrollbar-width: none;
+  background: rgba(7,7,7,0.92);
+  transform: translateX(-105%);
+  transition: transform .2s ease;
+  z-index: 18;
+}
+body.index-page .index-toc-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
+body.index-page .index-toc-panel > h3 {
+  margin: 0 0 12px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f3eee6;
+}
+
 @media (min-width: 801px) {
-  body.index-page aside.toc {
-    position: fixed;
-    left: 0;
-    top: 72px;
-    bottom: 0;
+  body.index-page aside.toc.index-toc:hover,
+  body.index-page aside.toc.index-toc:focus-within,
+  body.index-page aside.toc.index-toc.open {
     width: 220px;
-    overflow: auto;
-    scrollbar-width: none;
   }
-  body.index-page aside.toc::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  body.index-page aside.toc.index-toc:hover::before,
+  body.index-page aside.toc.index-toc:focus-within::before,
+  body.index-page aside.toc.index-toc.open::before {
+    width: 220px;
+  }
+  body.index-page aside.toc.index-toc:hover .index-toc-panel,
+  body.index-page aside.toc.index-toc:focus-within .index-toc-panel,
+  body.index-page aside.toc.index-toc.open .index-toc-panel {
+    transform: translateX(0);
+  }
+  body.index-page aside.toc.index-toc:hover .index-toc-cue,
+  body.index-page aside.toc.index-toc:focus-within .index-toc-cue,
+  body.index-page aside.toc.index-toc.open .index-toc-cue {
+    color: rgba(243,238,230,0.85);
+  }
   body.index-page main.with-toc.index-flow {
     display: block;
-    margin-left: 240px;
+    margin-left: 0;
+    padding: 16px 28px 72px;
   }
   body.index-page .index-cat,
   body.index-page .index-card {
     scroll-margin-top: 88px;
   }
   body.index-page .index-cat > h2 {
-    margin: 36px 0 4px;
+    margin: 40px 0 8px;
     text-align: center;
     font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
     font-weight: 400;
@@ -821,46 +917,109 @@ table.day-names td {
     color: #8f8a82;
   }
   body.index-page .index-cards {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 34px 26px;
-    padding: 22px 0 48px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    justify-content: stretch;
+    padding: 18px 0 48px;
+    max-width: 1280px;
+    margin: 0 auto;
   }
   body.index-page .index-empty {
     margin: 0;
+    grid-column: 1 / -1;
+    text-align: center;
     color: #8f8a82;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 12px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  /* Breathing room above each heading (gap1): the space sits after the previous
-     section's last row, outside the next section, so jumps and the rail line still meet the h2. */
+  /* Gallery-like card: name overlaid on art, always visible (top). */
+  body.index-page .index-card {
+    position: relative;
+    display: block;
+    width: auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #111;
+    color: #f3eee6;
+    text-decoration: none;
+  }
+  body.index-page .index-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  body.index-page .index-card span {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 12px;
+    z-index: 1;
+    display: block;
+    min-height: 0;
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #f3eee6;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 12px rgba(0,0,0,0.7);
+    opacity: 1;
+    pointer-events: none;
+  }
+  body.index-page .index-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 84px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.72), transparent);
+    opacity: 1;
+    pointer-events: none;
+  }
   body.index-page .index-cat:not(:last-child) > .index-cards:last-child { padding-bottom: 96px; }
   body.index-page .index-cards + .index-sub { margin-top: 76px; }
 }
+
 @media (max-width: 800px) {
-  body.index-page aside.toc {
-    position: static;
-    left: auto;
-    right: auto;
-    top: auto;
-    bottom: auto;
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
+  body.index-page aside.toc.index-toc {
+    top: 56px;
+    width: 12px;
+  }
+  body.index-page .index-toc-cue {
+    top: calc(56px + 38vh);
+    width: 22px;
+    height: 40px;
+  }
+  body.index-page .index-toc-panel {
+    top: 56px;
+    width: min(240px, 82vw);
+    padding: 22px 16px 28px;
+    background: rgba(7,7,7,0.96);
+  }
+  body.index-page aside.toc.index-toc.open .index-toc-panel {
+    transform: translateX(0);
+  }
+  body.index-page aside.toc.index-toc.open .index-toc-cue {
+    color: rgba(243,238,230,0.85);
   }
   body.index-page main.with-toc.index-flow {
     display: block;
     margin-left: 0;
+    padding: 8px 12px 56px;
   }
   body.index-page .index-cat,
   body.index-page .index-card {
     scroll-margin-top: 114px;
   }
   body.index-page .index-cat > h2 {
-    margin: 28px 18px 4px;
+    margin: 28px 6px 6px;
     text-align: center;
     font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
     font-weight: 400;
@@ -869,7 +1028,7 @@ table.day-names td {
     color: #f3eee6;
   }
   body.index-page .index-sub {
-    margin: 22px 18px 0;
+    margin: 22px 6px 0;
     scroll-margin-top: 114px;
     text-align: center;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -880,21 +1039,69 @@ table.day-names td {
     color: #8f8a82;
   }
   body.index-page .index-cards {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 34px 26px;
-    padding: 16px 0 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    justify-content: stretch;
+    padding: 12px 0 36px;
   }
   body.index-page .index-empty {
     margin: 0;
+    grid-column: 1 / -1;
+    text-align: center;
     color: #8f8a82;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 12px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  /* Breathing room above each heading, a little less than desktop (gap1). */
+  body.index-page .index-card {
+    position: relative;
+    display: block;
+    width: auto;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #111;
+    color: #f3eee6;
+    text-decoration: none;
+  }
+  body.index-page .index-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  body.index-page .index-card span {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    z-index: 1;
+    display: block;
+    min-height: 0;
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #f3eee6;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 10px rgba(0,0,0,0.7);
+    opacity: 1;
+    pointer-events: none;
+  }
+  body.index-page .index-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 72px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.72), transparent);
+    opacity: 1;
+    pointer-events: none;
+  }
   body.index-page .index-cat:not(:last-child) > .index-cards:last-child { padding-bottom: 72px; }
   body.index-page .index-cards + .index-sub { margin-top: 58px; }
 }
@@ -1464,7 +1671,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
   body.index-page .toc a.on,
   body.index-page .toc a:hover { color: #f3eee6; }
-  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 1.35; letter-spacing: 0.14em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase; color: #f3eee6; }
   body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
   /* Lore contents: old codex.css .lore-rail .codex-h3 and .lore-rail .codex-toc li / a. */
   body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
@@ -1484,7 +1691,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
   body.index-page .toc a.on,
   body.index-page .toc a:hover { color: #f3eee6; }
-  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 1.35; letter-spacing: 0.14em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 700; line-height: 1.25; letter-spacing: 0.05em; text-transform: uppercase; color: #f3eee6; }
   body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
   /* Lore contents: old codex.css .lore-rail .codex-h3 and .lore-rail .codex-toc li / a (+ @max-width 980px li 16px). */
   body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }

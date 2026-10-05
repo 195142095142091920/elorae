@@ -1,8 +1,11 @@
-/* Index rail: highlight the category in view only (categories-only on scroll).
-   Nests stay closed until the chevron is tapped; no card highlight while scrolling. */
+/* Index rail: popout category sidebar + highlight category in view.
+   Nests stay closed until the chevron is tapped; no card highlight while scrolling.
+   Desktop opens the rail on hover/focus; phone taps the cue (toggle). */
 (function () {
   var toc = document.querySelector("aside.toc");
   if (!toc) return;
+  var panel = toc.querySelector(".index-toc-panel") || toc;
+  var cue = toc.querySelector(".index-toc-cue");
   var desk = window.matchMedia("(min-width: 801px)");
   function byHref(a) { return document.getElementById(a.getAttribute("href").slice(1)); }
   var cats = Array.prototype.map.call(toc.querySelectorAll(".toc-cat"), function (box) {
@@ -30,6 +33,10 @@
     for (var i = 0; i < cats.length; i++) if (cats[i].el === sec) return cats[i];
     return null;
   }
+  function setOpen(on) {
+    toc.classList.toggle("open", !!on);
+    if (cue) cue.setAttribute("aria-expanded", on ? "true" : "false");
+  }
   function layout() {
     cats.forEach(function (c) {
       if (!c.tog) return;
@@ -47,11 +54,32 @@
       layout();
     });
   });
+  if (cue) {
+    cue.addEventListener("click", function (e) {
+      if (desk.matches) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(!toc.classList.contains("open"));
+    });
+  }
+  document.addEventListener("click", function (e) {
+    if (desk.matches) return;
+    if (!toc.classList.contains("open")) return;
+    if (e.target.closest && e.target.closest("aside.toc")) return;
+    setOpen(false);
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var held = toc.contains(document.activeElement);
+    if (!toc.classList.contains("open") && !held) return;
+    setOpen(false);
+    if (held && document.activeElement.blur) document.activeElement.blur();
+  });
   function keepInView(a) {
-    if (!desk.matches || toc.scrollHeight <= toc.clientHeight) return;
-    var t = a.getBoundingClientRect(), r = toc.getBoundingClientRect();
-    if (t.top < r.top + 24) toc.scrollTop -= r.top + 24 - t.top;
-    else if (t.bottom > r.bottom - 24) toc.scrollTop += t.bottom - (r.bottom - 24);
+    if (!desk.matches || panel.scrollHeight <= panel.clientHeight) return;
+    var t = a.getBoundingClientRect(), r = panel.getBoundingClientRect();
+    if (t.top < r.top + 24) panel.scrollTop -= r.top + 24 - t.top;
+    else if (t.bottom > r.bottom - 24) panel.scrollTop += t.bottom - (r.bottom - 24);
   }
   function update() {
     var mast = document.querySelector(".mast");
@@ -77,10 +105,14 @@
   update();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
-  if (desk.addEventListener) desk.addEventListener("change", function () { layout(); update(); });
+  if (desk.addEventListener) desk.addEventListener("change", function () { layout(); update(); setOpen(false); });
   toc.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href^='#']");
-    if (a) { jump = a.getAttribute("href").slice(1); window.setTimeout(update, 0); }
+    if (a) {
+      jump = a.getAttribute("href").slice(1);
+      window.setTimeout(update, 0);
+      if (!desk.matches) setOpen(false);
+    }
   });
   window.addEventListener("hashchange", function () { jump = location.hash.slice(1); window.setTimeout(update, 0); });
   window.addEventListener("load", function () { if (location.hash) jump = location.hash.slice(1); update(); });
