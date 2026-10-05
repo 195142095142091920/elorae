@@ -1143,3 +1143,45 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-strip { grid-template-columns: 1fr; gap: 26px; }
   body.article .art-piece img { aspect-ratio: auto; height: auto; }
 }
+
+/* Old JS site typography (art7). Copied from the pre-rebuild site at commit c1113ef. */
+@media (min-width: 801px) {
+  /* Hero name: styles.css (html, body font-family; .title-block h1 weight/size) + figure-lore.css text-shadow, old JS site c1113ef. */
+  body.article .art-title h1,
+  body.gallery-page .title-block h1 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
+  /* Hero epithet: old #epithet-face / mobile-fix.js face, features.js size (20px @min-width 801), figure-lore.css line-height 1.4. */
+  body.article .art-title .art-epithet,
+  body.gallery-page .title-block .caption { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: 20px; line-height: 1.4; color: #e4ddd2; }
+  /* Index: old index-sections.js #index-section-css (rail h3, rail buttons, .index-card span, .index-empty). */
+  body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  body.index-page .toc a.on,
+  body.index-page .toc a:hover { color: #f3eee6; }
+  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 1.35; letter-spacing: 0.14em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  /* Lore contents: old codex.css .lore-rail .codex-h3 and .lore-rail .codex-toc li / a. */
+  body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
+  body.book .toc a { font-family: "Iowan Old Style", Palatino, serif; font-style: normal; font-size: 15px; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; color: #d2cbc0; }
+  body.book .toc a.on,
+  body.book .toc a:hover { color: #f3eee6; }
+}
+@media (max-width: 800px) {
+  /* Hero name: styles.css (html, body font-family; .title-block h1 weight/size) + figure-lore.css text-shadow, old JS site c1113ef. */
+  body.article .art-title h1,
+  body.gallery-page .title-block h1 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
+  /* Hero epithet: old #epithet-face / mobile-fix.js face, features.js size (15px base), mobile-fix.js line-height 1.35. */
+  body.article .art-title .art-epithet,
+  body.gallery-page .title-block .caption { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: 15px; line-height: 1.35; color: #e4ddd2; }
+  /* Index: old index-sections.js #index-section-css (rail h3, rail buttons, .index-card span, .index-empty). */
+  body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  body.index-page .toc a.on,
+  body.index-page .toc a:hover { color: #f3eee6; }
+  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 1.35; letter-spacing: 0.14em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  /* Lore contents: old codex.css .lore-rail .codex-h3 and .lore-rail .codex-toc li / a (+ @max-width 980px li 16px). */
+  body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
+  body.book .toc a { font-family: "Iowan Old Style", Palatino, serif; font-style: normal; font-size: 16px; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; color: #d2cbc0; }
+  body.book .toc a.on,
+  body.book .toc a:hover { color: #f3eee6; }
+}
