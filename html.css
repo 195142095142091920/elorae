@@ -1607,3 +1607,93 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.seal-page .seal-name a { color: inherit; text-decoration: none; }
   body.seal-page .seal-box > :last-child { margin-bottom: 0; }
 }
+
+/* search-page seek3 */
+body.search-page .tile .label {
+  opacity: 1;
+}
+body.search-page .tile::after {
+  opacity: 1;
+}
+#seek-show {
+  margin: 0;
+  padding: 10px 22px 0;
+  text-align: center;
+  font-family: "Iowan Old Style", Palatino, "Times New Roman", serif;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: #f3eee6;
+}
+#search-hits {
+  max-width: 720px;
+  margin: 28px auto 80px;
+  padding: 0 22px;
+}
+#search-hits h2 {
+  margin: 0 0 18px;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 22px;
+  color: #f3eee6;
+}
+#search-hits a.hit {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-top: 1px solid rgba(143,138,130,0.28);
+  color: inherit;
+  text-decoration: none;
+}
+#search-hits a.hit:last-child { border-bottom: 1px solid rgba(143,138,130,0.28); }
+#search-hits .hit-art {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 96px;
+  object-fit: cover;
+  background: #111;
+  display: block;
+}
+#search-hits .hit-art-empty { border: 1px solid rgba(143,138,130,0.25); }
+#search-hits .hit-body { min-width: 0; flex: 1; }
+#search-hits .hit-title {
+  display: block;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f3eee6;
+}
+#search-hits .hit-kind {
+  display: inline-block;
+  margin: 4px 0 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8f8a82;
+}
+#search-hits .hit-snip {
+  margin: 8px 0 0;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #d2cbc0;
+}
+#search-hits mark {
+  background: transparent;
+  color: #f3eee6;
+  font-weight: 700;
+}
+@media (min-width: 801px) {
+  #seek-show { font-size: 28px; padding-top: 16px; }
+  #search-hits .hit-art { flex-basis: 88px; width: 88px; height: 118px; }
+}
+@media (max-width: 800px) {
+  #seek-show { font-size: 18px; padding: 8px 16px 0; }
+  #search-hits { margin-top: 18px; padding: 0 16px 64px; }
+  #search-hits .hit-art { flex-basis: 56px; width: 56px; height: 74px; }
+  #search-hits .hit-snip { font-size: 15px; }
+}
