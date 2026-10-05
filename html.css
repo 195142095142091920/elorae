@@ -794,8 +794,9 @@ table.day-names td {
   padding: 4px 20px 4px 0;
 }
 
-/* Continuous Index — experimental gallery-like cards + popout category nav (i1).
-   Categories keep section headers + spacing; labels sit on the art and stay visible. */
+/* Continuous Index — experimental gallery-like cards + Chromium-style category rail (i1).
+   Collapsed strip stays hoverable; hover/focus peeks + pushes (body.index-toc-open);
+   pin sticks open. Categories keep section headers + spacing; labels sit on the art. */
 body.index-page aside.toc.index-toc {
   position: fixed;
   left: 0;
@@ -867,14 +868,57 @@ body.index-page .index-toc-panel {
   z-index: 18;
 }
 body.index-page .index-toc-panel::-webkit-scrollbar { display: none; width: 0; height: 0; }
-body.index-page .index-toc-panel > h3 {
+body.index-page .index-toc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin: 0 0 12px;
+}
+body.index-page .index-toc-head > h3,
+body.index-page .index-toc-panel > h3 {
+  margin: 0;
   font-family: Helvetica, Arial, sans-serif;
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #f3eee6;
+}
+/* Minimalist pin (Chromium vertical-tabs stick) — glyph only, matches cue/toc-tog. */
+body.index-page .index-toc-pin {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: #8f8a82;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: color .15s ease;
+}
+body.index-page .index-toc-pin:hover,
+body.index-page .index-toc-pin:focus-visible { color: #f3eee6; }
+body.index-page .index-toc-pin:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
+body.index-page .index-toc-pin svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+  overflow: visible;
+}
+body.index-page aside.toc.index-toc.pinned .index-toc-pin {
+  color: rgba(243,238,230,0.9);
+}
+body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
+  fill: currentColor;
 }
 
 @media (min-width: 801px) {
@@ -887,7 +931,8 @@ body.index-page .index-toc-panel > h3 {
   body.index-page aside.toc.index-toc.open .index-toc-panel {
     transform: translateX(0);
   }
-  body.index-page aside.toc.index-toc.open .index-toc-cue {
+  body.index-page aside.toc.index-toc.open .index-toc-cue,
+  body.index-page aside.toc.index-toc.pinned .index-toc-cue {
     color: rgba(243,238,230,0.85);
   }
   body.index-page main.with-toc.index-flow {
@@ -1015,8 +1060,17 @@ body.index-page .index-toc-panel > h3 {
   body.index-page aside.toc.index-toc.open .index-toc-panel {
     transform: translateX(0);
   }
-  body.index-page aside.toc.index-toc.open .index-toc-cue {
+  body.index-page aside.toc.index-toc.open .index-toc-cue,
+  body.index-page aside.toc.index-toc.pinned .index-toc-cue {
     color: rgba(243,238,230,0.85);
+  }
+  body.index-page .index-toc-pin {
+    width: 28px;
+    height: 28px;
+  }
+  body.index-page .index-toc-pin svg {
+    width: 14px;
+    height: 14px;
   }
   body.index-page main.with-toc.index-flow {
     display: block;

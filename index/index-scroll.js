@@ -1,12 +1,14 @@
-/* Index rail: popout category sidebar + highlight category in view.
-   Nests stay closed until the chevron is tapped; no card highlight while scrolling.
-   Desktop opens the rail on hover/focus and pushes the column (body.index-toc-open);
-   phone taps the cue (toggle) and the panel overlays. */
+/* Index rail: Chromium-style category sidebar.
+   Collapsed strip stays hoverable; hover/focus peeks the panel and pushes the
+   card grid (body.index-toc-open). Pin sticks the rail open; unpin collapses.
+   Phone: cue taps open; pin sticks; tap-outside / link closes when unpinned.
+   Nests stay closed until the chevron is tapped; no card highlight while scrolling. */
 (function () {
   var toc = document.querySelector("aside.toc");
   if (!toc) return;
   var panel = toc.querySelector(".index-toc-panel") || toc;
   var cue = toc.querySelector(".index-toc-cue");
+  var pin = toc.querySelector(".index-toc-pin");
   var desk = window.matchMedia("(min-width: 801px)");
   function byHref(a) { return document.getElementById(a.getAttribute("href").slice(1)); }
   var cats = Array.prototype.map.call(toc.querySelectorAll(".toc-cat"), function (box) {
@@ -34,11 +36,29 @@
     for (var i = 0; i < cats.length; i++) if (cats[i].el === sec) return cats[i];
     return null;
   }
-  var hover = false;
+  var hover = false, pinned = false, phoneOpen = false;
   function setOpen(on) {
     toc.classList.toggle("open", !!on);
     document.body.classList.toggle("index-toc-open", !!on);
     if (cue) cue.setAttribute("aria-expanded", on ? "true" : "false");
+  }
+  function setPinned(on) {
+    pinned = !!on;
+    toc.classList.toggle("pinned", pinned);
+    if (pin) {
+      pin.setAttribute("aria-pressed", pinned ? "true" : "false");
+      pin.setAttribute("aria-label", pinned ? "Unpin categories" : "Pin categories open");
+    }
+  }
+  function focused() {
+    var a = document.activeElement;
+    if (!a || !toc.contains(a)) return false;
+    try { return a.matches(":focus-visible"); } catch (e) { return true; }
+  }
+  function sync() {
+    if (pinned) { setOpen(true); return; }
+    if (desk.matches) setOpen(hover || focused());
+    else setOpen(phoneOpen);
   }
   function layout() {
     cats.forEach(function (c) {
@@ -57,37 +77,57 @@
       layout();
     });
   });
-  if (cue) {
-    cue.addEventListener("click", function (e) {
-      if (desk.matches) return;
+  if (pin) {
+    pin.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      setOpen(!toc.classList.contains("open"));
+      setPinned(!pinned);
+      if (!desk.matches) phoneOpen = pinned;
+      sync();
     });
   }
-  /* Desktop: open while hovered or holding focus (push1). */
-  function focused() {
-    var a = document.activeElement;
-    if (!a || !toc.contains(a)) return false;
-    try { return a.matches(":focus-visible"); } catch (e) { return true; }
+  if (cue) {
+    cue.addEventListener("click", function (e) {
+      if (desk.matches) {
+        /* Desktop cue: pin/unpin (hover already peeks). */
+        e.preventDefault();
+        e.stopPropagation();
+        setPinned(!pinned);
+        sync();
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      if (pinned) {
+        setPinned(false);
+        phoneOpen = false;
+      } else {
+        phoneOpen = !phoneOpen;
+      }
+      sync();
+    });
   }
-  function sync() { if (desk.matches) setOpen(hover || focused()); }
+  /* Desktop: open while hovered, focused, or pinned. */
   toc.addEventListener("mouseenter", function () { hover = true; sync(); });
   toc.addEventListener("mouseleave", function () { hover = false; sync(); });
   toc.addEventListener("focusin", sync);
   toc.addEventListener("focusout", function () { window.setTimeout(sync, 0); });
   document.addEventListener("click", function (e) {
     if (desk.matches) return;
+    if (pinned) return;
     if (!toc.classList.contains("open")) return;
     if (e.target.closest && e.target.closest("aside.toc")) return;
-    setOpen(false);
+    phoneOpen = false;
+    sync();
   }, true);
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     var held = toc.contains(document.activeElement);
-    if (!toc.classList.contains("open") && !held) return;
+    if (!toc.classList.contains("open") && !held && !pinned) return;
     hover = false;
-    setOpen(false);
+    phoneOpen = false;
+    setPinned(false);
+    sync();
     if (held && document.activeElement.blur) document.activeElement.blur();
   });
   function keepInView(a) {
@@ -120,13 +160,16 @@
   update();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
-  if (desk.addEventListener) desk.addEventListener("change", function () { layout(); update(); hover = false; setOpen(false); });
+  if (desk.addEventListener) desk.addEventListener("change", function () {
+    layout(); update();
+    hover = false; phoneOpen = false; setPinned(false); sync();
+  });
   toc.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href^='#']");
     if (a) {
       jump = a.getAttribute("href").slice(1);
       window.setTimeout(update, 0);
-      if (!desk.matches) setOpen(false);
+      if (!desk.matches && !pinned) { phoneOpen = false; sync(); }
     }
   });
   window.addEventListener("hashchange", function () { jump = location.hash.slice(1); window.setTimeout(update, 0); });
