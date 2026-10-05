@@ -227,7 +227,7 @@
     }
     indexLoading = new Promise(function (resolve) {
       var s = document.createElement("script");
-      s.src = assetBase() + "search-index.js?v=s3";
+      s.src = assetBase() + "search-index.js?v=s4";
       s.onload = function () { indexReady = true; resolve(); };
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);
