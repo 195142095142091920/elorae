@@ -713,24 +713,35 @@ body.index-page .toc a {
   .mast .topbar .filters a + a::before {
     padding: 0 8px;
   }
+  /* Secondary nav freezes flush under the fixed mast (sticky1). Sticky keeps its
+     own flow space, so body padding-top (mast clearance) stays as-is and nothing
+     slides under the stacked chrome. top = phone mast height: 102px, or 118px on
+     journal-page (8px topbar row-gap) -- same numbers as body padding-top. */
   .journal-page #section-bar,
   #section-bar {
-    position: relative;
-    top: auto;
+    position: -webkit-sticky;
+    position: sticky;
+    top: calc(102px + env(safe-area-inset-top, 0px));
+    bottom: auto;
     left: auto;
     right: auto;
-    z-index: 19;
+    z-index: 30;
     width: 100%;
     height: auto;
+    min-height: 44px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 2px 10px;
+    gap: 0 2px;
     margin: 0;
-    padding: 6px 8px 18px;
+    padding: 0 6px;
+    box-sizing: border-box;
     background: #070707;
     text-align: center;
+  }
+  body.journal-page #section-bar {
+    top: calc(118px + env(safe-area-inset-top, 0px));
   }
   .journal-page #section-bar a,
   #section-bar a {
@@ -2733,3 +2744,145 @@ body.seal-devin .seal-logout {
   text-shadow: 0 0 16px rgba(243,238,230,.95), 0 0 32px rgba(243,238,230,.55);
 }
 body.seal-devin .friend { display: none !important; }
+
+
+/* Codex Contents: <details class="toc-drop"> inside aside.toc (tocdrop1).
+   Desktop: always open (codex-scroll.js), summary hidden -> the fixed side rail is unchanged.
+   Phone: a compact "Contents" row frozen under the secondary nav; the list drops over the page. */
+.toc-drop > summary { list-style: none; }
+.toc-drop > summary::-webkit-details-marker { display: none; }
+@media (min-width: 801px) {
+  .toc-drop > summary { display: none; }
+}
+@media (max-width: 800px) {
+  body.journal-page aside.toc:has(> .toc-drop) {
+    position: -webkit-sticky;
+    position: sticky;
+    /* mast (118px journal-page) + one-row #section-bar (44px) */
+    top: calc(162px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    left: auto;
+    right: auto;
+    z-index: 29;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    background: #070707;
+  }
+  /* Contents row sits at a fixed offset under the nav, so the nav must stay one row:
+     no wrap; on the narrowest phones it scrolls sideways instead (its veil is off here). */
+  body:has(aside.toc > .toc-drop) #section-bar {
+    flex-wrap: nowrap;
+    justify-content: safe center;
+    height: 44px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  body:has(aside.toc > .toc-drop) #section-bar::-webkit-scrollbar { display: none; }
+  /* The content veil hangs under the lowest chrome: the Contents row, not the nav above it. */
+  body:has(aside.toc > .toc-drop) #section-bar::after { content: none; display: none; }
+  body.journal-page aside.toc:has(> .toc-drop)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 24px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(7,7,7,0.72) 0%, rgba(7,7,7,0.32) 45%, rgba(7,7,7,0) 100%);
+  }
+  body.journal-page aside.toc:has(> .toc-drop[open])::after { display: none; }
+  .toc-drop > summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px;
+    margin: 0;
+    padding: 0 16px;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b7b0a4;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .toc-drop > summary::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    opacity: 0.7;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+  .toc-drop[open] > summary { color: #f3eee6; }
+  .toc-drop[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
+  .toc-drop > summary:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: -4px; }
+  .toc-drop > .toc-list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    max-height: min(58vh, 520px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+    padding: 0 22px 14px;
+    box-sizing: border-box;
+    background: #070707;
+    border-bottom: 1px solid rgba(243,238,230,0.12);
+    box-shadow: 0 20px 28px 6px rgba(7,7,7,0.88);
+  }
+  .toc-drop > .toc-list > h3 { display: none; }
+  body.journal-page .toc-drop > .toc-list a {
+    font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+    font-size: 16px;
+    line-height: 1.35;
+    color: #d2cbc0;
+    text-align: left;
+  }
+  body.journal-page .toc-drop > .toc-list a:last-child { border-bottom: 0; }
+  body.journal-page .toc-drop > .toc-list a.on { color: #f3eee6; }
+  /* Headings reached from Contents / links land below mast + nav + Contents row. */
+  body.journal-page:has(#section-bar) main.read h2[id] {
+    scroll-margin-top: calc(178px + env(safe-area-inset-top, 0px));
+  }
+  body.journal-page:has(#section-bar):has(aside.toc > .toc-drop) main.read h2[id] {
+    scroll-margin-top: calc(222px + env(safe-area-inset-top, 0px));
+  }
+  /* Journal chapters list stays in the flow but must paint above the fixed art bg. */
+  body.journal-page aside.toc:not(:has(> .toc-drop)) {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    z-index: 2;
+  }
+}
+
+/* Narrow phones (<=380px, e.g. iPhone SE / mini): keep the secondary nav on one row (sticky1). */
+@media (max-width: 380px) {
+  #section-bar a,
+  .journal-page #section-bar a {
+    padding-left: 4px;
+    padding-right: 4px;
+    letter-spacing: 0.04em;
+  }
+}
+@media (max-width: 340px) {
+  #section-bar,
+  .journal-page #section-bar { gap: 0; padding-left: 4px; padding-right: 4px; }
+  #section-bar a,
+  .journal-page #section-bar a { padding-left: 3px; padding-right: 3px; font-size: 10.5px; }
+}

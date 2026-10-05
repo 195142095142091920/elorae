@@ -3,6 +3,30 @@
 (function () {
   var toc = document.querySelector("aside.toc");
   if (!toc) return;
+  /* Contents dropdown (tocdrop1): desktop rail always open; phone starts collapsed,
+     closes after a pick, on an outside tap, or Escape. */
+  var drop = toc.querySelector("details.toc-drop");
+  var phone = window.matchMedia("(max-width: 800px)");
+  if (drop) {
+    var syncDrop = function () { drop.open = !phone.matches; };
+    syncDrop();
+    if (phone.addEventListener) phone.addEventListener("change", syncDrop);
+    else if (phone.addListener) phone.addListener(syncDrop);
+    toc.addEventListener("click", function (e) {
+      if (phone.matches && e.target.closest && e.target.closest("a[href^='#']")) drop.open = false;
+    });
+    document.addEventListener("click", function (e) {
+      if (phone.matches && drop.open && !toc.contains(e.target)) drop.open = false;
+    });
+    document.addEventListener("keydown", function (e) {
+      if (phone.matches && drop.open && e.key === "Escape") drop.open = false;
+    });
+    drop.addEventListener("toggle", function () {
+      if (!phone.matches || !drop.open) return;
+      var list = drop.querySelector(".toc-list"), on = drop.querySelector("a.on");
+      if (list && on) list.scrollTop = Math.max(0, on.offsetTop - list.clientHeight / 2);
+    });
+  }
   var items = Array.prototype.map.call(toc.querySelectorAll("a[href^='#']"), function (a) {
     return { a: a, el: document.getElementById(a.getAttribute("href").slice(1)) };
   }).filter(function (item) { return item.el; });
@@ -46,6 +70,7 @@
       var bb = bar.getBoundingClientRect();
       if (bb.bottom > 0) line = Math.max(line, bb.bottom + 40);
     }
+    if (drop && phone.matches) line = Math.max(line, toc.getBoundingClientRect().bottom + 40);
     var id = items[0].el.id;
     items.forEach(function (item) {
       if (item.el.getBoundingClientRect().top <= line) id = item.el.id;
