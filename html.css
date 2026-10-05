@@ -1794,3 +1794,19 @@ body.journal-page .read h2 + .era-years {
   body.journal-page .read h2 + .era-years { font-size: 12px; margin: -8px 0 22px; }
   .timeline-list .era-years { font-size: 11px; }
 }
+
+/* Codex + Atlas article paragraph gaps, matching LegendKeeper.
+   LK source (public Encyclopedia Ward CSS): .prose :where(p) {
+   margin-top: 1.25em; margin-bottom: 1.25em } — consecutive p collapse to 1.25em.
+   Scoped to pages with #section-bar (Codex + Atlas only; not Journal).
+   Does not touch body.book column width (narrower lore rail stays). */
+@media (min-width: 801px) {
+  body.journal-page:has(#section-bar) main.read > p + p {
+    margin-top: 1.25em;
+  }
+}
+@media (max-width: 800px) {
+  body.journal-page:has(#section-bar) main.read > p + p {
+    margin-top: 1.25em;
+  }
+}
