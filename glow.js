@@ -2,14 +2,14 @@ var canvas = document.getElementById("friend-glow");
 if (canvas) {
   var ctx = canvas.getContext("2d");
   /* Login / success tones: Jack yellow-gold, Julie pink, Sawyer red-orange,
-     Jon green↔red alternate, Devin soft grey. */
+     Jon green↔red alternate, Devin white. */
   var tones = {
     jack: [230, 190, 80],
     julie: [255, 210, 220],
     sawyer: [230, 120, 40],
     jon: [80, 180, 90],
     jon2: [230, 90, 40],
-    devin: [190, 190, 190]
+    devin: [243, 238, 230]
   };
   var bits = [];
   function who() {
@@ -24,7 +24,9 @@ if (canvas) {
   }
   function frame(now) {
     var name = who();
-    var link = name && (document.querySelector('.friend[data-owner="' + name + '"]') || document.getElementById("seal-name"));
+    var link = name && (name === "devin"
+      ? (document.getElementById("seal-name") || document.getElementById("seal-logout"))
+      : (document.querySelector('.friend[data-owner="' + name + '"]') || document.getElementById("seal-name")));
     if (!name || !link || link.hidden || getComputedStyle(link).display === "none") {
       canvas.style.display = "none";
       var extra = document.getElementById("friend-glow-2");

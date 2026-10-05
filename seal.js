@@ -19,6 +19,26 @@ function hashPhrase(text) {
   var data = new TextEncoder().encode(text);
   return crypto.subtle.digest("SHA-256", data).then(hexDigest);
 }
+
+function ensureLogout() {
+  var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
+  if (!mark) return null;
+  var btn = document.getElementById("seal-logout");
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.type = "button";
+    btn.id = "seal-logout";
+    btn.className = "seal-logout";
+    btn.textContent = "Log out";
+    mark.appendChild(btn);
+    btn.addEventListener("click", function () {
+      try { localStorage.removeItem("elorae-seal"); } catch (e) {}
+      applySeal();
+      if (!document.body.classList.contains("seal-page")) location.reload();
+    });
+  }
+  return btn;
+}
 function applySeal() {
   var who = "";
   try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
@@ -39,6 +59,9 @@ function applySeal() {
        Old figure-link welcome (seal2): built FRIENDS[who] anchors into #seal-name. */
     name.textContent = NAMES[who] || "";
   }
+  /* Devin: no profile mark — only a Log out control in the mast. */
+  var logout = ensureLogout();
+  if (logout) logout.hidden = who !== "devin";
   return who;
 }
 applySeal();

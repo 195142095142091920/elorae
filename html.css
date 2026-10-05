@@ -3,7 +3,7 @@ body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;bac
 .private{display:none}body.seal-devin .private{display:block}body.seal-jack .private[data-owner=jack]{display:block}body.seal-jon .private[data-owner=jon]{display:block}body.seal-julie .private[data-owner=julie]{display:block}body.seal-sawyer .private[data-owner=sawyer]{display:block}#seek{background:#070707;color:#f3eee6;border:0;border-bottom:1px solid #8f8a82;font:13px Helvetica,Arial,sans-serif;letter-spacing:.08em;opacity:0;position:absolute;left:-9999px;width:0;height:0;margin:0;padding:0}.tile.is-seek-miss,.index-card.is-seek-miss{display:none!important}.index-cat.is-seek-empty{display:none!important}.tile.is-dim{display:none!important}
 
 .friend{display:none}
-body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],body.seal-julie .friend[data-owner=julie],body.seal-sawyer .friend[data-owner=sawyer],body.seal-devin .friend{display:inline}
+body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],body.seal-julie .friend[data-owner=julie],body.seal-sawyer .friend[data-owner=sawyer]{display:inline}
 .friend a{margin-left:12px}
 .hero.full img{object-fit:contain;background:#000}
 #art-swap{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:22}
@@ -48,7 +48,8 @@ body.entry .topbar{background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0
   .dock{padding-bottom:max(28px,env(safe-area-inset-bottom))}
 }
 .friend a{position:relative}
-body.seal-page.seal-jack .friend[data-owner=jack] a,body.seal-page.seal-julie .friend[data-owner=julie] a,body.seal-page.seal-sawyer .friend[data-owner=sawyer] a,body.seal-page.seal-jon .friend[data-owner=jon] a,body.seal-page.seal-devin .friend a{text-shadow:0 0 12px var(--glow),0 0 24px var(--glow)}
+body.seal-page.seal-jack .friend[data-owner=jack] a,body.seal-page.seal-julie .friend[data-owner=julie] a,body.seal-page.seal-sawyer .friend[data-owner=sawyer] a,body.seal-page.seal-jon .friend[data-owner=jon] a{text-shadow:0 0 12px var(--glow),0 0 24px var(--glow)}
+body.seal-page.seal-devin .seal-name{text-shadow:0 0 14px var(--glow),0 0 28px var(--glow)}
 body.seal-jack{--glow:rgba(230,190,80,.55)}
 body.seal-julie{--glow:rgba(255,190,210,.5)}
 body.seal-sawyer{--glow:rgba(230,120,40,.5)}
@@ -58,7 +59,7 @@ body.seal-page.seal-jon{animation:jon-glow-alt 3.2s ease-in-out infinite}
 /* Per-figure text glow on the seal mast: Telorin green, Silar red. */
 body.seal-page.seal-jon .friend[data-owner=jon] a[href*="telorin"]{text-shadow:0 0 12px rgba(80,180,90,.95),0 0 28px rgba(24,92,56,.85);--glow:rgba(80,180,90,.55)}
 body.seal-page.seal-jon .friend[data-owner=jon] a[href*="silar"]{text-shadow:0 0 12px rgba(255,150,72,.95),0 0 28px rgba(168,48,18,.85);--glow:rgba(230,90,40,.55)}
-body.seal-devin{--glow:rgba(180,180,180,.35)}
+body.seal-devin{--glow:rgba(243,238,230,.7)}
 
 .dock{padding:40px 28px max(28px,env(safe-area-inset-bottom))}
 .title-block h1{font-size:clamp(28px,4vw,42px)}
@@ -2349,8 +2350,7 @@ body.seek-panel-open { overflow: hidden; }
   body.seal-jack .mast .topbar > .mark > .friend[data-owner=jack],
   body.seal-jon .mast .topbar > .mark > .friend[data-owner=jon],
   body.seal-julie .mast .topbar > .mark > .friend[data-owner=julie],
-  body.seal-sawyer .mast .topbar > .mark > .friend[data-owner=sawyer],
-  body.seal-devin .mast .topbar > .mark > .friend {
+  body.seal-sawyer .mast .topbar > .mark > .friend[data-owner=sawyer] {
     display: inline-flex;
     gap: 6px;
   }
@@ -2443,8 +2443,7 @@ body.seal-page .mast .topbar.seal-top > .mark .friend {
 body.seal-page.seal-jack .mast .topbar.seal-top > .mark .friend[data-owner=jack],
 body.seal-page.seal-jon .mast .topbar.seal-top > .mark .friend[data-owner=jon],
 body.seal-page.seal-julie .mast .topbar.seal-top > .mark .friend[data-owner=julie],
-body.seal-page.seal-sawyer .mast .topbar.seal-top > .mark .friend[data-owner=sawyer],
-body.seal-page.seal-devin .mast .topbar.seal-top > .mark .friend {
+body.seal-page.seal-sawyer .mast .topbar.seal-top > .mark .friend[data-owner=sawyer] {
   display: inline-flex;
 }
 @media (max-width: 800px) {
@@ -2471,3 +2470,35 @@ body.seal-page.seal-devin .mast .topbar.seal-top > .mark .friend {
 body.seal-page.seal-jon .seal-card::before {
   animation: jon-seal-wash 3.2s ease-in-out infinite;
 }
+
+
+/* Devin: white glow; Log out in the mast instead of a profile name (devin1). */
+.seal-logout {
+  display: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f3eee6;
+  cursor: pointer;
+  text-shadow: 0 0 12px var(--glow), 0 0 24px var(--glow);
+}
+body.seal-devin .seal-logout {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.seal-logout:hover,
+.seal-logout:focus-visible {
+  color: #fff;
+  text-shadow: 0 0 16px rgba(243,238,230,.95), 0 0 32px rgba(243,238,230,.55);
+}
+body.seal-devin .friend { display: none !important; }
