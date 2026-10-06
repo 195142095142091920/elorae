@@ -86,23 +86,37 @@
     return '<p class="ee-note ee-cap">You can edit</p><ul class="ee-pages" id="ee-pages">' + list + '</ul>' +
       (bad.length ? '<p class="ee-note">Ignored, because players can only edit articles: ' + esc(bad.join(", ")) + '</p>' : '');
   }
+  function onDashboardPage() {
+    return /(?:^|\/)edit\/dashboard\.html$/.test(location.pathname);
+  }
   function renderPanel(msg, kind) {
     var b = $("ee-body"); if (!b) return;
     var s = E.session.get();
     if (s) {
       var pr = state.profile;
       var canHere = pr && P.canEdit(pr, PATH);
+      var onDash = onDashboardPage();
+      var how = pr ? (onDash
+        ? (P.isAdmin(pr) ? "Your dashboard is ready on this page." : "The dashboard is only for admins.")
+        : ((canHere ? "Use the EDIT button on this page. " : "") + (P.saveMode(pr) === "direct" ? "Saves go straight to the site." : "Saves become a pull request that Devin approves before it goes live."))) : "";
+      // Dashboard control is always offered to Devin on the login-success view, on every page
+      // (including this dashboard page itself — then it just closes the panel).
+      var dashCtl = (pr && P.isAdmin(pr))
+        ? (onDash
+          ? '<button type="button" class="ee-btn" id="ee-goto-dash">Dashboard</button>'
+          : '<a class="ee-btn" id="ee-goto-dash" href="' + esc(E.ROOT + "edit/dashboard.html") + '">Dashboard</a>')
+        : '';
       b.innerHTML =
         '<p class="ee-k">Edit</p>' +
         '<p class="ee-who" id="ee-who">Signed in as ' + esc((pr && pr.name) || s.login) + ' <span>@' + esc(s.login) + '</span></p>' +
         canEditSummary(pr) +
-        (pr ? '<p class="ee-note">' + (canHere ? 'Use the EDIT button on this page. ' : '') + (P.saveMode(pr) === "direct" ? "Saves go straight to the site." : "Saves become a pull request that Devin approves before it goes live.") + '</p>' : '') +
+        (how ? '<p class="ee-note">' + how + '</p>' : '') +
         (s.warn ? '<p class="ee-note ee-warn">' + esc(s.warn) + '</p>' : '') +
         (msg ? '<p class="ee-err">' + esc(msg) + '</p>' : '') +
-        '<div class="ee-row">' +
-        (pr && P.isAdmin(pr) ? '<a class="ee-btn" href="' + esc(E.ROOT + "edit/dashboard.html") + '">Dashboard</a>' : '') +
+        '<div class="ee-row">' + dashCtl +
         '<button type="button" class="ee-btn" id="ee-signout">Sign out on this device</button></div>' +
         '<p class="ee-note">' + (s.remember ? "Remembered on this device. The EDIT button appears on your pages without #edit." : "Only for this tab. You'll need to sign in again after closing it.") + '</p>';
+      if ($("ee-goto-dash") && onDash) $("ee-goto-dash").onclick = function () { closePanel(); };
       $("ee-signout").onclick = function () { E.session.clear(); state.profile = null; cancelEdit(); glyph(); renderPanel("Signed out. Your token is removed from this browser.", "info"); notify(); };
       fillTitles();
       return;

@@ -156,7 +156,7 @@ The new layer gives real secrecy:
    choose your name and enter your passphrase.
 
 ### Setup, Devin
-1. Sign in at `edit/dashboard.html` (or the DASHBOARD link) with your token.
+1. Sign in at `edit/dashboard.html` (or the DASHBOARD link) with your token. The dashboard activates on that same page as soon as you sign in (no need to navigate away); the DASHBOARD link also appears immediately in the top nav on every content page.
 2. Create your secrets key with your own passphrase. Next time, unlock it with that passphrase.
 3. Paste each person's enrollment code under **People → Add key**.
 4. **Encrypt** a secret, then use its toggles: *Everyone*, plus a checkbox per person. Each click is one

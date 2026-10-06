@@ -18,7 +18,6 @@
     if (!s) {
       main.innerHTML = '<p class="ee-note">Sign in with your GitHub token to use the dashboard.</p><div class="ee-row"><button class="ee-btn ee-primary" id="ee-in">Sign in</button></div>';
       $("ee-in").onclick = function () { window.EloraeEditor.openPanel(); };
-      window.addEventListener("elorae-edit-session", function () { location.reload(); }, { once: true });
       return Promise.resolve(false);
     }
     return E.getFile("edit/profiles.json").then(function (f) {
@@ -27,6 +26,23 @@
       ME = st.profile.person || "devin";
       return true;
     });
+  }
+
+  // Activate (or re-activate) without a full page reload so the sign-in success
+  // panel stays up and the dashboard is live on this same page immediately.
+  var booting = false;
+  function boot() {
+    if (booting) return;
+    booting = true;
+    gate().then(function (ok) {
+      if (!ok) return;
+      return load().then(function () {
+        var mine = V.myKey.get();
+        if (mine && mine.person === ME) return V.myKey.privateKey().then(function (k) { st.priv = k; });
+      }).then(render);
+    }).catch(function (err) {
+      main.innerHTML = '<p class="ee-err">' + esc(err.message || "Could not load the dashboard.") + '</p>';
+    }).then(function () { booting = false; });
   }
 
   function load() {
@@ -262,11 +278,6 @@
     };
   }
 
-  gate().then(function (ok) {
-    if (!ok) return;
-    return load().then(function () {
-      var mine = V.myKey.get();
-      if (mine && mine.person === ME) return V.myKey.privateKey().then(function (k) { st.priv = k; });
-    }).then(render);
-  }).catch(function (err) { main.innerHTML = '<p class="ee-err">' + esc(err.message || "Could not load the dashboard.") + '</p>'; });
+  window.addEventListener("elorae-edit-session", boot);
+  boot();
 })();

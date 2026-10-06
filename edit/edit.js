@@ -40,11 +40,15 @@
     }, Promise.resolve()).catch(function () {});
   }
 
-  // Devin's DASHBOARD link (seal "devin", or an admin edit session for Devin).
+  // Devin's DASHBOARD link: always on every content page while Devin is signed in
+  // (or seal "devin"), including immediately on the sign-in success view — not only
+  // after navigating away. Prepend so the phone friends row shows it without swiping.
   function dash() {
     var s = readSession();
     var isDevin = seal() === "devin" || (s && (s.person === "devin" || s.role === "admin"));
-    if (!isDevin || document.getElementById("ee-dash")) return;
+    var existing = document.getElementById("ee-dash");
+    if (!isDevin) { if (existing) existing.remove(); return; }
+    if (existing) return;
     var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
     if (!mark) return;
     var a = document.createElement("a");
@@ -56,12 +60,10 @@
     if (!st) {
       st = document.createElement("style");
       st.id = "ee-dash-style";
-      st.textContent = ".mast .mark > .ee-dash{display:inline-flex;align-items:center;min-height:44px;margin-right:18px;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;text-decoration:none;background:none;border:0}.mast .mark > .ee-dash:hover,.mast .mark > .ee-dash:focus-visible{color:#fff;outline:none;text-shadow:0 0 16px rgba(243,238,230,.95),0 0 32px rgba(243,238,230,.55)}";
+      st.textContent = ".mast .topbar > .mark > .ee-dash,.mast .mark > .ee-dash{display:inline-flex;align-items:center;flex:0 0 auto;min-height:44px;margin-right:14px;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;text-decoration:none;background:none;border:0}.mast .topbar > .mark > .ee-dash:hover,.mast .mark > .ee-dash:hover,.mast .topbar > .mark > .ee-dash:focus-visible,.mast .mark > .ee-dash:focus-visible{color:#fff;outline:none;text-shadow:0 0 16px rgba(243,238,230,.95),0 0 32px rgba(243,238,230,.55)}";
       document.head.appendChild(st);
     }
-    var logout = document.getElementById("seal-logout");
-    if (logout && logout.parentNode === mark) mark.insertBefore(a, logout);
-    else mark.appendChild(a);
+    mark.insertBefore(a, mark.firstChild);
   }
 
   function init() {

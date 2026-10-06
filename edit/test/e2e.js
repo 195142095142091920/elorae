@@ -417,6 +417,64 @@ async function signInViaPanel(page, token) {
       await ctx.close();
     }
 
+    /* 9b. Dashboard is active immediately after Devin signs in (same page, no navigation). */
+    {
+      const mock = newMock();
+      for (const [label, vp] of [["desktop", { width: 1440, height: 900 }], ["phone", { width: 390, height: 844 }]]) {
+        // Content page: nav DASHBOARD appears on the login-success view itself.
+        const ctx = await ctxFor(browser, mock, { viewport: vp });
+        const page = await ctx.newPage();
+        await page.goto(BASE + vaerekPath + "#edit", { waitUntil: "networkidle" });
+        await page.waitForSelector("#ee-token", { timeout: 10000 });
+        check(`pre-signin (${label}): no DASHBOARD yet`, !(await page.$("#ee-dash")));
+        await page.fill("#ee-token", "ghp_test_devin");
+        await page.click("#ee-form button[type=submit]");
+        await page.waitForFunction(() => /Signed in as Devin/.test((document.getElementById("ee-who") || {}).textContent || ""), null, { timeout: 15000 });
+        const info = await page.evaluate(() => {
+          const a = document.getElementById("ee-dash");
+          const r = a && a.getBoundingClientRect();
+          const btn = document.getElementById("ee-goto-dash");
+          return {
+            hasNav: !!(a && r && r.width > 0 && r.height > 0),
+            firstInMark: !!(a && a.parentElement && a.parentElement.firstElementChild === a),
+            hasPanelDash: !!(btn && /dashboard/i.test(btn.textContent)),
+            url: location.href
+          };
+        });
+        check(`post-signin (${label}): DASHBOARD in nav on login-success page (no navigation)`, info.hasNav && info.firstInMark && info.hasPanelDash && /vaerek\.html/.test(info.url), JSON.stringify(info));
+        await page.screenshot({ path: `${SHOTS}/signin-success-${label}.png`, fullPage: false });
+        await ctx.close();
+
+        // Dashboard page: secrets table appears in place; success panel stays; no reload.
+        const ctx2 = await ctxFor(browser, mock, { viewport: vp });
+        const page2 = await ctx2.newPage();
+        let navigations = 0;
+        page2.on("framenavigated", (f) => { if (f === page2.mainFrame()) navigations++; });
+        await page2.goto(BASE + "edit/dashboard.html", { waitUntil: "networkidle" });
+        const navsAfterGoto = navigations;
+        await page2.waitForSelector("#ee-in", { timeout: 10000 });
+        await page2.click("#ee-in");
+        await page2.waitForSelector("#ee-token");
+        await page2.fill("#ee-token", "ghp_test_devin");
+        await page2.click("#ee-form button[type=submit]");
+        await page2.waitForFunction(() => /Signed in as Devin/.test((document.getElementById("ee-who") || {}).textContent || "") && document.querySelectorAll("tr[data-row]").length === 12, null, { timeout: 20000 });
+        const dinfo = await page2.evaluate(() => ({
+          who: (document.getElementById("ee-who") || {}).textContent,
+          rows: document.querySelectorAll("tr[data-row]").length,
+          notes: [...document.querySelectorAll("#ee-body .ee-note")].map((n) => n.textContent).join(" | "),
+          panelDash: (document.getElementById("ee-goto-dash") || {}).textContent,
+          mainHasKey: /Your key/.test((document.getElementById("ee-dash-main") || {}).innerText || "")
+        }));
+        check(`post-signin dashboard (${label}): active in place (12 rows) with success panel, no reload`, dinfo.rows === 12 && /Signed in as Devin/.test(dinfo.who) && /ready on this page/.test(dinfo.notes) && dinfo.panelDash === "Dashboard" && dinfo.mainHasKey && navigations === navsAfterGoto, JSON.stringify({ dinfo, navigations, navsAfterGoto }));
+        await page2.screenshot({ path: `${SHOTS}/dashboard-signin-success-${label}.png`, fullPage: false });
+        // Closing via Dashboard button reveals the live dashboard.
+        await page2.click("#ee-goto-dash");
+        await page2.waitForFunction(() => { const p = document.getElementById("ee-panel"); return p && p.hidden; });
+        check(`post-signin dashboard (${label}): Dashboard button closes panel onto live dashboard`, (await page2.$$("tr[data-row]")).length === 12);
+        await ctx2.close();
+      }
+    }
+
     /* 10. Visibility layer: enroll, encrypt one secret, share/unshare, everyone. */
     {
       const mock = newMock();
