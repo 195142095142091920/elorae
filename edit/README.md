@@ -12,17 +12,28 @@ Nothing secret is committed. There are no passwords or tokens in the repo.
 | Person | GitHub login (fill in) | Role | Can edit |
 |---|---|---|---|
 | Devin (GM) | `195142095142091920` (repo owner, assumed to be Devin) | admin, saves direct to `main` | whole site, `edit/**`, dashboard, all secrets |
-| Sawyer | `<sawyer-github-login>` | editor, saves as PR | Vaerek Rathkin: `articles/vaerek.html`, `figures/vaerek-at-ease.html`, `figures/vaerek-heldranc.html` |
-| Jon | `<jon-github-login>` | editor, saves as PR | Telorin: `figures/telorin.html` (there is no Telorin article). Silar Scorria: `articles/silar-scorria.html`, `figures/silar-scorria.html` |
-| Jack | `<jack-github-login>` | editor, saves as PR | Galand Helviath: `articles/galand-helviath.html`, `figures/galand-helviath.html` |
-| Julie | `<julie-github-login>` | editor, saves as PR | Saoirse: `articles/saoirse.html`, `figures/saoirse.html`, `figures/saoirse-canyon.html` |
+| Sawyer | `<sawyer-github-login>` | player (editor), saves as PR | Vaerek Rathkin: `articles/vaerek.html` |
+| Jon | `<jon-github-login>` | player (editor), saves as PR | Silar Scorria: `articles/silar-scorria.html`. Telorin has no article page (only `figures/telorin.html`), so Jon has **no editable Telorin page** until `articles/telorin.html` exists |
+| Jack | `<jack-github-login>` | player (editor), saves as PR | Galand Helviath: `articles/galand-helviath.html` |
+| Julie | `<julie-github-login>` | player (editor), saves as PR | Saoirse: `articles/saoirse.html` |
+
+**Hard ceiling: players edit article pages only.** Every non-admin is capped at
+`articles/*.html` in code (`edit/perms.js`, used by both the editor and the guard). That covers
+`figures/`, `gallery/`, codex, journal, index and every other page, including the figure/gallery pages of
+a player's own character: no EDIT button there, and the guard rejects such commits. Any non-admin
+rule in `profiles.json` that reaches outside `articles/` (for example `figures/x.html`, `gallery/**`,
+`codex/**`, `**` or `articles/**`) is **ignored** by the editor, shown as "ignored" in the sign-in
+panel, and reported as a warning by the guard. Only `"role": "admin"` lifts the ceiling.
 
 Permission levels in `edit/profiles.json`:
 
 - `"role": "admin"`: everything, including `edit/**` (profiles, visibility, secrets, keys) and `.github/**`.
-- `"role": "editor"` with `"permissions"`: a list of path globs. `*` matches inside one folder and `**` matches across folders, for example `"articles/**"`, `"codex/**"`, `"journal.html"`, `"figures/*.html"`.
+- `"role": "editor"` (a player) with `"permissions"`: exact article paths such as `"articles/vaerek.html"`, or
+  `"articles/*.html"` for every article. Nothing outside `articles/` takes effect.
 - `"permissions": "view"`: can sign in but can't edit anything.
 - `"save": "direct"` commits straight to `main`. `"save": "pr"` (the default for non-admins) creates a branch `edit/<login>/…` and opens a pull request.
+
+To let Jon edit Telorin's text, an admin first creates `articles/telorin.html`, then adds it to Jon's permissions.
 
 ### Add a person
 1. Get their GitHub login (exactly as shown on github.com/<login>).
@@ -43,8 +54,9 @@ Permission levels in `edit/profiles.json`:
    The token stays in your browser's sessionStorage, or in localStorage if you tick *Remember on this device*. It is sent only to `api.github.com`. *Sign out* removes it.
 
 ## Editing
-Sign in, then click **EDIT** (bottom-right, only on pages you can edit). Article text, dossier
-values, codex prose, journal text and figure lore become editable. Nav, headings, links lists and
+Sign in, then click **EDIT** (bottom-right, only on pages you can edit; for players that means only
+their own article pages). Article text and dossier values become editable (for Devin, codex prose,
+journal text and figure lore too). Nav, headings, links lists and
 structure don't. **Save** works like this:
 
 1. GET `/repos/195142095142091920/elorae/contents/<path>?ref=main` to read the current source and its `sha`.
@@ -72,7 +84,7 @@ identifies the person by the pusher (`github.actor`) or the PR author, not by co
 can be forged. Then:
 
 - Every commit tagged `[edit-mode]`, and every commit pushed by a listed non-admin, must only touch
-  paths that person's globs allow.
+  paths that person's rules allow, and never anything outside `articles/*.html` unless they're an admin.
 - `edit/**` (profiles, visibility.json, secrets, keys, editor code) and `.github/**` may only be changed by admins.
 - Violations fail the check with an annotation per file.
 
@@ -141,5 +153,5 @@ so truly secret art needs a history rewrite or new art. This cleanup is delibera
 `edit/edit.js` (bootstrap, the only thing pages load), `core.js` (session + GitHub API),
 `perms.js` (globs, shared with the guard), `srcmap.js` (tokenizer/splicer), `editor.js` (UI and
 save), `edit.css`, `profiles.json`, `visibility.json`, `secrets/`, `crypto.js`, `vis.js`,
-`secret.html` + `secret.js`, `dashboard.html` + `dashboard.js`, `guard.js`, `workflows/edit-guard.yml` (to install), `test/` (E2E test
-with a mocked GitHub API: see the header of `test/e2e.js`).
+`secret.html` + `secret.js`, `dashboard.html` + `dashboard.js`, `guard.js`, `workflows/edit-guard.yml` (to install), `test/` (`e2e.js`: browser test
+with a mocked GitHub API, see its header; `guard.test.js`: guard scenarios, `node edit/test/guard.test.js`).

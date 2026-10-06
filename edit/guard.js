@@ -2,7 +2,8 @@
 /* Edit guard (run by .github/workflows/edit-guard.yml).
    Server-side enforcement of edit/profiles.json. For every pushed / PR commit that is tagged
    "[edit-mode]", or that was pushed by someone whose profile is not admin, each changed path must
-   be allowed for that GitHub login. The edit system itself (edit/**: profiles.json,
+   be allowed for that GitHub login. Non-admins have a hard ceiling of articles/*.html (perms.js):
+   rules in profiles.json that reach outside it are ignored and such paths are always rejected. The edit system itself (edit/**: profiles.json,
    visibility.json, secrets, keys, scripts) and .github/** may only be changed by admins.
    Rules are always read from the BASE commit (before the push / the PR base), so a push can't
    grant itself permissions. The workflow runs this script from the base commit too.
@@ -53,6 +54,7 @@ function main() {
     const profile = P.profileFor(doc, actor);
     const isOwner = actor && ctx.owner && actor.toLowerCase() === ctx.owner.toLowerCase();
     const admin = isOwner || P.isAdmin(profile);
+    if (!admin) for (const g of P.rejectedRules(profile)) console.log(`::warning file=edit/profiles.json::rule "${g}" for @${actor} is ignored: non-admins are capped at ${P.NON_ADMIN_CEILING}`);
     for (const sha of commits) {
       const msg = git("log", "-1", "--format=%B", sha);
       const tagged = /\[edit-mode\]/.test(msg);
@@ -64,6 +66,7 @@ function main() {
         if (admin) { ok = true; }
         else if (!profile) { ok = false; why = "@" + actor + " has no edit profile"; }
         else if (P.isProtected(f)) { ok = false; why = "only admins may change " + f; }
+        else if (!P.withinCeiling(f)) { ok = false; why = "@" + actor + " may not edit " + f + " (non-admins may only edit " + P.NON_ADMIN_CEILING + ")"; }
         else { ok = P.canEdit(profile, f); why = "@" + actor + " may not edit " + f; }
         report.push(`${ok ? "ok  " : "DENY"} ${sha.slice(0, 8)} @${actor} ${f}`);
         if (!ok) errors.push({ sha, file: f, why });

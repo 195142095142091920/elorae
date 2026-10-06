@@ -1,5 +1,5 @@
 {
-  "_readme": "Edit-mode profiles, keyed by GitHub login. This file only drives the in-browser UI; the edit-guard workflow enforces it server-side. Only admins may change it. 'person' links a login to the site's existing friend slugs (devin, jack, jon, julie, sawyer). permissions: path globs ('**' = everything, 'articles/**', 'journal.html', ...) or 'view' for read-only. save: 'direct' (commit straight to main) or 'pr' (branch + pull request). Keys in angle brackets are placeholders: replace them with the person's real GitHub login (logins can never contain < or >, so placeholders match nobody). Keys starting with '_' are ignored. 'characters' is informational (the site's own page names). Telorin's site page is titled just 'Telorin' (figures/telorin.html; there is no Telorin article and 'Nelis' does not appear on the site).",
+  "_readme": "Edit-mode profiles, keyed by GitHub login. This file drives the in-browser UI; the edit-guard workflow enforces it server-side. Only admins may change it. 'person' links a login to the site's friend slugs (devin, jack, jon, julie, sawyer). 'role': 'admin' = whole site incl. edit/**; 'editor' = only the listed paths; 'viewer' = nothing. HARD CEILING: non-admins may only ever edit article pages (articles/*.html). Any non-admin rule outside articles/ (figures/, gallery/, codex/, journal, '**', 'articles/**') is ignored by the editor and rejected by the guard, whatever this file says. permissions: exact article paths, or 'articles/*.html' for every article; 'view' = read-only. save: 'direct' (commit to main) or 'pr' (branch + pull request, default for non-admins). Keys in angle brackets are placeholders: replace them with the person's real GitHub login (logins can never contain < or >, so placeholders match nobody). Keys starting with '_' are ignored. 'characters' is informational. Telorin has no article page (only figures/telorin.html), so Jon has no editable Telorin page until articles/telorin.html exists.",
   "repo": "195142095142091920/elorae",
   "profiles": {
     "195142095142091920": {
@@ -21,9 +21,7 @@
       "person": "sawyer",
       "role": "editor",
       "permissions": [
-        "articles/vaerek.html",
-        "figures/vaerek-at-ease.html",
-        "figures/vaerek-heldranc.html"
+        "articles/vaerek.html"
       ],
       "save": "pr",
       "characters": [
@@ -35,14 +33,12 @@
       "person": "jon",
       "role": "editor",
       "permissions": [
-        "figures/telorin.html",
-        "articles/silar-scorria.html",
-        "figures/silar-scorria.html"
+        "articles/silar-scorria.html"
       ],
       "save": "pr",
       "characters": [
-        "Telorin",
-        "Silar Scorria"
+        "Silar Scorria",
+        "Telorin (no article page yet, so nothing editable until articles/telorin.html exists)"
       ]
     },
     "<jack-github-login>": {
@@ -50,8 +46,7 @@
       "person": "jack",
       "role": "editor",
       "permissions": [
-        "articles/galand-helviath.html",
-        "figures/galand-helviath.html"
+        "articles/galand-helviath.html"
       ],
       "save": "pr",
       "characters": [
@@ -63,9 +58,7 @@
       "person": "julie",
       "role": "editor",
       "permissions": [
-        "articles/saoirse.html",
-        "figures/saoirse.html",
-        "figures/saoirse-canyon.html"
+        "articles/saoirse.html"
       ],
       "save": "pr",
       "characters": [
@@ -74,28 +67,19 @@
     }
   },
   "_examples": {
-    "<an-articles-editor>": {
-      "name": "Articles editor",
+    "<one-article-editor>": {
+      "name": "One article",
       "role": "editor",
       "permissions": [
-        "articles/**"
+        "articles/kojin.html"
       ],
       "save": "pr"
     },
-    "<a-codex-editor>": {
-      "name": "Codex editor",
+    "<all-articles-editor>": {
+      "name": "All articles",
       "role": "editor",
       "permissions": [
-        "codex/**"
-      ],
-      "save": "pr"
-    },
-    "<a-journal-and-figures-editor>": {
-      "name": "Journal editor",
-      "role": "editor",
-      "permissions": [
-        "journal.html",
-        "figures/**"
+        "articles/*.html"
       ],
       "save": "pr"
     },

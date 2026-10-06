@@ -8,6 +8,16 @@
 
   // Paths only an admin may change (the edit system itself, workflows, ownership rules).
   var PROTECTED = ["edit/**", ".github/**", "CODEOWNERS", "docs/CODEOWNERS"];
+  // HARD CEILING for every non-admin: only article pages, whatever profiles.json says.
+  // A non-admin rule that isn't inside articles/ is ignored (UI) and rejected (guard).
+  var NON_ADMIN_CEILING = "articles/*.html";
+
+  function withinCeiling(path) { return matches(NON_ADMIN_CEILING, path); }
+  // A rule (glob) is acceptable for a non-admin only if it can't reach outside articles/.
+  function ruleAllowed(glob) {
+    var g = normPath(glob);
+    return /^articles\/[^/]*$/.test(g) && !/\*\*/.test(g);
+  }
 
   function globToRegExp(glob) {
     var re = "^";
@@ -53,11 +63,21 @@
     return !!(profile && profile.role === "admin");
   }
 
-  function permList(profile) {
+  function rawPermList(profile) {
     if (!profile) return [];
     var p = profile.permissions;
     if (typeof p === "string") p = [p];
     return Array.isArray(p) ? p.filter(function (x) { return typeof x === "string" && x && x !== "view"; }) : [];
+  }
+  // Effective rules: admins keep theirs; non-admins only keep rules inside the ceiling.
+  function permList(profile) {
+    var l = rawPermList(profile);
+    return isAdmin(profile) ? l : l.filter(ruleAllowed);
+  }
+  // Rules in a non-admin profile that exceed the ceiling (reported by the guard and the UI).
+  function rejectedRules(profile) {
+    if (!profile || isAdmin(profile)) return [];
+    return rawPermList(profile).filter(function (g) { return !ruleAllowed(g); });
   }
 
   function isProtected(path) {
@@ -71,6 +91,7 @@
     if (!path) return false;
     if (isProtected(path)) return isAdmin(profile);
     if (isAdmin(profile)) return true;
+    if (!withinCeiling(path)) return false;
     return permList(profile).some(function (g) { return matches(g, path); });
   }
 
@@ -82,6 +103,10 @@
 
   return {
     PROTECTED: PROTECTED,
+    NON_ADMIN_CEILING: NON_ADMIN_CEILING,
+    withinCeiling: withinCeiling,
+    ruleAllowed: ruleAllowed,
+    rejectedRules: rejectedRules,
     globToRegExp: globToRegExp,
     matches: matches,
     normPath: normPath,

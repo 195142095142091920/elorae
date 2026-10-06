@@ -18,11 +18,13 @@ const REPO = "195142095142091920/elorae";
 const results = [];
 function check(name, ok, detail) { results.push({ name, ok: !!ok, detail }); console.log((ok ? "PASS " : "FAIL ") + name + (detail ? "  — " + detail : "")); }
 
-const TOKENS = { "tok-devin": "devin-gh", "tok-sawyer": "sawyer-gh", "tok-arts": "arts-gh", "tok-viewer": "viewer-gh" };
+const TOKENS = { "tok-devin": "devin-gh", "tok-sawyer": "sawyer-gh", "tok-julie": "julie-gh", "tok-arts": "arts-gh", "tok-viewer": "viewer-gh" };
 const PROFILES = { repo: REPO, profiles: {
   "devin-gh": { name: "Devin", person: "devin", role: "admin", title: "GM", permissions: ["**"], save: "direct" },
-  "sawyer-gh": { name: "Sawyer", person: "sawyer", role: "editor", permissions: ["articles/vaerek.html"], save: "pr" },
-  "arts-gh": { name: "Articles editor", role: "editor", permissions: ["articles/**"], save: "direct" },
+  // Sawyer's profile deliberately over-reaches: the figures/gallery rules must be ignored (ceiling).
+  "sawyer-gh": { name: "Sawyer", person: "sawyer", role: "editor", permissions: ["articles/vaerek.html", "figures/vaerek-at-ease.html", "gallery/vaerek-at-ease.html"], save: "pr" },
+  "julie-gh": { name: "Julie", person: "julie", role: "editor", permissions: ["articles/saoirse.html", "figures/**", "gallery/**", "**"], save: "pr" },
+  "arts-gh": { name: "Articles editor", role: "editor", permissions: ["articles/*.html", "codex/**"], save: "direct" },
   "viewer-gh": { name: "Viewer", role: "viewer", permissions: "view" } } };
 
 function newMock() {
@@ -273,6 +275,34 @@ async function signInViaPanel(page, token) {
       const t = await page.textContent("#ee-bar");
       check("pr mode: success message links the PR", /pull request #1/.test(t), t.trim().slice(0, 100));
       await ctx.close();
+    }
+
+    /* 7b. Hard ceiling: players are refused outside articles/, even for their own character. */
+    {
+      const mock = newMock();
+      const cases = [
+        ["tok-sawyer", "sawyer-gh", ["figures/vaerek-at-ease.html", "figures/vaerek-heldranc.html", "gallery/vaerek-at-ease.html", "gallery/vaerek-heldranc.html", "index.html", "journal.html"], "articles/vaerek.html"],
+        ["tok-julie", "julie-gh", ["figures/saoirse.html", "figures/saoirse-canyon.html", "gallery/saoirse.html", "gallery/saoirse-canyon.html", "codex/lore.html", "index.html"], "articles/saoirse.html"],
+        ["tok-arts", "arts-gh", ["codex/lore.html", "figures/aghor.html", "gallery/yena.html"], "articles/kojin.html"]
+      ];
+      for (const [tok, login, refused, allowed] of cases) {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit(tok, login) });
+        const page = await ctx.newPage();
+        for (const p of refused) {
+          await page.goto(BASE + p, { waitUntil: "networkidle" });
+          await waitEditor(page);
+          const r = await page.evaluate(() => { window.EloraeEditor.startEdit(); return { glyph: !!document.getElementById("ee-glyph"), ce: document.querySelectorAll("[contenteditable]").length }; });
+          await page.waitForTimeout(150);
+          check(`ceiling: ${login} refused on ${p} (no EDIT, edit mode won't start)`, !r.glyph && r.ce === 0 && !mock.log.some((e) => e.path.includes("/contents/" + p)), JSON.stringify(r));
+        }
+        await page.goto(BASE + allowed + "#edit", { waitUntil: "networkidle" });
+        await waitEditor(page);
+        const g = !!(await page.$("#ee-glyph"));
+        const note = await page.textContent("#ee-body");
+        check(`ceiling: ${login} still gets EDIT on ${allowed}`, g, note.replace(/\s+/g, " ").slice(0, 160));
+        if (login !== "arts-gh") check(`ceiling: ${login}'s out-of-articles rules are shown as ignored`, /ignored, players can only edit articles/.test(note));
+        await ctx.close();
+      }
     }
 
     /* 8. Phone layout in edit mode. */

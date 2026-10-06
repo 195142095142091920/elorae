@@ -50,8 +50,8 @@
   function permSummary(pr) {
     if (!pr) return "";
     if (P.isAdmin(pr)) return (pr.title || "Admin") + " · whole site";
-    var l = P.permList(pr);
-    return l.length ? "Can edit: " + l.join(", ") : "View only";
+    var l = P.permList(pr), bad = P.rejectedRules ? P.rejectedRules(pr) : [];
+    return (l.length ? "Can edit: " + l.join(", ") : "View only") + (bad.length ? " (ignored, players can only edit articles: " + bad.join(", ") + ")" : "");
   }
   function renderPanel(msg) {
     var b = $("ee-body"); if (!b) return;
