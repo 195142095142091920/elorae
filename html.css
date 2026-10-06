@@ -4602,8 +4602,8 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
     max-width: none;
   }
 
-  /* Soft right-edge fade on the Categories rail panel (desktop only).
-     Extends past the solid panel onto the art; pointer-events none so art stays clickable. */
+  /* Soft right-edge fade on the Categories rail panel (desktop only, art77).
+     Wide eased taper; overlaps panel edge so there is no hard line; pointer-events none. */
   body.index-page aside.toc.index-toc.open::after,
   html.cats-rail-pinned body.index-page aside.toc.index-toc::after,
   body.article .art-index.open::after,
@@ -4614,14 +4614,20 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
     top: 0;
     bottom: 0;
     left: 220px;
-    width: 56px;
-    margin-left: -1px;
+    width: 120px;
+    /* Overlap solid panel so #070707 start meets the edge with no visible step (art77). */
+    margin-left: -2px;
     pointer-events: none;
     z-index: 19;
+    border: 0;
+    box-shadow: none;
     background: linear-gradient(
       to right,
       #070707 0%,
-      rgba(7, 7, 7, 0.55) 42%,
+      rgba(7, 7, 7, 0.85) 20%,
+      rgba(7, 7, 7, 0.6) 40%,
+      rgba(7, 7, 7, 0.35) 60%,
+      rgba(7, 7, 7, 0.15) 80%,
       rgba(7, 7, 7, 0) 100%
     );
   }
@@ -4668,14 +4674,19 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
     top: 102px;
     bottom: 0;
     left: var(--cats-toc-fade-left, 300px);
-    width: 56px;
-    margin-left: -1px;
+    width: 120px;
+    margin-left: -2px;
     pointer-events: none;
     z-index: 8;
+    border: 0;
+    box-shadow: none;
     background: linear-gradient(
       to right,
       #070707 0%,
-      rgba(7, 7, 7, 0.55) 42%,
+      rgba(7, 7, 7, 0.85) 20%,
+      rgba(7, 7, 7, 0.6) 40%,
+      rgba(7, 7, 7, 0.35) 60%,
+      rgba(7, 7, 7, 0.15) 80%,
       rgba(7, 7, 7, 0) 100%
     );
   }
