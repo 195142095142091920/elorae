@@ -182,7 +182,7 @@
     if (d.epithet) face.appendChild(el("p", "nt-mcard-epithet", d.epithet));
     if (d.quote) { var q = el("blockquote"); q.appendChild(el("p", null, d.quote)); if (d.cite) q.appendChild(el("cite", null, d.cite)); face.appendChild(q); }
     if (d.rows && d.rows.length) { var dl = el("dl"); d.rows.forEach(function (r) { dl.appendChild(el("dt", null, r[0])); dl.appendChild(el("dd", null, r[1])); }); face.appendChild(dl); }
-    if (d.desc) face.appendChild(el("p", "nt-mcard-desc", d.desc));
+    if (d.desc && d.desc !== d.epithet) face.appendChild(el("p", "nt-mcard-desc", d.desc));
     var go = el("a", "nt-mcard-go", "Article \u2192"); go.href = href; face.appendChild(go);
   }
   function place(a) {
