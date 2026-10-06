@@ -1,4 +1,4 @@
-/* Search: type-to-filter (Gallery/Index hide unmatched), PowerToys panel, search.html. */
+/* Search: type-to-filter (Index hides unmatched), PowerToys panel, search.html. */
 (function () {
   var seek = document.getElementById("seek");
   var show = document.getElementById("seek-show");
@@ -108,7 +108,7 @@
     var score = 0;
     if (titleHit) score += 100;
     if (textHit) score += 10;
-    var kindBoost = { article: 50, journal: 40, codex: 30, atlas: 20, lore: 15, figure: 5 };
+    var kindBoost = { article: 50, journal: 40, codex: 30, atlas: 20, lore: 15 };
     score += kindBoost[entry.kind] || 0;
     if (entry.image && entry.kind === "article") score += 25;
     if (textHit && entry.text && q) {
@@ -179,7 +179,7 @@
       var textHit = !!(entry.text && entry.text.toLowerCase().indexOf(q) !== -1);
       if (!titleHit && !textHit) return;
 
-      /* Cards: primary Index/article subjects only — not gallery sub-arts (figures). */
+      /* Cards: primary Index/article subjects only. */
       if (titleHit && entry.image && entry.kind === "article") {
         var ck = entry.title.toLowerCase();
         if (!seenCard[ck]) seenCard[ck] = entry;
@@ -187,9 +187,8 @@
 
       var mentKind = entry.kind === "journal" || entry.kind === "codex" || entry.kind === "atlas" || entry.kind === "lore";
       if (textHit || (titleHit && mentKind && !entry.image)) {
-        /* Prefer mention rows for corpus kinds; skip pure article/figure title cards. */
+        /* Prefer mention rows for corpus kinds; skip pure article title cards. */
         if (entry.kind === "article" && titleHit && !textHit) return;
-        if (entry.kind === "figure" && titleHit && !textHit) return;
         var mk = pageKey(entry.href);
         if (!mk) return;
         var score = hitScore(entry, titleHit, textHit, q);
@@ -270,7 +269,7 @@
     }
     indexLoading = new Promise(function (resolve) {
       var s = document.createElement("script");
-      s.src = assetBase() + "search-index.js?v=s5";
+      s.src = assetBase() + "search-index.js?v=s6";
       s.onload = function () { indexReady = true; resolve(); };
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);
@@ -571,7 +570,7 @@
 
     if (e.key === "Enter" && seek && seek.value.trim()) {
       e.preventDefault();
-      /* Gallery / Index: open panel with the filter query. */
+      /* Index / search wall: open panel with the filter query. */
       if (isFilterPage() && !isSearchPage) {
         openPanel(currentQuery());
         return;
@@ -611,8 +610,8 @@
 /* art67: phone page-name mark */
 (function () {
   var body = document.body;
-  if (!body || (!body.classList.contains("article") && !body.classList.contains("entry"))) return;
-  var h1 = document.querySelector(".art-title h1, .title-block h1, .dock .title-block h1, .dock h1");
+  if (!body || !body.classList.contains("article")) return;
+  var h1 = document.querySelector(".art-title h1");
   var seal = document.querySelector(".mast .topbar > .mark > a[href$=\"seal.html\"], .mast .mark > a[href$=\"seal.html\"]");
   if (!h1 || !seal) return;
   var name = (h1.textContent || "").trim().split(/\s+/)[0];

@@ -1,4 +1,4 @@
-/* Article hero mini-gallery: arrows cycle the hero art; hovering reveals thumbnails. */
+/* Article hero art carousel: arrows cycle the hero art; hovering reveals thumbnails. */
 (function () {
   var hero = document.querySelector(".art-hero > img");
   var btns = Array.prototype.slice.call(document.querySelectorAll(".art-swap-thumbs button"));

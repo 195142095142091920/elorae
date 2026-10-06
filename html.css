@@ -2,17 +2,16 @@ body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;bac
 
 .private{display:none}body.seal-devin .private{display:block}body.seal-jack .private[data-owner=jack]{display:block}body.seal-jon .private[data-owner=jon]{display:block}body.seal-julie .private[data-owner=julie]{display:block}body.seal-sawyer .private[data-owner=sawyer]{display:block}#seek{background:#070707;color:#f3eee6;border:0;border-bottom:1px solid #8f8a82;font:13px Helvetica,Arial,sans-serif;letter-spacing:.08em;opacity:0;position:absolute;left:-9999px;width:0;height:0;margin:0;padding:0}.tile.is-seek-miss,.index-card.is-seek-miss{display:none!important}.index-cat.is-seek-empty{display:none!important}.tile.is-dim{display:none!important}
 
-/* Experimental: de-emphasize Gallery in primary nav; Index is the main browse. Gallery wall + /gallery/* stay reachable by URL. */
-nav.filters > a[href$="index.html"] { display: none !important; }
+
 
 .friend{display:none}
 body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],body.seal-julie .friend[data-owner=julie],body.seal-sawyer .friend[data-owner=sawyer]{display:inline}
 .friend a{margin-left:12px}
-.hero.full img{object-fit:contain;background:#000}
-#art-swap{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:22}
-#art-strip{display:none;gap:10px;padding:12px;background:#070707}
-#art-swap.open #art-strip{display:flex}
-#art-strip img{width:132px;height:88px;object-fit:cover}
+
+
+
+
+
 
 .facts{margin:0 0 16px;padding:0;list-style:none;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#d8d0c4}
 .facts li{margin:0 0 6px}
@@ -21,8 +20,8 @@ body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],bo
   .with-toc{margin-left:0}
   .index-card{width:calc(100vw - 36px)}
   .index-card img{width:100%;height:auto;aspect-ratio:16/9}
-  #art-swap{bottom:24px}
-  .pager{bottom:16px}
+
+
 }
 
 .private-journal{display:none;right:0;left:auto}
@@ -35,20 +34,20 @@ body.seal-page{background:#070707}
 #seal-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;text-align:center;padding:8px 0}
 .seal-card button{margin-top:18px;background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 .filters a,.toc a,#section-bar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
-.title-block h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,serif}
-.title-block .caption,.life-toggle{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+
+
 
 .filters,.topbar{letter-spacing:.28em;font-size:14.3px}
 #section-bar{letter-spacing:.22em;padding:0 28px 16px}
 .journal-read,.read{max-width:760px;padding-top:72px;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.8)}
 .with-toc.journal-read,.with-toc.read{background:#070707;padding:72px 48px 80px}
-body.entry .mast{background:transparent}
-body.entry .topbar{background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0,0,0))}
+
+
 
 @media(max-width:800px){
   .mast .topbar{padding-top:8px;padding-left:16px;padding-right:16px}
-  .entry .topbar a{top:max(16px,env(safe-area-inset-top));left:16px}
-  .dock{padding-bottom:max(28px,env(safe-area-inset-bottom))}
+
+
 }
 .friend a{position:relative}
 body.seal-page.seal-jack .friend[data-owner=jack] a,body.seal-page.seal-julie .friend[data-owner=julie] a,body.seal-page.seal-sawyer .friend[data-owner=sawyer] a,body.seal-page.seal-jon .friend[data-owner=jon] a{text-shadow:0 0 12px var(--glow),0 0 24px var(--glow)}
@@ -64,15 +63,15 @@ body.seal-page.seal-jon .friend[data-owner=jon] a[href*="telorin"]{text-shadow:0
 body.seal-page.seal-jon .friend[data-owner=jon] a[href*="silar"]{text-shadow:0 0 12px rgba(255,150,72,.95),0 0 28px rgba(168,48,18,.85);--glow:rgba(230,90,40,.55)}
 body.seal-devin{--glow:rgba(243,238,230,.7)}
 
-.dock{padding:40px 28px max(28px,env(safe-area-inset-bottom))}
-.title-block h1{font-size:clamp(28px,4vw,42px)}
-.title-block .caption{margin-top:6px}
 
-body.entry .mast{display:none}
-body.entry .topbar{position:fixed;top:0;left:0;right:0;z-index:20;background:linear-gradient(to bottom,rgba(0,0,0,.58),rgba(0,0,0,0));padding:max(22px,env(safe-area-inset-top)) 28px 18px}
-body.entry .topbar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6}
-.life-dock{position:fixed;right:0;bottom:0;z-index:5;width:min(42vw,480px);padding:40px 28px max(28px,env(safe-area-inset-bottom))}
-.life-toggle{background:none;border:0;color:#f3eee6;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+
+
+
+
+
+
+
+
 .journal-page{background:#070707 center/cover no-repeat}
 
 #seal-form{display:flex;flex-direction:column;align-items:center}
@@ -465,16 +464,16 @@ body.book .toc a {
 body.book .toc a.on,
 body.book .toc a:hover { color: #f3eee6; }
 
-html, body, .sheet, .index-list, .wall, .lore-rail .codex-toc, .lore-toc-panel, .journal-read, .life-sheet, .atlas-stage, .room-body {
+html, body, .sheet, .index-list, .wall, .lore-rail .codex-toc, .lore-toc-panel, .journal-read, .atlas-stage, .room-body {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 }
 html:hover, body:hover,
 .sheet:hover, .index-list:hover, .wall:hover,
 .lore-rail .codex-toc:hover, .lore-toc-panel:hover,
-.journal-read:hover, .life-sheet:hover, .atlas-stage:hover, .room-body:hover,
+.journal-read:hover, .atlas-stage:hover, .room-body:hover,
 .sheet.show-bar, .index-list.show-bar, .wall.show-bar,
-.lore-rail .codex-toc.show-bar, .life-sheet.show-bar {
+.lore-rail .codex-toc.show-bar{
   scrollbar-color: rgba(207,198,184,0.38) transparent;
 }
 html::-webkit-scrollbar,
@@ -485,7 +484,6 @@ body::-webkit-scrollbar,
 .lore-rail .codex-toc::-webkit-scrollbar,
 .lore-toc-panel::-webkit-scrollbar,
 .journal-read::-webkit-scrollbar,
-.life-sheet::-webkit-scrollbar,
 .atlas-stage::-webkit-scrollbar,
 .room-body::-webkit-scrollbar {
   width: 6px;
@@ -499,7 +497,6 @@ body::-webkit-scrollbar-thumb,
 .lore-rail .codex-toc::-webkit-scrollbar-thumb,
 .lore-toc-panel::-webkit-scrollbar-thumb,
 .journal-read::-webkit-scrollbar-thumb,
-.life-sheet::-webkit-scrollbar-thumb,
 .atlas-stage::-webkit-scrollbar-thumb,
 .room-body::-webkit-scrollbar-thumb {
   background: transparent;
@@ -513,12 +510,10 @@ body:hover::-webkit-scrollbar-thumb,
 .lore-rail .codex-toc:hover::-webkit-scrollbar-thumb,
 .lore-toc-panel:hover::-webkit-scrollbar-thumb,
 .journal-read:hover::-webkit-scrollbar-thumb,
-.life-sheet:hover::-webkit-scrollbar-thumb,
 .atlas-stage:hover::-webkit-scrollbar-thumb,
 .room-body:hover::-webkit-scrollbar-thumb,
 .sheet.show-bar::-webkit-scrollbar-thumb,
-.index-list.show-bar::-webkit-scrollbar-thumb,
-.life-sheet.show-bar::-webkit-scrollbar-thumb {
+.index-list.show-bar::-webkit-scrollbar-thumb{
   background: rgba(207,198,184,0.4);
 }
 
@@ -794,7 +789,7 @@ table.day-names td {
   padding: 4px 20px 4px 0;
 }
 
-/* Continuous Index — experimental gallery-like cards + Chromium-style category rail (i1).
+/* Continuous Index — experimental art cards + Chromium-style category rail (i1).
    Cue arrow is a pure click toggle (art79, no hover reveal); open pushes (body.index-toc-open);
    pin sticks open. Categories keep section headers + spacing; labels sit on the art. */
 body.index-page aside.toc.index-toc {
@@ -899,7 +894,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   body.index-page main.with-toc.index-flow {
     display: block;
     margin-left: 0;
-    /* Edge-to-edge like Gallery .wall (pad 6px sides, gap 6px); bigger tiles. */
+    /* Edge-to-edge art grid (pad 6px sides, gap 6px); bigger tiles. */
     padding: 16px 6px 72px;
     transition: margin-left .2s ease;
   }
@@ -935,7 +930,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   }
   body.index-page .index-cards {
     display: grid;
-    /* Full-bleed 4-col like Gallery .wall; rail open still pushes (margin-left) and tiles shrink. */
+    /* Full-bleed 4-col; rail open still pushes (margin-left) and tiles shrink. */
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 6px;
     justify-content: stretch;
@@ -953,7 +948,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  /* Gallery-like card: name overlaid on art, always visible (bottom-left, art80). */
+  /* Art card: name overlaid on art, always visible (bottom-left, art80). */
   body.index-page .index-card {
     position: relative;
     display: block;
@@ -1060,7 +1055,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   body.index-page main.with-toc.index-flow {
     display: block;
     margin-left: 0;
-    /* Phone: tighter sides than Gallery's 12px so art tiles read larger.
+    /* Phone: tighter sides (6px, was 12px) so art tiles read larger.
        Top clearance: mast + section-bar (handled by sticky bar in flow / fixed mast). */
     padding: 8px 6px 56px;
   }
@@ -1477,48 +1472,6 @@ body.article .art-index .toc-group .toc-name { padding-left: 8px; }
 }
 
 
-/* Gallery art pages. Full-screen art like the figure pages (body.entry, .hero, .dock, .title-block),
-   with the name, epithet, and one-line. No lore, pager, or fit toggle. */
-@media (min-width: 801px) {
-  body.gallery-page .title-block .gallery-line {
-    order: 2;
-    margin: 6px 0 0;
-    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
-    font-weight: 400;
-    font-style: normal;
-    text-transform: none;
-    letter-spacing: 0.01em;
-    font-size: 16px;
-    line-height: 1.4;
-    color: #e4ddd2;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
-  }
-}
-@media (max-width: 800px) {
-  body.gallery-page .dock {
-    width: 100%;
-  }
-  body.gallery-page .title-block h1 {
-    overflow-wrap: break-word;
-  }
-  body.gallery-page .title-block .caption,
-  body.gallery-page .title-block .gallery-line {
-    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
-    font-weight: 400;
-    font-style: normal;
-    text-transform: none;
-    letter-spacing: 0.01em;
-    font-size: 15px;
-    line-height: 1.4;
-    color: #e4ddd2;
-    white-space: normal;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.75);
-  }
-  body.gallery-page .title-block .gallery-line {
-    order: 2;
-    margin: 6px 0 0;
-  }
-}
 
 /* Articles (one page per subject). The hero art fills the screen and scrolls up in the
    normal flow; the dossier, lore, arts, and related rise beneath it. Pure CSS.
@@ -1610,7 +1563,6 @@ body.article .art-dossier { display: grid; grid-template-columns: max-content 1f
 body.article .art-dossier dt,
 body.article .art-facts li,
 body.article .art-quote cite,
-/* body.article .art-strip figcaption, (Arts section retired) */
 body.article .art-rel-head {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
@@ -1637,12 +1589,6 @@ body.article .art-facts {
 }
 body.article .art-facts li { margin: 0; font-size: 12px; line-height: 1.7; color: #b7b0a4; }
 body.article .art-life { margin: 0; font-size: 17px; line-height: 1.65; }
-/* Arts section retired: body.article .art-strip { display: grid; gap: 18px; } */
-/* Arts section retired: body.article .art-piece { margin: 0; } */
-/* Arts section retired: body.article .art-piece a { display: block; } */
-/* Arts section retired: body.article .art-piece img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: #000; border: 1px solid transparent; } */
-/* Arts section retired: body.article .art-piece a:hover img { border-color: rgba(243,238,230,0.45); } */
-/* Arts section retired: body.article .art-strip figcaption { margin: 10px 0 0; font-size: 11px; line-height: 1.4; color: #cfc6b8; } */
 body.article .art-rel-head { margin: 0 0 14px; font-size: 12px; }
 body.article .art-rel-head a { color: #f3eee6; }
 body.article .art-related { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 26px; }
@@ -1695,7 +1641,6 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-title .art-epithet { font-size: 16px; }
   body.article .art-body { padding: 72px 28px 96px; }
   body.article .art-line { font-size: 22px; }
-  /* Arts section retired: body.article .art-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } */
 }
 @media (max-width: 800px) {
   /* Previous always-visible thumbnail row (replaced by arrows, art5):
@@ -1739,18 +1684,14 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-dossier dd { margin-bottom: 12px; }
   body.article .art-quote p { font-size: 18px; }
   body.article .art-life { font-size: 16px; }
-  /* Arts section retired: body.article .art-strip { grid-template-columns: 1fr; gap: 26px; } */
-  /* Arts section retired: body.article .art-piece img { aspect-ratio: auto; height: auto; } */
 }
 
 /* Old JS site typography (art7). Copied from the pre-rebuild site at commit c1113ef. */
 @media (min-width: 801px) {
-  /* Hero name: styles.css (html, body font-family; .title-block h1 weight/size) + figure-lore.css text-shadow, old JS site c1113ef. */
-  body.article .art-title h1,
-  body.gallery-page .title-block h1 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
-  /* Hero epithet: old #epithet-face / mobile-fix.js face, features.js size (20px @min-width 801), figure-lore.css line-height 1.4. */
-  body.article .art-title .art-epithet,
-  body.gallery-page .title-block .caption { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: 20px; line-height: 1.4; color: #e4ddd2; }
+  /* Hero name: typography carried over from the old JS site (c1113ef). */
+  body.article .art-title h1{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
+  /* Hero epithet: typography carried over from the old JS site (20px @min-width 801, line-height 1.4). */
+  body.article .art-title .art-epithet{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: 20px; line-height: 1.4; color: #e4ddd2; }
   /* Index: old index-sections.js #index-section-css (rail h3, rail buttons, .index-card span, .index-empty). */
   body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
   body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
@@ -1765,12 +1706,10 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.book .toc a:hover { color: #f3eee6; }
 }
 @media (max-width: 800px) {
-  /* Hero name: styles.css (html, body font-family; .title-block h1 weight/size) + figure-lore.css text-shadow, old JS site c1113ef. */
-  body.article .art-title h1,
-  body.gallery-page .title-block h1 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
-  /* Hero epithet: old #epithet-face / mobile-fix.js face, features.js size (15px base), mobile-fix.js line-height 1.35. */
-  body.article .art-title .art-epithet,
-  body.gallery-page .title-block .caption { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: 15px; line-height: 1.35; color: #e4ddd2; }
+  /* Hero name: typography carried over from the old JS site (c1113ef). */
+  body.article .art-title h1{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
+  /* Hero epithet: typography carried over from the old JS site (15px base, line-height 1.35). */
+  body.article .art-title .art-epithet{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: 15px; line-height: 1.35; color: #e4ddd2; }
   /* Index: old index-sections.js #index-section-css (rail h3, rail buttons, .index-card span, .index-empty). */
   body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
   body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
@@ -2512,7 +2451,7 @@ body.seek-panel-open { overflow: hidden; }
     padding-bottom: 0;
   }
   /* Scroll content starts below the fixed mast (match measured phone heights). */
-  body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
+  body:not(.article):not([hidden]):not(.journal-page):not(.seal-page) {
     padding-top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
   body.journal-page:not(.article) {
@@ -2553,7 +2492,7 @@ body.seek-panel-open { overflow: hidden; }
     justify-content: center;
   }
   /* Mast grows with 44px filter row; keep body clear. */
-  body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
+  body:not(.article):not([hidden]):not(.journal-page):not(.seal-page) {
     padding-top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
   body.journal-page:not(.article) {
@@ -2700,8 +2639,8 @@ body.seek-panel-open { overflow: hidden; }
    HARD opaque #070707 with a crisp bottom edge -- no gradient on the bars.
    Only page content fades, via a veil hung BELOW the bottommost chrome
    (::after at top:100%). Desktop + phone; entry hero overlays untouched. */
-body:not(.entry) .mast,
-body:not(.entry) .mast .topbar,
+body:not([hidden]) .mast,
+body:not([hidden]) .mast .topbar,
 body.journal-page .topbar,
 body.journal-page .mast .topbar,
 #section-bar,
@@ -2716,13 +2655,13 @@ body.journal-page .topbar,
 body.journal-page .mast .topbar {
   text-shadow: none;
 }
-body:not(.entry) .mast,
+body:not([hidden]) .mast,
 #section-bar:has(a),
 #section-bar.show,
 body.has-section-bar #section-bar {
   overflow: visible;
 }
-body:not(.entry) .mast::after,
+body:not([hidden]) .mast::after,
 #section-bar:has(a)::after,
 #section-bar.show::after,
 body.has-section-bar #section-bar::after {
@@ -3044,163 +2983,12 @@ body.seal-devin .friend { display: none !important; }
   #map-zoom .map-zoom-close { width: 44px; height: 44px; }
 }
 
-/* Figure pages: the Full/fit toggle was an unstyled default button (a grey 4x19 sliver; its
-   SVG had no stroke). Shared desktop + phone: 44px icon button like the old fit-mobile.js. */
-body.entry .topbar .fit-toggle {
-  -webkit-appearance: none;
-  appearance: none;
-  background: none;
-  border: 0;
-  border-radius: 0;
-  margin: 0;
-  padding: 0;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  color: #efe8dc;
-  opacity: 0.8;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-body.entry .topbar .fit-toggle:hover,
-body.entry .topbar .fit-toggle:focus-visible { opacity: 1; }
-body.entry .topbar .fit-toggle svg {
-  display: block;
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: square;
-  pointer-events: none;
-}
 
-/* Figure lore quote: the HTML already carries the curly quotes and the em dash, so the
-   figure-lore.css pseudo marks doubled them (""The Wild."" / "- — Hesk"). Shared fix. */
-body.entry .life-sheet .life-quote p::before,
-body.entry .life-sheet .life-quote p::after,
-body.entry .life-sheet .life-quote cite::before { content: none; }
 
-/* ---- Phone: figure Lore from top dropdown, not the side dock (figdrop1) ---- */
-@media (max-width: 800px) {
-  /* Keep the cinematic hero topbar (Gallery + fit); Lore opens as a top sheet. */
-  body.entry .life-dock {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: auto;
-    width: 100%;
-    max-width: none;
-    min-height: 0;
-    height: auto;
-    z-index: 25;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    pointer-events: none;
-    background: none;
-  }
-  body.entry .life-dock .life-toggle {
-    pointer-events: auto;
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
-    z-index: 26;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    min-height: 44px;
-    height: 44px;
-    margin: 0;
-    padding: 0 16px;
-    box-sizing: border-box;
-    background: rgba(7,7,7,0.88);
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    color: #b7b0a4;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    -webkit-appearance: none;
-    appearance: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  /* "+ Lore" label → "Lore" with caret; strip the plus via text replacement is JS-less:
-     hide raw text visually is hard; restyle as Contents-like row. */
-  body.entry .life-dock:has(.life-sheet.open) .life-toggle {
-    color: #f3eee6;
-    background: #070707;
-  }
-  body.entry .life-dock .life-toggle::after {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-right: 1px solid currentColor;
-    border-bottom: 1px solid currentColor;
-    opacity: 0.7;
-    transform: translateY(-2px) rotate(45deg);
-    transition: transform 0.2s ease;
-  }
-  body.entry .life-dock:has(.life-sheet.open) .life-toggle::after {
-    transform: translateY(2px) rotate(-135deg);
-  }
-  body.entry .life-sheet {
-    pointer-events: auto;
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px));
-    bottom: auto;
-    z-index: 25;
-    width: 100%;
-    max-width: none;
-    max-height: 0;
-    margin: 0;
-    padding: 0 18px;
-    overflow: hidden;
-    opacity: 0;
-    background: #070707;
-    border-bottom: 0;
-    box-shadow: none;
-    transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
-  }
-  body.entry .life-sheet.open {
-    max-height: min(70vh, 640px);
-    opacity: 1;
-    padding: 12px 18px max(20px, env(safe-area-inset-bottom));
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    border-bottom: 1px solid rgba(243,238,230,0.12);
-    box-shadow: 0 20px 28px 6px rgba(7,7,7,0.88);
-    flex: none;
-    height: auto;
-  }
-  /* Open lore no longer full-bleed side sheet; keep hero topbar usable. */
-  body.entry:has(.life-sheet.open) .topbar {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  body.entry .life-dock:has(.life-sheet.open) {
-    top: 0;
-    padding: 0;
-    height: auto;
-    background: none;
-  }
-  body.entry .life-dock:has(.life-sheet.open)::after { display: none; content: none; }
-}
+
+
+
+
 
 
 /* ---- Phone: secondary dropdowns use regular #section-bar chrome (secbar1) ----
@@ -3364,28 +3152,10 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
   }
   .toc-drop[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
 
-  /* Figure Lore: same secondary-nav language as #section-bar a. */
-  body.entry .life-dock .life-toggle {
-    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
-    background: #070707;
-    color: #8f8a82;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    gap: 8px;
-  }
-  body.entry .life-dock:has(.life-sheet.open) .life-toggle {
-    color: #f3eee6;
-    background: #070707;
-  }
-  body.entry .life-dock .life-toggle::after {
-    width: 5px;
-    height: 5px;
-    transform: translateY(-1px) rotate(45deg);
-  }
-  body.entry .life-dock:has(.life-sheet.open) .life-toggle::after {
-    transform: translateY(1px) rotate(-135deg);
-  }
+
+
+
+
 }
 
 /* ---- Phone hard-kill: never a left full-height Categories panel (railkill1) ----
@@ -3422,10 +3192,10 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
   }
 }
 
-/* ---- Phone chrome stack art67 (articles + figures + safe-area flush) ----
+/* ---- Phone chrome stack art67 (articles + safe-area flush) ----
    - Hard opaque #070707 mast flush to screen top (safe-area padding ON the mast).
-   - Page-name mark (JS sets seal link text); Gallery link stays hidden (3234aba).
-   - Three equidistant rows; figures get the same stack with Lore as row 3.
+   - Page-name mark (JS sets seal link text).
+   - Three equidistant rows.
    - Desktop untouched. */
 html, body {
   background: #070707;
@@ -3473,15 +3243,7 @@ html, body {
     background-image: none !important;
   }
 
-  /* Keep Gallery hidden even when filter links are forced inline-flex for tap size. */
-  nav.filters > a[href$="index.html"],
-  .mast .topbar .filters a[href$="index.html"],
-  body.article .mast .topbar .filters a[href$="index.html"],
-  body.entry .mast .topbar .filters a[href$="index.html"],
-  body.index-page .mast .topbar .filters a[href$="index.html"],
-  body.journal-page .mast .topbar .filters a[href$="index.html"] {
-    display: none !important;
-  }
+
 
   /* ----- Articles ----- */
   body.article .mast {
@@ -3526,13 +3288,11 @@ html, body {
     text-transform: uppercase !important;
     color: #f3eee6 !important;
   }
-  /* Phone article/figure: page name only in the title row (not seal friend chips). */
-  body.article .mast .topbar > .mark > .friend,
-  body.entry .mast .topbar > .mark > .friend {
+  /* Phone article: page name only in the title row (not seal friend chips). */
+  body.article .mast .topbar > .mark > .friend{
     display: none !important;
   }
-  body.article .mast .topbar > .mark > .seal-logout,
-  body.entry .mast .topbar > .mark > .seal-logout {
+  body.article .mast .topbar > .mark > .seal-logout{
     display: none !important;
   }
   body.article .mast .topbar .filters {
@@ -3599,283 +3359,36 @@ html, body {
     display: none !important;
   }
 
-  /* ----- Figures: same solid chrome stack; Lore is row 3 ----- */
-  body.entry .mast {
-    display: block !important;
-    padding-bottom: 0 !important;
-    overflow: visible;
-  }
-  body.entry .mast .topbar {
-    position: relative !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding-top: 8px !important;
-    padding-bottom: 6px !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    background: #070707 !important;
-    background-color: #070707 !important;
-    background-image: none !important;
-    box-sizing: border-box !important;
-  }
-  body.entry .mast .topbar > .mark {
-    position: static !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    min-height: 44px !important;
-    height: 44px !important;
-    margin: 0 !important;
-  }
-  body.entry .mast .topbar > .mark > a[href$="seal.html"] {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 11px !important;
-    letter-spacing: 0.16em !important;
-    text-transform: uppercase !important;
-    color: #f3eee6 !important;
-  }
-  body.entry .mast .topbar .filters {
-    position: static !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    max-width: none !important;
-    min-height: 44px !important;
-    height: 44px !important;
-    margin: 0 !important;
-    padding: 0 8px !important;
-    background: #070707 !important;
-  }
-  body.entry .mast .topbar .filters a {
-    min-height: 44px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-  }
-  body.entry .mast .topbar > form {
-    position: absolute !important;
-    left: -9999px !important;
-    width: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    opacity: 0 !important;
-  }
-  /* Mast already has a text Full button — hide it; SVG fit lives in the mini tools row. */
-  body.entry .mast .topbar > .fit-toggle {
-    display: none !important;
-  }
-  /* Hide the old cinematic overlay topbar; Gallery + fit move to mini tools under chrome. */
-  body.entry > header.topbar {
-    position: fixed !important;
-    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)) !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 35 !important;
-    height: 36px !important;
-    min-height: 36px !important;
-    margin: 0 !important;
-    padding: 0 12px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    background: transparent !important;
-    background-image: none !important;
-    pointer-events: none;
-  }
-  body.entry > header.topbar > a,
-  body.entry > header.topbar > .fit-toggle,
-  body.entry > header.topbar > #fit {
-    pointer-events: auto;
-    position: static !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    font-size: 11px !important;
-    font-weight: 400 !important;
-    letter-spacing: 0.12em !important;
-    text-transform: uppercase !important;
-    color: #8f8a82 !important;
-    -webkit-text-fill-color: #8f8a82 !important;
-    -webkit-text-stroke: 0 !important;
-    text-shadow: none !important;
-    opacity: 0.9 !important;
-    min-height: 36px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-  }
-  body.entry > header.topbar > .fit-toggle,
-  body.entry > header.topbar > #fit {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    color: #8f8a82 !important;
-  }
-  body.entry > header.topbar > .fit-toggle svg,
-  body.entry > header.topbar > #fit svg {
-    width: 14px !important;
-    height: 14px !important;
-    stroke: currentColor !important;
-  }
-  /* Row 3 Lore: hard opaque secondary bar under mast (same geometry as Categories). */
-  body.entry .life-dock {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: auto !important;
-    width: 100% !important;
-    height: 0 !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    z-index: 40 !important;
-    pointer-events: none !important;
-    background: none !important;
-  }
-  body.entry .life-dock .life-toggle {
-    pointer-events: auto !important;
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px)) !important;
-    z-index: 40 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-height: 44px !important;
-    height: 44px !important;
-    margin: 0 !important;
-    padding: 0 6px !important;
-    box-sizing: border-box !important;
-    background: #070707 !important;
-    background-color: #070707 !important;
-    background-image: none !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    color: #8f8a82 !important;
-    -webkit-text-fill-color: #8f8a82 !important;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-    font-size: 11px !important;
-    font-weight: 400 !important;
-    letter-spacing: 0.08em !important;
-    text-transform: uppercase !important;
-    line-height: 1 !important;
-  }
-  body.entry .life-dock:has(.life-sheet.open) .life-toggle {
-    color: #f3eee6 !important;
-    -webkit-text-fill-color: #f3eee6 !important;
-    background: #070707 !important;
-  }
-  body.entry .life-dock .life-toggle::after {
-    content: "" !important;
-    width: 5px !important;
-    height: 5px !important;
-    border-right: 1px solid currentColor !important;
-    border-bottom: 1px solid currentColor !important;
-    opacity: 0.65 !important;
-    transform: translateY(-1px) rotate(45deg) !important;
-  }
-  body.entry .life-dock:has(.life-sheet.open) .life-toggle::after {
-    transform: translateY(1px) rotate(-135deg) !important;
-  }
-  body.entry .life-sheet {
-    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)) !important;
-    background: #070707 !important;
-  }
-  body.entry .life-sheet.open {
-    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)) !important;
-  }
-  /* Veil under Lore bar when closed (content fades, bar stays hard). */
-  body.entry .life-dock .life-toggle::before {
-    content: "";
-    display: block;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 100%;
-    height: 24px;
-    pointer-events: none;
-    z-index: 1;
-    background: linear-gradient(to bottom, rgba(7,7,7,0.72) 0%, rgba(7,7,7,0.32) 45%, rgba(7,7,7,0) 100%);
-  }
-  body.entry .life-dock:has(.life-sheet.open) .life-toggle::before {
-    display: none;
-    content: none;
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
-/* ---- Phone figure mast type = article chrome (art68) ----
-   .entry .topbar a / figure-lore cinematic styles were bleeding onto the now-visible
-   .mast .topbar links (bold white + text-shadow halos). Match article nav exactly. */
-@media (max-width: 800px) {
-  body.entry .mast .topbar,
-  body.entry .mast .topbar a,
-  body.entry .mast .topbar .filters a,
-  body.entry .mast .topbar > .mark > a[href$="seal.html"] {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-    font-size: 11px !important;
-    font-weight: 400 !important;
-    letter-spacing: 0.05em !important;
-    text-transform: uppercase !important;
-    line-height: 1 !important;
-    color: #8f8a82 !important;
-    -webkit-text-fill-color: #8f8a82 !important;
-    -webkit-text-stroke: 0 !important;
-    text-shadow: none !important;
-    background: none !important;
-    background-color: transparent !important;
-    filter: none !important;
-    box-shadow: none !important;
-  }
-  /* Title row (page name) stays the brighter mark color like articles. */
-  body.entry .mast .topbar > .mark > a[href$="seal.html"] {
-    color: #f3eee6 !important;
-    -webkit-text-fill-color: #f3eee6 !important;
-    letter-spacing: 0.16em !important;
-    font-weight: 400 !important;
-  }
-  body.entry .mast .topbar .filters a.active {
-    color: #f3eee6 !important;
-    -webkit-text-fill-color: #f3eee6 !important;
-    font-weight: 400 !important;
-  }
-  /* Middot separators stay muted (not glowing). */
-  body.entry .mast .topbar .filters a + a::before {
-    color: #5c5852 !important;
-    text-shadow: none !important;
-    -webkit-text-fill-color: #5c5852 !important;
-  }
-  /* Lore secondary row already #8f8a82; kill any leftover cinematic weight/shadow. */
-  body.entry .life-dock .life-toggle {
-    font-weight: 400 !important;
-    letter-spacing: 0.08em !important;
-    font-size: 11px !important;
-    text-shadow: none !important;
-    -webkit-text-stroke: 0 !important;
-    filter: none !important;
-  }
-}
 
 /* ---- Phone chrome pin lock (art69) ----
    Keep mast + secondary bar flush at top:0 for the whole scroll.
    Root cause: translateZ(0) on .mast made iOS promote a compositor layer that
    lagged / left a gap when the Safari toolbar collapsed; absolute ::before
    moved with that layer. Also overflow-x on html+body detaches fixed.
-   Fix: no transform on chrome; fixed upward #070707 curtain; article/figure
+   Fix: no transform on chrome; fixed upward #070707 curtain; article
    secondary bars stay fixed; Index/journal secondary stays sticky in-flow. */
 @media (max-width: 800px) {
   html {
@@ -3888,7 +3401,6 @@ html, body {
     background-color: #070707 !important;
   }
   body.article,
-  body.entry,
   body.index-page,
   body.journal-page,
   body.journal-flow,
@@ -3900,7 +3412,6 @@ html, body {
 
   .mast,
   body.article .mast,
-  body.entry .mast,
   body.index-page .mast,
   body.journal-page .mast,
   body.atlas-page .mast,
@@ -3925,8 +3436,7 @@ html, body {
     z-index: 40 !important;
   }
   .mast::before,
-  body.article .mast::before,
-  body.entry .mast::before {
+  body.article .mast::before{
     content: "" !important;
     display: block !important;
     position: fixed !important;
@@ -3943,8 +3453,7 @@ html, body {
     transform: none !important;
   }
   .mast .topbar,
-  body.article .mast .topbar,
-  body.entry .mast .topbar {
+  body.article .mast .topbar{
     -webkit-transform: none !important;
     transform: none !important;
     background: #070707 !important;
@@ -3964,18 +3473,7 @@ html, body {
     -webkit-transform: none !important;
     transform: none !important;
   }
-  /* Figure Lore row: same. */
-  body.entry .life-dock .life-toggle {
-    position: fixed !important;
-    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px)) !important;
-    left: 0 !important;
-    right: 0 !important;
-    background: #070707 !important;
-    background-color: #070707 !important;
-    -webkit-transform: none !important;
-    transform: none !important;
-    z-index: 40 !important;
-  }
+
   /* Index / Journal / Atlas-Codex: keep sticky/in-flow secondary; just harden paint. */
   body.index-page #section-bar,
   body.journal-flow #section-bar,
@@ -4006,7 +3504,6 @@ html, body {
   /* Mast paddings + row heights (all pages with phone mast). */
   .mast .topbar,
   body.article .mast .topbar,
-  body.entry .mast .topbar,
   body.journal-page .mast .topbar,
   body.index-page .mast .topbar {
     padding-top: var(--phone-mast-pad-y) !important;
@@ -4020,21 +3517,18 @@ html, body {
   .mast .topbar > .mark,
   .mast .topbar > a[href$="seal.html"],
   body.article .mast .topbar > .mark,
-  body.entry .mast .topbar > .mark,
   body.journal-page .mast .topbar > .mark {
     min-height: var(--phone-mast-row) !important;
     height: var(--phone-mast-row) !important;
   }
   .mast .topbar .filters,
   body.article .mast .topbar .filters,
-  body.entry .mast .topbar .filters,
   body.journal-page .mast .topbar .filters {
     min-height: var(--phone-mast-row) !important;
     height: var(--phone-mast-row) !important;
   }
   .mast .topbar .filters a,
   body.article .mast .topbar .filters a,
-  body.entry .mast .topbar .filters a,
   .seek-glyph {
     min-height: var(--phone-mast-row) !important;
     height: var(--phone-mast-row) !important;
@@ -4058,8 +3552,8 @@ html, body {
   }
   .seek-glyph svg { width: 14px !important; height: 14px !important; }
 
-  /* Body clearance under fixed mast (Index / Gallery / Atlas / Codex / Journal). */
-  body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
+  /* Body clearance under fixed mast (Index / Atlas / Codex / Journal). */
+  body:not(.article):not([hidden]):not(.journal-page):not(.seal-page) {
     padding-top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
   }
   body.journal-page:not(.article) {
@@ -4101,21 +3595,9 @@ html, body {
     height: var(--phone-sec-h) !important;
     min-height: var(--phone-sec-h) !important;
   }
-  /* Figure Lore row. */
-  body.entry .life-dock .life-toggle {
-    top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
-    min-height: var(--phone-sec-h) !important;
-    height: var(--phone-sec-h) !important;
-  }
-  body.entry > header.topbar {
-    top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px)) !important;
-    height: 32px !important;
-    min-height: 32px !important;
-  }
-  body.entry .life-sheet,
-  body.entry .life-sheet.open {
-    top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px)) !important;
-  }
+
+
+
 
   /* Dropdown panels under stack. */
   body.article .art-index {
@@ -4166,7 +3648,6 @@ html, body {
   /* Curtain: only ABOVE the screen. Never cover title glyphs. */
   .mast::before,
   body.article .mast::before,
-  body.entry .mast::before,
   body.index-page .mast::before,
   body.journal-page .mast::before {
     top: -100vh !important;
@@ -4184,7 +3665,6 @@ html, body {
 
   .mast .topbar,
   body.article .mast .topbar,
-  body.entry .mast .topbar,
   body.journal-page .mast .topbar,
   body.index-page .mast .topbar {
     padding-top: 0 !important;
@@ -4202,7 +3682,6 @@ html, body {
   .mast .topbar > .mark,
   .mast .topbar > a[href$="seal.html"],
   body.article .mast .topbar > .mark,
-  body.entry .mast .topbar > .mark,
   body.journal-page .mast .topbar > .mark {
     min-height: var(--phone-mast-row) !important;
     height: var(--phone-mast-row) !important;
@@ -4220,8 +3699,7 @@ html, body {
     transform: none !important;
   }
   .mast .topbar > .mark > a[href$="seal.html"],
-  body.article .mast .topbar > .mark > a[href$="seal.html"],
-  body.entry .mast .topbar > .mark > a[href$="seal.html"] {
+  body.article .mast .topbar > .mark > a[href$="seal.html"]{
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -4240,7 +3718,6 @@ html, body {
   }
   .mast .topbar .filters,
   body.article .mast .topbar .filters,
-  body.entry .mast .topbar .filters,
   body.journal-page .mast .topbar .filters {
     min-height: var(--phone-mast-row) !important;
     height: var(--phone-mast-row) !important;
@@ -4270,14 +3747,12 @@ html, body {
   #section-bar,
   body.article #section-bar,
   body.index-page #section-bar,
-  body.journal-flow #section-bar,
-  body.entry .life-dock .life-toggle {
+  body.journal-flow #section-bar{
     min-height: var(--phone-sec-h) !important;
     height: var(--phone-sec-h) !important;
   }
   #section-bar a,
-  #section-bar .sec-toggle,
-  body.entry .life-dock .life-toggle {
+  #section-bar .sec-toggle{
     min-height: var(--phone-sec-h) !important;
     height: var(--phone-sec-h) !important;
     display: inline-flex !important;
@@ -4293,7 +3768,6 @@ html, body {
   /* Prefer locked sat; fall back to env before JS runs. */
   .mast,
   body.article .mast,
-  body.entry .mast,
   body.index-page .mast,
   body.journal-page .mast,
   body.atlas-page .mast,
@@ -4307,12 +3781,10 @@ html, body {
   }
   .mast .topbar,
   body.article .mast .topbar,
-  body.entry .mast .topbar,
   #section-bar,
   body.article #section-bar,
   body.index-page #section-bar,
   body.journal-flow #section-bar,
-  body.entry .life-dock .life-toggle,
   .mast::before,
   .mast::after,
   #section-bar::after,
@@ -4326,7 +3798,6 @@ html, body {
   /* Curtain: huge fixed plate above y=0 — not tied to vh (toolbar collapse). */
   .mast::before,
   body.article .mast::before,
-  body.entry .mast::before,
   body.index-page .mast::before,
   body.journal-page .mast::before {
     top: -200vmax !important;
@@ -4338,7 +3809,6 @@ html, body {
 
   /* Geometry uses locked sat so first-scroll toolbar hide cannot jump the bar. */
   body.article #section-bar,
-  body.entry .life-dock .life-toggle,
   body.index-page #section-bar,
   body.journal-flow #section-bar,
   body.journal-page #section-bar,
@@ -4348,13 +3818,10 @@ html, body {
   }
   body.article .art-index,
   body.index-page aside.toc.index-toc,
-  body.journal-flow aside.toc:has(> .toc-drop),
-  body.entry .life-sheet,
-  body.entry .life-sheet.open,
-  body.entry > header.topbar {
+  body.journal-flow aside.toc:has(> .toc-drop){
     top: calc(var(--phone-stack-h, 116px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
   }
-  body:not(.article):not(.entry):not(.journal-page):not(.seal-page),
+  body:not(.article):not([hidden]):not(.journal-page):not(.seal-page),
   body.journal-page:not(.article) {
     padding-top: calc(var(--phone-mast-h, 80px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
   }
@@ -4363,7 +3830,7 @@ html, body {
   }
 
   /* Veil stays under chrome only — never animate onto the bar. */
-  body:not(.entry) .mast::after,
+  body:not([hidden]) .mast::after,
   #section-bar:has(a)::after,
   #section-bar.show::after,
   body.has-section-bar #section-bar::after,
@@ -4401,7 +3868,6 @@ html, body {
   /* Chrome: plain opaque; isolate so ancestors/overlays cannot re-blend it. */
   .mast,
   body.article .mast,
-  body.entry .mast,
   body.index-page .mast,
   body.journal-page .mast,
   .mast .topbar,
@@ -4409,8 +3875,7 @@ html, body {
   #section-bar,
   body.article #section-bar,
   body.index-page #section-bar,
-  body.journal-flow #section-bar,
-  body.entry .life-dock .life-toggle {
+  body.journal-flow #section-bar{
     isolation: isolate !important;
     opacity: 1 !important;
     filter: none !important;
@@ -4424,7 +3889,7 @@ html, body {
 
   /* Content veil (::after under chrome) stays, but never blends/filters and
      never covers the bar (still top:100% of the bar box). */
-  body:not(.entry) .mast::after,
+  body:not([hidden]) .mast::after,
   #section-bar:has(a)::after,
   #section-bar.show::after,
   body.has-section-bar #section-bar::after,
@@ -4463,13 +3928,11 @@ html, body {
   .sheet.show-bar,
   .index-list.show-bar,
   .wall.show-bar,
-  .lore-rail .codex-toc.show-bar,
-  .life-sheet.show-bar {
+  .lore-rail .codex-toc.show-bar{
     scrollbar-color: transparent transparent !important;
   }
   .sheet.show-bar::-webkit-scrollbar-thumb,
-  .index-list.show-bar::-webkit-scrollbar-thumb,
-  .life-sheet.show-bar::-webkit-scrollbar-thumb {
+  .index-list.show-bar::-webkit-scrollbar-thumb{
     background: transparent !important;
   }
 
@@ -5143,7 +4606,7 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
    mask-clip:no-clip so column veils that overflow main keep their soft edges. */
 .mast::after,
 body .mast::after,
-body:not(.entry) .mast::after,
+body:not([hidden]) .mast::after,
 #section-bar::after,
 #section-bar:has(a)::after,
 #section-bar.show::after,

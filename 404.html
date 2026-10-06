@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Not found - Elorae</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg">
+<script>
+/* Old Gallery (/gallery/<slug>.html) and figure (/figures/<slug>.html) pages were retired
+   in art96; send them to the matching article. Anything else falls through to the Index link. */
+(function () {
+  if (/^\/(?:gallery|figures)\/?(?:index\.html)?$/i.test(location.pathname)) { location.replace("/index/ancients.html"); return; }
+  var m = location.pathname.match(/\/(?:gallery|figures)\/([^\/?#]+?)(?:\.html)?\/?$/i);
+  if (!m) return;
+  var slug = decodeURIComponent(m[1]).toLowerCase();
+  var map = {
+    "aszurithice-human": "aszurithice",
+    "heldranc-flies": "heldranc", "heldranc-human": "heldranc",
+    "kojin-redroot": "kojin",
+    "ashforge-kuroishi": "kuroishi",
+    "montmorian-alabaster": "montmorian", "montmorian-chamber": "montmorian", "montmorian-rages": "montmorian",
+    "nyralshirad-human": "nyralshirad",
+    "pethengorom-fate": "pethengorom", "pethengorom-human": "pethengorom",
+    "salaseth-ii": "salaseth",
+    "saoirse-canyon": "saoirse",
+    "vaerek-at-ease": "vaerek", "vaerek-heldranc": "vaerek"
+  };
+  var known = ["aghor","aszurithice","auralon","baiji","bel-harath","cadarinost-falls","caurobor","curse-of-olesh","cursed-of-olesh","darmstadt","elraim","filibeth","galand-helviath","haethlin-dream","haethlin","hanto-han","heldranc","hesk","imani-valash","ito-gangara","kojin","kuroishi","maegoroth","mano","mintas-fae","montmorian","nyralshirad","perstrin-naba","pethengorom","phantom-cavern","rathalon","revenant-host","salaseth","saoirse","sen-teloch-ini","silar-scorria","sthistu","telorin","vaerek","vallorca","vehem-adahr","vorn","yena","yuo-nanaga"];
+  var target = map[slug] || slug;
+  if (known.indexOf(target) === -1) return;
+  location.replace("/articles/" + target + ".html");
+})();
+</script>
+<style>
+html, body { background: #070707; color: #f3eee6; margin: 0; }
+body { font: 15px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; padding: 48px 24px; }
+h1 { font: 400 28px/1.2 "Iowan Old Style", Palatino, serif; margin: 0 0 12px; }
+a { color: #f3eee6; }
+</style>
+</head>
+<body>
+<h1>Not found</h1>
+<p>This page doesn&rsquo;t exist. Browse everything from the <a href="/index/ancients.html">Index</a>.</p>
+</body>
+</html>
