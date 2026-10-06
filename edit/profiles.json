@@ -1,5 +1,5 @@
 {
-  "_readme": "Edit-mode profiles, keyed by GitHub login. This file drives the in-browser UI; the edit-guard workflow enforces it server-side. Only admins may change it. 'person' links a login to the site's friend slugs (devin, jack, jon, julie, sawyer). 'role': 'admin' = whole site incl. edit/**; 'editor' = only the listed paths; 'viewer' = nothing. HARD CEILING: non-admins may only ever edit article pages (articles/*.html). Any non-admin rule outside articles/ (figures/, gallery/, codex/, journal, '**', 'articles/**') is ignored by the editor and rejected by the guard, whatever this file says. permissions: exact article paths, or 'articles/*.html' for every article; 'view' = read-only. save: 'direct' (commit to main) or 'pr' (branch + pull request, default for non-admins). Keys in angle brackets are placeholders: replace them with the person's real GitHub login (logins can never contain < or >, so placeholders match nobody). Keys starting with '_' are ignored. 'characters' is informational. Telorin has no article page (only figures/telorin.html), so Jon has no editable Telorin page until articles/telorin.html exists.",
+  "_readme": "Edit-mode profiles, keyed by GitHub login. This file drives the in-browser UI; the edit-guard workflow enforces it server-side. Only admins may change it. 'person' links a login to the site's friend slugs (devin, jack, jon, julie, sawyer). 'role': 'admin' = whole site incl. edit/**; 'editor' = only the listed paths; 'viewer' = nothing. HARD CEILING: non-admins may only ever edit article pages (articles/*.html). Any non-admin rule outside articles/ (codex/, journal, index, '**', 'articles/**', ...) is ignored by the editor and rejected by the guard, whatever this file says. permissions: exact article paths, or 'articles/*.html' for every article; 'view' = read-only. save: 'direct' (commit to main) or 'pr' (branch + pull request, default for non-admins). Keys in angle brackets are placeholders: replace them with the person's real GitHub login (logins can never contain < or >, so placeholders match nobody). Keys starting with '_' are ignored. 'characters' is informational.",
   "repo": "195142095142091920/elorae",
   "profiles": {
     "195142095142091920": {
@@ -33,12 +33,13 @@
       "person": "jon",
       "role": "editor",
       "permissions": [
-        "articles/silar-scorria.html"
+        "articles/silar-scorria.html",
+        "articles/telorin.html"
       ],
       "save": "pr",
       "characters": [
         "Silar Scorria",
-        "Telorin (no article page yet, so nothing editable until articles/telorin.html exists)"
+        "Telorin"
       ]
     },
     "<jack-github-login>": {

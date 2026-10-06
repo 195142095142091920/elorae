@@ -67,7 +67,7 @@
   function open(man, id) {
     var sec = man.secrets[id];
     if (!sec) return show('<p class="ee-note">Nothing here.</p>');
-    if (sec.status !== "encrypted") return show('<p class="ee-note">This page has not been moved into the encrypted vault yet.</p>');
+    if (sec.status !== "encrypted") return show('<p class="ee-note">This page has not been encrypted yet.</p>');
     var mine = V.myKey.get();
     return V.myKey.privateKey().then(function (priv) {
       return V.contentKey(man, id, mine && mine.person, priv);

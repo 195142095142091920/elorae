@@ -18,12 +18,13 @@ const REPO = "195142095142091920/elorae";
 const results = [];
 function check(name, ok, detail) { results.push({ name, ok: !!ok, detail }); console.log((ok ? "PASS " : "FAIL ") + name + (detail ? "  — " + detail : "")); }
 
-const TOKENS = { "github_pat_jonfg": "jon-gh", "ghp_test_broad": "arts-gh", "ghp_test_noscope": "arts-gh", "ghp_test_notcollab": "newbie-gh", "ghp_test_devin": "devin-gh", "ghp_test_sawyer": "sawyer-gh", "ghp_test_julie": "julie-gh", "ghp_test_arts": "arts-gh", "ghp_test_viewer": "viewer-gh" };
+const TOKENS = { "github_pat_jonfg": "jon-gh", "ghp_test_broad": "arts-gh", "ghp_test_noscope": "arts-gh", "ghp_test_notcollab": "newbie-gh", "ghp_test_devin": "devin-gh", "ghp_test_sawyer": "sawyer-gh", "ghp_test_julie": "julie-gh", "ghp_test_arts": "arts-gh", "ghp_test_viewer": "viewer-gh", "ghp_test_jon": "jon-gh" };
 const PROFILES = { repo: REPO, profiles: {
   "devin-gh": { name: "Devin", person: "devin", role: "admin", title: "GM", permissions: ["**"], save: "direct" },
-  // Sawyer's profile deliberately over-reaches: the figures/gallery rules must be ignored (ceiling).
-  "sawyer-gh": { name: "Sawyer", person: "sawyer", role: "editor", permissions: ["articles/vaerek.html", "figures/vaerek-at-ease.html", "gallery/vaerek-at-ease.html"], save: "pr" },
-  "julie-gh": { name: "Julie", person: "julie", role: "editor", permissions: ["articles/saoirse.html", "figures/**", "gallery/**", "**"], save: "pr" },
+  // Sawyer's and Julie's profiles deliberately over-reach: rules outside articles/ must be ignored (ceiling).
+  "sawyer-gh": { name: "Sawyer", person: "sawyer", role: "editor", permissions: ["articles/vaerek.html", "index/ancients.html", "codex/lore.html"], save: "pr" },
+  "julie-gh": { name: "Julie", person: "julie", role: "editor", permissions: ["articles/saoirse.html", "index/**", "codex/**", "**"], save: "pr" },
+  "jon-gh": { name: "Jon", person: "jon", role: "editor", permissions: ["articles/silar-scorria.html", "articles/telorin.html"], save: "pr" },
   "arts-gh": { name: "Articles editor", role: "editor", permissions: ["articles/*.html", "codex/**"], save: "direct" },
   "viewer-gh": { name: "Viewer", role: "viewer", permissions: "view" } } };
 
@@ -69,7 +70,7 @@ async function signInViaPanel(page, token) {
         const page = await ctx.newPage();
         const reqs = [];
         page.on("request", (q) => reqs.push(q.url()));
-        for (const p of ["index.html", "index/ancients.html", "articles/vaerek.html", "codex/lore.html", "journal.html", "figures/yena.html"]) {
+        for (const p of ["index.html", "index/ancients.html", "articles/vaerek.html", "codex/lore.html", "journal.html", "articles/yena.html", "articles/telorin.html"]) {
           reqs.length = 0;
           await page.goto(BASE + p, { waitUntil: "networkidle" });
           const info = await page.evaluate(() => ({
@@ -89,7 +90,7 @@ async function signInViaPanel(page, token) {
       const mock = newMock();
       const ctx = await ctxFor(browser, mock);
       const page = await ctx.newPage();
-      const files = require("child_process").execFileSync("git", ["grep", "-l", "edit/edit.js", "--", "*.html"], { cwd: ROOT, encoding: "utf8" }).split("\n").filter((f) => /^(articles|codex|figures)\/|^journal\.html$/.test(f));
+      const files = require("child_process").execFileSync("git", ["grep", "-l", "edit/edit.js", "--", "*.html"], { cwd: ROOT, encoding: "utf8" }).split("\n").filter((f) => /^(articles|codex|index)\/|^journal\.html$/.test(f));
       let bad = [];
       for (const f of files) {
         await page.goto(BASE + f, { waitUntil: "load" });
@@ -346,9 +347,11 @@ async function signInViaPanel(page, token) {
     {
       const mock = newMock();
       const cases = [
-        ["ghp_test_sawyer", "sawyer-gh", ["figures/vaerek-at-ease.html", "figures/vaerek-heldranc.html", "gallery/vaerek-at-ease.html", "gallery/vaerek-heldranc.html", "index.html", "journal.html"], "articles/vaerek.html"],
-        ["ghp_test_julie", "julie-gh", ["figures/saoirse.html", "figures/saoirse-canyon.html", "gallery/saoirse.html", "gallery/saoirse-canyon.html", "codex/lore.html", "index.html"], "articles/saoirse.html"],
-        ["ghp_test_arts", "arts-gh", ["codex/lore.html", "figures/aghor.html", "gallery/yena.html"], "articles/kojin.html"]
+        ["ghp_test_sawyer", "sawyer-gh", ["index/ancients.html", "codex/lore.html", "atlas/hesk.html", "journal.html", "articles/saoirse.html", "articles/yena.html"], "articles/vaerek.html"],
+        ["ghp_test_julie", "julie-gh", ["index/ancients.html", "codex/magics.html", "articles/vaerek.html", "articles/telorin.html", "articles/darmstadt.html"], "articles/saoirse.html"],
+        ["ghp_test_jon", "jon-gh", ["articles/vaerek.html", "articles/bel-harath.html", "index/ancients.html"], "articles/silar-scorria.html"],
+        ["ghp_test_jon", "jon-gh", [], "articles/telorin.html"],
+        ["ghp_test_arts", "arts-gh", ["index/ancients.html", "journal.html"], "articles/kojin.html"]
       ];
       for (const [tok, login, refused, allowed] of cases) {
         const ctx = await ctxFor(browser, mock, { init: sessionInit(tok, login) });
@@ -365,7 +368,7 @@ async function signInViaPanel(page, token) {
         const g = !!(await page.$("#ee-glyph"));
         const note = await page.textContent("#ee-body");
         check(`ceiling: ${login} still gets EDIT on ${allowed}`, g, note.replace(/\s+/g, " ").slice(0, 160));
-        if (login !== "arts-gh") check(`ceiling: ${login}'s out-of-articles rules are shown as ignored`, /players can only edit articles/i.test(note));
+        if (login === "sawyer-gh" || login === "julie-gh") check(`ceiling: ${login}'s out-of-articles rules are shown as ignored`, /players can only edit articles/i.test(note));
         await ctx.close();
       }
     }
@@ -449,6 +452,9 @@ async function signInViaPanel(page, token) {
       await page.waitForSelector("#ee-enroll", { timeout: 10000 });
       const rows = await page.$$eval("tr[data-row]", (t) => t.length);
       check("dashboard (Devin): lists all 12 secrets", rows === 12, `rows=${rows}`);
+      const links = await page.$$eval("tr[data-row]", (t) => t.map((r) => [r.dataset.row, r.querySelector(".ee-t a").getAttribute("href"), r.querySelector(".ee-t a").href]));
+      const ids = Object.keys(JSON.parse(fs.readFileSync(path.join(ROOT, "edit/visibility.json"), "utf8")).secrets);
+      check("dashboard: each of the 12 links to its sealed article ../articles/<id>.html (file exists)", links.length === 12 && links.every(([id, h, abs]) => h === "../articles/" + id + ".html" && abs === BASE + "articles/" + id + ".html" && fs.existsSync(path.join(ROOT, "articles", id + ".html"))) && ids.every((id) => links.some((l) => l[0] === id)), links.map((l) => l[1]).join(" "));
       await page.fill("#ee-p1", pass.devin); await page.fill("#ee-p2", pass.devin);
       await page.click("#ee-enroll button");
       await page.waitForFunction(() => /Key created/.test((document.getElementById("ee-msg") || {}).textContent || ""), null, { timeout: 30000 });
@@ -465,7 +471,7 @@ async function signInViaPanel(page, token) {
       check("encrypt yena: one [edit-mode] commit with visibility.json + secrets/yena.json", enc && /\[edit-mode\]$/.test(enc.committed.message) && mock.file("edit/secrets/yena.json") && JSON.parse(mock.file("edit/visibility.json")).secrets.yena.status === "encrypted", enc && enc.committed.message);
       const secFile = mock.file("edit/secrets/yena.json");
       const sf = JSON.parse(secFile), ctBytes = Buffer.from(sf.ct, "base64");
-      check("encrypted payload: only {v,id,epoch,alg,iv,ct}; ciphertext contains no plaintext caption/HTML/image bytes", Object.keys(sf).sort().join() === "alg,ct,epoch,id,iv,v" && !ctBytes.includes(Buffer.from("Vestige of the Dragon Soul")) && !ctBytes.includes(Buffer.from("<!doctype")) && !ctBytes.includes(Buffer.from("PNG")) && !secFile.includes("Vestige"), `${(secFile.length / 1e6).toFixed(1)} MB`);
+      check("encrypted payload: only {v,id,epoch,alg,iv,ct}; ciphertext contains no plaintext caption/HTML/image bytes", Object.keys(sf).sort().join() === "alg,ct,epoch,id,iv,v" && !ctBytes.includes(Buffer.from("Vestige of the Dragon Soul")) && !ctBytes.includes(Buffer.from("<!doctype")) && !ctBytes.includes(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) && !secFile.includes("Vestige"), `${(secFile.length / 1e6).toFixed(1)} MB`);
       await page.screenshot({ path: `${SHOTS}/dashboard-desktop.png`, fullPage: true });
 
       async function tryOpen(who, label) {
@@ -479,7 +485,8 @@ async function signInViaPanel(page, token) {
           await pg.click("#ee-f button[type=submit]");
         }
         let opened = false;
-        try { await pg.waitForFunction(() => document.querySelector(".title-block h1") && /Yena/.test(document.querySelector(".title-block h1").textContent), null, { timeout: 8000 }); opened = true; } catch (e) {}
+        // Opened = the Yena article rendered AND visible (the .sealed CSS gate must not hide it for a non-owner reader).
+        try { await pg.waitForFunction(() => { const h = document.querySelector(".art-title h1"), m = document.querySelector("main.art-body"); return h && /Yena/.test(h.textContent) && m && m.offsetHeight > 0 && h.offsetHeight > 0; }, null, { timeout: 8000 }); opened = true; } catch (e) {}
         const msg = opened ? "" : await pg.textContent("body");
         await c.close();
         return { opened, msg: msg.replace(/\s+/g, " ").trim().slice(0, 80) };
@@ -522,23 +529,23 @@ async function signInViaPanel(page, token) {
         const pg = await c.newPage();
         await pg.goto(url, { waitUntil: "networkidle" });
         if (await pg.$("#ee-pass")) { await pg.selectOption("#ee-person", "jack"); await pg.fill("#ee-pass", pass.jack); await pg.click("#ee-f button[type=submit]"); }
-        await pg.waitForFunction(() => document.querySelector(".title-block h1"), null, { timeout: 10000 });
+        await pg.waitForFunction(() => document.querySelector(".art-title h1"), null, { timeout: 10000 });
         await pg.waitForTimeout(4000);
         const buf = await pg.screenshot();
-        const dom = await pg.evaluate(() => { const b = document.body.cloneNode(true); b.querySelectorAll("img,[data-src],button[data-src]").forEach((i) => { i.removeAttribute("src"); i.removeAttribute("data-src"); }); b.querySelectorAll("canvas").forEach((c) => c.replaceWith(document.createElement("canvas"))); return b.outerHTML; });
+        const dom = await pg.evaluate(() => { const b = document.body.cloneNode(true); b.querySelectorAll(".art-hero.sealed, .art-body.sealed").forEach((e) => { e.classList.remove("sealed"); if (!e.className) e.removeAttribute("class"); }); b.querySelectorAll("img,[data-src],button[data-src]").forEach((i) => { i.removeAttribute("src"); i.removeAttribute("data-src"); }); b.querySelectorAll("canvas").forEach((c) => c.replaceWith(document.createElement("canvas"))); return b.outerHTML; });
         await c.close();
         buf.dom = dom;
         return buf;
       };
-      const a = await shot(BASE + "gallery/yena.html", sealInit("jack"));
-      const a2 = await shot(BASE + "gallery/yena.html", sealInit("jack"));
+      const a = await shot(BASE + "articles/yena.html", sealInit("jack"));
+      const a2 = await shot(BASE + "articles/yena.html", sealInit("jack"));
       const b2 = await shot(BASE + "edit/secret.html?id=yena", sealInit("jack"));
       fs.writeFileSync(`${SHOTS}/yena-original.png`, a); fs.writeFileSync(`${SHOTS}/yena-original-2.png`, a2); fs.writeFileSync(`${SHOTS}/yena-decrypted.png`, b2);
       // Pixel stats: [pixels differing at all, pixels differing by > 8/255, mean abs difference]
       const pxdiff = (x, y) => JSON.parse(require("child_process").execFileSync("python3", ["-c", "import sys,json;from PIL import Image;import numpy as n;a=n.asarray(Image.open(sys.argv[1]).convert('RGB')).astype(int);b=n.asarray(Image.open(sys.argv[2]).convert('RGB')).astype(int);d=abs(a-b).max(axis=2);print(json.dumps([int((d>0).sum()),int((d>8).sum()),float(d.mean())]))", x, y]).toString());
       const noise = pxdiff(`${SHOTS}/yena-original.png`, `${SHOTS}/yena-original-2.png`);
       const dd = pxdiff(`${SHOTS}/yena-original.png`, `${SHOTS}/yena-decrypted.png`);
-      check("decrypted Yena: same rendered DOM as the original gallery page (image URLs aside)", a.dom === b2.dom && a.dom === a2.dom);
+      check("decrypted Yena: same rendered DOM as the unlocked sealed article (image URLs and the .sealed gate class aside)", a.dom === b2.dom && a.dom === a2.dom);
       check("decrypted Yena: screenshot matches the original (within the page's own frame-to-frame noise)", dd[1] <= 0.001 * 1440 * 900 && dd[2] < 0.5, `orig vs decrypted: ${dd[0]} px differ, ${dd[1]} by >8/255, mean ${dd[2].toFixed(3)}; orig vs orig: ${noise[0]} px, ${noise[1]} by >8/255`);
     }
   } catch (e) {

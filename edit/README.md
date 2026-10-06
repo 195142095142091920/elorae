@@ -13,16 +13,17 @@ Nothing secret is committed. There are no passwords or tokens in the repo.
 |---|---|---|---|
 | Devin (GM) | `195142095142091920` (repo owner, assumed to be Devin) | admin, saves direct to `main` | whole site, `edit/**`, dashboard, all secrets |
 | Sawyer | `<sawyer-github-login>` | player (editor), saves as PR | Vaerek Rathkin: `articles/vaerek.html` |
-| Jon | `<jon-github-login>` | player (editor), saves as PR | Silar Scorria: `articles/silar-scorria.html`. Telorin has no article page (only `figures/telorin.html`), so Jon has **no editable Telorin page** until `articles/telorin.html` exists |
+| Jon | `<jon-github-login>` | player (editor), saves as PR | Silar Scorria: `articles/silar-scorria.html`; Telorin: `articles/telorin.html` |
 | Jack | `<jack-github-login>` | player (editor), saves as PR | Galand Helviath: `articles/galand-helviath.html` |
 | Julie | `<julie-github-login>` | player (editor), saves as PR | Saoirse: `articles/saoirse.html` |
 
 **Hard ceiling: players edit article pages only.** Every non-admin is capped at
-`articles/*.html` in code (`edit/perms.js`, used by both the editor and the guard). That covers
-`figures/`, `gallery/`, codex, journal, index and every other page, including the figure/gallery pages of
-a player's own character: no EDIT button there, and the guard rejects such commits. Any non-admin
-rule in `profiles.json` that reaches outside `articles/` (for example `figures/x.html`, `gallery/**`,
-`codex/**`, `**` or `articles/**`) is **ignored** by the editor, shown as "ignored" in the sign-in
+`articles/*.html` in code (`edit/perms.js`, used by both the editor and the guard). Codex, journal,
+the Index pages and every other page outside `articles/` are off-limits to players: no EDIT button
+there, and the guard rejects such commits. Within `articles/`, a player gets only the exact pages
+listed for them, so other characters' articles and the 12 sealed articles stay admin-only. Any non-admin
+rule in `profiles.json` that reaches outside `articles/` (for example `index/x.html`, `codex/**`,
+`**` or `articles/**`) is **ignored** by the editor, shown as "ignored" in the sign-in
 panel, and reported as a warning by the guard. Only `"role": "admin"` lifts the ceiling.
 
 Permission levels in `edit/profiles.json`:
@@ -33,7 +34,7 @@ Permission levels in `edit/profiles.json`:
 - `"permissions": "view"`: can sign in but can't edit anything.
 - `"save": "direct"` commits straight to `main`. `"save": "pr"` (the default for non-admins) creates a branch `edit/<login>/…` and opens a pull request.
 
-To let Jon edit Telorin's text, an admin first creates `articles/telorin.html`, then adds it to Jon's permissions.
+To give a player another article, an admin adds its exact path (for example `articles/telorin.html`) to their permissions.
 
 ### Add a person
 1. Get their GitHub login (exactly as shown on github.com/<login>).
@@ -73,7 +74,7 @@ requests: write, 90 days). The repository must be selected by hand: *Only select
 ## Editing
 Sign in, then click **EDIT** (bottom-right, only on pages you can edit; for players that means only
 their own article pages). Article text and dossier values become editable (for Devin, codex prose,
-journal text and figure lore too). Nav, headings, links lists and
+journal text and Index text too). Nav, headings, links lists and
 structure don't. **Save** works like this:
 
 1. GET `/repos/195142095142091920/elorae/contents/<path>?ref=main` to read the current source and its `sha`.
@@ -121,14 +122,16 @@ can be forged. Then:
 ## Visibility layer (secrets)
 Today, the 12 "sealed" pages (Bel Harath, Haethlin in the Dream, Ito Gangara, Vallorca, Yena (Jack's);
 Curse of Olesh, Cursed of Olesh, Darmstadt, Elraim, Imani Valash, Rathalon, Sen Teloch Ini (Devin's))
-are **public plaintext**. Their gallery and figure pages, images, `vault.js`, `search-index.js` and
-`index.html` tiles are all in the public repo. They are hidden only by CSS. The friend-door phrases
-are in `vault.js` and in a comment in `seal.js`. The SHA-256 hashes of one-word phrases can also be
-brute-forced instantly. That mechanism is a curtain, not a lock.
+are **public plaintext**. Each one is a sealed article, `articles/<id>.html`
+(`<main class="art-body sealed" data-owner=…>`), with its image in `assets/`, its `search-index.js`
+entry and its card in the Index **Sealed** category (`index/ancients.html`), all in the public repo.
+They are hidden only by CSS (`.sealed` + `seal.js`). The old friend-door phrases are in a comment in
+`seal.js`, and the SHA-256 hashes of one-word phrases can be brute-forced instantly anyway. That
+mechanism is a curtain, not a lock.
 
 The new layer gives real secrecy:
 
-- Each secret's page (HTML with images inlined) is encrypted with its own random **AES-256-GCM**
+- Each secret's sealed article (`visibility.json` `path`, HTML with images inlined) is encrypted with its own random **AES-256-GCM**
   content key and stored in `edit/secrets/<id>.json`.
 - Each person has an **RSA-OAEP-3072** keypair made in their own browser. `edit/visibility.json`
   stores their public key and their private key **encrypted with their passphrase**
@@ -154,16 +157,17 @@ The new layer gives real secrecy:
 
 ### Setup, Devin
 1. Sign in at `edit/dashboard.html` (or the DASHBOARD link) with your token.
-2. Create your vault key with your own passphrase. Next time, unlock it with that passphrase.
+2. Create your secrets key with your own passphrase. Next time, unlock it with that passphrase.
 3. Paste each person's enrollment code under **People → Add key**.
 4. **Encrypt** a secret, then use its toggles: *Everyone*, plus a checkbox per person. Each click is one
    `[edit-mode]` commit to `main` (visibility.json, plus the secret file when the key rotates).
 
 ### Migration status
 Encrypting a secret in the dashboard **adds** the encrypted copy and does not remove anything. The
-plaintext stays public until a separate, explicit cleanup removes or replaces `gallery/<id>.html`,
-`figures/<id>.html`, its `index.html` tile, its `search-index.js` entry, its `vault.js` entry and its image in
-`assets/`, and points the tile at `edit/secret.html?id=<id>`. Image files also stay in git history,
+plaintext now lives in `articles/<id>.html` and stays public until a separate, explicit cleanup
+removes or replaces that article, its `search-index.js` entry, its card in the Index Sealed category
+(`index/ancients.html`) and its image in `assets/`, and points the card at `edit/secret.html?id=<id>`.
+The viewer shows the decrypted article as the unlocked original (it drops only the `.sealed` CSS gate). Image files also stay in git history,
 so truly secret art needs a history rewrite or new art. This cleanup is deliberately not automated.
 
 ## Files

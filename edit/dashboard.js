@@ -186,7 +186,7 @@
     var man = st.man, rec = myRecord();
     var people = Object.keys(man.people);
     var keyBox = !rec
-      ? '<form id="ee-enroll" autocomplete="off"><p class="ee-note">Create your vault key. Every secret is always shared with you.</p>' +
+      ? '<form id="ee-enroll" autocomplete="off"><p class="ee-note">Create your secrets key. Every secret is always shared with you.</p>' +
         '<input type="password" id="ee-p1" placeholder="New passphrase" autocomplete="new-password"><input type="password" id="ee-p2" placeholder="Repeat passphrase" autocomplete="new-password">' +
         '<div class="ee-row"><button class="ee-btn ee-primary" type="submit">Create key</button></div></form>'
       : st.priv ? '<p class="ee-note">Your key is unlocked for this session.</p>'

@@ -122,8 +122,6 @@
   function isRegionRoot(n) {
     var c = n.classes;
     if (n.tag === "main" && (c.indexOf("art-body") >= 0 || c.indexOf("read") >= 0)) return true;
-    if (c.indexOf("life-sheet") >= 0) return true;
-    if (c.indexOf("title-block") >= 0) return true;
     return false;
   }
   // Never editable inside these (navigation / chrome / link lists / structure).

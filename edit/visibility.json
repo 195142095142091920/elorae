@@ -1,5 +1,5 @@
 {
-  "_readme": "Visibility manifest for secret pages. Only admins may change it (edit-guard). people.<slug>.key holds that person's PUBLIC key and their passphrase-ENCRYPTED private key (safe to publish; the passphrase is never stored). secrets.<id>: status 'plaintext' = not migrated yet (still public in figures/, gallery/, index.html, search-index.js; hidden only by CSS), 'encrypted' = content lives encrypted in edit/secrets/<id>.json. keys.<slug> = the content key wrapped for that person. everyone=true publishes the content key as openKey. devin is always allowed.",
+  "_readme": "Visibility manifest for secret pages. Only admins may change it (edit-guard). people.<slug>.key holds that person's PUBLIC key and their passphrase-ENCRYPTED private key (safe to publish; the passphrase is never stored). secrets.<id>.path is the sealed article (articles/<id>.html). status 'plaintext' = not migrated yet: the article and its image are public files, hidden only by CSS (.sealed + seal.js); 'encrypted' = an encrypted copy (page HTML with images inlined) lives in edit/secrets/<id>.json. keys.<slug> = the content key wrapped for that person. everyone=true publishes the content key as openKey. devin is always allowed.",
   "version": 1,
   "admins": [
     "devin"
@@ -30,7 +30,7 @@
     "bel-harath": {
       "title": "Bel Harath",
       "owner": "jack",
-      "path": "gallery/bel-harath.html",
+      "path": "articles/bel-harath.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -44,7 +44,7 @@
     "curse-of-olesh": {
       "title": "Curse of Olesh",
       "owner": "devin",
-      "path": "gallery/curse-of-olesh.html",
+      "path": "articles/curse-of-olesh.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -57,7 +57,7 @@
     "cursed-of-olesh": {
       "title": "Cursed of Olesh",
       "owner": "devin",
-      "path": "gallery/cursed-of-olesh.html",
+      "path": "articles/cursed-of-olesh.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -70,7 +70,7 @@
     "darmstadt": {
       "title": "Darmstadt",
       "owner": "devin",
-      "path": "gallery/darmstadt.html",
+      "path": "articles/darmstadt.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -83,7 +83,7 @@
     "elraim": {
       "title": "Elraim",
       "owner": "devin",
-      "path": "gallery/elraim.html",
+      "path": "articles/elraim.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -96,7 +96,7 @@
     "haethlin-dream": {
       "title": "Haethlin in the Dream",
       "owner": "jack",
-      "path": "gallery/haethlin-dream.html",
+      "path": "articles/haethlin-dream.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -110,7 +110,7 @@
     "imani-valash": {
       "title": "Imani Valash",
       "owner": "devin",
-      "path": "gallery/imani-valash.html",
+      "path": "articles/imani-valash.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -123,7 +123,7 @@
     "ito-gangara": {
       "title": "Ito Gangara",
       "owner": "jack",
-      "path": "gallery/ito-gangara.html",
+      "path": "articles/ito-gangara.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -137,7 +137,7 @@
     "rathalon": {
       "title": "Rathalon",
       "owner": "devin",
-      "path": "gallery/rathalon.html",
+      "path": "articles/rathalon.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -150,7 +150,7 @@
     "sen-teloch-ini": {
       "title": "Sen Teloch Ini",
       "owner": "devin",
-      "path": "gallery/sen-teloch-ini.html",
+      "path": "articles/sen-teloch-ini.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -163,7 +163,7 @@
     "vallorca": {
       "title": "Vallorca",
       "owner": "jack",
-      "path": "gallery/vallorca.html",
+      "path": "articles/vallorca.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
@@ -177,7 +177,7 @@
     "yena": {
       "title": "Yena",
       "owner": "jack",
-      "path": "gallery/yena.html",
+      "path": "articles/yena.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [

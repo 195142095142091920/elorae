@@ -15,10 +15,11 @@ const check = (name, ok, detail) => { console.log((ok ? "PASS " : "FAIL ") + nam
 git("init", "-q", "-b", "main");
 write("edit/profiles.json", JSON.stringify({ profiles: {
   "owner-gh": { role: "admin", permissions: ["**"] },
-  "sawyer-gh": { role: "editor", permissions: ["articles/vaerek.html", "figures/vaerek-at-ease.html", "gallery/vaerek-at-ease.html"] },
+  "sawyer-gh": { role: "editor", permissions: ["articles/vaerek.html", "index/heroes.html", "codex/vaerek.html"] },
   "julie-gh": { role: "editor", permissions: ["articles/saoirse.html", "**"] },
+  "jon-gh": { role: "editor", permissions: ["articles/silar-scorria.html", "articles/telorin.html"] },
   "viewer-gh": { role: "viewer", permissions: "view" } } }));
-for (const f of ["articles/vaerek.html", "articles/saoirse.html", "figures/vaerek-at-ease.html", "gallery/vaerek-at-ease.html", "figures/saoirse.html", "gallery/saoirse.html", "codex/lore.html", "index.html", "edit/visibility.json"]) write(f, "<p>x</p>\n");
+for (const f of ["articles/vaerek.html", "articles/saoirse.html", "articles/silar-scorria.html", "articles/telorin.html", "articles/yena.html", "index/heroes.html", "codex/vaerek.html", "index/ancients.html", "journal.html", "codex/lore.html", "index.html", "edit/visibility.json"]) write(f, "<p>x</p>\n");
 const BASE = commit("base");
 const scenario = (name, files, msg, actor, expectCode, expectText) => {
   git("checkout", "-q", "--detach", BASE);
@@ -28,19 +29,21 @@ const scenario = (name, files, msg, actor, expectCode, expectText) => {
   check(name, r.code === expectCode && (!expectText || r.out.includes(expectText)), r.out);
 };
 scenario("sawyer edits own article", ["articles/vaerek.html"], "Edit articles/vaerek.html via edit mode [edit-mode]", "sawyer-gh", 0);
-scenario("sawyer refused on figures/ for his own character (listed in profile)", ["figures/vaerek-at-ease.html"], "Edit figures/vaerek-at-ease.html via edit mode [edit-mode]", "sawyer-gh", 1, "non-admins may only edit articles/*.html");
-scenario("sawyer refused on gallery/ for his own character (listed in profile)", ["gallery/vaerek-at-ease.html"], "x [edit-mode]", "sawyer-gh", 1, "non-admins may only edit articles/*.html");
+scenario("sawyer refused on index/ (listed in his profile)", ["index/heroes.html"], "Edit index/heroes.html via edit mode [edit-mode]", "sawyer-gh", 1, "non-admins may only edit articles/*.html");
+scenario("sawyer refused on codex/ (listed in his profile)", ["codex/vaerek.html"], "x [edit-mode]", "sawyer-gh", 1, "non-admins may only edit articles/*.html");
 scenario("sawyer refused on another player's article", ["articles/saoirse.html"], "x [edit-mode]", "sawyer-gh", 1, "may not edit articles/saoirse.html");
-scenario("julie with '**' still refused on figures/", ["figures/saoirse.html"], "x [edit-mode]", "julie-gh", 1, "non-admins may only edit");
-scenario("julie with '**' still refused on gallery/", ["gallery/saoirse.html"], "x [edit-mode]", "julie-gh", 1, "non-admins may only edit");
+scenario("julie with '**' still refused on index/", ["index/ancients.html"], "x [edit-mode]", "julie-gh", 1, "non-admins may only edit");
+scenario("julie with '**' still refused on journal", ["journal.html"], "x [edit-mode]", "julie-gh", 1, "non-admins may only edit");
 scenario("julie with '**' still refused on codex/", ["codex/lore.html"], "x [edit-mode]", "julie-gh", 1);
 scenario("julie's over-reaching rule is warned about", ["articles/saoirse.html"], "x [edit-mode]", "julie-gh", 0, "rule \"**\" for @julie-gh is ignored");
-scenario("player without the trailer is still checked", ["figures/vaerek-at-ease.html"], "sneaky", "sawyer-gh", 1);
+scenario("player without the trailer is still checked", ["index/heroes.html"], "sneaky", "sawyer-gh", 1);
 scenario("player can't touch edit/ (visibility)", ["edit/visibility.json"], "x", "sawyer-gh", 1, "only admins may change edit/visibility.json");
 scenario("player can't grant himself permissions", ["edit/profiles.json", "articles/vaerek.html"], "x [edit-mode]", "sawyer-gh", 1, "only admins may change edit/profiles.json");
 scenario("viewer refused", ["articles/vaerek.html"], "x [edit-mode]", "viewer-gh", 1);
 scenario("unknown login with [edit-mode] refused", ["articles/vaerek.html"], "x [edit-mode]", "stranger", 1, "has no edit profile");
-scenario("admin (Devin) edits figures/, gallery/, edit/", ["figures/saoirse.html", "gallery/saoirse.html", "edit/visibility.json", "index.html"], "x [edit-mode]", "owner-gh", 0);
+scenario("jon edits both his articles (Silar Scorria + Telorin)", ["articles/silar-scorria.html", "articles/telorin.html"], "x [edit-mode]", "jon-gh", 0);
+scenario("jon refused on a sealed article", ["articles/yena.html"], "x [edit-mode]", "jon-gh", 1, "may not edit articles/yena.html");
+scenario("admin (Devin) edits index/, journal, sealed article, edit/", ["index/ancients.html", "journal.html", "articles/yena.html", "edit/visibility.json", "index.html"], "x [edit-mode]", "owner-gh", 0);
 fs.rmSync(dir, { recursive: true, force: true });
 console.log(`\n${pass}/${pass + fail} passed`);
 process.exit(fail ? 1 : 0);
