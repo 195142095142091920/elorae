@@ -4596,14 +4596,15 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
   }
 }
 
-/* ---- art89: hard nav edge, content fades under it ----
+/* ---- art89/nt26: hard nav edge, content fades under it ----
    No gradient / veil strip hangs below the main nav, the secondary bar or the phone Contents
-   row any more. Instead rail-toggle.js marks the scrolling content layers (.nav-fade: body >
-   main, article hero art / title / swap) and feeds --nf (nav bottom, relative to the mask
-   image) and --nfl (ramp length): the content itself goes transparent -> opaque over 48px
-   (phone 40px) starting exactly at the nav line. Fixed page backdrops (.journal-bg) and the
-   sidebars are not masked. Mask image is oversized 340px / 140px per side with
-   mask-clip:no-clip so column veils that overflow main keep their soft edges. */
+   row any more. Instead rail-toggle.js marks the scrolling CONTENT (.nav-fade: children of
+   main.read / main.art-body, plus article hero art / title / swap; Index still masks main)
+   and feeds --nf (nav bottom, relative to the mask image) and --nfl (ramp length): text goes
+   transparent -> opaque over 48px (phone 40px) starting exactly at the nav line. The column
+   veil (main.read::before) is NOT masked — it stays fully opaque at every scroll position.
+   Fixed page backdrops (.journal-bg) and the sidebars are not masked. Mask image is oversized
+   340px / 140px per side with mask-clip:no-clip. */
 .mast::after,
 body .mast::after,
 body:not([hidden]) .mast::after,

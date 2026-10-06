@@ -92,7 +92,7 @@
     }
   });
 
-  /* ---- art89: content dissolves under the hard nav edge ---- */
+  /* ---- art89/nt26: content dissolves under the hard nav edge (veil stays solid) ---- */
   function chromeBottom() {
     var b = 0, mast = document.querySelector(".mast");
     if (mast && getComputedStyle(mast).display !== "none") b = mast.getBoundingClientRect().bottom;
@@ -110,8 +110,25 @@
   function navFade() {
     var mast = document.querySelector(".mast");
     if (!mast || getComputedStyle(mast).display === "none") return;
-    var els = Array.prototype.slice.call(document.querySelectorAll(
-      "body > main, body.article .art-hero > img, body.article .art-title, body.article .art-swap"));
+    /* Mask TEXT/content only — never the column veil (main.read::before). Index keeps
+       masking main (its ::before is the rail fade redraw, not a reading veil). */
+    var els = [], main = document.querySelector("body > main");
+    if (main) {
+      if (document.body.classList.contains("index-page")) {
+        els.push(main);
+      } else if (main.classList.contains("read") || main.classList.contains("art-body")) {
+        Array.prototype.forEach.call(main.children, function (c) {
+          if (/^(SCRIPT|STYLE|LINK|TEMPLATE)$/.test(c.tagName)) return;
+          els.push(c);
+        });
+      } else {
+        els.push(main);
+      }
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(
+      "body.article .art-hero > img, body.article .art-title, body.article .art-swap"), function (el) {
+      els.push(el);
+    });
     if (!els.length) return;
     var phone = window.matchMedia("(max-width: 800px)");
     els.forEach(function (el) { el.classList.add("nav-fade"); });
