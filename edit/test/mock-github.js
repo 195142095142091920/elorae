@@ -10,8 +10,9 @@ function blobSha(text) {
 }
 
 class MockGitHub {
-  constructor({ repo, root, tokens, overrides }) {
+  constructor({ repo, root, tokens, overrides, scopes, noRepo, noPush }) {
     this.repo = repo; this.root = root; this.tokens = tokens; // token -> login
+    this.scopes = scopes || {}; this.noRepo = noRepo || []; this.noPush = noPush || []; // per-token behaviour
     this.overrides = overrides || {};                            // path -> text (main)
     this.branches = { main: { files: {} } };                     // branch -> { files: path->text }
     this.log = []; this.pulls = []; this.hooks = {}; this.n = 1;
@@ -36,12 +37,17 @@ class MockGitHub {
     const body = req.postData() ? JSON.parse(req.postData()) : null;
     const entry = { method, path: url.pathname + url.search, body, login };
     this.log.push(entry);
-    const json = (status, data) => route.fulfill({ status, contentType: "application/json; charset=utf-8", body: JSON.stringify(data) });
+    const headers = { "access-control-allow-origin": "*", "access-control-expose-headers": "ETag, Link, Location, X-OAuth-Scopes, X-Accepted-OAuth-Scopes" };
+    if (auth.startsWith("ghp_")) headers["x-oauth-scopes"] = auth in this.scopes ? this.scopes[auth] : "public_repo";
+    const json = (status, data) => route.fulfill({ status, headers, contentType: "application/json; charset=utf-8", body: JSON.stringify(data) });
     if (!login) return json(401, { message: "Bad credentials" });
     const R = "/repos/" + this.repo;
     const p = url.pathname;
     if (p === "/user") return json(200, { login });
-    if (p === R) return json(200, { full_name: this.repo, permissions: { pull: true, push: true, admin: false } });
+    if (p === R) {
+      if (this.noRepo.includes(auth)) return json(404, { message: "Not Found" });
+      return json(200, { full_name: this.repo, permissions: { pull: true, push: !this.noPush.includes(auth), admin: false } });
+    }
     if (this.hooks.before) { const r = this.hooks.before(entry); if (r) return json(r.status, r.data); }
     let m;
     if ((m = p.match(new RegExp("^" + R + "/contents/(.+)$")))) {

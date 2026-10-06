@@ -131,3 +131,30 @@ body.ee-page a { color: #f3eee6; }
   .ee-tog { min-height: 36px; }
 }
 .ee-page .ee-status { margin: -16px 0 28px; }
+
+/* Sign-in steps + "you can edit" list (signin-ux). */
+#ee-panel .ee-steps { list-style: none; counter-reset: ee-step; margin: 0; padding: 0; }
+#ee-panel .ee-steps > li { counter-increment: ee-step; position: relative; padding: 0 0 18px 30px; font-size: 12px; line-height: 1.6; color: #8f8a82; }
+#ee-panel .ee-steps > li::before { content: counter(ee-step); position: absolute; left: 0; top: 0; width: 18px; height: 18px; border: 1px solid rgba(243,238,230,.25); border-radius: 50%; font-size: 10px; line-height: 18px; text-align: center; color: #f3eee6; }
+#ee-panel .ee-steps > li > span { display: block; }
+#ee-panel .ee-steps > li > .ee-btn { display: inline-block; margin: 0 0 6px; }
+#ee-panel .ee-steps b { color: #f3eee6; font-weight: 600; }
+#ee-panel .ee-steps form .ee-row { margin-top: 12px; }
+#ee-panel .ee-cap { margin-top: 14px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+#ee-panel .ee-pages { list-style: none; margin: 6px 0 0; padding: 0; font-family: "Iowan Old Style", Palatino, serif; font-size: 17px; line-height: 1.7; }
+#ee-panel .ee-pages a { color: #f3eee6; text-decoration: none; border-bottom: 1px solid rgba(243,238,230,.2); }
+#ee-panel .ee-pages a:hover { border-bottom-color: rgba(243,238,230,.7); }
+#ee-panel .ee-here { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #8f8a82; margin-left: 6px; }
+#ee-panel .ee-warn { color: #d9c07a; }
+#ee-panel .ee-info { color: #cfe3c4; margin: 0 0 14px; font-size: 12px; line-height: 1.55; }
+#ee-panel .ee-who { font-size: 20px; }
+#ee-panel #ee-lead.ee-err { margin: 0 0 14px; }
+#ee-bar.ee-expired .ee-msg { color: #d9c07a; }
+@media (max-width: 800px) {
+  #ee-panel { padding-top: 8vh; }
+  #ee-panel .ee-box { max-height: 88vh; overflow-y: auto; }
+  #ee-panel .ee-steps > li > .ee-btn { padding: 10px 0; }
+}
+@media (min-width: 801px) {
+  #ee-panel .ee-box { max-height: 86vh; overflow-y: auto; }
+}

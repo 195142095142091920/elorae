@@ -45,13 +45,30 @@ To let Jon edit Telorin's text, an admin first creates `articles/telorin.html`, 
 4. Commit as an admin. The edit guard rejects profile changes from anyone else.
 
 ## Each editor: make a token (one time)
-1. github.com → Settings → Developer settings → **Fine-grained personal access tokens** → Generate new token.
-2. Resource owner: `195142095142091920`. Repository access: **Only select repositories** → `elorae`.
-3. Repository permissions: **Contents: Read and write**. Add **Pull requests: Read and write** for PR-mode editors. Metadata: read is automatic.
-   Do **not** grant *Workflows* or *Administration*.
-4. Choose a short expiry (for example 90 days) and copy the token.
-5. Open any page with `#edit` on the end (for example `https://elorae.world/articles/vaerek.html#edit`), paste the token, and sign in.
-   The token stays in your browser's sessionStorage, or in localStorage if you tick *Remember on this device*. It is sent only to `api.github.com`. *Sign out* removes it.
+> **Important:** GitHub doesn't let *fine-grained* tokens write to a repository owned by another
+> person's account, even for invited collaborators. This repo is owned by a personal account, so
+> **players need a classic token with the `public_repo` scope**. The repo is public, so that scope is
+> enough. Fine-grained tokens work only for the owner (Devin). See `SIGNIN-UX.md` for ways to remove
+> this step entirely (an organization or a GitHub App).
+
+1. Accept the collaborator invite: <https://github.com/195142095142091920/elorae/invitations>.
+2. Open any page with `#edit` (for example `https://elorae.world/articles/vaerek.html#edit`) and click
+   **Make my token**. GitHub opens with the name and the `public_repo` scope pre-filled. Pick an
+   expiry (90 days is fine), leave everything else unticked (especially `workflow`), click
+   **Generate token** and copy it.
+3. Paste it into step 2 of the panel and click **Sign in**. *Remember on this device* is on by
+   default: after that the **EDIT** button appears on your own article pages by itself, with no
+   `#edit` needed. The panel shows "Signed in as …" and the pages you can edit.
+4. When the token expires or is deleted, the site says so and offers **Sign in again**. Use
+   **Sign out on this device** to remove the token from that browser.
+
+The token stays in your browser (localStorage when remembered, otherwise sessionStorage) and is sent
+only to `api.github.com`. A `public_repo` token can also write to your *other* public repositories.
+Keep it private, use an expiry, and delete it at <https://github.com/settings/tokens> when you're done.
+
+Devin (owner) can instead use the panel's pre-filled **fine-grained token** link (Contents and Pull
+requests: write, 90 days). The repository must be selected by hand: *Only select repositories*, then
+`elorae`.
 
 ## Editing
 Sign in, then click **EDIT** (bottom-right, only on pages you can edit; for players that means only

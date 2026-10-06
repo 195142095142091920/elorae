@@ -67,6 +67,7 @@
       var p = /json/.test(ct) ? r.json() : r.text();
       return p.then(function (data) {
         if (!r.ok) throw ApiError(r.status, (data && data.message) || r.statusText, data);
+        if (opts.withHeaders) return { data: data, scopes: r.headers.get("x-oauth-scopes") };
         return data;
       }, function () {
         if (!r.ok) throw ApiError(r.status, r.statusText);
@@ -153,7 +154,30 @@
     });
   }
 
+  // Token kinds by prefix (GitHub's documented token formats).
+  function tokenKind(t) {
+    t = String(t || "");
+    if (/^github_pat_/.test(t)) return "fine-grained";
+    if (/^ghp_/.test(t)) return "classic";
+    if (/^gho_/.test(t)) return "oauth";
+    if (/^(ghu|ghs)_/.test(t)) return "app";
+    return "unknown";
+  }
+  var owner = REPO.split("/")[0];
+  // Pre-filled "new token" pages. Classic: description + scopes are pre-filled (GitHub doesn't
+  // pre-fill the expiry). Fine-grained (owner only; see SIGNIN-UX.md): name, description, owner,
+  // expiry and permissions are pre-filled; the repository must still be picked by hand.
+  var TOKEN_LINKS = {
+    classic: "https://github.com/settings/tokens/new?description=" + encodeURIComponent("Elorae edit mode") + "&scopes=public_repo",
+    fineGrained: "https://github.com/settings/personal-access-tokens/new?name=" + encodeURIComponent("Elorae edit mode") +
+      "&description=" + encodeURIComponent("Edit pages of elorae.world in the browser (" + REPO + ")") +
+      "&target_name=" + encodeURIComponent(owner) + "&expires_in=90&contents=write&pull_requests=write",
+    invitations: "https://github.com/" + REPO + "/invitations",
+    tokens: "https://github.com/settings/tokens"
+  };
+
   window.EloraeEdit = {
+    tokenKind: tokenKind, TOKEN_LINKS: TOKEN_LINKS, OWNER: owner,
     REPO: REPO, BRANCH: BRANCH, API: API, ROOT: ROOT,
     pagePath: pagePath, session: session, api: api, repoPath: repoPath,
     getFile: getFile, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,

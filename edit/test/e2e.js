@@ -18,7 +18,7 @@ const REPO = "195142095142091920/elorae";
 const results = [];
 function check(name, ok, detail) { results.push({ name, ok: !!ok, detail }); console.log((ok ? "PASS " : "FAIL ") + name + (detail ? "  — " + detail : "")); }
 
-const TOKENS = { "tok-devin": "devin-gh", "tok-sawyer": "sawyer-gh", "tok-julie": "julie-gh", "tok-arts": "arts-gh", "tok-viewer": "viewer-gh" };
+const TOKENS = { "github_pat_jonfg": "jon-gh", "ghp_test_broad": "arts-gh", "ghp_test_noscope": "arts-gh", "ghp_test_notcollab": "newbie-gh", "ghp_test_devin": "devin-gh", "ghp_test_sawyer": "sawyer-gh", "ghp_test_julie": "julie-gh", "ghp_test_arts": "arts-gh", "ghp_test_viewer": "viewer-gh" };
 const PROFILES = { repo: REPO, profiles: {
   "devin-gh": { name: "Devin", person: "devin", role: "admin", title: "GM", permissions: ["**"], save: "direct" },
   // Sawyer's profile deliberately over-reaches: the figures/gallery rules must be ignored (ceiling).
@@ -28,7 +28,7 @@ const PROFILES = { repo: REPO, profiles: {
   "viewer-gh": { name: "Viewer", role: "viewer", permissions: "view" } } };
 
 function newMock() {
-  return new MockGitHub({ repo: REPO, root: ROOT, tokens: TOKENS, overrides: { "edit/profiles.json": JSON.stringify(PROFILES, null, 2) } });
+  return new MockGitHub({ repo: REPO, root: ROOT, tokens: TOKENS, scopes: { "ghp_test_broad": "repo, gist", "ghp_test_noscope": "gist" }, noRepo: ["github_pat_jonfg"], noPush: ["ghp_test_notcollab"], overrides: { "edit/profiles.json": JSON.stringify(PROFILES, null, 2) } });
 }
 
 async function ctxFor(browser, mock, opts = {}) {
@@ -125,13 +125,78 @@ async function signInViaPanel(page, token) {
       await ctx.close();
     }
 
+    /* 3b. Sign-in UX: pre-filled token link, remember on by default, "you can edit" list,
+          auto EDIT without #edit once remembered, friendly errors, expiry prompt, sign-out. */
+    {
+      const mock = newMock();
+      const ctx = await ctxFor(browser, mock);
+      const page = await ctx.newPage();
+      await page.goto(BASE + "articles/saoirse.html#edit", { waitUntil: "networkidle" });
+      await page.waitForSelector("#ee-panel:not([hidden]) #ee-token", { timeout: 10000 });
+      const ui = await page.evaluate(() => ({ href: document.getElementById("ee-mint").href, remember: document.getElementById("ee-remember").checked, steps: document.querySelectorAll(".ee-steps > li").length }));
+      const u = new URL(ui.href);
+      check("sign-in: 'Make my token' opens GitHub's new-token page pre-filled (description + public_repo)", u.origin + u.pathname === "https://github.com/settings/tokens/new" && u.searchParams.get("scopes") === "public_repo" && u.searchParams.get("description") === "Elorae edit mode", ui.href);
+      check("sign-in: two numbered steps, 'Remember on this device' on by default", ui.steps === 2 && ui.remember === true);
+      await page.screenshot({ path: `${SHOTS}/signin-steps-desktop.png` });
+      // friendly errors
+      const tryToken = async (tok) => { await page.fill("#ee-token", tok); await page.click("#ee-form button[type=submit]"); await page.waitForFunction(() => { const e = document.getElementById("ee-err"); return e && !e.hidden && !/Checking/.test(e.textContent); }, null, { timeout: 8000 }); return page.textContent("#ee-err"); };
+      let t = await tryToken("hello"); check("sign-in: non-token text gets a plain-English hint", /doesn't look like a GitHub token/.test(t), t);
+      t = await tryToken("ghp_wrongwrong"); check("sign-in: rejected/expired token explained", /didn't accept that token/.test(t), t);
+      t = await tryToken("github_pat_jonfg"); check("sign-in: fine-grained token on someone else's repo explained", /fine-grained tokens/.test(t) && /Make my token/.test(t), t);
+      t = await tryToken("ghp_test_noscope"); check("sign-in: token without public_repo explained", /missing the public_repo/.test(t), t);
+      t = await tryToken("ghp_test_notcollab"); check("sign-in: not-yet-collaborator explained with invitation hint", /isn't a collaborator/.test(t), t);
+      // success, remembered by default
+      await page.fill("#ee-token", "ghp_test_sawyer"); await page.click("#ee-form button[type=submit]");
+      await page.waitForSelector("#ee-signout", { timeout: 10000 });
+      await page.waitForFunction(() => /Vaerek Rathkin/.test(document.getElementById("ee-pages").textContent), null, { timeout: 5000 });
+      const who = (await page.textContent("#ee-body")).replace(/\s+/g, " ");
+      check("signed in: 'Signed in as Sawyer', 'You can edit: Vaerek Rathkin', how saves work", /Signed in as Sawyer/.test(who) && /You can edit/i.test(who) && /Vaerek Rathkin/.test(who) && /pull request/.test(who) && /Remembered on this device/.test(who), who.slice(0, 220));
+      await page.screenshot({ path: `${SHOTS}/signedin-desktop.png` });
+      const stored = await page.evaluate(() => !!localStorage.getItem("elorae-edit-session"));
+      check("remembered: session kept in localStorage (default on)", stored);
+      // a new tab later, no #edit: EDIT shows by itself on his article
+      const page2 = await ctx.newPage();
+      await page2.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
+      await waitEditor(page2);
+      check("remembered: EDIT button appears on his own article without #edit", !!(await page2.$("#ee-glyph")));
+      // token revoked/expired -> friendly prompt, token forgotten
+      delete mock.tokens["ghp_test_sawyer"];
+      await page2.reload({ waitUntil: "networkidle" });
+      await page2.waitForSelector("#ee-bar.ee-expired", { timeout: 10000 });
+      const exp = await page2.textContent("#ee-bar");
+      const gone = await page2.evaluate(() => !localStorage.getItem("elorae-edit-session") && !sessionStorage.getItem("elorae-edit-session"));
+      check("expired token: friendly 'sign in again' prompt, token forgotten, no EDIT", /expired/.test(exp) && gone && !(await page2.$("#ee-glyph")), exp.trim().slice(0, 90));
+      await page2.screenshot({ path: `${SHOTS}/expired-desktop.png` });
+      await page2.click("#ee-resign");
+      await page2.waitForSelector("#ee-panel:not([hidden]) #ee-token");
+      check("expired token: 'Sign in again' opens the steps with an explanation", /expired or was deleted/.test(await page2.textContent("#ee-body")));
+      mock.tokens["ghp_test_sawyer"] = "sawyer-gh";
+      // broad classic token warning + sign out
+      await page2.fill("#ee-token", "ghp_test_broad"); await page2.click("#ee-form button[type=submit]");
+      await page2.waitForSelector("#ee-signout", { timeout: 10000 });
+      check("broad 'repo' token: signed in with a gentle narrower-token warning", /only public_repo is enough/.test(await page2.textContent("#ee-body")));
+      await page2.click("#ee-signout");
+      const out = await page2.evaluate(() => ({ ls: localStorage.getItem("elorae-edit-session"), ss: sessionStorage.getItem("elorae-edit-session"), txt: document.getElementById("ee-body").textContent }));
+      check("sign out: token removed from this browser, confirmation shown", !out.ls && !out.ss && /Signed out/.test(out.txt));
+      await ctx.close();
+      // phone screenshot of the steps
+      const pctx = await ctxFor(browser, newMock(), { viewport: { width: 390, height: 844 } });
+      const pp = await pctx.newPage();
+      await pp.goto(BASE + "articles/vaerek.html#edit", { waitUntil: "networkidle" });
+      await pp.waitForSelector("#ee-panel:not([hidden]) #ee-token");
+      const fit = await pp.evaluate(() => { const r = document.querySelector("#ee-panel .ee-box").getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight; });
+      check("phone: sign-in steps fit the screen", fit);
+      await pp.screenshot({ path: `${SHOTS}/signin-steps-phone.png` });
+      await pctx.close();
+    }
+
     /* 4. Viewer can't edit. */
     {
       const mock = newMock();
       const ctx = await ctxFor(browser, mock);
       const page = await ctx.newPage();
       await page.goto(BASE + "articles/vaerek.html#edit", { waitUntil: "networkidle" });
-      await signInViaPanel(page, "tok-viewer");
+      await signInViaPanel(page, "ghp_test_viewer");
       const t = await page.textContent("#ee-body");
       await page.click("#ee-panel .ee-close");
       await page.waitForTimeout(300);
@@ -147,7 +212,7 @@ async function signInViaPanel(page, token) {
     const vaerekSrc = fs.readFileSync(path.join(ROOT, vaerekPath), "utf8");
     {
       const mock = newMock();
-      const ctx = await ctxFor(browser, mock, { init: sessionInit("tok-arts", "arts-gh") });
+      const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_arts", "arts-gh") });
       const page = await ctx.newPage();
       await page.goto(BASE + "codex/lore.html", { waitUntil: "networkidle" });
       await waitEditor(page);
@@ -220,7 +285,7 @@ async function signInViaPanel(page, token) {
     /* 6. Conflicts. */
     {
       const mock = newMock();
-      const ctx = await ctxFor(browser, mock, { init: sessionInit("tok-arts", "arts-gh") });
+      const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_arts", "arts-gh") });
       const page = await ctx.newPage();
       await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
       await waitEditor(page);
@@ -258,7 +323,7 @@ async function signInViaPanel(page, token) {
     /* 7. PR mode (Sawyer). */
     {
       const mock = newMock();
-      const ctx = await ctxFor(browser, mock, { init: sessionInit("tok-sawyer", "sawyer-gh") });
+      const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_sawyer", "sawyer-gh") });
       const page = await ctx.newPage();
       await page.goto(BASE + "articles/saoirse.html", { waitUntil: "networkidle" });
       await waitEditor(page);
@@ -281,9 +346,9 @@ async function signInViaPanel(page, token) {
     {
       const mock = newMock();
       const cases = [
-        ["tok-sawyer", "sawyer-gh", ["figures/vaerek-at-ease.html", "figures/vaerek-heldranc.html", "gallery/vaerek-at-ease.html", "gallery/vaerek-heldranc.html", "index.html", "journal.html"], "articles/vaerek.html"],
-        ["tok-julie", "julie-gh", ["figures/saoirse.html", "figures/saoirse-canyon.html", "gallery/saoirse.html", "gallery/saoirse-canyon.html", "codex/lore.html", "index.html"], "articles/saoirse.html"],
-        ["tok-arts", "arts-gh", ["codex/lore.html", "figures/aghor.html", "gallery/yena.html"], "articles/kojin.html"]
+        ["ghp_test_sawyer", "sawyer-gh", ["figures/vaerek-at-ease.html", "figures/vaerek-heldranc.html", "gallery/vaerek-at-ease.html", "gallery/vaerek-heldranc.html", "index.html", "journal.html"], "articles/vaerek.html"],
+        ["ghp_test_julie", "julie-gh", ["figures/saoirse.html", "figures/saoirse-canyon.html", "gallery/saoirse.html", "gallery/saoirse-canyon.html", "codex/lore.html", "index.html"], "articles/saoirse.html"],
+        ["ghp_test_arts", "arts-gh", ["codex/lore.html", "figures/aghor.html", "gallery/yena.html"], "articles/kojin.html"]
       ];
       for (const [tok, login, refused, allowed] of cases) {
         const ctx = await ctxFor(browser, mock, { init: sessionInit(tok, login) });
@@ -300,7 +365,7 @@ async function signInViaPanel(page, token) {
         const g = !!(await page.$("#ee-glyph"));
         const note = await page.textContent("#ee-body");
         check(`ceiling: ${login} still gets EDIT on ${allowed}`, g, note.replace(/\s+/g, " ").slice(0, 160));
-        if (login !== "arts-gh") check(`ceiling: ${login}'s out-of-articles rules are shown as ignored`, /ignored, players can only edit articles/.test(note));
+        if (login !== "arts-gh") check(`ceiling: ${login}'s out-of-articles rules are shown as ignored`, /players can only edit articles/i.test(note));
         await ctx.close();
       }
     }
@@ -308,7 +373,7 @@ async function signInViaPanel(page, token) {
     /* 8. Phone layout in edit mode. */
     {
       const mock = newMock();
-      const ctx = await ctxFor(browser, mock, { viewport: { width: 390, height: 844 }, init: sessionInit("tok-arts", "arts-gh") });
+      const ctx = await ctxFor(browser, mock, { viewport: { width: 390, height: 844 }, init: sessionInit("ghp_test_arts", "arts-gh") });
       const page = await ctx.newPage();
       await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
       await waitEditor(page);
@@ -325,8 +390,8 @@ async function signInViaPanel(page, token) {
     {
       const mock = newMock();
       const cases = [
-        ["anonymous", ""], ["seal jack", sealInit("jack")], ["arts editor", sessionInit("tok-arts", "arts-gh", { role: "editor" })],
-        ["devin (edit session)", sessionInit("tok-devin", "devin-gh", { person: "devin", role: "admin" })], ["devin (seal)", sealInit("devin")]
+        ["anonymous", ""], ["seal jack", sealInit("jack")], ["arts editor", sessionInit("ghp_test_arts", "arts-gh", { role: "editor" })],
+        ["devin (edit session)", sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" })], ["devin (seal)", sealInit("devin")]
       ];
       for (const [name, init] of cases) {
         const ctx = await ctxFor(browser, mock, { init });
@@ -355,7 +420,7 @@ async function signInViaPanel(page, token) {
       const pass = { devin: "devin test passphrase one", jack: "jack test passphrase two", julie: "julie test passphrase three", sawyer: "sawyer test passphrase four" };
       // Non-admin cannot use the dashboard.
       {
-        const ctx = await ctxFor(browser, mock, { init: sessionInit("tok-arts", "arts-gh") });
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_arts", "arts-gh") });
         const page = await ctx.newPage();
         await page.goto(BASE + "edit/dashboard.html", { waitUntil: "networkidle" });
         await page.waitForTimeout(500);
@@ -378,7 +443,7 @@ async function signInViaPanel(page, token) {
         await ctx.close();
       }
       check("enrollment codes contain no passphrase and no plaintext private key", Object.entries(codes).every(([w, c]) => !c.includes(pass[w]) && !/"d":/.test(c) && JSON.parse(c).privateKey.ct));
-      const ctx = await ctxFor(browser, mock, { init: sessionInit("tok-devin", "devin-gh", { person: "devin", role: "admin" }) });
+      const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
       const page = await ctx.newPage();
       await page.goto(BASE + "edit/dashboard.html", { waitUntil: "networkidle" });
       await page.waitForSelector("#ee-enroll", { timeout: 10000 });

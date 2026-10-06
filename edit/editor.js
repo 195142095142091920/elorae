@@ -40,9 +40,9 @@
     if (p) p.hidden = true;
     if (location.hash === "#edit") history.replaceState(null, "", location.pathname + location.search);
   }
-  function openPanel() {
+  function openPanel(msg, kind) {
     var p = panel();
-    renderPanel();
+    renderPanel(msg, kind);
     p.hidden = false;
     var t = $("ee-token");
     if (t) setTimeout(function () { t.focus(); }, 30);
@@ -53,33 +53,74 @@
     var l = P.permList(pr), bad = P.rejectedRules ? P.rejectedRules(pr) : [];
     return (l.length ? "Can edit: " + l.join(", ") : "View only") + (bad.length ? " (ignored, players can only edit articles: " + bad.join(", ") + ")" : "");
   }
-  function renderPanel(msg) {
+  // Exact article paths this person can edit (globs like articles/*.html are summarised).
+  function myPages(pr) {
+    if (!pr || P.isAdmin(pr)) return [];
+    return P.permList(pr).filter(function (g) { return !/[*?]/.test(g); });
+  }
+  var titleCache = {};
+  function pageTitle(path) {
+    if (titleCache[path]) return Promise.resolve(titleCache[path]);
+    return fetch(E.ROOT + path, { cache: "force-cache" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) {
+      var m = /<title>([^<]*)<\/title>/i.exec(t || "");
+      var name = m ? m[1].replace(/\s+-\s+Elorae\s*$/, "").trim() : "";
+      titleCache[path] = name || path;
+      return titleCache[path];
+    }).catch(function () { return path; });
+  }
+  function fillTitles() {
+    Array.prototype.forEach.call(document.querySelectorAll("#ee-body [data-ee-title]"), function (a) {
+      pageTitle(a.getAttribute("data-ee-title")).then(function (t) { a.textContent = t; });
+    });
+  }
+  function canEditSummary(pr) {
+    if (!pr) return "";
+    if (P.isAdmin(pr)) return '<p class="ee-note">' + esc(pr.title || "Admin") + ' · you can edit the whole site.</p>';
+    var pages = myPages(pr), globs = P.permList(pr).filter(function (g) { return /[*?]/.test(g); });
+    if (!pages.length && !globs.length) return '<p class="ee-note">View only. You can\'t edit pages yet.</p>';
+    var list = pages.map(function (pth) {
+      var here = pth === PATH;
+      return '<li><a href="' + esc(E.ROOT + pth) + '" data-ee-title="' + esc(pth) + '">' + esc(pth) + '</a>' + (here ? ' <span class="ee-here">this page</span>' : '') + '</li>';
+    }).join("") + globs.map(function (g) { return '<li>' + esc(g === "articles/*.html" ? "Every article" : g) + '</li>'; }).join("");
+    var bad = P.rejectedRules ? P.rejectedRules(pr) : [];
+    return '<p class="ee-note ee-cap">You can edit</p><ul class="ee-pages" id="ee-pages">' + list + '</ul>' +
+      (bad.length ? '<p class="ee-note">Ignored, because players can only edit articles: ' + esc(bad.join(", ")) + '</p>' : '');
+  }
+  function renderPanel(msg, kind) {
     var b = $("ee-body"); if (!b) return;
     var s = E.session.get();
     if (s) {
       var pr = state.profile;
-      var here = pr && P.canEdit(pr, PATH) ? "You can edit this page." : "You can't edit this page.";
+      var canHere = pr && P.canEdit(pr, PATH);
       b.innerHTML =
         '<p class="ee-k">Edit</p>' +
-        '<p class="ee-who">' + esc((pr && pr.name) || s.login) + ' <span>@' + esc(s.login) + '</span></p>' +
-        '<p class="ee-note">' + esc(permSummary(pr)) + (pr ? ' · saves ' + (P.saveMode(pr) === "direct" ? "straight to the site" : "as a pull request") : "") + '</p>' +
-        '<p class="ee-note">' + esc(here) + '</p>' +
+        '<p class="ee-who" id="ee-who">Signed in as ' + esc((pr && pr.name) || s.login) + ' <span>@' + esc(s.login) + '</span></p>' +
+        canEditSummary(pr) +
+        (pr ? '<p class="ee-note">' + (canHere ? 'Use the EDIT button on this page. ' : '') + (P.saveMode(pr) === "direct" ? "Saves go straight to the site." : "Saves become a pull request that Devin approves before it goes live.") + '</p>' : '') +
+        (s.warn ? '<p class="ee-note ee-warn">' + esc(s.warn) + '</p>' : '') +
         (msg ? '<p class="ee-err">' + esc(msg) + '</p>' : '') +
         '<div class="ee-row">' +
         (pr && P.isAdmin(pr) ? '<a class="ee-btn" href="' + esc(E.ROOT + "edit/dashboard.html") + '">Dashboard</a>' : '') +
-        '<button type="button" class="ee-btn" id="ee-signout">Sign out</button></div>';
-      $("ee-signout").onclick = function () { E.session.clear(); state.profile = null; cancelEdit(); glyph(); renderPanel(); notify(); };
+        '<button type="button" class="ee-btn" id="ee-signout">Sign out on this device</button></div>' +
+        '<p class="ee-note">' + (s.remember ? "Remembered on this device. The EDIT button appears on your pages without #edit." : "Only for this tab. You'll need to sign in again after closing it.") + '</p>';
+      $("ee-signout").onclick = function () { E.session.clear(); state.profile = null; cancelEdit(); glyph(); renderPanel("Signed out. Your token is removed from this browser.", "info"); notify(); };
+      fillTitles();
       return;
     }
+    var L = E.TOKEN_LINKS;
     b.innerHTML =
       '<p class="ee-k">Edit</p>' +
+      (msg ? '<p class="' + (kind === "info" ? "ee-note ee-info" : "ee-err") + '" id="ee-lead">' + esc(msg) + '</p>' : '') +
+      '<ol class="ee-steps">' +
+      '<li><a class="ee-btn ee-primary" id="ee-mint" href="' + esc(L.classic) + '" target="_blank" rel="noopener">Make my token</a><span>Opens GitHub with everything filled in. Pick an expiry (90 days is fine), leave only <b>public_repo</b> ticked, then <b>Generate token</b> and copy it.</span></li>' +
+      '<li><span>Paste it here</span>' +
       '<form id="ee-form" autocomplete="off">' +
-      '<input id="ee-token" type="password" placeholder="GitHub token" spellcheck="false" autocomplete="off" aria-label="GitHub fine-grained token">' +
-      '<label class="ee-check"><input type="checkbox" id="ee-remember"> Remember on this device</label>' +
-      '<div class="ee-row"><button type="submit" class="ee-btn">Sign in</button></div>' +
-      '<p class="ee-err" id="ee-err"' + (msg ? '' : ' hidden') + '>' + esc(msg || "") + '</p>' +
-      '<p class="ee-note">Your own fine-grained token, this repository only, Contents: read and write. It stays in this browser and is sent only to GitHub. <a href="https://github.com/' + E.REPO + '/blob/main/edit/README.md" target="_blank" rel="noopener">How</a></p>' +
-      '</form>';
+      '<input id="ee-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
+      '<label class="ee-check"><input type="checkbox" id="ee-remember" checked> Remember on this device</label>' +
+      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">Sign in</button></div>' +
+      '<p class="ee-err" id="ee-err" hidden></p></form></li>' +
+      '</ol>' +
+      '<p class="ee-note">Your token stays in this browser and is only sent to GitHub. First time? Accept the collaborator invite first: <a href="' + esc(L.invitations) + '" target="_blank" rel="noopener">invitations</a>. Site owner: a <a href="' + esc(L.fineGrained) + '" target="_blank" rel="noopener">fine-grained token</a> works too. <a href="https://github.com/' + E.REPO + '/blob/main/edit/README.md" target="_blank" rel="noopener">Help</a></p>';
     $("ee-form").onsubmit = function (e) {
       e.preventDefault();
       signIn($("ee-token").value.trim(), $("ee-remember").checked);
@@ -88,26 +129,54 @@
   function showErr(m) { var x = $("ee-err"); if (x) { x.textContent = m; x.hidden = false; } else renderPanel(m); }
 
   function signIn(token, remember) {
+    token = String(token || "").replace(/\s+/g, "");
     if (!token) return showErr("Paste your token.");
-    var login;
+    var kind = E.tokenKind(token);
+    if (kind === "unknown") return showErr("That doesn't look like a GitHub token. It should start with ghp_ or github_pat_.");
+    var login, warn = "";
     showErr("Checking…");
-    E.api("/user", { token: token }).then(function (u) {
-      login = u.login;
-      return E.api(E.repoPath(""), { token: token });
+    E.api("/user", { token: token, withHeaders: true }).then(function (r) {
+      login = r.data.login;
+      var scopes = (r.scopes || "").split(/\s*,\s*/).filter(Boolean);
+      if (kind === "classic" && scopes.indexOf("repo") >= 0) warn = "This token can write to all your repositories. A token with only public_repo is enough. You can make a narrower one any time.";
+      if (kind === "classic" && scopes.indexOf("repo") < 0 && scopes.indexOf("public_repo") < 0) {
+        var e0 = new Error("This token is missing the public_repo permission. Make a new one with the button above."); throw e0;
+      }
+      return E.api(E.repoPath(""), { token: token }).catch(function (err) {
+        if (err.status === 404 || err.status === 403) {
+          throw new Error(kind === "fine-grained"
+            ? "GitHub doesn't let fine-grained tokens edit a repository owned by another person. Use “Make my token” above (a classic token with public_repo)."
+            : "This token can't reach " + E.REPO + ".");
+        }
+        throw err;
+      });
     }).then(function (repo) {
-      if (!repo.permissions || !repo.permissions.push) throw new Error("This token can read but not write " + E.REPO + ". Give it Contents: read and write.");
+      if (!repo.permissions || !repo.permissions.push) {
+        throw new Error(kind === "fine-grained"
+          ? "This fine-grained token can't write here. Players need a classic token from “Make my token”."
+          : "@" + login + " isn't a collaborator on the site yet. Accept the invitation (link below) or ask Devin to send one, then sign in again.");
+      }
       return E.getFileWith(token, "edit/profiles.json");
     }).then(function (f) {
       var doc = JSON.parse(f.text);
       var pr = P.profileFor(doc, login);
-      if (!pr) throw new Error("@" + login + " has no edit profile yet. Ask the site owner to add you to edit/profiles.json.");
+      if (!pr) throw new Error("Signed in to GitHub as @" + login + ", but there's no edit profile for you yet. Ask Devin to add @" + login + ".");
       state.profiles = doc; state.profile = pr;
-      E.session.set({ token: token, login: login, remember: !!remember, person: pr.person || "", role: pr.role || "" });
+      E.session.set({ token: token, login: login, remember: !!remember, person: pr.person || "", role: pr.role || "", kind: kind, warn: warn, since: new Date().toISOString() });
       notify();
       renderPanel(); glyph();
     }).catch(function (err) {
-      showErr(err.status === 401 ? "GitHub rejected that token (expired or mistyped)." : (err.message || "Sign-in failed."));
+      showErr(err.status === 401 ? "GitHub didn't accept that token. It may be mistyped, expired or deleted. Make a new one with the button above." : (err.message || "Sign-in failed."));
     });
+  }
+
+  // A remembered token stopped working (expired or revoked): forget it and offer a friendly re-sign-in.
+  function expired() {
+    E.session.clear(); state.profile = null; notify(); glyph();
+    var b = bar('<span class="ee-msg">Your edit sign-in has expired. Make a new token to keep editing.</span>' +
+      '<button type="button" class="ee-btn" id="ee-x">Not now</button><button type="button" class="ee-btn ee-primary" id="ee-resign">Sign in again</button>', "ee-expired");
+    $("ee-x").onclick = closeBar;
+    $("ee-resign").onclick = function () { closeBar(); openPanel("Your previous token expired or was deleted. Make a new one (step 1), then paste it (step 2).", "info"); };
   }
   function notify() { try { window.dispatchEvent(new Event("elorae-edit-session")); } catch (e) {} }
 
@@ -366,10 +435,14 @@
     }).catch(function (err) {
       var m;
       if (err.conflict || err.status === 409 || (err.status === 422 && /sha|match/i.test(err.message))) m = conflictMsg();
-      else if (err.status === 401) m = "Your token was rejected (expired?). Sign in again with #edit. Nothing was saved.";
+      else if (err.status === 401) m = "Your sign-in expired, so nothing was saved. Keep this tab open, sign in again (Edit, then Sign in), then press Save again.";
       else if (err.status === 403 || err.status === 404) m = "GitHub refused the save (" + err.status + "): the token may lack Contents write access" + (mode === "pr" ? " or Pull requests access" : "") + ". Nothing was saved.";
       else m = err.message || "Save failed. Nothing was saved.";
       editBar(m, "ee-bad-bar");
+      if (err.status === 401) {
+        E.session.clear(); notify();
+        openPanel("Your token expired or was deleted. Make a new one, sign in, then press Save again. Your edits are still on the page.", "info");
+      }
     }).then(function () { state.busy = false; });
   }
 
@@ -382,7 +455,7 @@
       state.profile = P.profileFor(state.profiles, s.login);
       return state.profile;
     }).catch(function (err) {
-      if (err.status === 401) { E.session.clear(); notify(); }
+      if (err.status === 401) expired();
       return null;
     });
   }
