@@ -4,7 +4,8 @@
    revealed face flips it back to the card. Navigation only via the two links on the face: the
    dossier name and the quiet "ARTICLE \u2192" line (bottom right); both go to the card's
    article and never flip the card. Clicking another card reveals that one and resets the
-   previous; Escape or a click outside the cards resets. Middle-, Ctrl-, Cmd-, Shift-clicks on
+   previous; Escape or a click outside the cards resets. art92: no longer -
+   each card flips independently and stays open until its own face is clicked. Middle-, Ctrl-, Cmd-, Shift-clicks on
    the card are left alone (new tab / window via the anchor's href). No glyph.
    Face (inside the card's own box, card size unchanged): name, epithet, lore quote, dossier
    fields (dl.art-dossier + ul.art-facts) and the opening of the lore (first .art-life
@@ -23,31 +24,25 @@
   var MAX_SENTENCES = 3, MAX_CHARS = 260;
   var PAL = window.__lorePalette || {};
   var ROOT = new URL("./", document.currentScript ? document.currentScript.src : location.href).href;
-  var flipped = null, cache = {}, ro = null;
+  var cache = {}, ro = null;
+  function isOpen(card) { return card.classList.contains("is-lore-flipped"); }
 
   cards.forEach(function (card) { card.setAttribute("aria-expanded", "false"); });
 
   /* Capture: a card click reveals its face; a click on the revealed face flips it back; the
-     face's links (name, ARTICLE line) navigate normally and never flip. */
+     face's links (name, ARTICLE line) navigate normally and never flip. art92: cards flip
+     independently - any number can be open; nothing else (other cards, Escape, outside
+     clicks) closes them. */
   document.addEventListener("click", function (e) {
     var t = e.target;
     if (t.closest && t.closest("a.card-lore-link")) return; /* inner link: default navigation */
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; /* new tab etc. */
     var card = t.closest && t.closest("a.index-card");
-    if (!card) { if (flipped) unflip(); return; } /* outside click resets, then proceeds */
+    if (!card) return;
     e.preventDefault();
     e.stopPropagation();
-    if (card === flipped) { unflip(); return; } /* click on the face: back to the card */
-    if (flipped) unflip();
-    flip(card);
-  }, true);
-  document.addEventListener("keydown", function (e) {
-    if (e.key !== "Escape" || !flipped) return;
-    var sp = document.getElementById("seek-panel");
-    if (sp && !sp.hidden) return; /* search panel owns Escape while open */
-    e.preventDefault();
-    e.stopPropagation(); /* only resets the card; the Categories rail keeps its state */
-    unflip(true);
+    if (isOpen(card)) unflip(card); /* click on its own face: back to the card */
+    else flip(card);
   }, true);
 
   function slugOf(url) { var m = /\/articles\/([^\/?#]+)\.html/.exec(url); return m ? m[1] : ""; }
@@ -72,22 +67,20 @@
       if (p.label) { back.classList.add("has-art-palette"); back.style.setProperty("--lore-label-rgb", p.label); }
       fill(back, card, url);
     }
-    flipped = card;
     card.classList.add("is-lore-flipped");
     card.setAttribute("aria-expanded", "true");
     back.setAttribute("aria-hidden", "false");
     links(back, true);
     fit(back);
     if (window.ResizeObserver) {
-      if (!ro) ro = new ResizeObserver(function () { if (flipped) fit(flipped.querySelector(".card-lore-back")); });
+      if (!ro) ro = new ResizeObserver(function (entries) {
+        entries.forEach(function (en) { if (isOpen(en.target)) fit(en.target.querySelector(".card-lore-back")); });
+      });
       ro.observe(card);
     }
   }
 
-  function unflip() {
-    var card = flipped;
-    if (!card) return;
-    flipped = null;
+  function unflip(card) {
     if (ro) ro.unobserve(card);
     card.classList.remove("is-lore-flipped");
     card.setAttribute("aria-expanded", "false");
@@ -113,7 +106,7 @@
   function fill(back, card, url) {
     var face = back.querySelector(".card-lore-face");
     var name = (card.querySelector("span") || {}).textContent || "";
-    var go = function (d) { render(face, d, url, name); links(back, flipped === card); if (flipped === card) fit(back); };
+    var go = function (d) { render(face, d, url, name); links(back, isOpen(card)); if (isOpen(card)) fit(back); };
     if (cache[url]) { go(cache[url]); return; }
     render(face, { loading: true }, url, name);
     fetch(url, { credentials: "same-origin" }).then(function (r) {

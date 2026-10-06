@@ -4952,6 +4952,11 @@ body.index-page .index-card .card-lore-dossier dd {
   body.index-page .index-card .card-lore-article { font-size: 8px; letter-spacing: .14em; padding: 6px 0 0 10px; margin: -4px 0 -2px; }
 }
 
+/* ---- art92: Index card front name label takes the dossier name's font-family ----
+   Only the family changes (computed from .card-lore-name: "Iowan Old Style", Palatino, serif);
+   size, weight, case, letter-spacing, colour and position stay as set at lines ~1759 / ~1779. */
+body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, serif; }
+
 /* ---- art83: article body reading measure ----
    Desktop: .art-body (description, dossier, lore, related) becomes the Codex lore column —
    640px box with 4px side padding (body.book .read) and lore paragraph type 18px / 1.75
