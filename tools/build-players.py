@@ -19,7 +19,7 @@ head = TPL[:head_end]
 mast = re.search(r'<div class="mast">.*?</div>', TPL, re.S).group(0)
 mast = mast.replace(' class="active"', ' class=""')
 bg = re.search(r'<div class="journal-bg">.*?</div>', TPL, re.S).group(0)
-scripts = ('<script src="../search.js?v=nt12-seek"></script><script src="../seal.js?v=seal6"></script>\n'
+scripts = ('<script src="../search.js?v=nt12-seek"></script><script src="../seal.js?v=seal6"></script><script src="../player-mark.js?v=nt21-pmark"></script>\n'
            '<canvas id="friend-glow"></canvas>\n<script src="../glow.js?v=glow5"></script>\n'
            '<script src="../back-to-top.js?v=nt5-top"></script>\n'
            '<script src="player.js?v=nt20-players"></script>\n')
