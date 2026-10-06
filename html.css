@@ -721,7 +721,7 @@ body.index-page .toc a {
   #section-bar {
     position: -webkit-sticky;
     position: sticky;
-    top: calc(102px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
     bottom: auto;
     left: auto;
     right: auto;
@@ -741,7 +741,7 @@ body.index-page .toc a {
     text-align: center;
   }
   body.journal-page #section-bar {
-    top: calc(118px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
   .journal-page #section-bar a,
   #section-bar a {
@@ -1058,7 +1058,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   body.index-page .index-toc-cue { display: none !important; }
   body.index-page aside.toc.index-toc {
     position: fixed;
-    top: calc(146px + env(safe-area-inset-top, 0px)); /* mast 102 + section-bar 44 */
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)); /* mast 102 + section-bar 44 */
     left: 0;
     right: 0;
     bottom: auto;
@@ -1110,7 +1110,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   }
   body.index-page .index-cat,
   body.index-page .index-card {
-    scroll-margin-top: calc(146px + env(safe-area-inset-top, 0px));
+    scroll-margin-top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px));
   }
   body.index-page .index-cat > h2 {
     margin: 28px 6px 6px;
@@ -1123,7 +1123,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   }
   body.index-page .index-sub {
     margin: 22px 6px 0;
-    scroll-margin-top: calc(146px + env(safe-area-inset-top, 0px));
+    scroll-margin-top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px));
     text-align: center;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 400;
@@ -1480,7 +1480,7 @@ body.article .art-index .toc-group .toc-name { padding-left: 8px; }
   body.article .art-index-cue { display: none !important; }
   body.article .art-index {
     position: fixed;
-    top: calc(146px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px));
     left: 0;
     right: 0;
     bottom: auto;
@@ -1523,7 +1523,7 @@ body.article .art-index .toc-group .toc-name { padding-left: 8px; }
   /* Article mast is transparent over hero; keep #section-bar hard opaque. */
   body.article #section-bar {
     position: fixed;
-    top: calc(102px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
     left: 0;
     right: 0;
     z-index: 30;
@@ -1849,7 +1849,7 @@ body.article .art-dossier a:hover { color: #f3eee6; }
 @media (max-width: 800px) {
   body.journal-flow .read > h1 { border-bottom: 0; padding-bottom: 0; scroll-margin-top: 130px; }
   body.journal-flow:has(aside.toc > .toc-drop) .read > h1 {
-    scroll-margin-top: calc(162px + env(safe-area-inset-top, 0px));
+    scroll-margin-top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px));
   }
   body.journal-flow .read > h1 ~ h1 { margin-top: 64px; }
 }
@@ -2568,7 +2568,7 @@ body.seek-panel-open { overflow: hidden; }
   }
   /* Scroll content starts below the fixed mast (match measured phone heights). */
   body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
-    padding-top: calc(56px + env(safe-area-inset-top, 0px));
+    padding-top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
   body.journal-page:not(.article) {
     padding-top: calc(72px + env(safe-area-inset-top, 0px));
@@ -2609,10 +2609,10 @@ body.seek-panel-open { overflow: hidden; }
   }
   /* Mast grows with 44px filter row; keep body clear. */
   body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
-    padding-top: calc(102px + env(safe-area-inset-top, 0px));
+    padding-top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
   body.journal-page:not(.article) {
-    padding-top: calc(118px + env(safe-area-inset-top, 0px));
+    padding-top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
 }
 
@@ -2927,7 +2927,7 @@ body.seal-devin .friend { display: none !important; }
     position: sticky;
     /* Journal continuous (no section-bar): under mast only.
        Codex/Atlas with #section-bar: under mast + secondary row (override below). */
-    top: calc(118px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
     bottom: auto;
     left: auto;
     right: auto;
@@ -2942,7 +2942,7 @@ body.seal-devin .friend { display: none !important; }
   }
   body.journal-page:has(#section-bar) aside.toc:has(> .toc-drop) {
     /* mast (118px journal-page) + one-row #section-bar (44px) */
-    top: calc(162px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px));
   }
   /* Contents row sits at a fixed offset under the nav, so the nav must stay one row:
      no wrap; on the narrowest phones it scrolls sideways instead (its veil is off here). */
@@ -3029,10 +3029,10 @@ body.seal-devin .friend { display: none !important; }
   body.journal-page .toc-drop > .toc-list a.on { color: #f3eee6; }
   /* Headings reached from Contents / links land below mast + nav + Contents row. */
   body.journal-page:has(#section-bar) main.read h2[id] {
-    scroll-margin-top: calc(178px + env(safe-area-inset-top, 0px));
+    scroll-margin-top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px) + 12px);
   }
   body.journal-page:has(#section-bar):has(aside.toc > .toc-drop) main.read h2[id] {
-    scroll-margin-top: calc(222px + env(safe-area-inset-top, 0px));
+    scroll-margin-top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px) + 12px);
   }
   /* Journal chapters list stays in the flow but must paint above the fixed art bg. */
   body.journal-page aside.toc:not(:has(> .toc-drop)) {
@@ -3165,7 +3165,7 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
     position: fixed;
     left: 0;
     right: 0;
-    top: calc(56px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
     z-index: 26;
     display: flex;
     align-items: center;
@@ -3215,7 +3215,7 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
     position: fixed;
     left: 0;
     right: 0;
-    top: calc(100px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px));
     bottom: auto;
     z-index: 25;
     width: 100%;
@@ -3331,7 +3331,7 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
     display: flex;
     position: -webkit-sticky;
     position: sticky;
-    top: calc(102px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
     z-index: 30;
     width: 100%;
     min-height: 44px;
@@ -3348,7 +3348,7 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
   }
   body.journal-flow #section-bar,
   body.journal-page.journal-flow #section-bar {
-    top: calc(118px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
   body.index-page #section-bar::after,
   body.article #section-bar::after,
@@ -3380,7 +3380,7 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
   /* Journal Chapters: control is #section-bar; hide the old toc-drop summary strip. */
   body.journal-flow aside.toc:has(> .toc-drop) {
     position: fixed;
-    top: calc(162px + env(safe-area-inset-top, 0px)); /* journal mast 118 + bar 44 */
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)); /* journal mast 118 + bar 44 */
     left: 0;
     right: 0;
     bottom: auto;
@@ -3421,7 +3421,7 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
 
   /* Figure Lore: same secondary-nav language as #section-bar a. */
   body.entry .life-dock .life-toggle {
-    top: calc(56px + env(safe-area-inset-top, 0px));
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
     background: #070707;
     color: #8f8a82;
     font-size: 11px;
@@ -3625,7 +3625,7 @@ html, body {
   }
   body.article #section-bar {
     position: fixed !important;
-    top: calc(102px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px)) !important;
     left: 0 !important;
     right: 0 !important;
     bottom: auto !important;
@@ -3650,7 +3650,7 @@ html, body {
     display: none !important;
   }
   body.article .art-index {
-    top: calc(146px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)) !important;
   }
   body.article #description > .art-line {
     display: none !important;
@@ -3735,7 +3735,7 @@ html, body {
   /* Hide the old cinematic overlay topbar; Gallery + fit move to mini tools under chrome. */
   body.entry > header.topbar {
     position: fixed !important;
-    top: calc(146px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)) !important;
     left: 0 !important;
     right: 0 !important;
     z-index: 35 !important;
@@ -3805,7 +3805,7 @@ html, body {
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
-    top: calc(102px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px)) !important;
     z-index: 40 !important;
     display: flex !important;
     align-items: center !important;
@@ -3850,11 +3850,11 @@ html, body {
     transform: translateY(1px) rotate(-135deg) !important;
   }
   body.entry .life-sheet {
-    top: calc(146px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)) !important;
     background: #070707 !important;
   }
   body.entry .life-sheet.open {
-    top: calc(146px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)) !important;
   }
   /* Veil under Lore bar when closed (content fades, bar stays hard). */
   body.entry .life-dock .life-toggle::before {
@@ -4011,7 +4011,7 @@ html, body {
   /* Article Categories: fixed under mast (hero underlays chrome). */
   body.article #section-bar {
     position: fixed !important;
-    top: calc(102px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px)) !important;
     left: 0 !important;
     right: 0 !important;
     z-index: 40 !important;
@@ -4024,7 +4024,7 @@ html, body {
   /* Figure Lore row: same. */
   body.entry .life-dock .life-toggle {
     position: fixed !important;
-    top: calc(102px + env(safe-area-inset-top, 0px)) !important;
+    top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px)) !important;
     left: 0 !important;
     right: 0 !important;
     background: #070707 !important;
@@ -4044,5 +4044,164 @@ html, body {
     background-image: none !important;
     -webkit-transform: none !important;
     transform: none !important;
+  }
+}
+
+/* ---- Phone thinner chrome stack (art70) ----
+   Mast ~80px (6+34+34+6), secondary 36px, stack 116px.
+   Equidistant rows; ~34px hit areas; art69 pin (no transform, fixed curtain).
+   Desktop untouched. */
+@media (max-width: 800px) {
+  :root {
+    --phone-mast-pad-y: 6px;
+    --phone-mast-row: 34px;
+    --phone-mast-h: 80px;   /* 6 + 34 + 34 + 6 */
+    --phone-sec-h: 36px;
+    --phone-stack-h: 116px; /* 80 + 36 */
+  }
+
+  /* Mast paddings + row heights (all pages with phone mast). */
+  .mast .topbar,
+  body.article .mast .topbar,
+  body.entry .mast .topbar,
+  body.journal-page .mast .topbar,
+  body.index-page .mast .topbar {
+    padding-top: var(--phone-mast-pad-y) !important;
+    padding-bottom: var(--phone-mast-pad-y) !important;
+    gap: 0 !important;
+  }
+  body.journal-page .mast .topbar {
+    gap: 0 !important; /* was 8px — unify with other pages */
+    padding: var(--phone-mast-pad-y) 8px !important;
+  }
+  .mast .topbar > .mark,
+  .mast .topbar > a[href$="seal.html"],
+  body.article .mast .topbar > .mark,
+  body.entry .mast .topbar > .mark,
+  body.journal-page .mast .topbar > .mark {
+    min-height: var(--phone-mast-row) !important;
+    height: var(--phone-mast-row) !important;
+  }
+  .mast .topbar .filters,
+  body.article .mast .topbar .filters,
+  body.entry .mast .topbar .filters,
+  body.journal-page .mast .topbar .filters {
+    min-height: var(--phone-mast-row) !important;
+    height: var(--phone-mast-row) !important;
+  }
+  .mast .topbar .filters a,
+  body.article .mast .topbar .filters a,
+  body.entry .mast .topbar .filters a,
+  .seek-glyph {
+    min-height: var(--phone-mast-row) !important;
+    height: var(--phone-mast-row) !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+  .mast .topbar > .mark,
+  .mast .topbar > .mark a,
+  .mast .topbar > a[href$="seal.html"] {
+    min-height: var(--phone-mast-row) !important;
+  }
+  /* Keep type quiet (art68); don't grow glyph beyond the row. */
+  .seek-glyph {
+    min-width: var(--phone-mast-row) !important;
+    margin-left: 2px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+  .seek-glyph svg { width: 14px !important; height: 14px !important; }
+
+  /* Body clearance under fixed mast (Index / Gallery / Atlas / Codex / Journal). */
+  body:not(.article):not(.entry):not(.journal-page):not(.seal-page) {
+    padding-top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+  body.journal-page:not(.article) {
+    padding-top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  /* Secondary bar height + sticky/fixed tops. */
+  #section-bar,
+  body.index-page #section-bar,
+  body.article #section-bar,
+  body.journal-flow #section-bar,
+  body.journal-page #section-bar,
+  .journal-page #section-bar {
+    min-height: var(--phone-sec-h) !important;
+    height: var(--phone-sec-h) !important;
+  }
+  #section-bar a,
+  #section-bar .sec-toggle {
+    min-height: var(--phone-sec-h) !important;
+    height: var(--phone-sec-h) !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  /* Sticky secondary under mast (Index / Journal / Atlas-Codex). */
+  .journal-page #section-bar,
+  #section-bar,
+  body.index-page #section-bar,
+  body.journal-flow #section-bar {
+    top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+  body.journal-page #section-bar,
+  body.journal-flow #section-bar,
+  body.journal-page.journal-flow #section-bar {
+    top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+  /* Article Categories: fixed under mast. */
+  body.article #section-bar {
+    top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
+    height: var(--phone-sec-h) !important;
+    min-height: var(--phone-sec-h) !important;
+  }
+  /* Figure Lore row. */
+  body.entry .life-dock .life-toggle {
+    top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
+    min-height: var(--phone-sec-h) !important;
+    height: var(--phone-sec-h) !important;
+  }
+  body.entry > header.topbar {
+    top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px)) !important;
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+  body.entry .life-sheet,
+  body.entry .life-sheet.open {
+    top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  /* Dropdown panels under stack. */
+  body.article .art-index {
+    top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+  body.index-page aside.toc.index-toc {
+    top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+  body.journal-flow aside.toc:has(> .toc-drop) {
+    top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  /* Scroll / anchor offsets clear the full stack. */
+  body.index-page .index-cat,
+  body.index-page .index-flow .index-cat {
+    scroll-margin-top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px)) !important;
+  }
+  body.journal-flow .read > h1,
+  body.journal-flow:has(aside.toc > .toc-drop) .read > h1,
+  body.journal-page main.read h2[id],
+  body.book .read h2[id],
+  body.lore-page .read h2[id],
+  .journal-read h2[id],
+  .read h2[id] {
+    scroll-margin-top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px) + 12px) !important;
+  }
+
+  /* Seal page shorter mast clearance if present. */
+  body.seal-page {
+    padding-top: calc(var(--phone-mast-row) + env(safe-area-inset-top, 0px)) !important;
   }
 }
