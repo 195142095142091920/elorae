@@ -2178,8 +2178,7 @@ body.journal-page .read h2 + .era-years {
 }
 .seek-glyph svg { display: block; }
 
-#seek-panel,
-#lore-pop {
+#seek-panel {
   position: fixed;
   inset: 0;
   z-index: 9000;
@@ -2189,8 +2188,7 @@ body.journal-page .read h2 + .era-years {
   padding: 24px;
   box-sizing: border-box;
 }
-#seek-panel[hidden],
-#lore-pop[hidden] { display: none !important; }
+#seek-panel[hidden] { display: none !important; }
 .seek-panel-scrim {
   position: absolute;
   inset: 0;
@@ -2317,8 +2315,7 @@ a.index-card.is-seek-flash {
   outline-offset: 3px;
   transition: outline-color .8s ease;
 }
-#seek-panel-results,
-.lore-pop-body {
+#seek-panel-results {
   position: relative;
   z-index: 1;
   overflow: auto;
@@ -2431,8 +2428,7 @@ body.seek-panel-open { overflow: hidden; }
 @media (max-width: 800px) {
   .seek-glyph { margin-left: 8px; padding: 6px; }
   .seek-glyph svg { width: 13px; height: 13px; }
-  #seek-panel,
-  #lore-pop {
+  #seek-panel {
     padding: 12px;
     align-items: flex-start;
     padding-top: max(12px, env(safe-area-inset-top));
@@ -2453,8 +2449,7 @@ body.seek-panel-open { overflow: hidden; }
     width: 420px; height: 420px; filter: blur(48px);
   }
   #seek-panel-input { font-size: 18px; padding: 16px 44px 12px 16px; flex: 0 0 auto; }
-  #seek-panel-results,
-  .lore-pop-body {
+  #seek-panel-results {
     padding: 10px 12px 16px;
     flex: 1 1 auto;
     min-height: 0;
@@ -4782,10 +4777,9 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
 }
 
 
-/* ---- art82: Index card lore pop-out ----
-   Bare page glyph bottom-right on every Index card (card-lore.js); opens #lore-pop, which
-   reuses the search panel shell (#seek-panel / .seek-panel-* rules above). Dossier quick
-   reference only: name, epithet, quote, dossier fields, lore opening, links. */
+/* ---- art82: Index card lore glyph ----
+   Bare page glyph bottom-right on every Index card (card-lore.js). art86: it flips the card
+   face to a dossier back face (rules in the art86 block below); the art82 pop-out is gone. */
 body.index-page .index-card .card-lore-glyph {
   position: absolute;
   z-index: 2; /* above the bottom veil (::after) and label layer */
@@ -4807,119 +4801,6 @@ body.index-page .index-card .card-lore-glyph:hover,
 body.index-page .index-card .card-lore-glyph:focus-visible { color: #f3eee6; outline: none; }
 body.index-page .index-card .card-lore-glyph:focus-visible svg { filter: drop-shadow(0 0 4px rgba(243,238,230,.55)); }
 
-.lore-pop-body { outline: none; overscroll-behavior: contain; }
-.lore-pop-head {
-  padding: 0 40px 14px 0;
-  border-bottom: 1px solid rgba(143,138,130,.28);
-}
-.lore-pop-name {
-  margin: 0;
-  font-family: "Iowan Old Style", Palatino, serif;
-  font-weight: 400;
-  letter-spacing: .04em;
-  color: #f3eee6;
-}
-.lore-pop-epithet {
-  margin: 6px 0 0;
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: #8f8a82;
-}
-.lore-pop-quote { margin: 18px 0 0; padding: 0; border: 0; }
-.lore-pop-quote p {
-  margin: 0;
-  font-family: "Iowan Old Style", Palatino, serif;
-  font-style: italic;
-  line-height: 1.5;
-  color: #f3eee6;
-}
-.lore-pop-quote cite {
-  display: block;
-  margin: 8px 0 0;
-  font-family: Helvetica, Arial, sans-serif;
-  font-style: normal;
-  font-size: 10px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: #9a948a;
-}
-.lore-pop-dossier { margin: 18px 0 0; }
-.lore-pop-dossier dl {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 6px 20px;
-  margin: 0;
-  align-items: baseline;
-}
-.lore-pop-dossier dt {
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 10px;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: #8f8a82;
-}
-.lore-pop-dossier dd {
-  margin: 0;
-  font-family: "Iowan Old Style", Palatino, serif;
-  font-size: 15px;
-  line-height: 1.4;
-  color: #f3eee6;
-}
-.lore-pop-facts {
-  list-style: none;
-  margin: 12px 0 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-}
-.lore-pop-facts li {
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 11px;
-  line-height: 1.6;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: #b7b0a4;
-}
-.lore-pop-desc {
-  margin: 18px 0 0;
-  font-family: "Iowan Old Style", Palatino, serif;
-  line-height: 1.5;
-  color: #d2cbc0;
-}
-.lore-pop-body a { color: #cfc6b8; text-decoration: none; transition: color .15s ease; }
-.lore-pop-body a:hover,
-.lore-pop-body a:focus-visible { color: #f3eee6; }
-.lore-pop-links { margin: 20px 0 0; }
-.lore-pop-links .lore-pop-article { padding: 12px 0; }
-.lore-pop-links .lore-pop-article .seek-panel-kind { display: block; }
-.lore-pop-group { margin: 14px 0 0; }
-.lore-pop-group-head {
-  margin: 0 0 6px;
-  font-family: Helvetica, Arial, sans-serif;
-  font-weight: 400;
-  font-size: 10px;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: #8f8a82;
-}
-.lore-pop-group-head a { color: #8f8a82; }
-.lore-pop-rel {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 18px;
-}
-.lore-pop-rel a {
-  font-family: "Iowan Old Style", Palatino, serif;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
 @media (min-width: 801px) {
   body.index-page .index-card .card-lore-glyph {
     right: 8px;
@@ -4931,10 +4812,6 @@ body.index-page .index-card .card-lore-glyph:focus-visible svg { filter: drop-sh
   /* Above the Categories rail fade like the names (art81). */
   body.index-page.index-toc-open .index-card .card-lore-glyph,
   html.cats-rail-pinned body.index-page .index-card .card-lore-glyph { z-index: 19; }
-  .lore-pop-body { padding: 24px 28px 26px; }
-  .lore-pop-name { font-size: 26px; }
-  .lore-pop-quote p { font-size: 17px; }
-  .lore-pop-desc { font-size: 16px; }
 }
 
 @media (max-width: 800px) {
@@ -4945,14 +4822,192 @@ body.index-page .index-card .card-lore-glyph:focus-visible svg { filter: drop-sh
     height: 30px;
   }
   body.index-page .index-card .card-lore-glyph svg { width: 10px; height: 12px; }
-  .lore-pop-body { padding: 18px 16px 20px; }
-  .lore-pop-name { font-size: 22px; }
-  .lore-pop-quote p { font-size: 16px; }
-  .lore-pop-desc { font-size: 15px; }
-  .lore-pop-dossier dl { gap: 6px 14px; }
-  .lore-pop-rel a { font-size: 15px; line-height: 1.7; }
 }
 
+
+/* ---- art86: Index card lore flip ----
+   The card glyph flips the card face itself (crossfade) to a dossier back face that lives
+   inside the card's own box: same width/height, overflow hidden, grid untouched. Backdrop =
+   the article's main hero art (tiny copy, card-lore-palette.js) blurred under a dark frosted
+   veil; labels take a subtle accent from the hero palette (neutral without one). Type scales
+   with the card (container query units); card-lore.js fit() line-clamps / drops the summary,
+   quote, facts and dossier rows until nothing overflows. No overlay, no page lock. */
+body.index-page .index-card { container-type: inline-size; }
+body.index-page .index-card .card-lore-back {
+  position: absolute;
+  inset: 0;
+  z-index: 2; /* over the name label (1) and bottom veil; glyph (2) follows it in the DOM */
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .28s ease, visibility 0s linear .28s;
+  cursor: default;
+}
+body.index-page .index-card.is-lore-flipped .card-lore-back {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .28s ease, visibility 0s;
+}
+body.index-page .index-card.is-lore-flipped > span { opacity: 0; transition: opacity .2s ease; }
+body.index-page .index-card .card-lore-bg {
+  position: absolute;
+  inset: 0;
+  background: #111 center / cover no-repeat;
+  filter: blur(30px) saturate(1.05);
+  transform: scale(1.15); /* hide the blur's soft edges */
+}
+body.index-page .index-card.is-lore-flipped .card-lore-bg { will-change: transform; }
+body.index-page .index-card .card-lore-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(7,7,7,.64);
+}
+body.index-page .index-card .card-lore-face {
+  --lore-label: #a59f95;
+  --lore-cite: #9a948a;
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  color: #f3eee6;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+}
+body.index-page .index-card .card-lore-back.has-art-palette .card-lore-face {
+  /* subtle: the palette label tone, softened toward the neutral grey */
+  --lore-label: rgba(var(--lore-label-rgb), .78);
+  --lore-cite: rgba(var(--lore-label-rgb), .66);
+}
+body.index-page .index-card .card-lore-face p,
+body.index-page .index-card .card-lore-face blockquote,
+body.index-page .index-card .card-lore-face dl,
+body.index-page .index-card .card-lore-face dd { margin: 0; padding: 0; border: 0; }
+body.index-page .index-card .card-lore-name {
+  flex: 0 0 auto;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-weight: 400;
+  letter-spacing: .04em;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.index-page .index-card .card-lore-name a {
+  color: #f3eee6;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .15s ease, text-shadow .15s ease;
+}
+body.index-page .index-card .card-lore-name a:hover,
+body.index-page .index-card .card-lore-name a:focus-visible {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(243,238,230,.35);
+  outline: none;
+}
+body.index-page .index-card .card-lore-epithet,
+body.index-page .index-card .card-lore-dossier dt,
+body.index-page .index-card .card-lore-facts,
+body.index-page .index-card .card-lore-quote cite,
+body.index-page .index-card .card-lore-note {
+  font-family: Helvetica, Arial, sans-serif;
+  font-style: normal;
+  text-transform: uppercase;
+  color: var(--lore-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.index-page .index-card .card-lore-epithet { flex: 0 0 auto; letter-spacing: .14em; }
+body.index-page .index-card .card-lore-quote { flex: 0 0 auto; }
+body.index-page .index-card .card-lore-quote p {
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-style: italic;
+  line-height: 1.35;
+  color: #f3eee6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--quote-lines, 3);
+  overflow: hidden;
+}
+body.index-page .index-card .card-lore-quote cite { display: block; letter-spacing: .12em; color: var(--lore-cite); }
+body.index-page .index-card .card-lore-dossier { flex: 0 0 auto; display: flex; flex-direction: column; }
+body.index-page .index-card .card-lore-row { display: flex; align-items: baseline; min-width: 0; }
+body.index-page .index-card .card-lore-row[hidden] { display: none; }
+body.index-page .index-card .card-lore-dossier dt { flex: 0 0 auto; letter-spacing: .14em; }
+body.index-page .index-card .card-lore-dossier dd {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: "Iowan Old Style", Palatino, serif;
+  line-height: 1.3;
+  color: #f3eee6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.index-page .index-card .card-lore-facts { flex: 0 0 auto; letter-spacing: .12em; color: #cfc6b8; }
+body.index-page .index-card .card-lore-desc {
+  flex: 0 0 auto;
+  font-family: "Iowan Old Style", Palatino, serif;
+  line-height: 1.38;
+  color: #e4ddd2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--sum-lines, 4);
+  overflow: hidden;
+}
+body.index-page .index-card .card-lore-face.no-cite .card-lore-quote cite,
+body.index-page .index-card .card-lore-face.no-facts .card-lore-facts,
+body.index-page .index-card .card-lore-face.no-epithet .card-lore-epithet,
+body.index-page .index-card .card-lore-face.no-desc .card-lore-desc,
+body.index-page .index-card .card-lore-face.no-quote .card-lore-quote { display: none; }
+body.index-page .index-card.is-lore-flipped .card-lore-glyph { color: #cfc6b8; }
+@media (prefers-reduced-motion: reduce) {
+  body.index-page .index-card .card-lore-back,
+  body.index-page .index-card.is-lore-flipped .card-lore-back,
+  body.index-page .index-card.is-lore-flipped > span { transition: none; }
+}
+
+@media (min-width: 801px) {
+  /* Above the Categories rail fade like the names and glyph (art81). */
+  body.index-page.index-toc-open .index-card .card-lore-back,
+  html.cats-rail-pinned body.index-page .index-card .card-lore-back { z-index: 19; }
+  body.index-page .index-card .card-lore-face {
+    padding: clamp(10px, 5cqw, 18px) clamp(12px, 5.5cqw, 20px) clamp(24px, 9cqw, 30px);
+    gap: clamp(3px, 1.6cqw, 6px);
+  }
+  body.index-page .index-card .card-lore-name { font-size: clamp(13px, 5.6cqw, 20px); }
+  body.index-page .index-card .card-lore-epithet { font-size: clamp(7.5px, 2.7cqw, 10px); margin-top: -2px; }
+  body.index-page .index-card .card-lore-quote p { font-size: clamp(9.5px, 3.8cqw, 13.5px); }
+  body.index-page .index-card .card-lore-quote cite { font-size: clamp(7px, 2.4cqw, 9px); margin-top: 2px; }
+  body.index-page .index-card .card-lore-dossier { gap: 1px; }
+  body.index-page .index-card .card-lore-row { gap: clamp(6px, 2.6cqw, 10px); }
+  body.index-page .index-card .card-lore-dossier dt { font-size: clamp(7px, 2.4cqw, 9px); }
+  body.index-page .index-card .card-lore-dossier dd { font-size: clamp(9.5px, 3.6cqw, 13px); }
+  body.index-page .index-card .card-lore-facts { font-size: clamp(7px, 2.4cqw, 9px); }
+  body.index-page .index-card .card-lore-desc { font-size: clamp(9.5px, 3.7cqw, 13px); }
+  body.index-page .index-card .card-lore-note { font-size: 10px; letter-spacing: .14em; }
+}
+
+@media (max-width: 800px) {
+  body.index-page .index-card .card-lore-face {
+    padding: 8px 9px 22px;
+    gap: 2px;
+  }
+  body.index-page .index-card .card-lore-name { font-size: clamp(11.5px, 6.6cqw, 17px); }
+  body.index-page .index-card .card-lore-epithet { font-size: clamp(6.5px, 3.3cqw, 9px); letter-spacing: .1em; }
+  body.index-page .index-card .card-lore-quote p { font-size: clamp(8.5px, 4.6cqw, 12px); line-height: 1.3; }
+  body.index-page .index-card .card-lore-quote cite { font-size: clamp(6.5px, 3cqw, 8px); letter-spacing: .08em; }
+  body.index-page .index-card .card-lore-row { gap: 6px; }
+  body.index-page .index-card .card-lore-dossier dt { font-size: clamp(6.5px, 3cqw, 8px); letter-spacing: .1em; }
+  body.index-page .index-card .card-lore-dossier dd { font-size: clamp(8.5px, 4.4cqw, 11.5px); }
+  body.index-page .index-card .card-lore-facts { font-size: clamp(6.5px, 3cqw, 8px); letter-spacing: .08em; }
+  body.index-page .index-card .card-lore-desc { font-size: clamp(8.5px, 4.5cqw, 12px); line-height: 1.32; }
+  body.index-page .index-card .card-lore-note { font-size: 9px; letter-spacing: .12em; }
+}
 
 /* ---- art83: article body reading measure ----
    Desktop: .art-body (description, dossier, lore, related) becomes the Codex lore column —

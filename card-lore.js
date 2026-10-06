@@ -1,12 +1,16 @@
-/* Index card lore pop-out (art82).
+/* Index card lore flip (art82 glyph; art86 flip replaces the art82/85 pop-out overlay).
    Each Index card gets a bare page glyph (bottom-right). Clicking it never follows the card
-   link; it opens a dossier-style quick reference in the search panel shell (#seek-panel look:
-   .seek-panel-scrim / .seek-panel-box / .seek-panel-close, same phone scroll lock).
-   Content is read on demand from the card's own article (articles/<slug>.html), verbatim:
-   name + epithet, the lore quote, the dossier fields (dl.art-dossier + ul.art-facts),
-   the opening of the lore (first .art-life paragraph, cut at a sentence boundary), then the
-   article link and the article's Related links. The full biography stays on the article.
-   Outside click / Escape / close X dismiss and return focus to the glyph. */
+   link; it flips the CARD FACE (crossfade) to a dossier back face that fits inside the card's
+   own box: name (links to the article), epithet, lore quote, dossier fields (dl.art-dossier +
+   ul.art-facts) and the opening of the lore (first .art-life paragraph, whole sentences).
+   No article button, no Related links. Text is read on demand from articles/<slug>.html.
+   Backdrop: the article's MAIN hero art, heavily blurred under a dark frosted veil (tiny
+   precomputed copy from tools/art-palette.py -> card-lore-palette.js; falls back to the
+   card's own image). Labels take a subtle accent from the same palette (neutral if none).
+   Fit: content never grows the card — type scales with the card (container query units),
+   and fit() clamps/drops the summary, quote, facts and dossier rows until nothing overflows.
+   The same glyph (now an X) flips back; so do Escape and flipping another card. While
+   flipped, clicks on the card do nothing except on the name link. No overlay, no page lock. */
 (function () {
   if (!document.body.classList.contains("index-page")) return;
   var cards = Array.prototype.slice.call(document.querySelectorAll("a.index-card"));
@@ -14,8 +18,11 @@
 
   var GLYPH = '<svg viewBox="0 0 11 13" aria-hidden="true">' +
     '<path d="M1.5 0.5h5.5l2.5 2.5v9.5h-8z M7 0.5v2.5h2.5 M3.5 6h4 M3.5 8h4 M3.5 10h2.5" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>';
-  var CLOSE = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5L12.5 12.5M12.5 1.5L1.5 12.5" fill="none" stroke="#f3eee6" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
-  var MAX_SENTENCES = 4, MAX_CHARS = 320;
+  var BACK = '<svg viewBox="0 0 11 13" aria-hidden="true">' +
+    '<path d="M1.5 3.5L9.5 11.5M9.5 3.5L1.5 11.5" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
+  var MAX_SENTENCES = 3, MAX_CHARS = 260;
+  var PAL = window.__lorePalette || {};
+  var ROOT = new URL("./", document.currentScript ? document.currentScript.src : location.href).href;
 
   cards.forEach(function (card) {
     var label = card.querySelector("span");
@@ -23,148 +30,117 @@
     g.className = "card-lore-glyph";
     g.setAttribute("role", "button");
     g.setAttribute("tabindex", "0");
-    g.setAttribute("aria-haspopup", "dialog");
+    g.setAttribute("aria-expanded", "false");
     g.setAttribute("aria-label", "Quick lore: " + (label ? label.textContent : "card"));
     g.innerHTML = GLYPH;
     card.appendChild(g);
   });
 
-  /* Glyph click/keys: swallow before the card link (capture) so the card never navigates. */
+  var flipped = null, cache = {}, ro = null;
   function glyphOf(e) { return e.target && e.target.closest ? e.target.closest(".card-lore-glyph") : null; }
+
+  /* Capture: glyph toggles; while flipped, the card itself never navigates (name link only). */
   document.addEventListener("click", function (e) {
     var g = glyphOf(e);
-    if (!g) return;
+    if (g) { e.preventDefault(); e.stopPropagation(); toggle(g.closest("a.index-card")); return; }
+    var card = e.target.closest && e.target.closest("a.index-card.is-lore-flipped");
+    if (!card) return;
+    if (e.target.closest(".card-lore-name a[href]")) { e.stopPropagation(); return; } /* navigates */
     e.preventDefault();
     e.stopPropagation();
-    open(g);
   }, true);
   document.addEventListener("auxclick", function (e) {
     if (glyphOf(e)) { e.preventDefault(); e.stopPropagation(); }
   }, true);
   document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && flipped) {
+      var sp = document.getElementById("seek-panel");
+      if (sp && !sp.hidden) return; /* search panel owns Escape while open */
+      e.preventDefault();
+      e.stopPropagation(); /* only flips back; the Categories rail keeps its state */
+      unflip(true);
+      return;
+    }
     var g = glyphOf(e);
     if (!g || (e.key !== "Enter" && e.key !== " ")) return;
     e.preventDefault();
     e.stopPropagation();
-    open(g);
+    toggle(g.closest("a.index-card"));
   }, true);
 
-  var pop = null, box = null, body = null, opener = null, lockY = 0, cache = {}, seq = 0;
-  function ensurePop() {
-    if (pop) return;
-    pop = document.createElement("div");
-    pop.id = "lore-pop";
-    pop.hidden = true;
-    pop.innerHTML =
-      '<div class="seek-panel-scrim" data-lore-close="1"></div>' +
-      '<div class="seek-panel-box lore-pop-box" role="dialog" aria-modal="true" aria-labelledby="lore-pop-title">' +
-      '<button type="button" class="seek-panel-close" data-lore-close="1" aria-label="Close">' + CLOSE + '</button>' +
-      '<div class="lore-pop-body" tabindex="-1"></div></div>';
-    document.body.appendChild(pop);
-    box = pop.querySelector(".lore-pop-box");
-    body = pop.querySelector(".lore-pop-body");
-    pop.addEventListener("click", function (e) {
-      var t = e.target;
-      if (t === pop || (t.closest && t.closest("[data-lore-close]"))) { close(true); return; }
-      var a = t.closest && t.closest("a[href]");
-      if (a && box.contains(a) && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0) {
-        close(false); /* default navigation proceeds */
-      }
-    });
-  }
+  function slugOf(url) { var m = /\/articles\/([^\/?#]+)\.html/.exec(url); return m ? m[1] : ""; }
 
-  /* Same lock as search.js (phone: page fixed behind, panel scrolls inside). */
-  function lock() {
-    document.body.classList.add("seek-panel-open");
-    if (!window.matchMedia("(max-width: 800px)").matches) return;
-    lockY = window.scrollY || window.pageYOffset || 0;
-    document.documentElement.classList.add("seek-panel-lock");
-    document.body.style.top = "-" + lockY + "px";
-  }
-  function unlock() {
-    document.documentElement.classList.remove("seek-panel-lock");
-    document.body.classList.remove("seek-panel-open");
-    if (document.body.style.top) {
-      document.body.style.top = "";
-      window.scrollTo(0, lockY || 0);
-    }
-  }
-  function isOpen() { return !!(pop && !pop.hidden); }
-
-  function open(glyph) {
-    ensurePop();
-    var card = glyph.closest("a.index-card");
+  function toggle(card) {
     if (!card) return;
-    opener = glyph;
-    var url = card.href;
+    if (flipped === card) { unflip(true); return; }
+    if (flipped) unflip(false);
+    flip(card);
+  }
+
+  function flip(card) {
+    var url = card.href, glyph = card.querySelector(".card-lore-glyph");
+    var back = card.querySelector(".card-lore-back");
+    if (!back) {
+      back = document.createElement("div");
+      back.className = "card-lore-back";
+      back.setAttribute("aria-hidden", "true");
+      back.innerHTML = '<div class="card-lore-bg"></div><div class="card-lore-veil"></div><div class="card-lore-face"></div>';
+      card.insertBefore(back, glyph); /* glyph stays on top (same z-index, later in DOM) */
+      var p = PAL[slugOf(url)] || {}, img = card.querySelector("img");
+      var fallback = img ? img.currentSrc || img.src : "";
+      var bg = back.querySelector(".card-lore-bg");
+      var src = p.blur ? new URL(p.blur, ROOT).href : fallback;
+      var probe = new Image();
+      probe.onload = function () { bg.style.backgroundImage = 'url("' + src + '")'; };
+      probe.onerror = function () { if (fallback) bg.style.backgroundImage = 'url("' + fallback + '")'; };
+      probe.src = src;
+      if (p.label) { back.classList.add("has-art-palette"); back.style.setProperty("--lore-label-rgb", p.label); }
+      fill(back, card, url);
+    }
+    flipped = card;
+    card.classList.add("is-lore-flipped");
+    back.setAttribute("aria-hidden", "false");
+    glyph.innerHTML = BACK;
+    glyph.setAttribute("aria-expanded", "true");
+    glyph.setAttribute("aria-label", "Flip back");
+    fit(back);
+    if (window.ResizeObserver) {
+      if (!ro) ro = new ResizeObserver(function () { if (flipped) fit(flipped.querySelector(".card-lore-back")); });
+      ro.observe(card);
+    }
+  }
+
+  function unflip(refocus) {
+    var card = flipped;
+    if (!card) return;
+    flipped = null;
+    if (ro) ro.unobserve(card);
+    card.classList.remove("is-lore-flipped");
+    var back = card.querySelector(".card-lore-back"), glyph = card.querySelector(".card-lore-glyph");
+    if (back) back.setAttribute("aria-hidden", "true");
+    glyph.innerHTML = GLYPH;
+    glyph.setAttribute("aria-expanded", "false");
+    glyph.setAttribute("aria-label", "Quick lore: " + ((card.querySelector("span") || {}).textContent || "card"));
+    if (refocus && document.activeElement && card.contains(document.activeElement)) {
+      try { glyph.focus({ preventScroll: true }); } catch (e) { glyph.focus(); }
+    }
+  }
+
+  function fill(back, card, url) {
+    var face = back.querySelector(".card-lore-face");
     var name = (card.querySelector("span") || {}).textContent || "";
-    pop.hidden = false;
-    lock();
-    body.scrollTop = 0;
-    var my = ++seq;
-    var cached = cache[url];
-    if (cached) render(cached, url, name);
-    else {
-      body.innerHTML = '<p class="seek-panel-empty">Loading\u2026</p>';
-      fetch(url, { credentials: "same-origin" }).then(function (r) {
-        if (!r.ok) throw new Error(r.status);
-        return r.text();
-      }).then(function (html) {
-        cache[url] = extract(html, url);
-        if (my === seq && isOpen()) render(cache[url], url, name);
-      }).catch(function () {
-        if (my === seq && isOpen()) render({ missing: true }, url, name);
-      });
-    }
-    setTimeout(function () { try { body.focus({ preventScroll: true }); } catch (e) { body.focus(); } }, 0);
+    var go = function (d) { render(face, d, url, name); if (flipped === card) fit(back); };
+    if (cache[url]) { go(cache[url]); return; }
+    render(face, { loading: true }, url, name);
+    fetch(url, { credentials: "same-origin" }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.text();
+    }).then(function (html) { cache[url] = extract(html); go(cache[url]); })
+      .catch(function () { go({ missing: true }); });
   }
 
-  function close(refocus) {
-    if (!isOpen()) return;
-    seq++;
-    pop.hidden = true;
-    unlock();
-    if (refocus && opener) { try { opener.focus({ preventScroll: true }); } catch (e) { opener.focus(); } }
-  }
-
-  /* While open: Escape closes; Tab stays inside; other keys don't reach page shortcuts
-     (search type-to-filter, rail Escape). Default actions (link Enter, scrolling) still run. */
-  window.addEventListener("keydown", function (e) {
-    if (!isOpen()) return;
-    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(true); return; }
-    if (e.key === "Tab") {
-      var f = Array.prototype.slice.call(box.querySelectorAll("a[href], button"));
-      if (f.length) {
-        var first = f[0], last = f[f.length - 1], a = document.activeElement;
-        if (e.shiftKey && (a === first || a === body || !box.contains(a))) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && (a === last || !box.contains(a))) { e.preventDefault(); first.focus(); }
-      }
-    }
-    e.stopPropagation();
-  }, true);
-
-  /* ---- extraction (verbatim text; only anchors and simple inline tags are kept) ---- */
-  function abs(raw, base) { try { return new URL(raw, base).href; } catch (e) { return raw; } }
-  var INLINE = { EM: 1, I: 1, STRONG: 1, B: 1, BR: 1, SMALL: 1 };
-  function copyInline(src, dst, base) {
-    Array.prototype.forEach.call(src.childNodes, function (n) {
-      if (n.nodeType === 3) { dst.appendChild(document.createTextNode(n.nodeValue)); return; }
-      if (n.nodeType !== 1) return;
-      if (n.tagName === "A" && n.getAttribute("href")) {
-        var a = document.createElement("a");
-        a.href = abs(n.getAttribute("href"), base);
-        copyInline(n, a, base);
-        dst.appendChild(a);
-      } else if (INLINE[n.tagName]) {
-        var el = document.createElement(n.tagName.toLowerCase());
-        copyInline(n, el, base);
-        dst.appendChild(el);
-      } else copyInline(n, dst, base);
-    });
-    return dst;
-  }
+  /* ---- extraction (verbatim text) ---- */
   function text(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
-  /* Opening of the lore: whole sentences, verbatim, up to MAX_SENTENCES / ~MAX_CHARS. */
   function opening(t) {
     t = t.replace(/\s+/g, " ").trim();
     var re = /[.!?]["\u201d\u2019)]*(?=\s+["\u201c\u2018(]?[A-Z0-9])/g, ends = [], m;
@@ -177,33 +153,26 @@
     }
     return t.slice(0, cut).trim();
   }
-  function extract(html, base) {
+  function extract(html) {
     var doc = new DOMParser().parseFromString(html, "text/html");
     var lore = doc.querySelector("#lore");
     var firstLife = lore && lore.querySelector("p.art-life");
-    var related = [];
-    var rel = doc.querySelector("#related"), cur = null;
-    if (rel) Array.prototype.forEach.call(rel.children, function (n) {
-      if (n.classList.contains("art-rel-head")) {
-        var ha = n.querySelector("a[href]");
-        cur = { head: text(n), href: ha ? abs(ha.getAttribute("href"), base) : "", links: [] };
-        related.push(cur);
-      } else if (n.classList.contains("art-related")) {
-        if (!cur) { cur = { head: "", href: "", links: [] }; related.push(cur); }
-        Array.prototype.forEach.call(n.querySelectorAll("a[href]"), function (a) {
-          cur.links.push({ text: text(a), href: abs(a.getAttribute("href"), base) });
-        });
-      }
+    var q = lore && lore.querySelector("blockquote.art-quote");
+    var rows = [];
+    var dl = doc.querySelector("#dossier dl.art-dossier"), dt = null;
+    if (dl) Array.prototype.forEach.call(dl.children, function (n) {
+      if (n.tagName === "DT") dt = text(n);
+      else if (n.tagName === "DD") rows.push([dt || "", text(n)]);
     });
     return {
       name: text(doc.querySelector(".art-title h1")),
       epithet: text(doc.querySelector(".art-title .art-epithet")),
       line: text(doc.querySelector("#description .art-line")),
-      quote: lore ? lore.querySelector("blockquote.art-quote") : null,
-      dossier: doc.querySelector("#dossier dl.art-dossier"),
-      facts: lore ? lore.querySelector("ul.art-facts") : null,
-      desc: firstLife ? opening(firstLife.textContent) : "",
-      related: related
+      quote: q ? text(q.querySelector("p")) : "",
+      cite: q ? text(q.querySelector("cite")) : "",
+      rows: rows,
+      facts: lore ? Array.prototype.map.call(lore.querySelectorAll("ul.art-facts li"), text) : [],
+      desc: firstLife ? opening(firstLife.textContent) : ""
     };
   }
 
@@ -213,73 +182,63 @@
     if (txt != null) e.textContent = txt;
     return e;
   }
-  function render(d, url, cardName) {
-    body.innerHTML = "";
-    var head = el("header", "lore-pop-head");
-    var h = el("h2", "lore-pop-name", d.name || cardName);
-    h.id = "lore-pop-title";
-    head.appendChild(h);
-    if (d.epithet) head.appendChild(el("p", "lore-pop-epithet", d.epithet));
-    body.appendChild(head);
-    if (d.missing) {
-      body.appendChild(el("p", "seek-panel-empty", "No article yet"));
-      return;
-    }
+  /* No <span> anywhere: .index-card span is the card's name label. */
+  function render(face, d, url, cardName) {
+    face.innerHTML = "";
+    var h = el("p", "card-lore-name"), a = el("a", null, d.name || cardName);
+    a.href = url;
+    h.appendChild(a);
+    face.appendChild(h);
+    if (d.epithet) face.appendChild(el("p", "card-lore-epithet", d.epithet));
+    if (d.loading || d.missing) { face.appendChild(el("p", "card-lore-note", d.loading ? "Loading\u2026" : "No article yet")); return; }
     if (d.quote) {
-      var q = el("blockquote", "lore-pop-quote");
-      var qp = d.quote.querySelector("p"), qc = d.quote.querySelector("cite");
-      if (qp) q.appendChild(copyInline(qp, el("p"), url));
-      if (qc) q.appendChild(copyInline(qc, el("cite"), url));
-      body.appendChild(q);
+      var q = el("blockquote", "card-lore-quote");
+      q.appendChild(el("p", null, d.quote));
+      if (d.cite) q.appendChild(el("cite", null, d.cite));
+      face.appendChild(q);
     }
-    if (d.dossier || d.facts) {
-      var sec = el("section", "lore-pop-dossier");
-      if (d.dossier) {
-        var dl = el("dl");
-        Array.prototype.forEach.call(d.dossier.children, function (n) {
-          if (n.tagName === "DT" || n.tagName === "DD") dl.appendChild(copyInline(n, el(n.tagName.toLowerCase()), url));
-        });
-        sec.appendChild(dl);
-      }
-      if (d.facts) {
-        var ul = el("ul", "lore-pop-facts");
-        Array.prototype.forEach.call(d.facts.querySelectorAll("li"), function (li) {
-          ul.appendChild(copyInline(li, el("li"), url));
-        });
-        sec.appendChild(ul);
-      }
-      body.appendChild(sec);
+    if (d.rows.length) {
+      var dl = el("dl", "card-lore-dossier");
+      d.rows.forEach(function (r) {
+        var w = el("div", "card-lore-row");
+        w.appendChild(el("dt", null, r[0]));
+        w.appendChild(el("dd", null, r[1]));
+        dl.appendChild(w);
+      });
+      face.appendChild(dl);
     }
+    if (d.facts.length) face.appendChild(el("p", "card-lore-facts", d.facts.join(" \u00b7 ")));
     var desc = d.desc || (d.line && d.line !== d.epithet ? d.line : "");
-    if (desc) body.appendChild(el("p", "lore-pop-desc", desc));
+    if (desc) face.appendChild(el("p", "card-lore-desc", desc));
+  }
 
-    var links = el("nav", "lore-pop-links");
-    links.setAttribute("aria-label", "Related");
-    var own = el("a", "seek-panel-ment lore-pop-article");
-    own.href = url;
-    own.appendChild(el("span", "seek-panel-ment-title", "Read the full article"));
-    own.appendChild(el("span", "seek-panel-kind", d.name || cardName));
-    links.appendChild(own);
-    (d.related || []).forEach(function (grp) {
-      var gw = el("div", "lore-pop-group");
-      if (grp.head) {
-        var hh = el("h3", "lore-pop-group-head");
-        if (grp.href) { var ha = el("a", null, grp.head); ha.href = grp.href; hh.appendChild(ha); }
-        else hh.textContent = grp.head;
-        gw.appendChild(hh);
-      }
-      if (grp.links.length) {
-        var ul2 = el("ul", "lore-pop-rel");
-        grp.links.forEach(function (l) {
-          var li = el("li"), a = el("a", null, l.text);
-          a.href = l.href;
-          li.appendChild(a);
-          ul2.appendChild(li);
-        });
-        gw.appendChild(ul2);
-      }
-      links.appendChild(gw);
-    });
-    body.appendChild(links);
+  /* Shrink content until it fits the card face (no growth, no scroll). Each step is tried in
+     order; the first state that fits wins. Line clamps are CSS (-webkit-line-clamp vars). */
+  function fit(back) {
+    if (!back) return;
+    var face = back.querySelector(".card-lore-face");
+    var rows = face.querySelectorAll(".card-lore-row");
+    var S = { sum: 4, quote: 3, cite: 1, facts: 1, rows: rows.length, epi: 1, sumOn: 1, quoteOn: 1 };
+    var steps = [
+      ["sum", 3], ["sum", 2], ["cite", 0], ["quote", 2], ["facts", 0], ["rows", 4], ["sum", 1],
+      ["quote", 1], ["rows", 3], ["epi", 0], ["rows", 2], ["sumOn", 0], ["rows", 1], ["quoteOn", 0], ["rows", 0]
+    ];
+    function apply() {
+      face.style.setProperty("--sum-lines", S.sum);
+      face.style.setProperty("--quote-lines", S.quote);
+      face.classList.toggle("no-cite", !S.cite);
+      face.classList.toggle("no-facts", !S.facts);
+      face.classList.toggle("no-epithet", !S.epi);
+      face.classList.toggle("no-desc", !S.sumOn);
+      face.classList.toggle("no-quote", !S.quoteOn);
+      Array.prototype.forEach.call(rows, function (r, i) { r.hidden = i >= S.rows; });
+    }
+    function fits() { return face.scrollHeight <= face.clientHeight + 1; }
+    apply();
+    for (var i = 0; i < steps.length && !fits(); i++) {
+      if (steps[i][0] === "rows" && S.rows <= steps[i][1]) continue;
+      S[steps[i][0]] = steps[i][1];
+      apply();
+    }
   }
 })();
