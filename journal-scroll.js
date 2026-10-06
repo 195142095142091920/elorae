@@ -74,11 +74,15 @@
     /* TOC highlight stays near the mast; bg art switches when art is near viewport center. */
     var line = mastBottom + 72;
     var artLine = window.innerHeight * 0.5;
-    var id = items[0].el.id;
+    /* nt14: order-independent (the Journal can be shown oldest-first): the reached heading
+       lowest on the page wins; before any is reached, the first on the page. */
+    var id = "", best = -Infinity, first = "", firstTop = Infinity;
     items.forEach(function (item) {
-      if (item.el.getBoundingClientRect().top <= line) id = item.el.id;
+      var t = item.el.getBoundingClientRect().top;
+      if (t <= line && t > best) { best = t; id = item.el.id; }
+      if (t < firstTop) { firstTop = t; first = item.el.id; }
     });
-    highlight(id);
+    highlight(id || first);
     follow(artLine);
   }
   /* Background art: chapter h1 → that chapter's first figure; then each later in-column
@@ -124,9 +128,10 @@
   }
   function follow(line) {
     if (!marks.length) return;
-    var src = base;
+    var src = base, best = -Infinity;
     marks.forEach(function (m) {
-      if (m.el.getBoundingClientRect().top <= line) src = m.src;
+      var t = m.el.getBoundingClientRect().top;
+      if (t <= line && t > best) { best = t; src = m.src; }
     });
     if (src !== want) swapTo(src);
   }
