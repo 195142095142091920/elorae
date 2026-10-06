@@ -4677,3 +4677,36 @@ body:not(.seal-devin):not(.seal-jack) .sealed-group { display: none !important; 
 body.article .art-hero.no-art { height: 52vh !important; height: 52svh !important; }
 body.article .art-hero.no-art::after { display: none; }
 body.index-page .index-card.no-art { background: #111; }
+
+/* ---- nt27: Codex TOC short inset dividers ----
+   Between each section link on Lore / Magics / Souls / Calendar / Timeline.
+   Not on Index or Journal. Replaces the shared full-width border on those rails with a
+   short, left-inset hairline. */
+@media (min-width: 801px) {
+  body.lore-page aside.toc .toc-list > a {
+    border-bottom: 0;
+  }
+  body.lore-page aside.toc .toc-list > a + a::before {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 1px;
+    margin: 0 0 8px;
+    background: rgba(243, 238, 230, 0.22);
+    pointer-events: none;
+  }
+}
+@media (max-width: 800px) {
+  body.lore-page aside.toc .toc-list > a {
+    border-bottom: 0;
+  }
+  body.lore-page aside.toc .toc-list > a + a::before {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 1px;
+    margin: 0 0 6px;
+    background: rgba(243, 238, 230, 0.2);
+    pointer-events: none;
+  }
+}
