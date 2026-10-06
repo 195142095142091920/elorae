@@ -295,6 +295,8 @@ function bindTap(el, toggleFn) {
 }
 function bindIdleScrollbar(el) {
   if (!el) return;
+  /* art73: phone has no visible scrollbar; show-bar toggles re-cascade chrome. */
+  if (window.matchMedia && window.matchMedia("(max-width: 800px)").matches) return;
   let hide;
   const show = () => {
     el.classList.add("show-bar");

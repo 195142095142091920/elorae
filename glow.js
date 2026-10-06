@@ -36,9 +36,10 @@ if (canvas) {
       ? (document.getElementById("seal-name") || document.getElementById("seal-logout"))
       : (document.querySelector('.friend[data-owner="' + name + '"]') || document.getElementById("seal-name")));
     if (!name || !link || link.hidden || getComputedStyle(link).display === "none") {
-      canvas.style.display = "none";
+      /* art73: only mutate when visible — rewriting style every rAF can flash chrome. */
+      if (canvas.style.display !== "none") canvas.style.display = "none";
       var extra = document.getElementById("friend-glow-2");
-      if (extra) extra.style.display = "none";
+      if (extra && extra.style.display !== "none") extra.style.display = "none";
       requestAnimationFrame(frame);
       return;
     }

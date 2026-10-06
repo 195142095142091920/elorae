@@ -4431,3 +4431,112 @@ html, body {
     opacity: 1 !important;
   }
 }
+
+/* ---- Phone: kill first-scroll chrome flash (art73) ----
+   MutationObserver on html/body/mast/#section-bar during first 1000ms of scroll
+   found NO class/style mutations on chrome (art72 sat-lock held). Real cause is
+   compositor: styles.css body::after is a fixed full-viewport film grain with
+   mix-blend-mode:overlay + opacity:.18 + z-index:80 (above mast z:40). iOS
+   re-blends that layer over the opaque bar for ~1s when scrolling starts, then
+   settles. Also neutralize root :hover scrollbar cascade (no phone scrollbar)
+   and freeze dvh/hero heights that shift when the Safari toolbar collapses. */
+@media (max-width: 800px) {
+  /* Film grain must not sit on / blend over chrome. */
+  body::after {
+    content: none !important;
+    display: none !important;
+    opacity: 0 !important;
+    mix-blend-mode: normal !important;
+    background: none !important;
+    filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+  }
+
+  /* Chrome: plain opaque; isolate so ancestors/overlays cannot re-blend it. */
+  .mast,
+  body.article .mast,
+  body.entry .mast,
+  body.index-page .mast,
+  body.journal-page .mast,
+  .mast .topbar,
+  body.article .mast .topbar,
+  #section-bar,
+  body.article #section-bar,
+  body.index-page #section-bar,
+  body.journal-flow #section-bar,
+  body.entry .life-dock .life-toggle {
+    isolation: isolate !important;
+    opacity: 1 !important;
+    filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    mix-blend-mode: normal !important;
+    background: #070707 !important;
+    background-color: #070707 !important;
+    background-image: none !important;
+  }
+
+  /* Content veil (::after under chrome) stays, but never blends/filters and
+     never covers the bar (still top:100% of the bar box). */
+  body:not(.entry) .mast::after,
+  #section-bar:has(a)::after,
+  #section-bar.show::after,
+  body.has-section-bar #section-bar::after,
+  body.index-page #section-bar::after,
+  body.article #section-bar::after,
+  body.journal-flow #section-bar::after {
+    mix-blend-mode: normal !important;
+    filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Root scrollbar-fade / :hover cascade — phone has no visible scrollbar;
+     toggling scrollbar-color on html/body still forces a full style recalc. */
+  html,
+  body,
+  html:hover,
+  body:hover {
+    scrollbar-width: none !important;
+    scrollbar-color: transparent transparent !important;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  html:hover::-webkit-scrollbar-thumb,
+  body:hover::-webkit-scrollbar-thumb,
+  html::-webkit-scrollbar-thumb,
+  body::-webkit-scrollbar-thumb {
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    display: none !important;
+  }
+  .sheet.show-bar,
+  .index-list.show-bar,
+  .wall.show-bar,
+  .lore-rail .codex-toc.show-bar,
+  .life-sheet.show-bar {
+    scrollbar-color: transparent transparent !important;
+  }
+  .sheet.show-bar::-webkit-scrollbar-thumb,
+  .index-list.show-bar::-webkit-scrollbar-thumb,
+  .life-sheet.show-bar::-webkit-scrollbar-thumb {
+    background: transparent !important;
+  }
+
+  /* Don't let dynamic viewport units resize the page when the toolbar collapses. */
+  html,
+  body {
+    min-height: 100% !important;
+  }
+  body.article .art-hero {
+    height: 100svh !important;
+    max-height: 100svh !important;
+  }
+}
