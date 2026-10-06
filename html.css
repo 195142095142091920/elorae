@@ -3867,3 +3867,55 @@ html, body {
     content: none;
   }
 }
+
+/* ---- Phone figure mast type = article chrome (art68) ----
+   .entry .topbar a / figure-lore cinematic styles were bleeding onto the now-visible
+   .mast .topbar links (bold white + text-shadow halos). Match article nav exactly. */
+@media (max-width: 800px) {
+  body.entry .mast .topbar,
+  body.entry .mast .topbar a,
+  body.entry .mast .topbar .filters a,
+  body.entry .mast .topbar > .mark > a[href$="seal.html"] {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    line-height: 1 !important;
+    color: #8f8a82 !important;
+    -webkit-text-fill-color: #8f8a82 !important;
+    -webkit-text-stroke: 0 !important;
+    text-shadow: none !important;
+    background: none !important;
+    background-color: transparent !important;
+    filter: none !important;
+    box-shadow: none !important;
+  }
+  /* Title row (page name) stays the brighter mark color like articles. */
+  body.entry .mast .topbar > .mark > a[href$="seal.html"] {
+    color: #f3eee6 !important;
+    -webkit-text-fill-color: #f3eee6 !important;
+    letter-spacing: 0.16em !important;
+    font-weight: 400 !important;
+  }
+  body.entry .mast .topbar .filters a.active {
+    color: #f3eee6 !important;
+    -webkit-text-fill-color: #f3eee6 !important;
+    font-weight: 400 !important;
+  }
+  /* Middot separators stay muted (not glowing). */
+  body.entry .mast .topbar .filters a + a::before {
+    color: #5c5852 !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: #5c5852 !important;
+  }
+  /* Lore secondary row already #8f8a82; kill any leftover cinematic weight/shadow. */
+  body.entry .life-dock .life-toggle {
+    font-weight: 400 !important;
+    letter-spacing: 0.08em !important;
+    font-size: 11px !important;
+    text-shadow: none !important;
+    -webkit-text-stroke: 0 !important;
+    filter: none !important;
+  }
+}
