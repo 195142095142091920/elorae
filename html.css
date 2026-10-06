@@ -526,7 +526,7 @@ body:hover::-webkit-scrollbar-thumb,
 body:not(.journal-page) .toc {
   background: none;
   width: 220px;
-  top: 72px;
+  top: 56px;
   padding: 28px 22px 32px;
   z-index: 8;
 }
@@ -825,7 +825,7 @@ body.index-page .index-toc-cue {
   body.index-page aside.toc.index-toc {
     position: fixed;
     left: 0;
-    top: 72px;
+    top: 56px; /* flush under mast (was 72 — 16px gap) */
     bottom: 0;
     width: 12px;
     pointer-events: none;
@@ -842,7 +842,7 @@ body.index-page .index-toc-cue {
   body.index-page .index-toc-cue {
     position: fixed;
     left: 0;
-    top: calc(72px + 42vh);
+    top: calc(56px + 42vh);
     z-index: 19;
     width: 18px;
     height: 36px;
@@ -870,7 +870,7 @@ body.index-page .index-toc-panel {
   body.index-page .index-toc-panel {
     position: fixed;
     left: 0;
-    top: 72px;
+    top: 56px; /* flush under mast */
     bottom: 0;
     width: 220px;
     max-width: 78vw;
@@ -1305,7 +1305,7 @@ body.article .art-index-cue {
   body.article .art-index {
     position: fixed;
     left: 0;
-    top: 72px;
+    top: 56px; /* flush under mast (was 72 — 16px gap) */
     bottom: 0;
     width: 12px;
     pointer-events: none;
@@ -1323,7 +1323,7 @@ body.article .art-index-cue {
   body.article .art-index-cue {
     position: fixed;
     left: 0;
-    top: calc(72px + 42vh);
+    top: calc(56px + 42vh);
     z-index: 19;
     width: 18px;
     height: 36px;
@@ -1351,7 +1351,7 @@ body.article .art-index-panel {
   body.article .art-index-panel {
     position: fixed;
     left: 0;
-    top: 72px;
+    top: 56px; /* flush under mast */
     bottom: 0;
     width: 220px;
     max-width: 78vw;
@@ -1452,25 +1452,22 @@ body.article .art-index .toc-sub:hover { color: #f3eee6; }
 body.article .art-index .toc-group .toc-name { padding-left: 8px; }
 
 @media (min-width: 801px) {
-  body.article .art-index:hover .art-index-panel,
-  body.article .art-index:focus-within .art-index-panel,
-  body.article .art-index.open .art-index-panel {
+  /* JS-driven open (art74): hover/focus/pin via art-index.js — matches Index push1. */
+  body.article .art-index.open,
+  html.cats-rail-pinned body.article .art-index {
+    width: 220px;
+  }
+  body.article .art-index.open::before,
+  html.cats-rail-pinned body.article .art-index::before {
+    width: 220px;
+  }
+  body.article .art-index.open .art-index-panel,
+  html.cats-rail-pinned body.article .art-index-panel {
     transform: translateX(0);
   }
-  /* Widen the hover bridge so leaving the cue onto the panel stays open. */
-  body.article .art-index:hover,
-  body.article .art-index:focus-within,
-  body.article .art-index.open {
-    width: 220px;
-  }
-  body.article .art-index:hover::before,
-  body.article .art-index:focus-within::before,
-  body.article .art-index.open::before {
-    width: 220px;
-  }
-  body.article .art-index:hover .art-index-cue,
-  body.article .art-index:focus-within .art-index-cue,
-  body.article .art-index.open .art-index-cue {
+  body.article .art-index.open .art-index-cue,
+  body.article .art-index.pinned .art-index-cue,
+  html.cats-rail-pinned body.article .art-index-cue {
     color: rgba(243,238,230,0.85);
   }
 }
@@ -4538,5 +4535,96 @@ html, body {
   body.article .art-hero {
     height: 100svh !important;
     max-height: 100svh !important;
+  }
+}
+
+
+/* ---- art74: Categories rail persist, flush under mast, right-edge fade, article push ---- */
+/* Boot: no transition flicker while restoring localStorage state (cats-rail-boot.js). */
+html.cats-rail-boot body.index-page .index-toc-panel,
+html.cats-rail-boot body.index-page main.with-toc.index-flow,
+html.cats-rail-boot body.article .art-index-panel,
+html.cats-rail-boot body.article .art-hero,
+html.cats-rail-boot body.article .art-body,
+html.cats-rail-boot body.article .art-index,
+html.cats-rail-boot body.index-page aside.toc.index-toc {
+  transition: none !important;
+}
+
+/* Early paint from html.cats-rail-pinned (set in <head> before CSS paints content). */
+@media (min-width: 801px) {
+  html.cats-rail-pinned body.index-page aside.toc.index-toc {
+    width: 220px;
+  }
+  html.cats-rail-pinned body.index-page aside.toc.index-toc::before {
+    width: 220px;
+  }
+  html.cats-rail-pinned body.index-page .index-toc-panel {
+    transform: translateX(0);
+  }
+  html.cats-rail-pinned body.index-page main.with-toc.index-flow {
+    margin-left: 220px;
+  }
+
+  /* Article push: hero + body reflow beside open rail (same 220px / .2s ease as Index). */
+  body.article .art-hero,
+  body.article .art-body {
+    transition: margin-left .2s ease, width .2s ease;
+    box-sizing: border-box;
+  }
+  body.article.art-index-open .art-hero,
+  html.cats-rail-pinned body.article .art-hero {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+  }
+  body.article.art-index-open .art-hero img,
+  html.cats-rail-pinned body.article .art-hero img {
+    /* object-fit:cover already — recrops into the narrower hero */
+    object-fit: cover;
+  }
+  body.article.art-index-open .art-body,
+  html.cats-rail-pinned body.article .art-body {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    max-width: none;
+  }
+
+  /* Soft right-edge fade on the Categories rail panel (desktop only).
+     Extends past the solid panel onto the art; pointer-events none so art stays clickable. */
+  body.index-page aside.toc.index-toc.open::after,
+  html.cats-rail-pinned body.index-page aside.toc.index-toc::after,
+  body.article .art-index.open::after,
+  html.cats-rail-pinned body.article .art-index::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 220px;
+    width: 56px;
+    margin-left: -1px;
+    pointer-events: none;
+    z-index: 19;
+    background: linear-gradient(
+      to right,
+      #070707 0%,
+      rgba(7, 7, 7, 0.55) 42%,
+      rgba(7, 7, 7, 0) 100%
+    );
+  }
+}
+
+/* Phone: restore open dropdown before paint; leave full-width (no right-edge fade). */
+@media (max-width: 800px) {
+  html.cats-rail-phone-open body.index-page aside.toc.index-toc .index-toc-panel,
+  html.cats-rail-phone-open body.article .art-index-panel {
+    display: block;
+    transform: none;
+  }
+  /* When dropdown is open, jump targets clear mast + section-bar + dropdown area. */
+  html.cats-rail-phone-open body.index-page .index-cat,
+  html.cats-rail-phone-open body.index-page .index-card,
+  html.cats-rail-phone-open body.index-page .index-sub {
+    scroll-margin-top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px) + min(58vh, 520px));
   }
 }

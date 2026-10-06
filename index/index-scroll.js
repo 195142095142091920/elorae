@@ -1,8 +1,10 @@
 /* Index rail: Chromium-style category sidebar.
    Collapsed strip stays hoverable; hover/focus peeks the panel and pushes the
    card grid (body.index-toc-open). Pin sticks the rail open; unpin collapses.
+   Pinned / phone-open state persists in localStorage (elorae-cats-rail); default open.
+   Clicking a category/subject link does not change open/pinned state.
    Phone: Categories opens from #section-bar .sec-toggle (regular secondary nav); pin/cue hidden;
-   tap-outside / link / Escape closes.
+   tap-outside / Escape closes (and persists).
    Nests stay closed until the chevron is tapped; no card highlight while scrolling. */
 (function () {
   var toc = document.querySelector("aside.toc");
@@ -38,7 +40,25 @@
     for (var i = 0; i < cats.length; i++) if (cats[i].el === sec) return cats[i];
     return null;
   }
-  var hover = false, pinned = false, phoneOpen = false;
+
+  var boot = window.__catsRail || { key: "elorae-cats-rail", pinned: true, phoneOpen: true };
+  var hover = false, pinned = !!boot.pinned, phoneOpen = !!boot.phoneOpen;
+
+  function persist() {
+    try {
+      localStorage.setItem(boot.key || "elorae-cats-rail", JSON.stringify({
+        pinned: pinned, phoneOpen: phoneOpen
+      }));
+    } catch (e) {}
+    var h = document.documentElement;
+    h.classList.toggle("cats-rail-pinned", pinned);
+    h.classList.toggle("cats-rail-phone-open", phoneOpen);
+    if (window.__catsRail) {
+      window.__catsRail.pinned = pinned;
+      window.__catsRail.phoneOpen = phoneOpen;
+    }
+  }
+
   function setOpen(on) {
     toc.classList.toggle("open", !!on);
     document.body.classList.toggle("index-toc-open", !!on);
@@ -87,6 +107,7 @@
       setPinned(!pinned);
       if (!desk.matches) phoneOpen = pinned;
       sync();
+      persist();
     });
   }
   if (cue) {
@@ -97,6 +118,7 @@
         e.stopPropagation();
         setPinned(!pinned);
         sync();
+        persist();
         return;
       }
       e.preventDefault();
@@ -108,6 +130,7 @@
         phoneOpen = !phoneOpen;
       }
       sync();
+      persist();
     });
   }
 
@@ -119,6 +142,7 @@
       phoneOpen = !phoneOpen;
       if (pinned && !phoneOpen) setPinned(false);
       sync();
+      persist();
     });
   }
 
@@ -134,6 +158,7 @@
     if (e.target.closest && (e.target.closest("aside.toc") || e.target.closest("#section-bar .sec-toggle"))) return;
     phoneOpen = false;
     sync();
+    persist();
   }, true);
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
@@ -143,6 +168,7 @@
     phoneOpen = false;
     setPinned(false);
     sync();
+    persist();
     if (held && document.activeElement.blur) document.activeElement.blur();
   });
   function keepInView(a) {
@@ -172,21 +198,34 @@
     }
   }
   layout();
+  /* Restore saved / default state immediately (boot already painted via html classes). */
+  setPinned(pinned);
+  if (!desk.matches) phoneOpen = !!boot.phoneOpen;
+  sync();
+  persist();
   update();
   window.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
   if (desk.addEventListener) desk.addEventListener("change", function () {
     layout(); update();
-    hover = false; phoneOpen = false; setPinned(false); sync();
+    hover = false;
+    /* Keep persisted pinned/phoneOpen across breakpoint; just re-sync presentation. */
+    sync();
   });
   toc.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href^='#']");
     if (a) {
       jump = a.getAttribute("href").slice(1);
       window.setTimeout(update, 0);
-      if (!desk.matches && !pinned) { phoneOpen = false; sync(); }
+      /* Do not close or change pinned/phoneOpen on item click — state persists (art74). */
     }
   });
   window.addEventListener("hashchange", function () { jump = location.hash.slice(1); window.setTimeout(update, 0); });
   window.addEventListener("load", function () { if (location.hash) jump = location.hash.slice(1); update(); });
+  /* End boot no-animation after first paint. */
+  window.requestAnimationFrame(function () {
+    window.requestAnimationFrame(function () {
+      document.documentElement.classList.remove("cats-rail-boot");
+    });
+  });
 })();
