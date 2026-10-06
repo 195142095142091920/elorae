@@ -4341,3 +4341,93 @@ html, body {
     align-items: center !important;
   }
 }
+
+/* ---- Phone chrome static from load (art72) ----
+   Flash on first scroll: iOS Safari toolbar collapse recalculated env(safe-area)
+   / 100vh and repainted the fixed mast + curtain. Lock --sat-lock once via JS;
+   use vmax curtain (not vh); kill chrome transitions; never rewrite on scroll. */
+@media (max-width: 800px) {
+  /* Prefer locked sat; fall back to env before JS runs. */
+  .mast,
+  body.article .mast,
+  body.entry .mast,
+  body.index-page .mast,
+  body.journal-page .mast,
+  body.atlas-page .mast,
+  body.lore-page .mast,
+  body.book .mast,
+  body.seal-page .mast {
+    padding-top: var(--sat-lock, env(safe-area-inset-top, 0px)) !important;
+    transition: none !important;
+    animation: none !important;
+    will-change: auto !important;
+  }
+  .mast .topbar,
+  body.article .mast .topbar,
+  body.entry .mast .topbar,
+  #section-bar,
+  body.article #section-bar,
+  body.index-page #section-bar,
+  body.journal-flow #section-bar,
+  body.entry .life-dock .life-toggle,
+  .mast::before,
+  .mast::after,
+  #section-bar::after,
+  body.article #section-bar::after,
+  body.index-page #section-bar::after,
+  body.journal-flow #section-bar::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Curtain: huge fixed plate above y=0 — not tied to vh (toolbar collapse). */
+  .mast::before,
+  body.article .mast::before,
+  body.entry .mast::before,
+  body.index-page .mast::before,
+  body.journal-page .mast::before {
+    top: -200vmax !important;
+    height: 200vmax !important;
+    bottom: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* Geometry uses locked sat so first-scroll toolbar hide cannot jump the bar. */
+  body.article #section-bar,
+  body.entry .life-dock .life-toggle,
+  body.index-page #section-bar,
+  body.journal-flow #section-bar,
+  body.journal-page #section-bar,
+  .journal-page #section-bar,
+  #section-bar {
+    top: calc(var(--phone-mast-h, 80px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
+  }
+  body.article .art-index,
+  body.index-page aside.toc.index-toc,
+  body.journal-flow aside.toc:has(> .toc-drop),
+  body.entry .life-sheet,
+  body.entry .life-sheet.open,
+  body.entry > header.topbar {
+    top: calc(var(--phone-stack-h, 116px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
+  }
+  body:not(.article):not(.entry):not(.journal-page):not(.seal-page),
+  body.journal-page:not(.article) {
+    padding-top: calc(var(--phone-mast-h, 80px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
+  }
+  body.seal-page {
+    padding-top: calc(var(--phone-mast-row, 40px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
+  }
+
+  /* Veil stays under chrome only — never animate onto the bar. */
+  body:not(.entry) .mast::after,
+  #section-bar:has(a)::after,
+  #section-bar.show::after,
+  body.has-section-bar #section-bar::after,
+  body.index-page #section-bar::after,
+  body.article #section-bar::after,
+  body.journal-flow #section-bar::after {
+    transition: none !important;
+    opacity: 1 !important;
+  }
+}

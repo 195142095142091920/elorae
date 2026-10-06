@@ -618,3 +618,23 @@
   var name = (h1.textContent || "").trim().split(/\s+/)[0];
   if (name) seal.textContent = name;
 })();
+
+/* art72: lock phone safe-area once (no scroll/resize chrome rewrite) */
+(function lockPhoneSafeArea() {
+  function apply() {
+    try {
+      if (!window.matchMedia || !window.matchMedia("(max-width: 800px)").matches) return;
+      var probe = document.createElement("div");
+      probe.setAttribute("aria-hidden", "true");
+      probe.style.cssText = "position:fixed;left:0;top:0;width:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);box-sizing:border-box;";
+      (document.documentElement || document.body).appendChild(probe);
+      var sat = Math.max(0, Math.round(probe.getBoundingClientRect().height || probe.offsetHeight || 0));
+      probe.remove();
+      document.documentElement.style.setProperty("--sat-lock", sat + "px");
+      document.documentElement.classList.add("sat-locked");
+    } catch (e) {}
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply, { once: true });
+  else apply();
+  /* Intentionally NO scroll/resize re-lock — iOS toolbar collapse must not rewrite chrome. */
+})();
