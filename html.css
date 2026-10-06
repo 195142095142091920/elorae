@@ -4950,3 +4950,39 @@ body.index-page .index-card .card-lore-glyph:focus-visible svg { filter: drop-sh
   .lore-pop-dossier dl { gap: 6px 14px; }
   .lore-pop-rel a { font-size: 15px; line-height: 1.7; }
 }
+
+
+/* ---- art83: article body reading measure ----
+   Desktop: .art-body (description, dossier, lore, related) becomes the Codex lore column —
+   640px box with 4px side padding (body.book .read) and lore paragraph type 18px / 1.75
+   (body.lore-page .read p) — centered with equal margins; with the Categories rail open it
+   centers in the space right of the 220px rail (same 28px minimum gutter either way).
+   Explicit calc() margins (not auto) so the art74 .2s push still animates.
+   Phone: edge to edge (no max-width / side margins), 12px text inset only. Hero untouched. */
+@media (min-width: 801px) {
+  body.article .art-body {
+    max-width: none;
+    width: min(640px, calc(100% - 56px));
+    margin-left: calc((100% - min(640px, calc(100% - 56px))) / 2);
+    margin-right: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  body.article.art-index-open .art-body,
+  html.cats-rail-pinned body.article .art-body {
+    max-width: none;
+    width: min(640px, calc(100% - 276px));
+    margin-left: calc(220px + (100% - 220px - min(640px, calc(100% - 276px))) / 2);
+  }
+  body.article .art-life { font-size: 18px; line-height: 1.75; }
+}
+@media (max-width: 800px) {
+  body.article .art-body {
+    max-width: none;
+    width: auto;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
