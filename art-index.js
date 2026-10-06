@@ -1,6 +1,8 @@
 /* Article Index: desktop slide-in rail (JS-driven like Index); phone Categories from #section-bar.
-   Hover/focus peeks and pushes (body.art-index-open); pin sticks open. State shared with Index
-   via localStorage (elorae-cats-rail); default open. Link clicks do not change open/pinned state.
+   Desktop: the cue arrow is a pure click toggle (art79) — closed: click opens and it stays open;
+   open: click closes. No hover open/close/peek. Open state pushes (body.art-index-open). State
+   shared with Index via localStorage (elorae-cats-rail); default open. Link clicks do not change
+   open/pinned state.
    Current article is marked .on in HTML; keep it in view when the panel is used. */
 (function () {
   var root = document.getElementById("art-index");
@@ -11,7 +13,7 @@
   var desk = window.matchMedia("(min-width: 801px)");
 
   var boot = window.__catsRail || { key: "elorae-cats-rail", pinned: true, phoneOpen: true };
-  var hover = false, pinned = !!boot.pinned, phoneOpen = !!boot.phoneOpen;
+  var pinned = !!boot.pinned, phoneOpen = !!boot.phoneOpen;
 
   function persist() {
     try {
@@ -43,13 +45,14 @@
 
   function focused() {
     var a = document.activeElement;
-    if (!a || !root.contains(a)) return false;
+    /* Keyboard focus inside the panel still reveals it; the cue itself never peeks (art79). */
+    if (!a || !root.contains(a) || a === cue) return false;
     try { return a.matches(":focus-visible"); } catch (e) { return true; }
   }
 
   function sync() {
     if (pinned) { setOpen(true); return; }
-    if (desk.matches) setOpen(hover || focused());
+    if (desk.matches) setOpen(focused());
     else setOpen(phoneOpen);
   }
 
@@ -96,8 +99,6 @@
     });
   }
 
-  root.addEventListener("mouseenter", function () { hover = true; sync(); });
-  root.addEventListener("mouseleave", function () { hover = false; sync(); });
   root.addEventListener("focusin", sync);
   root.addEventListener("focusout", function () { window.setTimeout(sync, 0); });
 
@@ -129,7 +130,6 @@
     if (e.key !== "Escape") return;
     var held = root.contains(document.activeElement);
     if (!root.classList.contains("open") && !held && !pinned) return;
-    hover = false;
     phoneOpen = false;
     setPinned(false);
     sync();
@@ -139,7 +139,6 @@
 
   if (desk.addEventListener) {
     desk.addEventListener("change", function () {
-      hover = false;
       sync();
     });
   }

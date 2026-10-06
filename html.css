@@ -795,7 +795,7 @@ table.day-names td {
 }
 
 /* Continuous Index — experimental gallery-like cards + Chromium-style category rail (i1).
-   Collapsed strip stays hoverable; hover/focus peeks + pushes (body.index-toc-open);
+   Cue arrow is a pure click toggle (art79, no hover reveal); open pushes (body.index-toc-open);
    pin sticks open. Categories keep section headers + spacing; labels sit on the art. */
 body.index-page aside.toc.index-toc {
   z-index: 18;
@@ -829,15 +829,6 @@ body.index-page .index-toc-cue {
     bottom: 0;
     width: 12px;
     pointer-events: none;
-  }
-  body.index-page aside.toc.index-toc::before {
-    content: "";
-    pointer-events: auto;
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 12px;
   }
   body.index-page .index-toc-cue {
     position: fixed;
@@ -934,9 +925,6 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
 
 @media (min-width: 801px) {
   body.index-page aside.toc.index-toc.open {
-    width: 220px;
-  }
-  body.index-page aside.toc.index-toc.open::before {
     width: 220px;
   }
   body.index-page aside.toc.index-toc.open .index-toc-panel {
@@ -1323,16 +1311,6 @@ body.article .art-index-cue {
     width: 12px;
     pointer-events: none;
   }
-  /* Thin full-height bridge so the cue and panel share one hover. */
-  body.article .art-index::before {
-    content: "";
-    pointer-events: auto;
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 12px;
-  }
   body.article .art-index-cue {
     position: fixed;
     left: 0;
@@ -1465,13 +1443,9 @@ body.article .art-index .toc-sub:hover { color: #f3eee6; }
 body.article .art-index .toc-group .toc-name { padding-left: 8px; }
 
 @media (min-width: 801px) {
-  /* JS-driven open (art74): hover/focus/pin via art-index.js — matches Index push1. */
+  /* JS-driven open (art74): cue click toggle via art-index.js (art79, no hover) — matches Index push1. */
   body.article .art-index.open,
   html.cats-rail-pinned body.article .art-index {
-    width: 220px;
-  }
-  body.article .art-index.open::before,
-  html.cats-rail-pinned body.article .art-index::before {
     width: 220px;
   }
   body.article .art-index.open .art-index-panel,
@@ -3483,7 +3457,6 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
   }
   body.index-page aside.toc.index-toc.open .index-toc-panel,
   body.article .art-index.open .art-index-panel,
-  body.article .art-index:hover .art-index-panel,
   body.article .art-index:focus-within .art-index-panel {
     transform: none !important;
   }
@@ -4567,9 +4540,6 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
 /* Early paint from html.cats-rail-pinned (set in <head> before CSS paints content). */
 @media (min-width: 801px) {
   html.cats-rail-pinned body.index-page aside.toc.index-toc {
-    width: 220px;
-  }
-  html.cats-rail-pinned body.index-page aside.toc.index-toc::before {
     width: 220px;
   }
   html.cats-rail-pinned body.index-page .index-toc-panel {

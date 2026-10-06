@@ -1,5 +1,6 @@
 /* Index rail: Chromium-style category sidebar.
-   Collapsed strip stays hoverable; hover/focus peeks the panel and pushes the
+   Desktop: the cue arrow is a pure click toggle (art79) — closed: click opens and it
+   stays open; open: click closes. No hover open/close/peek. Open state pushes the
    card grid (body.index-toc-open). Pin sticks the rail open; unpin collapses.
    Pinned / phone-open state persists in localStorage (elorae-cats-rail); default open.
    Clicking a category/subject link does not change open/pinned state.
@@ -42,7 +43,7 @@
   }
 
   var boot = window.__catsRail || { key: "elorae-cats-rail", pinned: true, phoneOpen: true };
-  var hover = false, pinned = !!boot.pinned, phoneOpen = !!boot.phoneOpen;
+  var pinned = !!boot.pinned, phoneOpen = !!boot.phoneOpen;
 
   function persist() {
     try {
@@ -75,12 +76,13 @@
   }
   function focused() {
     var a = document.activeElement;
-    if (!a || !toc.contains(a)) return false;
+    /* Keyboard focus inside the panel still reveals it; the cue itself never peeks (art79). */
+    if (!a || !toc.contains(a) || a === cue) return false;
     try { return a.matches(":focus-visible"); } catch (e) { return true; }
   }
   function sync() {
     if (pinned) { setOpen(true); return; }
-    if (desk.matches) setOpen(hover || focused());
+    if (desk.matches) setOpen(focused());
     else setOpen(phoneOpen);
   }
   function layout() {
@@ -113,7 +115,7 @@
   if (cue) {
     cue.addEventListener("click", function (e) {
       if (desk.matches) {
-        /* Desktop cue: pin/unpin (hover already peeks). */
+        /* Desktop cue: pure click toggle — closed opens (and stays), open closes (art79). */
         e.preventDefault();
         e.stopPropagation();
         setPinned(!pinned);
@@ -146,9 +148,7 @@
     });
   }
 
-  /* Desktop: open while hovered, focused, or pinned. */
-  toc.addEventListener("mouseenter", function () { hover = true; sync(); });
-  toc.addEventListener("mouseleave", function () { hover = false; sync(); });
+  /* Desktop: open while pinned (cue/pin click) or keyboard-focused inside the panel. */
   toc.addEventListener("focusin", sync);
   toc.addEventListener("focusout", function () { window.setTimeout(sync, 0); });
   document.addEventListener("click", function (e) {
@@ -164,7 +164,6 @@
     if (e.key !== "Escape") return;
     var held = toc.contains(document.activeElement);
     if (!toc.classList.contains("open") && !held && !pinned) return;
-    hover = false;
     phoneOpen = false;
     setPinned(false);
     sync();
@@ -208,7 +207,6 @@
   window.addEventListener("resize", update);
   if (desk.addEventListener) desk.addEventListener("change", function () {
     layout(); update();
-    hover = false;
     /* Keep persisted pinned/phoneOpen across breakpoint; just re-sync presentation. */
     sync();
   });
