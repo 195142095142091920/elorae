@@ -991,7 +991,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  /* Gallery-like card: name overlaid on art, always visible (bottom-right, art76). */
+  /* Gallery-like card: name overlaid on art, always visible (bottom-left, art80). */
   body.index-page .index-card {
     position: relative;
     display: block;
@@ -1008,7 +1008,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     object-fit: cover;
     display: block;
   }
-  /* Preview name: bottom-right, always visible (art76); spacing mirrors prior top inset. */
+  /* Preview name: bottom-left, always visible (art80; was bottom-right art76); 14px inset. */
   body.index-page .index-card span {
     position: absolute;
     left: 14px;
@@ -1019,7 +1019,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     display: block;
     min-height: 0;
     margin: 0;
-    text-align: right;
+    text-align: left;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 15px;
     font-weight: 700;
@@ -1162,7 +1162,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     object-fit: cover;
     display: block;
   }
-  /* Phone: name bottom-right (art76). */
+  /* Phone: name bottom-left (art80; was bottom-right art76). */
   body.index-page .index-card span {
     position: absolute;
     left: 10px;
@@ -1173,7 +1173,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     display: block;
     min-height: 0;
     margin: 0;
-    text-align: right;
+    text-align: left;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 12px;
     font-weight: 700;
