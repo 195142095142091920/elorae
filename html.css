@@ -4760,3 +4760,16 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
     z-index: 9;
   }
 }
+
+
+/* ---- art81: Index card names above the Categories rail fade (desktop) ----
+   Same approach as art78: the rail + its art77 fade stack at z-18 (fixed aside); lift the
+   card name labels (already position:absolute) to z-19 while the rail is open so names in
+   the first column stay full brightness and the fade only veils card art. Still below the
+   mast (z-20). Labels never overlap the panel/cue (grid is pushed 220px). Phone untouched. */
+@media (min-width: 801px) {
+  body.index-page.index-toc-open .index-card span,
+  html.cats-rail-pinned body.index-page .index-card span {
+    z-index: 19;
+  }
+}
