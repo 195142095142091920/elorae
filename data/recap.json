@@ -1,0 +1,25 @@
+{
+  "v": 1,
+  "kind": "elorae-recap",
+  "id": "iii-xli",
+  "title": "Act III, Chapter XLI",
+  "label": "Act III · Chapter XLI",
+  "url": "https://elorae.world/journal.html#iii-xli",
+  "image": "https://elorae.world/assets/Silar%20Scorria.png",
+  "caption": "Silar Scorria, a Sethian dragon scholar, speaks at the campfire.",
+  "paragraphs": [
+    {
+      "html": "Five remained of Thalane’s order, and that truth sat with them at the fire while the others watched from the rocks, unable to understand a word.",
+      "text": "Five remained of Thalane’s order, and that truth sat with them at the fire while the others watched from the rocks, unable to understand a word."
+    },
+    {
+      "html": "<a href=\"https://elorae.world/articles/silar-scorria.html\">Silar</a>, who had followed rumor of dragons across the sea, asked how long they had sought Thalancord. Only the hours <a href=\"https://elorae.world/articles/kojin.html\">Kojin</a> had already seen, <a href=\"https://elorae.world/articles/vaerek.html\">Vaerek</a> told him, though the search for the Drake’s brothers and sister had gone on far longer. He named himself Rathkin, a son of a Shasirian mother. Silar took his hand. He was of Shasir as well. Neither had met another Sethian in a long time. He spoke aside to Kojin, who laughed, and called it fate: they had not meant to be at Redroot at all. The Interval had begun, and Thalancord was missing.",
+      "text": "Silar, who had followed rumor of dragons across the sea, asked how long they had sought Thalancord. Only the hours Kojin had already seen, Vaerek told him, though the search for the Drake’s brothers and sister had gone on far longer. He named himself Rathkin, a son of a Shasirian mother. Silar took his hand. He was of Shasir as well. Neither had met another Sethian in a long time. He spoke aside to Kojin, who laughed, and called it fate: they had not meant to be at Redroot at all. The Interval had begun, and Thalancord was missing."
+    }
+  ],
+  "fragment": "<article class=\"elorae-recap\" data-chapter=\"iii-xli\">\n<p class=\"elorae-recap-label\"><a href=\"https://elorae.world/journal.html#iii-xli\">Act III · Chapter XLI</a></p>\n<figure class=\"elorae-recap-figure\"><img src=\"https://elorae.world/assets/Silar%20Scorria.png\" alt=\"Silar Scorria, a Sethian dragon scholar, speaks at the campfire.\"><figcaption>Silar Scorria, a Sethian dragon scholar, speaks at the campfire.</figcaption></figure>\n<p>Five remained of Thalane’s order, and that truth sat with them at the fire while the others watched from the rocks, unable to understand a word.</p>\n<p><a href=\"https://elorae.world/articles/silar-scorria.html\">Silar</a>, who had followed rumor of dragons across the sea, asked how long they had sought Thalancord. Only the hours <a href=\"https://elorae.world/articles/kojin.html\">Kojin</a> had already seen, <a href=\"https://elorae.world/articles/vaerek.html\">Vaerek</a> told him, though the search for the Drake’s brothers and sister had gone on far longer. He named himself Rathkin, a son of a Shasirian mother. Silar took his hand. He was of Shasir as well. Neither had met another Sethian in a long time. He spoke aside to Kojin, who laughed, and called it fate: they had not meant to be at Redroot at all. The Interval had begun, and Thalancord was missing.</p>\n<p class=\"elorae-recap-more\"><a href=\"https://elorae.world/journal.html#iii-xli\">Read the full chapter →</a></p>\n</article>",
+  "chapters": 5,
+  "source": "journal.html",
+  "base": "https://elorae.world/",
+  "sourceHash": "edb333deea7d8948"
+}
