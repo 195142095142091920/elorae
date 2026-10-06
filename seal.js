@@ -7,7 +7,7 @@ var PHRASE_HASH = {
   "0eedbe39d20f666a54f9fd82e2a7b8c7673ade3d1f86f530d68b56d3e6500740":"devin"
 };
 /* Figure links for the top-nav friend marks (not the welcome line). */
-var FRIENDS = {jack:[["Galand","articles/galand-helviath.html"]],jon:[["Telorin","figures/telorin.html"],["Silar","articles/silar-scorria.html"]],julie:[["Saoirse","articles/saoirse.html"]],sawyer:[["Vaerek","articles/vaerek.html"]]};
+var FRIENDS = {jack:[["Galand","articles/galand-helviath.html"]],jon:[["Telorin","articles/telorin.html"],["Silar","articles/silar-scorria.html"]],julie:[["Saoirse","articles/saoirse.html"]],sawyer:[["Vaerek","articles/vaerek.html"]]};
 /* Player names shown on the seal welcome after a successful phrase. */
 var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",devin:"Devin"};
 function hexDigest(buf) {

@@ -5197,3 +5197,19 @@ html.nav-fade-on .nav-fade {
     );
   }
 }
+
+/* ---- art95: sealed articles + Index entries (owner-gated) ----
+   Same seal as the old wall: seal.js sets body.seal-<owner> from the phrase (localStorage
+   elorae-seal); devin sees every sealed piece, other owners only their own. Unlike .private
+   (whose unlock forces display:block and cannot reach <body>), this gate only hides, so an
+   unlocked element keeps its own display (flex rails, grid cards, article hero/body). */
+body:not(.seal-devin) .sealed[data-owner="devin"],
+body:not(.seal-devin):not(.seal-jack) .sealed[data-owner="jack"],
+body:not(.seal-devin):not(.seal-jon) .sealed[data-owner="jon"],
+body:not(.seal-devin):not(.seal-julie) .sealed[data-owner="julie"],
+body:not(.seal-devin):not(.seal-sawyer) .sealed[data-owner="sawyer"],
+body:not(.seal-devin):not(.seal-jack) .sealed-group { display: none !important; }
+/* Articles without art yet (Telorin): shorter, plain hero; Index card shows the name only. */
+body.article .art-hero.no-art { height: 52vh !important; height: 52svh !important; }
+body.article .art-hero.no-art::after { display: none; }
+body.index-page .index-card.no-art { background: #111; }

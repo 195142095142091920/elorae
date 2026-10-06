@@ -34,6 +34,14 @@ window.__lorePalette = {
 "hue": 23,
 "label": "217,182,161"
 },
+"bel-harath": {
+"accent": "212,113,73",
+"art": "assets/Bel Harath.png",
+"blur": "assets/lore-blur/bel-harath.jpg",
+"deep": "63,31,18",
+"hue": 17,
+"label": "217,177,161"
+},
 "cadarinost-falls": {
 "accent": "87,143,199",
 "art": "assets/Cadarinost Falls.png",
@@ -50,6 +58,38 @@ window.__lorePalette = {
 "hue": 25,
 "label": "217,184,161"
 },
+"curse-of-olesh": {
+"accent": "202,117,84",
+"art": "assets/Curse of Olesh.png",
+"blur": "assets/lore-blur/curse-of-olesh.jpg",
+"deep": "62,31,19",
+"hue": 17,
+"label": "217,177,161"
+},
+"cursed-of-olesh": {
+"accent": "199,122,87",
+"art": "assets/Cursed of Olesh.png",
+"blur": "assets/lore-blur/cursed-of-olesh.jpg",
+"deep": "61,33,20",
+"hue": 19,
+"label": "217,178,161"
+},
+"darmstadt": {
+"accent": "83,129,202",
+"art": "assets/Darmstadt.png",
+"blur": "assets/lore-blur/darmstadt.jpg",
+"deep": "24,44,78",
+"hue": 217,
+"label": "161,182,217"
+},
+"elraim": {
+"accent": "73,212,153",
+"art": "assets/Elraim.jpg",
+"blur": "assets/lore-blur/elraim.jpg",
+"deep": "18,63,44",
+"hue": 155,
+"label": "161,217,193"
+},
 "filibeth": {
 "accent": "203,92,83",
 "art": "assets/Filibeth.png",
@@ -65,6 +105,22 @@ window.__lorePalette = {
 "deep": "63,43,18",
 "hue": 32,
 "label": "217,191,161"
+},
+"haethlin": {
+"accent": "195,127,90",
+"art": "assets/Haethlin.png",
+"blur": "assets/lore-blur/haethlin.jpg",
+"deep": "60,35,22",
+"hue": 21,
+"label": "217,180,161"
+},
+"haethlin-dream": {
+"accent": "202,101,83",
+"art": "assets/Haethlin in the Dream .png",
+"blur": "assets/lore-blur/haethlin-dream.jpg",
+"deep": "62,26,19",
+"hue": 9,
+"label": "217,169,161"
 },
 "hanto-han": {
 "accent": "198,119,88",
@@ -89,6 +145,22 @@ window.__lorePalette = {
 "deep": "18,63,24",
 "hue": 128,
 "label": "161,217,168"
+},
+"imani-valash": {
+"accent": "208,113,77",
+"art": "assets/Imani Valash.png",
+"blur": "assets/lore-blur/imani-valash.jpg",
+"deep": "63,31,18",
+"hue": 16,
+"label": "217,176,161"
+},
+"ito-gangara": {
+"accent": "202,107,83",
+"art": "assets/Ito Gangara.png",
+"blur": "assets/lore-blur/ito-gangara.jpg",
+"deep": "62,28,19",
+"hue": 12,
+"label": "217,172,161"
 },
 "kojin": {
 "accent": "205,107,81",
@@ -170,6 +242,14 @@ window.__lorePalette = {
 "hue": 15,
 "label": "217,175,161"
 },
+"rathalon": {
+"accent": "73,212,161",
+"art": "assets/Rathalon.png",
+"blur": "assets/lore-blur/rathalon.jpg",
+"deep": "18,63,47",
+"hue": 158,
+"label": "161,217,196"
+},
 "revenant-host": {
 "accent": "191,124,95",
 "art": "assets/Revenant Host.png",
@@ -193,6 +273,14 @@ window.__lorePalette = {
 "deep": "63,28,18",
 "hue": 13,
 "label": "217,173,161"
+},
+"sen-teloch-ini": {
+"accent": "191,140,95",
+"art": "assets/Sen Teloch Ini.png",
+"blur": "assets/lore-blur/sen-teloch-ini.jpg",
+"deep": "62,42,25",
+"hue": 28,
+"label": "217,187,161"
 },
 "silar-scorria": {
 "accent": "205,116,81",
@@ -218,6 +306,14 @@ window.__lorePalette = {
 "hue": 10,
 "label": "216,171,162"
 },
+"vallorca": {
+"accent": "210,106,75",
+"art": "assets/Vallorca.png",
+"blur": "assets/lore-blur/vallorca.jpg",
+"deep": "63,29,18",
+"hue": 14,
+"label": "217,174,161"
+},
 "vehem-adahr": {
 "accent": "212,97,73",
 "art": "assets/Vehem Adahr.png",
@@ -233,6 +329,14 @@ window.__lorePalette = {
 "deep": "51,39,30",
 "hue": 25,
 "label": "206,186,171"
+},
+"yena": {
+"accent": "207,113,79",
+"art": "assets/Yena.png",
+"blur": "assets/lore-blur/yena.jpg",
+"deep": "63,30,18",
+"hue": 16,
+"label": "217,176,161"
 },
 "yuo-nanaga": {
 "accent": "100,153,185",

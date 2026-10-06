@@ -22,7 +22,7 @@ from html import unescape
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HERO = re.compile(r'<section class="art-hero[^"]*">\s*<img src="([^"]+)"')
+HERO = re.compile(r'<section class="art-hero[^"]*"[^>]*>\s*<img src="([^"]+)"')
 
 
 def clamp(x, lo, hi):
