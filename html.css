@@ -4628,3 +4628,115 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
     scroll-margin-top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px) + min(58vh, 520px));
   }
 }
+
+
+/* ---- art75: Codex/Journal Contents rails match Index Categories font + veil ----
+   Exact Index sticky-nav type (Helvetica 12px / 400 / 0.14em uppercase, #8f8a82→#f3eee6,
+   h3 0.16em #f3eee6, no text-shadow). Black #070707 panel + soft right-edge fade.
+   Desktop only for the veil; phone dropdowns get the Index phone Categories font. */
+@media (min-width: 801px) {
+  body.journal-page aside.toc,
+  body.book aside.toc,
+  body.lore-page aside.toc {
+    background: #070707;
+    background-color: #070707;
+    background-image: none;
+    text-shadow: none;
+  }
+  /* Width tokens for the fixed fade (journal 300 / book 228 — do not change layout widths). */
+  body.journal-page:not(.book) aside.toc { --cats-toc-fade-left: 300px; }
+  body.book aside.toc { --cats-toc-fade-left: 228px; }
+  body.journal-page aside.toc::after,
+  body.book aside.toc::after,
+  body.lore-page aside.toc::after {
+    content: "";
+    display: block;
+    position: fixed;
+    top: 102px;
+    bottom: 0;
+    left: var(--cats-toc-fade-left, 300px);
+    width: 56px;
+    margin-left: -1px;
+    pointer-events: none;
+    z-index: 8;
+    background: linear-gradient(
+      to right,
+      #070707 0%,
+      rgba(7, 7, 7, 0.55) 42%,
+      rgba(7, 7, 7, 0) 100%
+    );
+  }
+  /* Match Index Categories h3 exactly. */
+  body.journal-page aside.toc h3,
+  body.book aside.toc h3,
+  body.lore-page aside.toc h3,
+  body.journal-page .toc-list > h3,
+  body.book .toc-list > h3 {
+    margin: 0 0 12px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #f3eee6;
+    text-shadow: none;
+  }
+  /* Match Index Categories links exactly. */
+  body.journal-page aside.toc a,
+  body.book aside.toc a,
+  body.lore-page aside.toc a,
+  body.journal-page .toc-list a,
+  body.book .toc-list a {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.25;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8f8a82;
+    text-shadow: none;
+  }
+  body.journal-page aside.toc a.on,
+  body.journal-page aside.toc a:hover,
+  body.book aside.toc a.on,
+  body.book aside.toc a:hover,
+  body.lore-page aside.toc a.on,
+  body.lore-page aside.toc a:hover,
+  body.journal-page .toc-list a.on,
+  body.journal-page .toc-list a:hover,
+  body.book .toc-list a.on,
+  body.book .toc-list a:hover {
+    color: #f3eee6;
+    text-shadow: none;
+  }
+}
+
+@media (max-width: 800px) {
+  /* Phone Contents/Chapters dropdown: same type as Index phone Categories. */
+  body.journal-page .toc-drop > .toc-list a,
+  body.book .toc-drop > .toc-list a,
+  body.lore-page .toc-drop > .toc-list a,
+  body.journal-page aside.toc .toc-list a,
+  body.book aside.toc .toc-list a {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.25;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8f8a82;
+    text-shadow: none;
+  }
+  body.journal-page .toc-drop > .toc-list a.on,
+  body.journal-page .toc-drop > .toc-list a:hover,
+  body.book .toc-drop > .toc-list a.on,
+  body.book .toc-drop > .toc-list a:hover,
+  body.lore-page .toc-drop > .toc-list a.on,
+  body.lore-page .toc-drop > .toc-list a:hover {
+    color: #f3eee6;
+    text-shadow: none;
+  }
+}
