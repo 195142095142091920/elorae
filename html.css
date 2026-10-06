@@ -4745,17 +4745,19 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
    Keep the wide art77 taper, but raise article title/epithet/controls/body and
    Codex/Journal reading column above the fade so only artwork is veiled. */
 @media (min-width: 801px) {
-  /* Article: title + swap + dossier above Categories fade (rail/fade stack at z-18). */
+  /* Article: title + swap + dossier above Categories fade (rail/fade stack at z-18) but
+     below the fixed mast (z-20) and art-back (z-21) — art84: was 21, drew over the nav.
+     Stack top→bottom: mast/art-back (20-21) > article text (19) > rail+fade (18) > art. */
   body.article .art-title {
     position: absolute;
-    z-index: 21;
+    z-index: 19;
   }
   body.article .art-swap {
-    z-index: 21;
+    z-index: 19;
   }
   body.article .art-body {
     position: relative;
-    z-index: 21;
+    z-index: 19;
   }
   /* Codex / Journal: reading column above Contents fade (toc/fade at z-8). */
   body.journal-page main.read,
