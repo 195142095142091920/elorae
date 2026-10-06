@@ -5061,3 +5061,86 @@ body.index-page .index-card.is-lore-flipped .card-lore-glyph { color: #cfc6b8; }
 @media (max-width: 800px) {
   .topbar .rail-toggle { display: none !important; }
 }
+
+/* ---- art88: Codex / Lore / Timeline / Journal rails use the Index rail type ----
+   Source of truth: the Index Categories rail. Header (page section name, e.g. LORE,
+   JOURNAL CHAPTERS) = 'CATEGORIES'; every entry = an Index top-level item (flat lists, no
+   nesting). Panel 220px, padding 22px 18px 32px, rgba(7,7,7,.92), no per-item dividers.
+   Phone dropdowns mirror the Index phone Categories rows. Scroll highlight / .on unchanged. */
+@media (min-width: 801px) {
+  body.journal-page aside.toc,
+  body.lore-page aside.toc,
+  body.book aside.toc {
+    box-sizing: border-box !important;
+    width: 220px !important;
+    padding: 22px 18px 32px !important;
+    background: rgba(7,7,7,.92) !important;
+    background-image: none !important;
+    border: 0 !important;
+    overflow-y: auto;
+    --cats-toc-fade-left: 220px;
+  }
+  body.journal-page aside.toc .toc-list,
+  body.lore-page aside.toc .toc-list { margin: 0 !important; padding: 0 !important; border: 0 !important; }
+  body.journal-page aside.toc > h3,
+  body.journal-page aside.toc .toc-list > h3,
+  body.lore-page aside.toc .toc-list > h3 {
+    margin: 2px 0 14px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    line-height: normal !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    color: #f3eee6 !important;
+    text-shadow: none !important;
+  }
+  body.journal-page aside.toc > a,
+  body.journal-page aside.toc .toc-list > a,
+  body.lore-page aside.toc .toc-list > a {
+    display: block !important;
+    box-sizing: border-box !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 2px 0 !important;
+    border: 0 !important;
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    line-height: 15px !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    text-indent: 0 !important;
+    text-shadow: none !important;
+  }
+}
+@media (max-width: 800px) {
+  body.journal-page aside.toc .toc-list,
+  body.lore-page aside.toc .toc-list {
+    margin: 0 !important;
+    padding: 0 16px 14px !important;
+    border: 0 !important;
+  }
+  body.journal-page aside.toc .toc-list > a,
+  body.lore-page aside.toc .toc-list > a,
+  body.journal-page aside.toc > a {
+    display: flex !important;
+    align-items: center;
+    box-sizing: border-box !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 12px 0 !important;
+    border: 0 !important;
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 15px !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    text-indent: 0 !important;
+  }
+}
