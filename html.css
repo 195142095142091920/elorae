@@ -4738,8 +4738,8 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
 
 
 /* ---- art86: Index card lore flip (art90: click-to-reveal, no glyph; text fills the card) ----
-   art90: the first click/tap/Enter on a card reveals this face (no navigation), a second one
-   follows the card's href; card-lore.js fit() picks the largest --ls type scale that fits so
+   art91: a click/tap/Enter on a card reveals this face (no navigation), a click on the face
+   flips it back; only the dossier name and the "ARTICLE ->" line navigate. art90: card-lore.js fit() picks the largest --ls type scale that fits so
    the text fills the card, and the face spreads its blocks with space-between.
    The card glyph flips the card face itself (crossfade) to a dossier back face that lives
    inside the card's own box: same width/height, overflow hidden, grid untouched. Backdrop =
@@ -4794,7 +4794,32 @@ body.index-page .index-card .card-lore-face {
 }
 body.index-page .index-card .card-lore-face.is-fitting { justify-content: flex-start; }
 body.index-page .index-card.is-lore-flipped,
-body.index-page .index-card .card-lore-back { cursor: pointer; } /* second click opens the article */
+body.index-page .index-card .card-lore-back { cursor: pointer; } /* click on the face flips back */
+/* art91: the face's two links (name, ARTICLE line) - the only way to the article. */
+body.index-page .index-card .card-lore-link { color: inherit; text-decoration: none; cursor: pointer; }
+body.index-page .index-card .card-lore-name-link:hover,
+body.index-page .index-card .card-lore-name-link:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .18em;
+  text-decoration-color: rgba(243,238,230,.45);
+}
+body.index-page .index-card .card-lore-article {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  line-height: 1;
+  white-space: nowrap;
+  color: #8f8a82;
+  text-shadow: none;
+  transition: color .2s ease;
+}
+body.index-page .index-card .card-lore-article:hover,
+body.index-page .index-card .card-lore-article:focus-visible { color: #f3eee6; }
+body.index-page .index-card .card-lore-link:focus-visible { outline: 1px solid rgba(243,238,230,.5); outline-offset: 2px; }
 body.index-page .index-card .card-lore-back.has-art-palette .card-lore-face {
   /* subtle: the palette label tone, softened toward the neutral grey */
   --lore-label: rgba(var(--lore-label-rgb), .78);
@@ -4906,6 +4931,7 @@ body.index-page .index-card .card-lore-dossier dd {
   body.index-page .index-card .card-lore-facts { font-size: calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px)); }
   body.index-page .index-card .card-lore-desc { font-size: calc(var(--ls, 1) * clamp(9.5px, 3.7cqw, 13px)); }
   body.index-page .index-card .card-lore-note { font-size: calc(var(--ls, 1) * 10px); letter-spacing: .14em; }
+  body.index-page .index-card .card-lore-article { font-size: clamp(9px, 3.4cqw, 11px); padding: 4px 0 0 8px; margin-bottom: -2px; }
 }
 
 @media (max-width: 800px) {
@@ -4923,6 +4949,7 @@ body.index-page .index-card .card-lore-dossier dd {
   body.index-page .index-card .card-lore-facts { font-size: calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px)); letter-spacing: .08em; }
   body.index-page .index-card .card-lore-desc { font-size: calc(var(--ls, 1) * clamp(8.5px, 4.5cqw, 12px)); line-height: 1.32; }
   body.index-page .index-card .card-lore-note { font-size: calc(var(--ls, 1) * 9px); letter-spacing: .12em; }
+  body.index-page .index-card .card-lore-article { font-size: 8px; letter-spacing: .14em; padding: 6px 0 0 10px; margin: -4px 0 -2px; }
 }
 
 /* ---- art83: article body reading measure ----

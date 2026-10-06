@@ -1,9 +1,11 @@
-/* Index card lore reveal (art82 -> art86 flip -> art90 click-to-reveal).
-   FIRST click / tap / Enter on an Index card reveals its dossier face over the card (crossfade,
-   instant with prefers-reduced-motion) and does not navigate; a SECOND click / Enter on the
-   same revealed card follows its href to the article. Clicking another card reveals that one
-   and resets the previous; Escape or a click outside the cards resets. Middle-, Ctrl-, Cmd-,
-   Shift-clicks are left alone (new tab / window via the anchor's href). No glyph.
+/* Index card lore reveal (art82 -> art86 flip -> art90 fill -> art91 face toggles).
+   One click / tap / Enter on an Index card reveals its dossier face over the card (crossfade,
+   instant with prefers-reduced-motion) without navigating; a click / Enter anywhere on the
+   revealed face flips it back to the card. Navigation only via the two links on the face: the
+   dossier name and the quiet "ARTICLE \u2192" line (bottom right); both go to the card's
+   article and never flip the card. Clicking another card reveals that one and resets the
+   previous; Escape or a click outside the cards resets. Middle-, Ctrl-, Cmd-, Shift-clicks on
+   the card are left alone (new tab / window via the anchor's href). No glyph.
    Face (inside the card's own box, card size unchanged): name, epithet, lore quote, dossier
    fields (dl.art-dossier + ul.art-facts) and the opening of the lore (first .art-life
    paragraph, whole sentences), read on demand from articles/<slug>.html. Backdrop: the
@@ -25,15 +27,18 @@
 
   cards.forEach(function (card) { card.setAttribute("aria-expanded", "false"); });
 
-  /* Capture: first activation reveals (no navigation); second follows the href. */
+  /* Capture: a card click reveals its face; a click on the revealed face flips it back; the
+     face's links (name, ARTICLE line) navigate normally and never flip. */
   document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (t.closest && t.closest("a.card-lore-link")) return; /* inner link: default navigation */
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; /* new tab etc. */
-    var card = e.target.closest && e.target.closest("a.index-card");
-    if (!card) { if (flipped) unflip(false); return; } /* outside click resets, then proceeds */
-    if (card === flipped) return; /* second click: default navigation */
+    var card = t.closest && t.closest("a.index-card");
+    if (!card) { if (flipped) unflip(); return; } /* outside click resets, then proceeds */
     e.preventDefault();
     e.stopPropagation();
-    if (flipped) unflip(false);
+    if (card === flipped) { unflip(); return; } /* click on the face: back to the card */
+    if (flipped) unflip();
     flip(card);
   }, true);
   document.addEventListener("keydown", function (e) {
@@ -71,6 +76,7 @@
     card.classList.add("is-lore-flipped");
     card.setAttribute("aria-expanded", "true");
     back.setAttribute("aria-hidden", "false");
+    links(back, true);
     fit(back);
     if (window.ResizeObserver) {
       if (!ro) ro = new ResizeObserver(function () { if (flipped) fit(flipped.querySelector(".card-lore-back")); });
@@ -86,13 +92,28 @@
     card.classList.remove("is-lore-flipped");
     card.setAttribute("aria-expanded", "false");
     var back = card.querySelector(".card-lore-back");
-    if (back) back.setAttribute("aria-hidden", "true");
+    if (back) { back.setAttribute("aria-hidden", "true"); links(back, false); }
+  }
+
+  /* Face links are tabbable only while the face is shown. */
+  function links(back, on) {
+    Array.prototype.forEach.call(back.querySelectorAll("a.card-lore-link"), function (a) {
+      if (on) a.removeAttribute("tabindex"); else a.setAttribute("tabindex", "-1");
+    });
+  }
+  function link(cls, url, txt, label) {
+    var a = el("a", "card-lore-link " + cls, txt);
+    a.href = url;
+    if (label) a.setAttribute("aria-label", label);
+    a.addEventListener("click", function (e) { e.stopPropagation(); });
+    a.addEventListener("keydown", function (e) { e.stopPropagation(); });
+    return a;
   }
 
   function fill(back, card, url) {
     var face = back.querySelector(".card-lore-face");
     var name = (card.querySelector("span") || {}).textContent || "";
-    var go = function (d) { render(face, d, url, name); if (flipped === card) fit(back); };
+    var go = function (d) { render(face, d, url, name); links(back, flipped === card); if (flipped === card) fit(back); };
     if (cache[url]) { go(cache[url]); return; }
     render(face, { loading: true }, url, name);
     fetch(url, { credentials: "same-origin" }).then(function (r) {
@@ -148,7 +169,9 @@
   /* No <span> anywhere: .index-card span is the card's name label. */
   function render(face, d, url, cardName) {
     face.innerHTML = "";
-    face.appendChild(el("p", "card-lore-name", d.name || cardName)); /* the card itself links */
+    var nm = el("p", "card-lore-name");
+    nm.appendChild(link("card-lore-name-link", url, d.name || cardName));
+    face.appendChild(nm);
     if (d.epithet) face.appendChild(el("p", "card-lore-epithet", d.epithet));
     if (d.loading || d.missing) { face.appendChild(el("p", "card-lore-note", d.loading ? "Loading\u2026" : "No article yet")); return; }
     if (d.quote) {
@@ -170,6 +193,7 @@
     if (d.facts.length) face.appendChild(el("p", "card-lore-facts", d.facts.join(" \u00b7 ")));
     var desc = d.desc || (d.line && d.line !== d.epithet ? d.line : "");
     if (desc) face.appendChild(el("p", "card-lore-desc", desc));
+    face.appendChild(link("card-lore-article", url, "Article \u2192", "Read the article: " + (d.name || cardName)));
   }
 
   /* Fill the card: for each content level (all content first; then progressively clamped),
