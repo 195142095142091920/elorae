@@ -4737,55 +4737,10 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
 }
 
 
-/* ---- art82: Index card lore glyph ----
-   Bare page glyph bottom-right on every Index card (card-lore.js). art86: it flips the card
-   face to a dossier back face (rules in the art86 block below); the art82 pop-out is gone. */
-body.index-page .index-card .card-lore-glyph {
-  position: absolute;
-  z-index: 2; /* above the bottom veil (::after) and label layer */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin: 0;
-  background: none;
-  border: 0;
-  color: #8f8a82;
-  cursor: pointer;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,.85));
-  transition: color .15s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-body.index-page .index-card .card-lore-glyph svg { display: block; overflow: visible; pointer-events: none; }
-body.index-page .index-card .card-lore-glyph:hover,
-body.index-page .index-card .card-lore-glyph:focus-visible { color: #f3eee6; outline: none; }
-body.index-page .index-card .card-lore-glyph:focus-visible svg { filter: drop-shadow(0 0 4px rgba(243,238,230,.55)); }
-
-@media (min-width: 801px) {
-  body.index-page .index-card .card-lore-glyph {
-    right: 8px;
-    bottom: 8px;
-    width: 26px;
-    height: 26px;
-  }
-  body.index-page .index-card .card-lore-glyph svg { width: 11px; height: 13px; }
-  /* Above the Categories rail fade like the names (art81). */
-  body.index-page.index-toc-open .index-card .card-lore-glyph,
-  html.cats-rail-pinned body.index-page .index-card .card-lore-glyph { z-index: 19; }
-}
-
-@media (max-width: 800px) {
-  body.index-page .index-card .card-lore-glyph {
-    right: 3px;
-    bottom: 3px;
-    width: 30px;
-    height: 30px;
-  }
-  body.index-page .index-card .card-lore-glyph svg { width: 10px; height: 12px; }
-}
-
-
-/* ---- art86: Index card lore flip ----
+/* ---- art86: Index card lore flip (art90: click-to-reveal, no glyph; text fills the card) ----
+   art90: the first click/tap/Enter on a card reveals this face (no navigation), a second one
+   follows the card's href; card-lore.js fit() picks the largest --ls type scale that fits so
+   the text fills the card, and the face spreads its blocks with space-between.
    The card glyph flips the card face itself (crossfade) to a dossier back face that lives
    inside the card's own box: same width/height, overflow hidden, grid untouched. Backdrop =
    the article's main hero art (tiny copy, card-lore-palette.js) blurred under a dark frosted
@@ -4832,11 +4787,14 @@ body.index-page .index-card .card-lore-face {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: flex-start;
+  justify-content: space-between; /* art90: content spreads over the whole card */
   text-align: left;
   color: #f3eee6;
   text-shadow: 0 1px 2px rgba(0,0,0,.45);
 }
+body.index-page .index-card .card-lore-face.is-fitting { justify-content: flex-start; }
+body.index-page .index-card.is-lore-flipped,
+body.index-page .index-card .card-lore-back { cursor: pointer; } /* second click opens the article */
 body.index-page .index-card .card-lore-back.has-art-palette .card-lore-face {
   /* subtle: the palette label tone, softened toward the neutral grey */
   --lore-label: rgba(var(--lore-label-rgb), .78);
@@ -4855,18 +4813,6 @@ body.index-page .index-card .card-lore-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-body.index-page .index-card .card-lore-name a {
-  color: #f3eee6;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color .15s ease, text-shadow .15s ease;
-}
-body.index-page .index-card .card-lore-name a:hover,
-body.index-page .index-card .card-lore-name a:focus-visible {
-  color: #fff;
-  text-shadow: 0 0 10px rgba(243,238,230,.35);
-  outline: none;
 }
 body.index-page .index-card .card-lore-epithet,
 body.index-page .index-card .card-lore-dossier dt,
@@ -4924,7 +4870,17 @@ body.index-page .index-card .card-lore-face.no-facts .card-lore-facts,
 body.index-page .index-card .card-lore-face.no-epithet .card-lore-epithet,
 body.index-page .index-card .card-lore-face.no-desc .card-lore-desc,
 body.index-page .index-card .card-lore-face.no-quote .card-lore-quote { display: none; }
-body.index-page .index-card.is-lore-flipped .card-lore-glyph { color: #cfc6b8; }
+/* art90: wrap instead of ellipsis so no words are lost when the type scales up to fill. */
+body.index-page .index-card .card-lore-name,
+body.index-page .index-card .card-lore-epithet,
+body.index-page .index-card .card-lore-facts,
+body.index-page .index-card .card-lore-quote cite,
+body.index-page .index-card .card-lore-dossier dd {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
 @media (prefers-reduced-motion: reduce) {
   body.index-page .index-card .card-lore-back,
   body.index-page .index-card.is-lore-flipped .card-lore-back,
@@ -4932,41 +4888,41 @@ body.index-page .index-card.is-lore-flipped .card-lore-glyph { color: #cfc6b8; }
 }
 
 @media (min-width: 801px) {
-  /* Above the Categories rail fade like the names and glyph (art81). */
+  /* Above the Categories rail fade like the names (art81). */
   body.index-page.index-toc-open .index-card .card-lore-back,
   html.cats-rail-pinned body.index-page .index-card .card-lore-back { z-index: 19; }
   body.index-page .index-card .card-lore-face {
-    padding: clamp(10px, 5cqw, 18px) clamp(12px, 5.5cqw, 20px) clamp(24px, 9cqw, 30px);
-    gap: clamp(3px, 1.6cqw, 6px);
+    padding: clamp(10px, 5cqw, 18px) clamp(12px, 5.5cqw, 20px);
+    gap: calc(var(--ls, 1) * clamp(3px, 1.6cqw, 6px));
   }
-  body.index-page .index-card .card-lore-name { font-size: clamp(13px, 5.6cqw, 20px); }
-  body.index-page .index-card .card-lore-epithet { font-size: clamp(7.5px, 2.7cqw, 10px); margin-top: -2px; }
-  body.index-page .index-card .card-lore-quote p { font-size: clamp(9.5px, 3.8cqw, 13.5px); }
-  body.index-page .index-card .card-lore-quote cite { font-size: clamp(7px, 2.4cqw, 9px); margin-top: 2px; }
+  body.index-page .index-card .card-lore-name { font-size: calc(var(--ls, 1) * clamp(13px, 5.6cqw, 20px)); }
+  body.index-page .index-card .card-lore-epithet { font-size: calc(var(--ls, 1) * clamp(7.5px, 2.7cqw, 10px)); margin-top: -2px; }
+  body.index-page .index-card .card-lore-quote p { font-size: calc(var(--ls, 1) * clamp(9.5px, 3.8cqw, 13.5px)); }
+  body.index-page .index-card .card-lore-quote cite { font-size: calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px)); margin-top: 2px; }
   body.index-page .index-card .card-lore-dossier { gap: 1px; }
   body.index-page .index-card .card-lore-row { gap: clamp(6px, 2.6cqw, 10px); }
-  body.index-page .index-card .card-lore-dossier dt { font-size: clamp(7px, 2.4cqw, 9px); }
-  body.index-page .index-card .card-lore-dossier dd { font-size: clamp(9.5px, 3.6cqw, 13px); }
-  body.index-page .index-card .card-lore-facts { font-size: clamp(7px, 2.4cqw, 9px); }
-  body.index-page .index-card .card-lore-desc { font-size: clamp(9.5px, 3.7cqw, 13px); }
-  body.index-page .index-card .card-lore-note { font-size: 10px; letter-spacing: .14em; }
+  body.index-page .index-card .card-lore-dossier dt { font-size: calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px)); }
+  body.index-page .index-card .card-lore-dossier dd { font-size: calc(var(--ls, 1) * clamp(9.5px, 3.6cqw, 13px)); }
+  body.index-page .index-card .card-lore-facts { font-size: calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px)); }
+  body.index-page .index-card .card-lore-desc { font-size: calc(var(--ls, 1) * clamp(9.5px, 3.7cqw, 13px)); }
+  body.index-page .index-card .card-lore-note { font-size: calc(var(--ls, 1) * 10px); letter-spacing: .14em; }
 }
 
 @media (max-width: 800px) {
   body.index-page .index-card .card-lore-face {
-    padding: 8px 9px 22px;
-    gap: 2px;
+    padding: 8px 9px;
+    gap: calc(var(--ls, 1) * 2px);
   }
-  body.index-page .index-card .card-lore-name { font-size: clamp(11.5px, 6.6cqw, 17px); }
-  body.index-page .index-card .card-lore-epithet { font-size: clamp(6.5px, 3.3cqw, 9px); letter-spacing: .1em; }
-  body.index-page .index-card .card-lore-quote p { font-size: clamp(8.5px, 4.6cqw, 12px); line-height: 1.3; }
-  body.index-page .index-card .card-lore-quote cite { font-size: clamp(6.5px, 3cqw, 8px); letter-spacing: .08em; }
+  body.index-page .index-card .card-lore-name { font-size: calc(var(--ls, 1) * clamp(11.5px, 6.6cqw, 17px)); }
+  body.index-page .index-card .card-lore-epithet { font-size: calc(var(--ls, 1) * clamp(6.5px, 3.3cqw, 9px)); letter-spacing: .1em; }
+  body.index-page .index-card .card-lore-quote p { font-size: calc(var(--ls, 1) * clamp(8.5px, 4.6cqw, 12px)); line-height: 1.3; }
+  body.index-page .index-card .card-lore-quote cite { font-size: calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px)); letter-spacing: .08em; }
   body.index-page .index-card .card-lore-row { gap: 6px; }
-  body.index-page .index-card .card-lore-dossier dt { font-size: clamp(6.5px, 3cqw, 8px); letter-spacing: .1em; }
-  body.index-page .index-card .card-lore-dossier dd { font-size: clamp(8.5px, 4.4cqw, 11.5px); }
-  body.index-page .index-card .card-lore-facts { font-size: clamp(6.5px, 3cqw, 8px); letter-spacing: .08em; }
-  body.index-page .index-card .card-lore-desc { font-size: clamp(8.5px, 4.5cqw, 12px); line-height: 1.32; }
-  body.index-page .index-card .card-lore-note { font-size: 9px; letter-spacing: .12em; }
+  body.index-page .index-card .card-lore-dossier dt { font-size: calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px)); letter-spacing: .1em; }
+  body.index-page .index-card .card-lore-dossier dd { font-size: calc(var(--ls, 1) * clamp(8.5px, 4.4cqw, 11.5px)); }
+  body.index-page .index-card .card-lore-facts { font-size: calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px)); letter-spacing: .08em; }
+  body.index-page .index-card .card-lore-desc { font-size: calc(var(--ls, 1) * clamp(8.5px, 4.5cqw, 12px)); line-height: 1.32; }
+  body.index-page .index-card .card-lore-note { font-size: calc(var(--ls, 1) * 9px); letter-spacing: .12em; }
 }
 
 /* ---- art83: article body reading measure ----
