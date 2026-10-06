@@ -1,6 +1,9 @@
 /* Search: type-to-filter (Index hides unmatched), PowerToys panel, search.html. */
 (function () {
   var seek = document.getElementById("seek");
+  /* nt12: the form input is parked off-screen (0x0); keep it out of the Tab order. Type-to-search
+     still works: the keydown handler below focuses it programmatically. */
+  if (seek && seek.getBoundingClientRect().width < 2) seek.tabIndex = -1;
   var show = document.getElementById("seek-show");
   var hits = document.getElementById("search-hits");
   var isSearchPage = document.body.classList.contains("search-page");
