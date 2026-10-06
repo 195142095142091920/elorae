@@ -1,1 +1,1 @@
-art81-card-label-above-fade
+art82-card-lore-popout
