@@ -960,14 +960,17 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   body.index-page .index-card {
     scroll-margin-top: 88px;
   }
+  /* Category section heads: site chrome type (sticky nav / Categories h3) — art76. */
   body.index-page .index-cat > h2 {
     margin: 40px 0 8px;
     text-align: center;
-    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-weight: 400;
     font-size: 26px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     color: #f3eee6;
+    text-shadow: none;
   }
   body.index-page .index-sub {
     margin: 28px 0 0;
@@ -1000,7 +1003,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  /* Gallery-like card: name overlaid on art, always visible (top). */
+  /* Gallery-like card: name overlaid on art, always visible (bottom-right, art76). */
   body.index-page .index-card {
     position: relative;
     display: block;
@@ -1017,15 +1020,18 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     object-fit: cover;
     display: block;
   }
+  /* Preview name: bottom-right, always visible (art76); spacing mirrors prior top inset. */
   body.index-page .index-card span {
     position: absolute;
     left: 14px;
     right: 14px;
-    top: 12px;
+    top: auto;
+    bottom: 12px;
     z-index: 1;
     display: block;
     min-height: 0;
     margin: 0;
+    text-align: right;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 15px;
     font-weight: 700;
@@ -1042,9 +1048,10 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     position: absolute;
     left: 0;
     right: 0;
-    top: 0;
+    top: auto;
+    bottom: 0;
     height: 84px;
-    background: linear-gradient(to bottom, rgba(0,0,0,.72), transparent);
+    background: linear-gradient(to top, rgba(0,0,0,.72), transparent);
     opacity: 1;
     pointer-events: none;
   }
@@ -1115,11 +1122,13 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   body.index-page .index-cat > h2 {
     margin: 28px 6px 6px;
     text-align: center;
-    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-weight: 400;
     font-size: 22px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     color: #f3eee6;
+    text-shadow: none;
   }
   body.index-page .index-sub {
     margin: 22px 6px 0;
@@ -1165,15 +1174,18 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     object-fit: cover;
     display: block;
   }
+  /* Phone: name bottom-right (art76). */
   body.index-page .index-card span {
     position: absolute;
     left: 10px;
     right: 10px;
-    top: 10px;
+    top: auto;
+    bottom: 10px;
     z-index: 1;
     display: block;
     min-height: 0;
     margin: 0;
+    text-align: right;
     font-family: Helvetica, Arial, sans-serif;
     font-size: 12px;
     font-weight: 700;
@@ -1190,9 +1202,10 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     position: absolute;
     left: 0;
     right: 0;
-    top: 0;
+    top: auto;
+    bottom: 0;
     height: 72px;
-    background: linear-gradient(to bottom, rgba(0,0,0,.72), transparent);
+    background: linear-gradient(to top, rgba(0,0,0,.72), transparent);
     opacity: 1;
     pointer-events: none;
   }
