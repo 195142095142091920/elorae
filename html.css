@@ -4764,3 +4764,29 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
     text-shadow: none;
   }
 }
+
+
+/* ---- art78: rail fade sits under text (desktop) ----
+   Keep the wide art77 taper, but raise article title/epithet/controls/body and
+   Codex/Journal reading column above the fade so only artwork is veiled. */
+@media (min-width: 801px) {
+  /* Article: title + swap + dossier above Categories fade (rail/fade stack at z-18). */
+  body.article .art-title {
+    position: absolute;
+    z-index: 21;
+  }
+  body.article .art-swap {
+    z-index: 21;
+  }
+  body.article .art-body {
+    position: relative;
+    z-index: 21;
+  }
+  /* Codex / Journal: reading column above Contents fade (toc/fade at z-8). */
+  body.journal-page main.read,
+  body.book main.read,
+  body.lore-page main.read {
+    position: relative;
+    z-index: 9;
+  }
+}
