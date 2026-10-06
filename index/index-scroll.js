@@ -1,17 +1,17 @@
 /* Index rail: Chromium-style category sidebar.
-   Desktop: the cue arrow is a pure click toggle (art79) — closed: click opens and it
-   stays open; open: click closes. No hover open/close/peek. Open state pushes the
+   Desktop (art87): the top-left nav glyph (rail-toggle.js -> window.__railToggle) is the only
+   open/close toggle (the left-edge cue arrow is gone) — closed: click opens and it stays open;
+   open: click closes. No hover open/close/peek. Open state pushes the
    card grid (body.index-toc-open). Pin sticks the rail open; unpin collapses.
    Pinned / phone-open state persists in localStorage (elorae-cats-rail); default open.
    Clicking a category/subject link does not change open/pinned state.
-   Phone: Categories opens from #section-bar .sec-toggle (regular secondary nav); pin/cue hidden;
+   Phone: Categories opens from #section-bar .sec-toggle (regular secondary nav); pin hidden;
    tap-outside / Escape closes (and persists).
    Nests stay closed until the chevron is tapped; no card highlight while scrolling. */
 (function () {
   var toc = document.querySelector("aside.toc");
   if (!toc) return;
   var panel = toc.querySelector(".index-toc-panel") || toc;
-  var cue = toc.querySelector(".index-toc-cue");
   var pin = toc.querySelector(".index-toc-pin");
   var secToggle = document.querySelector('#section-bar .sec-toggle[data-sec-for="index-toc"]');
   var desk = window.matchMedia("(min-width: 801px)");
@@ -63,7 +63,6 @@
   function setOpen(on) {
     toc.classList.toggle("open", !!on);
     document.body.classList.toggle("index-toc-open", !!on);
-    if (cue) cue.setAttribute("aria-expanded", on ? "true" : "false");
     if (secToggle) secToggle.setAttribute("aria-expanded", on ? "true" : "false");
   }
   function setPinned(on) {
@@ -76,8 +75,8 @@
   }
   function focused() {
     var a = document.activeElement;
-    /* Keyboard focus inside the panel still reveals it; the cue itself never peeks (art79). */
-    if (!a || !toc.contains(a) || a === cue) return false;
+    /* Keyboard focus inside the panel still reveals it (art79). */
+    if (!a || !toc.contains(a)) return false;
     try { return a.matches(":focus-visible"); } catch (e) { return true; }
   }
   function sync() {
@@ -112,29 +111,16 @@
       persist();
     });
   }
-  if (cue) {
-    cue.addEventListener("click", function (e) {
-      if (desk.matches) {
-        /* Desktop cue: pure click toggle — closed opens (and stays), open closes (art79). */
-        e.preventDefault();
-        e.stopPropagation();
-        setPinned(!pinned);
-        sync();
-        persist();
-        return;
-      }
-      e.preventDefault();
-      e.stopPropagation();
-      if (pinned) {
-        setPinned(false);
-        phoneOpen = false;
-      } else {
-        phoneOpen = !phoneOpen;
-      }
-      sync();
-      persist();
-    });
-  }
+  /* Desktop toggle for the top-left nav glyph (rail-toggle.js): same pinned state + persistence
+     as before (elorae-cats-rail); returns the new open state. */
+  window.__railToggle = function () {
+    if (!desk.matches) return null;
+    setPinned(!pinned);
+    sync();
+    persist();
+    return pinned;
+  };
+  window.__railIsOpen = function () { return pinned; };
 
   if (secToggle) {
     secToggle.addEventListener("click", function (e) {
@@ -148,7 +134,7 @@
     });
   }
 
-  /* Desktop: open while pinned (cue/pin click) or keyboard-focused inside the panel. */
+  /* Desktop: open while pinned (nav glyph / pin click) or keyboard-focused inside the panel. */
   toc.addEventListener("focusin", sync);
   toc.addEventListener("focusout", function () { window.setTimeout(sync, 0); });
   document.addEventListener("click", function (e) {

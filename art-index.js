@@ -87,6 +87,17 @@
       persist();
     });
   }
+  /* Desktop toggle for the top-left nav glyph (rail-toggle.js, art87): same pinned state and
+     persistence as the cue arrow (elorae-cats-rail); returns the new open state. */
+  window.__railToggle = function () {
+    if (!desk.matches) return null;
+    setPinned(!pinned);
+    sync();
+    persist();
+    return pinned;
+  };
+  window.__railIsOpen = function () { return pinned; };
+
   if (secToggle) {
     secToggle.addEventListener("click", function (e) {
       if (desk.matches) return;

@@ -804,23 +804,6 @@ body.index-page aside.toc.index-toc {
   overflow: visible;
   background: none;
 }
-body.index-page .index-toc-cue {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin: 0;
-  background: none;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  color: rgba(243,238,230,0.45);
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  transition: color .15s ease;
-}
 @media (min-width: 801px) {
   body.index-page aside.toc.index-toc {
     position: fixed;
@@ -830,23 +813,6 @@ body.index-page .index-toc-cue {
     width: 12px;
     pointer-events: none;
   }
-  body.index-page .index-toc-cue {
-    position: fixed;
-    left: 0;
-    top: calc(56px + 42vh);
-    z-index: 19;
-    width: 18px;
-    height: 36px;
-  }
-}
-body.index-page .index-toc-cue:hover,
-body.index-page .index-toc-cue:focus-visible { color: rgba(243,238,230,0.9); }
-body.index-page .index-toc-cue:focus-visible { outline: 1px solid rgba(243,238,230,0.35); outline-offset: 2px; }
-body.index-page .index-toc-cue svg {
-  display: block;
-  width: 6px;
-  height: 10px;
-  overflow: visible;
 }
 /* Desktop slide-rail panel layout lives under min-width:801px; shared look here. */
 body.index-page .index-toc-panel {
@@ -929,10 +895,6 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
   }
   body.index-page aside.toc.index-toc.open .index-toc-panel {
     transform: translateX(0);
-  }
-  body.index-page aside.toc.index-toc.open .index-toc-cue,
-  body.index-page aside.toc.index-toc.pinned .index-toc-cue {
-    color: rgba(243,238,230,0.85);
   }
   body.index-page main.with-toc.index-flow {
     display: block;
@@ -1049,8 +1011,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
 
 @media (max-width: 800px) {
   /* Phone: Categories lives in the regular #section-bar secondary nav (same chrome
-     as Atlas/Codex Calendar/Lore). Cue hidden; panel drops from under the bar. */
-  body.index-page .index-toc-cue { display: none !important; }
+     as Atlas/Codex Calendar/Lore). Panel drops from under the bar. */
   body.index-page aside.toc.index-toc {
     position: fixed;
     top: calc(var(--phone-stack-h, 116px) + env(safe-area-inset-top, 0px)); /* mast 102 + section-bar 44 */
@@ -3438,7 +3399,6 @@ body.entry .life-sheet .life-quote cite::before { content: none; }
     max-width: none !important;
     transform: none !important;
   }
-  body.index-page .index-toc-cue,
   body.article .art-index-cue {
     display: none !important;
   }
@@ -5042,4 +5002,62 @@ body.index-page .index-card.is-lore-flipped .card-lore-glyph { color: #cfc6b8; }
     padding-left: 12px;
     padding-right: 12px;
   }
+}
+
+/* ---- art87: flush desktop rails + top-left nav sidebar glyph ----
+   rail-toggle.js (in <head> on every page) adds .rail-toggle to the .topbar only when the page
+   has a sidebar (aside.toc / aside.art-index), and sets --rail-top = measured bottom of the
+   nav chrome (mast + visible fixed #section-bar). Index + articles toggle the shared
+   elorae-cats-rail pinned state; Codex/Journal TOCs get html.toc-rail-collapsed
+   (elorae-toc-rail, restored before first paint). Phone: unchanged, no glyph. */
+@media (min-width: 801px) {
+  .topbar .rail-toggle {
+    position: absolute;
+    left: 22px;
+    top: 50%;
+    z-index: 5;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: #8f8a82;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color .15s ease;
+  }
+  .topbar .rail-toggle svg { display: block; width: 16px; height: 12px; overflow: visible; pointer-events: none; }
+  .topbar .rail-toggle:hover,
+  .topbar .rail-toggle:focus-visible { color: #f3eee6; outline: none; }
+  /* Articles: INDEX back label sits just right of the glyph, same baseline/height. */
+  html.has-rail-toggle body.article .art-back,
+  body.article:has(aside.art-index) .art-back { left: 60px; }
+  /* Codex (mast + section bar) and Journal (mast only): rail flush under the chrome. */
+  body.journal-page aside.toc,
+  body.lore-page aside.toc,
+  body.book aside.toc { top: var(--rail-top, 96px) !important; }
+  body.journal-flow aside.toc { top: var(--rail-top, 56px) !important; }
+  body.journal-page aside.toc::after,
+  body.lore-page aside.toc::after,
+  body.book aside.toc::after { top: var(--rail-top, 96px) !important; }
+  body.journal-flow aside.toc::after { top: var(--rail-top, 56px) !important; }
+  /* Collapsed Codex/Journal TOC: rail (and its fade) hidden; the reading column centres. */
+  html.toc-rail-collapsed body.journal-page aside.toc,
+  html.toc-rail-collapsed body.lore-page aside.toc { display: none !important; }
+  html.toc-rail-collapsed body.journal-page:not(.book) main.with-toc.read {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+@media (max-width: 800px) {
+  .topbar .rail-toggle { display: none !important; }
 }
