@@ -5144,3 +5144,68 @@ body.index-page .index-card.is-lore-flipped .card-lore-glyph { color: #cfc6b8; }
     text-indent: 0 !important;
   }
 }
+
+/* ---- art89: hard nav edge, content fades under it ----
+   No gradient / veil strip hangs below the main nav, the secondary bar or the phone Contents
+   row any more. Instead rail-toggle.js marks the scrolling content layers (.nav-fade: body >
+   main, article hero art / title / swap) and feeds --nf (nav bottom, relative to the mask
+   image) and --nfl (ramp length): the content itself goes transparent -> opaque over 48px
+   (phone 40px) starting exactly at the nav line. Fixed page backdrops (.journal-bg) and the
+   sidebars are not masked. Mask image is oversized 340px / 140px per side with
+   mask-clip:no-clip so column veils that overflow main keep their soft edges. */
+.mast::after,
+body .mast::after,
+body:not(.entry) .mast::after,
+#section-bar::after,
+#section-bar:has(a)::after,
+#section-bar.show::after,
+body.has-section-bar #section-bar::after,
+body.index-page #section-bar::after,
+body.article #section-bar::after,
+body.journal-flow #section-bar::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+@media (max-width: 800px) {
+  body.journal-page aside.toc:has(> .toc-drop)::after { content: none !important; display: none !important; background: none !important; }
+}
+html.nav-fade-on .nav-fade {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent var(--nf, -9999px), #000 calc(var(--nf, -9999px) + var(--nfl, 0px)));
+  mask-image: linear-gradient(to bottom, transparent 0, transparent var(--nf, -9999px), #000 calc(var(--nf, -9999px) + var(--nfl, 0px)));
+  -webkit-mask-size: calc(100% + 680px) calc(100% + 280px);
+  mask-size: calc(100% + 680px) calc(100% + 280px);
+  -webkit-mask-position: -340px -140px;
+  mask-position: -340px -140px;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-origin: border-box;
+  mask-origin: border-box;
+  -webkit-mask-clip: no-clip;
+  mask-clip: no-clip;
+}
+@media (min-width: 801px) {
+  /* Index: the mask makes the grid a stacking context. Lift it above the rail (18) so card
+     names / glyph / flipped backs keep drawing above the art77 fade (art81), and redraw that
+     fade inside the grid at z-18 (above card art, below the z-19 labels), exactly as before. */
+  html.nav-fade-on body.index-page main.index-flow.nav-fade { position: relative; z-index: 19; }
+  html.nav-fade-on body.index-page.index-toc-open main.index-flow.nav-fade::before {
+    content: "";
+    position: fixed;
+    top: var(--rail-top, 56px);
+    bottom: 0;
+    left: 218px;
+    width: 120px;
+    z-index: 18;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      #070707 0%,
+      rgba(7, 7, 7, 0.85) 20%,
+      rgba(7, 7, 7, 0.6) 40%,
+      rgba(7, 7, 7, 0.35) 60%,
+      rgba(7, 7, 7, 0.15) 80%,
+      rgba(7, 7, 7, 0) 100%
+    );
+  }
+}

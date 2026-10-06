@@ -8,7 +8,13 @@
       pinned state, push and elorae-cats-rail persistence as the Index pin / article arrow.
       Codex/Journal TOCs: toggles html.toc-rail-collapsed and persists it.
    3) Sets --rail-top on <html> to the measured bottom of the nav chrome (mast + a visible
-      fixed/sticky #section-bar) so desktop rails sit flush under it. */
+      fixed/sticky #section-bar) so desktop rails sit flush under it.
+   4) art89 content fade: the nav bars end in a hard edge (no veil strips); instead the
+      scrolling content layers (body > main, article hero art/title/swap) get a CSS mask whose
+      transparent->opaque ramp (48px desktop / 40px phone, grows in over the first scroll px)
+      starts exactly at the measured bottom of the nav stack (incl. a phone Contents row).
+      The mask image is oversized (340px / 140px each side, mask-clip:no-clip) so overflowing
+      column veils keep their soft edges; only the --nf offset changes on scroll (rAF). */
 (function () {
   var KEY = "elorae-toc-rail";
   var h = document.documentElement;
@@ -22,6 +28,7 @@
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
     else fn();
   }
+  ready(navFade);
   ready(function () {
     var rail = document.querySelector("aside.index-toc, aside.art-index") ||
       document.querySelector("aside.toc:not(.private-journal)") || document.querySelector("aside.toc");
@@ -84,4 +91,55 @@
       if (sec) ro.observe(sec);
     }
   });
+
+  /* ---- art89: content dissolves under the hard nav edge ---- */
+  function chromeBottom() {
+    var b = 0, mast = document.querySelector(".mast");
+    if (mast && getComputedStyle(mast).display !== "none") b = mast.getBoundingClientRect().bottom;
+    var toc = null;
+    try { toc = document.querySelector("aside.toc:has(> .toc-drop)"); } catch (e) {}
+    [document.getElementById("section-bar"), toc].forEach(function (el) {
+      if (!el) return;
+      var cs = getComputedStyle(el), r = el.getBoundingClientRect();
+      if (cs.display === "none" || cs.visibility === "hidden" || r.height <= 0 || r.height > 120) return;
+      if (cs.position !== "fixed" && cs.position !== "sticky") return;
+      if (r.top <= b + 1) b = Math.max(b, r.bottom);
+    });
+    return b;
+  }
+  function navFade() {
+    var mast = document.querySelector(".mast");
+    if (!mast || getComputedStyle(mast).display === "none") return;
+    var els = Array.prototype.slice.call(document.querySelectorAll(
+      "body > main, body.article .art-hero > img, body.article .art-title, body.article .art-swap"));
+    if (!els.length) return;
+    var phone = window.matchMedia("(max-width: 800px)");
+    els.forEach(function (el) { el.classList.add("nav-fade"); });
+    h.classList.add("nav-fade-on");
+    var queued = false;
+    function update() {
+      queued = false;
+      var nav = chromeBottom(), y = window.scrollY || window.pageYOffset || 0;
+      var len = Math.min(phone.matches ? 40 : 48, Math.max(0, y));
+      h.style.setProperty("--nav-bottom", Math.round(nav * 100) / 100 + "px");
+      els.forEach(function (el) {
+        var top = el.getBoundingClientRect().top - 140; /* mask image starts 140px above the box */
+        el.style.setProperty("--nf", Math.round((nav - top) * 10) / 10 + "px");
+        el.style.setProperty("--nfl", len + "px");
+      });
+    }
+    function queue() { if (!queued) { queued = true; window.requestAnimationFrame(update); } }
+    update();
+    window.addEventListener("scroll", queue, { passive: true });
+    window.addEventListener("resize", queue);
+    window.addEventListener("load", queue);
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(queue);
+      ro.observe(mast);
+      var sb = document.getElementById("section-bar");
+      if (sb) ro.observe(sb);
+    }
+    /* rail push / dropdown toggles move things without scrolling */
+    document.addEventListener("click", function () { setTimeout(queue, 0); setTimeout(queue, 320); }, true);
+  }
 })();
