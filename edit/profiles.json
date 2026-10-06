@@ -1,0 +1,108 @@
+{
+  "_readme": "Edit-mode profiles, keyed by GitHub login. This file only drives the in-browser UI; the edit-guard workflow enforces it server-side. Only admins may change it. 'person' links a login to the site's existing friend slugs (devin, jack, jon, julie, sawyer). permissions: path globs ('**' = everything, 'articles/**', 'journal.html', ...) or 'view' for read-only. save: 'direct' (commit straight to main) or 'pr' (branch + pull request). Keys in angle brackets are placeholders: replace them with the person's real GitHub login (logins can never contain < or >, so placeholders match nobody). Keys starting with '_' are ignored. 'characters' is informational (the site's own page names). Telorin's site page is titled just 'Telorin' (figures/telorin.html; there is no Telorin article and 'Nelis' does not appear on the site).",
+  "repo": "195142095142091920/elorae",
+  "profiles": {
+    "195142095142091920": {
+      "name": "Devin",
+      "person": "devin",
+      "role": "admin",
+      "permissions": [
+        "**"
+      ],
+      "save": "direct",
+      "title": "GM",
+      "characters": [
+        "Full site",
+        "All secrets"
+      ]
+    },
+    "<sawyer-github-login>": {
+      "name": "Sawyer",
+      "person": "sawyer",
+      "role": "editor",
+      "permissions": [
+        "articles/vaerek.html",
+        "figures/vaerek-at-ease.html",
+        "figures/vaerek-heldranc.html"
+      ],
+      "save": "pr",
+      "characters": [
+        "Vaerek Rathkin"
+      ]
+    },
+    "<jon-github-login>": {
+      "name": "Jon",
+      "person": "jon",
+      "role": "editor",
+      "permissions": [
+        "figures/telorin.html",
+        "articles/silar-scorria.html",
+        "figures/silar-scorria.html"
+      ],
+      "save": "pr",
+      "characters": [
+        "Telorin",
+        "Silar Scorria"
+      ]
+    },
+    "<jack-github-login>": {
+      "name": "Jack",
+      "person": "jack",
+      "role": "editor",
+      "permissions": [
+        "articles/galand-helviath.html",
+        "figures/galand-helviath.html"
+      ],
+      "save": "pr",
+      "characters": [
+        "Galand Helviath"
+      ]
+    },
+    "<julie-github-login>": {
+      "name": "Julie",
+      "person": "julie",
+      "role": "editor",
+      "permissions": [
+        "articles/saoirse.html",
+        "figures/saoirse.html",
+        "figures/saoirse-canyon.html"
+      ],
+      "save": "pr",
+      "characters": [
+        "Saoirse"
+      ]
+    }
+  },
+  "_examples": {
+    "<an-articles-editor>": {
+      "name": "Articles editor",
+      "role": "editor",
+      "permissions": [
+        "articles/**"
+      ],
+      "save": "pr"
+    },
+    "<a-codex-editor>": {
+      "name": "Codex editor",
+      "role": "editor",
+      "permissions": [
+        "codex/**"
+      ],
+      "save": "pr"
+    },
+    "<a-journal-and-figures-editor>": {
+      "name": "Journal editor",
+      "role": "editor",
+      "permissions": [
+        "journal.html",
+        "figures/**"
+      ],
+      "save": "pr"
+    },
+    "<a-viewer>": {
+      "name": "Viewer",
+      "role": "viewer",
+      "permissions": "view"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+# INSTALL: copy this file to .github/workflows/edit-guard.yml (GitHub web UI: Add file → Create new
+# file, or push with a token that has the `workflow` scope). It is inert until it lives there.
+name: Edit guard
+# Server-side enforcement for edit mode (see edit/README.md). Read-only: it never writes.
+# It reports a failing check when an [edit-mode] commit, or any commit pushed by a non-admin
+# editor, touches a path that person isn't allowed to edit per edit/profiles.json, or when a
+# non-admin touches edit/** (profiles, visibility, secrets, keys) or .github/**.
+# Make it a REQUIRED status check in branch protection so PRs can't merge when it fails.
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: edit-guard-${{ github.ref }}-${{ github.sha }}
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Use the guard from the base commit (a push can't weaken its own check)
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/guard"
+          ok=0
+          if [ -n "$BASE" ] && ! echo "$BASE" | grep -qE '^0+$'; then
+            git show "$BASE:edit/guard.js" > "$RUNNER_TEMP/guard/guard.js" 2>/dev/null &&
+            git show "$BASE:edit/perms.js" > "$RUNNER_TEMP/guard/perms.js" 2>/dev/null && ok=1
+          fi
+          if [ "$ok" != 1 ]; then
+            echo "Base has no guard yet (bootstrap): using this commit's copy."
+            cp edit/guard.js edit/perms.js "$RUNNER_TEMP/guard/"
+          fi
+      - name: Check edit permissions
+        run: node "$RUNNER_TEMP/guard/guard.js"

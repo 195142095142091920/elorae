@@ -1,0 +1,145 @@
+# Elorae edit mode + visibility layer
+
+Additive tooling for editing elorae.world in the browser and for keeping secret pages
+genuinely secret. Visitors see nothing new: each page only loads `edit/edit.js`, which does
+nothing unless the URL ends in `#edit`, an editor session already exists in that browser, or
+Devin is signed in (then a bare **DASHBOARD** link appears in the top-right nav spot).
+
+Nothing secret is committed. There are no passwords or tokens in the repo.
+
+## Who can do what
+
+| Person | GitHub login (fill in) | Role | Can edit |
+|---|---|---|---|
+| Devin (GM) | `195142095142091920` (repo owner, assumed to be Devin) | admin, saves direct to `main` | whole site, `edit/**`, dashboard, all secrets |
+| Sawyer | `<sawyer-github-login>` | editor, saves as PR | Vaerek Rathkin: `articles/vaerek.html`, `figures/vaerek-at-ease.html`, `figures/vaerek-heldranc.html` |
+| Jon | `<jon-github-login>` | editor, saves as PR | Telorin: `figures/telorin.html` (there is no Telorin article). Silar Scorria: `articles/silar-scorria.html`, `figures/silar-scorria.html` |
+| Jack | `<jack-github-login>` | editor, saves as PR | Galand Helviath: `articles/galand-helviath.html`, `figures/galand-helviath.html` |
+| Julie | `<julie-github-login>` | editor, saves as PR | Saoirse: `articles/saoirse.html`, `figures/saoirse.html`, `figures/saoirse-canyon.html` |
+
+Permission levels in `edit/profiles.json`:
+
+- `"role": "admin"`: everything, including `edit/**` (profiles, visibility, secrets, keys) and `.github/**`.
+- `"role": "editor"` with `"permissions"`: a list of path globs. `*` matches inside one folder and `**` matches across folders, for example `"articles/**"`, `"codex/**"`, `"journal.html"`, `"figures/*.html"`.
+- `"permissions": "view"`: can sign in but can't edit anything.
+- `"save": "direct"` commits straight to `main`. `"save": "pr"` (the default for non-admins) creates a branch `edit/<login>/…` and opens a pull request.
+
+### Add a person
+1. Get their GitHub login (exactly as shown on github.com/<login>).
+2. In `edit/profiles.json`, replace the `<…-github-login>` placeholder key with that login, or
+   add a new entry. Placeholders contain `<` `>`, which GitHub logins can't contain, so they
+   never match anyone.
+3. Repo **Settings → Collaborators**: invite them with **Write** access. Their token can only write
+   if they are a collaborator.
+4. Commit as an admin. The edit guard rejects profile changes from anyone else.
+
+## Each editor: make a token (one time)
+1. github.com → Settings → Developer settings → **Fine-grained personal access tokens** → Generate new token.
+2. Resource owner: `195142095142091920`. Repository access: **Only select repositories** → `elorae`.
+3. Repository permissions: **Contents: Read and write**. Add **Pull requests: Read and write** for PR-mode editors. Metadata: read is automatic.
+   Do **not** grant *Workflows* or *Administration*.
+4. Choose a short expiry (for example 90 days) and copy the token.
+5. Open any page with `#edit` on the end (for example `https://elorae.world/articles/vaerek.html#edit`), paste the token, and sign in.
+   The token stays in your browser's sessionStorage, or in localStorage if you tick *Remember on this device*. It is sent only to `api.github.com`. *Sign out* removes it.
+
+## Editing
+Sign in, then click **EDIT** (bottom-right, only on pages you can edit). Article text, dossier
+values, codex prose, journal text and figure lore become editable. Nav, headings, links lists and
+structure don't. **Save** works like this:
+
+1. GET `/repos/195142095142091920/elorae/contents/<path>?ref=main` to read the current source and its `sha`.
+2. A small offset-preserving tokenizer (`edit/srcmap.js`) finds each editable block's exact
+   byte range in the raw file. Only blocks you changed are replaced. Their HTML is sanitized
+   (inline formatting, `a[href]`, `br`, and `p`/`blockquote` inside quotes. Scripts, styles,
+   images, iframes, event handlers and `javascript:` URLs are removed) and spliced in. Every other
+   byte of the file is left exactly as it was. Character references such as `&#x27;` are kept.
+3. If the file changed on GitHub since you started, the save still goes through when someone else
+   only touched *other* blocks. If they changed the same block, you get a clear conflict message and
+   nothing is saved.
+4. PUT the new content with the `sha` and the message `Edit <path> via edit mode [edit-mode]`. A
+   409 or sha mismatch shows the conflict message.
+5. Direct saves go live after the Pages deploy (about 1–2 minutes). PR saves go live 1–2 minutes after the PR is merged.
+
+## Server-side enforcement: `.github/workflows/edit-guard.yml`
+
+> **Install step (one time, Devin):** the workflow ships as `edit/workflows/edit-guard.yml` because
+> the automation token couldn't write workflow files. Copy it to `.github/workflows/edit-guard.yml`
+> (github.com → Add file → Create new file, paste it, then commit). Until then nothing is enforced server-side.
+
+`profiles.json` only drives the UI. The **Edit guard** workflow runs on every push and PR. It runs
+the guard script **from the base commit**, reads `profiles.json` **from the base commit**, and
+identifies the person by the pusher (`github.actor`) or the PR author, not by commit metadata, which
+can be forged. Then:
+
+- Every commit tagged `[edit-mode]`, and every commit pushed by a listed non-admin, must only touch
+  paths that person's globs allow.
+- `edit/**` (profiles, visibility.json, secrets, keys, editor code) and `.github/**` may only be changed by admins.
+- Violations fail the check with an annotation per file.
+
+### Limits (please read)
+- A collaborator's token can technically push **anything** to any branch. The guard catches it
+  after the fact on direct pushes (red check and notification). It can only **block** a change
+  when it is a required check on a pull request. So:
+  - **Settings → Branches → Add rule for `main`**: require a pull request before merging, require
+    the status check **Edit guard / guard**, and allow only Devin (admin) to bypass. Then
+    non-admin edits can only reach `main` through reviewed PRs. Admin `direct` saves still work.
+  - Optionally add `.github/CODEOWNERS` with `* @195142095142091920` and require code-owner review.
+  - Only give collaborator access to people you trust. Tokens without the *Workflows* permission
+    cannot change `.github/workflows/*`.
+- The Pages workflow publishes from `main` only. Edit branches run it but the `github-pages`
+  environment refuses to deploy them, so you may see a failed "Deploy" run on `edit/*` branches.
+
+## Visibility layer (secrets)
+Today, the 12 "sealed" pages (Bel Harath, Haethlin in the Dream, Ito Gangara, Vallorca, Yena (Jack's);
+Curse of Olesh, Cursed of Olesh, Darmstadt, Elraim, Imani Valash, Rathalon, Sen Teloch Ini (Devin's))
+are **public plaintext**. Their gallery and figure pages, images, `vault.js`, `search-index.js` and
+`index.html` tiles are all in the public repo. They are hidden only by CSS. The friend-door phrases
+are in `vault.js` and in a comment in `seal.js`. The SHA-256 hashes of one-word phrases can also be
+brute-forced instantly. That mechanism is a curtain, not a lock.
+
+The new layer gives real secrecy:
+
+- Each secret's page (HTML with images inlined) is encrypted with its own random **AES-256-GCM**
+  content key and stored in `edit/secrets/<id>.json`.
+- Each person has an **RSA-OAEP-3072** keypair made in their own browser. `edit/visibility.json`
+  stores their public key and their private key **encrypted with their passphrase**
+  (PBKDF2-SHA-256, 600,000 iterations). The passphrase is never stored or sent anywhere.
+- For every allowed person, the content key is wrapped (encrypted) with that person's public key.
+  Devin is always included.
+- **Everyone** publishes the content key (`openKey`), so anyone can open the page.
+- **Revealing** to someone wraps the key for them (one commit). **Hiding** from someone, or turning
+  Everyone off, **rotates** the key: a new key, re-encryption, and re-wrapping for the people who remain.
+- Titles, owners and who-can-see lists in `visibility.json` are public metadata (the dashboard
+  needs them); only the page content is encrypted.
+- A shared page decrypts in the reader's browser; they can copy it. Weak passphrases can be
+  brute-forced offline from the published encrypted key, so use long ones.
+- Anything already revealed may have been saved, cached or screenshotted. Rotation protects future
+  versions only. Git history keeps old ciphertext, but old keys only ever went to people who were allowed at the time.
+
+### Setup, per person
+1. Open `https://elorae.world/edit/secret.html?enroll`, choose your name, and pick a passphrase of
+   four or more random words. Keep it private. It can't be recovered.
+2. Send the enrollment code shown to Devin. It contains only your public key and a passphrase-locked private key.
+3. To read something shared with you, use the link Devin gives you (`edit/secret.html?id=<secret>`),
+   choose your name and enter your passphrase.
+
+### Setup, Devin
+1. Sign in at `edit/dashboard.html` (or the DASHBOARD link) with your token.
+2. Create your vault key with your own passphrase. Next time, unlock it with that passphrase.
+3. Paste each person's enrollment code under **People → Add key**.
+4. **Encrypt** a secret, then use its toggles: *Everyone*, plus a checkbox per person. Each click is one
+   `[edit-mode]` commit to `main` (visibility.json, plus the secret file when the key rotates).
+
+### Migration status
+Encrypting a secret in the dashboard **adds** the encrypted copy and does not remove anything. The
+plaintext stays public until a separate, explicit cleanup removes or replaces `gallery/<id>.html`,
+`figures/<id>.html`, its `index.html` tile, its `search-index.js` entry, its `vault.js` entry and its image in
+`assets/`, and points the tile at `edit/secret.html?id=<id>`. Image files also stay in git history,
+so truly secret art needs a history rewrite or new art. This cleanup is deliberately not automated.
+
+## Files
+`edit/edit.js` (bootstrap, the only thing pages load), `core.js` (session + GitHub API),
+`perms.js` (globs, shared with the guard), `srcmap.js` (tokenizer/splicer), `editor.js` (UI and
+save), `edit.css`, `profiles.json`, `visibility.json`, `secrets/`, `crypto.js`, `vis.js`,
+`secret.html` + `secret.js`, `dashboard.html` + `dashboard.js`, `guard.js`, `workflows/edit-guard.yml` (to install), `test/` (E2E test
+with a mocked GitHub API: see the header of `test/e2e.js`).

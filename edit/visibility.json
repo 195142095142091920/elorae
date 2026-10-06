@@ -1,0 +1,192 @@
+{
+  "_readme": "Visibility manifest for secret pages. Only admins may change it (edit-guard). people.<slug>.key holds that person's PUBLIC key and their passphrase-ENCRYPTED private key (safe to publish; the passphrase is never stored). secrets.<id>: status 'plaintext' = not migrated yet (still public in figures/, gallery/, index.html, search-index.js; hidden only by CSS), 'encrypted' = content lives encrypted in edit/secrets/<id>.json. keys.<slug> = the content key wrapped for that person. everyone=true publishes the content key as openKey. devin is always allowed.",
+  "version": 1,
+  "admins": [
+    "devin"
+  ],
+  "people": {
+    "devin": {
+      "name": "Devin",
+      "key": null
+    },
+    "jack": {
+      "name": "Jack",
+      "key": null
+    },
+    "jon": {
+      "name": "Jon",
+      "key": null
+    },
+    "julie": {
+      "name": "Julie",
+      "key": null
+    },
+    "sawyer": {
+      "name": "Sawyer",
+      "key": null
+    }
+  },
+  "secrets": {
+    "bel-harath": {
+      "title": "Bel Harath",
+      "owner": "jack",
+      "path": "gallery/bel-harath.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "curse-of-olesh": {
+      "title": "Curse of Olesh",
+      "owner": "devin",
+      "path": "gallery/curse-of-olesh.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "cursed-of-olesh": {
+      "title": "Cursed of Olesh",
+      "owner": "devin",
+      "path": "gallery/cursed-of-olesh.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "darmstadt": {
+      "title": "Darmstadt",
+      "owner": "devin",
+      "path": "gallery/darmstadt.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "elraim": {
+      "title": "Elraim",
+      "owner": "devin",
+      "path": "gallery/elraim.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "haethlin-dream": {
+      "title": "Haethlin in the Dream",
+      "owner": "jack",
+      "path": "gallery/haethlin-dream.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "imani-valash": {
+      "title": "Imani Valash",
+      "owner": "devin",
+      "path": "gallery/imani-valash.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "ito-gangara": {
+      "title": "Ito Gangara",
+      "owner": "jack",
+      "path": "gallery/ito-gangara.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "rathalon": {
+      "title": "Rathalon",
+      "owner": "devin",
+      "path": "gallery/rathalon.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "sen-teloch-ini": {
+      "title": "Sen Teloch Ini",
+      "owner": "devin",
+      "path": "gallery/sen-teloch-ini.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "vallorca": {
+      "title": "Vallorca",
+      "owner": "jack",
+      "path": "gallery/vallorca.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "yena": {
+      "title": "Yena",
+      "owner": "jack",
+      "path": "gallery/yena.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    }
+  }
+}
