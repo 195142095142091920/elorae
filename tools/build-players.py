@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Generate players/<slug>.html (nt20) from the site's own chrome.
+"""Generate players/<slug>.html from the site's own chrome.
 
 Shell (head, mast, scripts) is taken from codex/timeline.html (same folder depth), with
 no section bar, no contents rail and no active nav item. People come from
 edit/visibility.json "people" (names only). Nothing sealed is written into the HTML:
-players/player.js renders characters, chapters and (for unlocked viewers only) sealed titles
-at runtime. Deterministic; run from the repo root:  python3 tools/build-players.py
+players/player.js renders characters, articles (profiles.json) and (for unlocked viewers
+only) secret titles at runtime. Deterministic; run from the repo root:
+  python3 tools/build-players.py
 """
 import html, json, re, pathlib
 
@@ -19,15 +20,29 @@ head = TPL[:head_end]
 mast = re.search(r'<div class="mast">.*?</div>', TPL, re.S).group(0)
 mast = mast.replace(' class="active"', ' class=""')
 bg = re.search(r'<div class="journal-bg">.*?</div>', TPL, re.S).group(0)
-scripts = ('<script src="../search.js?v=nt12-seek"></script><script src="../seal.js?v=seal6"></script><script src="../player-mark.js?v=nt21-pmark"></script>\n'
-           '<canvas id="friend-glow"></canvas>\n<script src="../glow.js?v=glow5"></script>\n'
-           '<script src="../back-to-top.js?v=nt5-top"></script>\n'
-           '<script src="player.js?v=nt20-players"></script>\n')
+
+# Keep chrome tokens aligned with the template; player.js + player-mark are the page tokens.
+def tok(src, name, default):
+    m = re.search(rf'{re.escape(name)}\?v=([^"\']+)', src)
+    return m.group(1) if m else default
+
+search_v = tok(TPL, "search.js", "nt28-eras")
+glow_v = tok(TPL, "glow.js", "nt32-ambient")
+scripts = (
+    f'<script src="../search.js?v={search_v}"></script>'
+    f'<script src="../seal.js?v=seal6"></script>'
+    f'<script src="../player-mark.js?v=nt33-players"></script>\n'
+    f'<canvas id="friend-glow"></canvas>\n'
+    f'<script src="../glow.js?v={glow_v}"></script>\n'
+    f'<script src="../back-to-top.js?v=nt5-top"></script>\n'
+    f'<script src="player.js?v=nt33-players"></script>\n'
+)
 
 def page(slug, name):
     title = f"{name} - Elorae"
-    desc = (f"{name}, Game Master of Elorae: the party and the Journal chapters they appear in"
-            if slug in admins else f"{name}'s characters in Elorae and the Journal chapters they appear in")
+    desc = (f"{name}, Game Master of Elorae: the party, editable articles, and unlocked secrets"
+            if slug in admins else
+            f"{name}'s characters in Elorae, articles they edit, and secrets they can unlock")
     h = head
     h = re.sub(r"<title>.*?</title>", f"<title>{html.escape(title)}</title>", h)
     h = re.sub(r'(<meta name="description" content=")[^"]*', lambda m: m.group(1) + html.escape(desc, quote=True), h)

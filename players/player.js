@@ -1,11 +1,11 @@
-/* players/player.js (nt20). Player pages, built at runtime from the site's own files:
+/* players/player.js (nt33). Player pages, built at runtime from the site's own files:
    - characters: this page's own mast marks (span.friend[data-owner]), each with its article's
      hero art, name and epithet; the Game Master (edit/visibility.json "admins") sees the party;
-   - chapters: journal.html split at each <h1 id>, keeping those that name the characters;
-   - sealed: titles from edit/visibility.json, rendered ONLY when the viewer has unlocked them
-     (signed in as this player, or as the GM) and only those also opened to the viewer.
-     Nothing sealed is in the static HTML.
-   Everything renders inside an <aside>, which edit mode's srcmap skips. */
+   - secrets: titles from edit/visibility.json that this player can see — rendered ONLY when the
+     viewer has unlocked them (signed in as this player, or as the GM) and only those also opened
+     to the viewer. Nothing sealed is in the static HTML (titles come from the manifest at runtime);
+   - articles: paths this player may edit, from edit/profiles.json permissions (public list).
+   Chapters are not listed. Everything renders inside an <aside>, which edit mode's srcmap skips. */
 (function () {
   "use strict";
   var root = document.getElementById("nt-player"); if (!root) return;
@@ -18,6 +18,11 @@
   function doc(p) { return fetch(url(p)).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
     .then(function (t) { return new DOMParser().parseFromString(t, "text/html"); }); }
   function viewer() { try { return localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
+  function prettyPath(p) {
+    var m = /articles\/([^\/]+)\.html$/.exec(p);
+    if (!m) return p;
+    return m[1].split("-").map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(" ");
+  }
 
   var css = document.createElement("style");
   css.id = "nt-player-css";
@@ -44,6 +49,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('.mast .friend[data-owner]'), function (s) {
       var o = s.getAttribute("data-owner"); if (who && o !== who) return;
       Array.prototype.forEach.call(s.querySelectorAll("a[href]"), function (a) {
+        if (a.classList.contains("nt-pmark")) return;
         var h = new URL(a.getAttribute("href"), location.href).href, rel = h.replace(ROOT, "");
         if (/^articles\/[^\/]+\.html$/.test(rel)) out.push({ short: text(a), article: rel });
       });
@@ -55,12 +61,31 @@
       return (vis.admins || []).indexOf(who) >= 0 || s.everyone || (s.allowed || []).indexOf(who) >= 0;
     });
   }
+  function articlesFor(profiles, who) {
+    var out = [], seen = {}, all = false, full = false;
+    var bag = (profiles && profiles.profiles) || {};
+    Object.keys(bag).forEach(function (k) {
+      if (k.charAt(0) === "_") return;
+      var p = bag[k];
+      if (!p || p.person !== who) return;
+      var perms = p.permissions;
+      if (perms === "view" || !perms) return;
+      if (!Array.isArray(perms)) return;
+      perms.forEach(function (path) {
+        if (path === "**") { full = true; return; }
+        if (path === "articles/*.html") { all = true; return; }
+        if (/^articles\/[^\/]+\.html$/.test(path) && !seen[path]) { seen[path] = 1; out.push(path); }
+      });
+    });
+    out.sort();
+    return { paths: out, allArticles: all, fullSite: full };
+  }
 
   Promise.all([
     fetch(url("edit/visibility.json")).then(function (r) { return r.json(); }),
-    doc("journal.html")
+    fetch(url("edit/profiles.json")).then(function (r) { return r.json(); })
   ]).then(function (r) {
-    var vis = r[0], jd = r[1], isGM = (vis.admins || []).indexOf(slug) >= 0;
+    var vis = r[0], profiles = r[1], isGM = (vis.admins || []).indexOf(slug) >= 0;
     var chars = characters(isGM ? "" : slug);
     root.textContent = "";
     if (isGM) root.appendChild(el("div", "nt-pl-sub", "Game Master"));
@@ -77,41 +102,44 @@
         if (hero) { var ln = link(c.article, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
           var img = document.createElement("img"); img.src = new URL(hero.getAttribute("src"), url(c.article)).href; img.alt = ""; img.loading = "lazy";
           ln.appendChild(img); box.appendChild(ln); }
-        else box.appendChild(el("div", "ph"));                       /* no hero art: keep the row even */
+        else box.appendChild(el("div", "ph"));
         var nm = el("div", "nm"); nm.appendChild(link(c.article, text(d.querySelector(".art-title h1")) || c.short)); box.appendChild(nm);
         var ep = text(d.querySelector(".art-title .art-epithet")); if (ep) box.appendChild(el("div", "ep", ep));
       }).catch(function () { var nm = el("div", "nm"); nm.appendChild(link(c.article, c.short)); box.appendChild(nm); });
     });
 
-    /* chapters that name the characters (links to their article or the short name in the prose) */
-    var chs = [], cur = null;
-    Array.prototype.forEach.call((jd.querySelector("main") || jd.body).children, function (n) {
-      if (n.tagName === "H1" && n.id) { cur = { id: n.id, title: text(n), nodes: [] }; chs.push(cur); }
-      else if (cur && n.tagName !== "NAV") cur.nodes.push(n);
-    });
-    var hc = el("h2", null, "Chapters"); root.appendChild(hc);
-    var ul = el("ul", "nt-pl-list"); root.appendChild(ul);
-    chs.forEach(function (ch) {
-      var txt = ch.nodes.map(text).join(" ");
-      var who = chars.filter(function (c) {
-        if (ch.nodes.some(function (n) { return n.querySelector && n.querySelector('a[href="' + c.article + '"]'); })) return true;
-        return new RegExp("\\b" + c.short.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b").test(txt);
-      });
-      if (!who.length) return;
-      var li = el("li"); li.appendChild(link("journal.html#" + ch.id, ch.title));
-      li.appendChild(el("span", "m", who.map(function (c) { return c.short; }).join(" \u00b7 ")));
-      ul.appendChild(li);
-    });
-    if (!ul.children.length) ul.remove();
+    /* Articles this player owns/edits (profiles.json) — public, not seal-gated. */
+    var arts = articlesFor(profiles, slug);
+    if (arts.fullSite || arts.allArticles || arts.paths.length) {
+      root.appendChild(el("h2", null, "Articles"));
+      var au = el("ul", "nt-pl-list"); root.appendChild(au);
+      if (arts.fullSite) {
+        var li = el("li"); li.appendChild(el("span", null, "Full site")); au.appendChild(li);
+      } else if (arts.allArticles) {
+        var li2 = el("li"); li2.appendChild(link("index/ancients.html", "All articles")); au.appendChild(li2);
+      } else {
+        arts.paths.forEach(function (path) {
+          var li = el("li");
+          var a = link(path, prettyPath(path));
+          li.appendChild(a);
+          au.appendChild(li);
+          doc(path).then(function (d) {
+            var t = text(d.querySelector(".art-title h1")) || text(d.querySelector("h1"));
+            if (t) a.textContent = t;
+          }).catch(function () {});
+        });
+      }
+    }
 
-    /* sealed: only for a viewer who has unlocked this player's seal (the player, or the GM) */
+    /* Secrets: only for a viewer who has unlocked this player's seal (the player, or the GM).
+       Titles from visibility.json at runtime — never static plaintext of sealed content. */
     var v = viewer(), vGM = (vis.admins || []).indexOf(v) >= 0;
     if (v && (v === slug || vGM)) {
       var mine = secretsFor(vis, slug), theirs = {};
       secretsFor(vis, v).forEach(function (s) { theirs[s.id] = 1; });
       mine = mine.filter(function (s) { return theirs[s.id] && s.title; });
       if (mine.length) {
-        root.appendChild(el("h2", null, "Sealed"));
+        root.appendChild(el("h2", null, "Secrets"));
         var su = el("ul", "nt-pl-list"); root.appendChild(su);
         mine.forEach(function (s) {
           var li = el("li");
