@@ -377,19 +377,12 @@ function syncGithubUI(who) {
     var connecting = !!(connect && !connect.hidden);
     var onWelcome = !!(who && welcome && !welcome.hidden && form && form.hidden && !connecting);
     if (welcomeStage && !connecting) welcomeStage.hidden = false;
-    var linked = githubConnected(who);
-    if (linked) document.body.classList.add("login-gh-connected");
-    else document.body.classList.remove("login-gh-connected");
-    /* Already linked: never show Connect — welcome/name stay. */
-    if (!onWelcome || linked) {
-      loginActions.hidden = true;
-      loginActions.setAttribute("hidden", "");
-      if (loginBtn) { loginBtn.hidden = true; loginBtn.setAttribute("hidden", ""); }
-    } else {
-      loginActions.hidden = false;
-      loginActions.removeAttribute("hidden");
-      if (loginBtn) { loginBtn.hidden = false; loginBtn.removeAttribute("hidden"); }
-    }
+    /* Login welcome never offers Connect — that CTA lives on the player profile.
+       Local elorae-edit-session is per-browser; missing token must not block Welcome. */
+    document.body.classList.add("login-gh-connected");
+    loginActions.hidden = true;
+    loginActions.setAttribute("hidden", "");
+    if (loginBtn) { loginBtn.hidden = true; loginBtn.setAttribute("hidden", ""); }
     return;
   }
 
@@ -486,7 +479,7 @@ function afterIdentity(who, phrase, man) {
 
   function afterKeys() {
     syncGithubUI(who);
-    if (githubConnected(who)) scheduleProfileRedirect(who);
+    scheduleProfileRedirect(who);
   }
 
   if (!K || !V) { afterKeys(); return Promise.resolve(); }
@@ -858,9 +851,9 @@ if (document.body.classList.contains("login-page")) {
 
   /* In-box Connect: no #edit popup, so hash cancel does not apply on the login page. */
 
-  /* Already entered + GitHub-linked → Welcome then profile (no Connect). */
+  /* Already entered → Welcome then profile (Connect is on the profile page only). */
   var whoLinked = readLoginWho();
-  if (whoLinked && githubConnected(whoLinked)) scheduleProfileRedirect(whoLinked);
+  if (whoLinked) scheduleProfileRedirect(whoLinked);
 } else {
   /* Non-login pages: GitHub connect on own profile + OAuth result handling. */
   var whoElse = readLoginWho();
