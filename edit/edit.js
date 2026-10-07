@@ -66,6 +66,12 @@
   }
 
   function init() {
+    /* Login page: core.js is already loaded for Connect; do not boot editor.js here —
+       loadProfile/expired() would clear a remembered token and re-show Connect on Welcome. */
+    if (document.body && document.body.classList.contains("login-page")) {
+      dash();
+      return;
+    }
     dash();
     if (wanted()) start();
   }

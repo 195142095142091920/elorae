@@ -116,14 +116,23 @@ function readEditSession() {
   } catch (e) { return null; }
 }
 
-/* True when this browser has a GitHub edit session for the phrase identity (or any, if person unset). */
+/* GitHub login → elorae person (from edit/profiles.json). */
+var GH_LOGIN_PERSON = {"195142095142091920":"devin"};
+
+/* True when this browser has a GitHub edit session for the phrase identity. */
 function githubConnected(who) {
   var s = readEditSession();
-  if (!s) return false;
-  if (who && s.person) {
-    return String(s.person).toLowerCase() === String(who).toLowerCase();
-  }
-  return true;
+  if (!s || !s.token || !s.login) return false;
+  if (!who) return true;
+  var whoL = String(who).toLowerCase();
+  var person = String(s.person || "").toLowerCase();
+  var login = String(s.login || "").toLowerCase();
+  var mapped = GH_LOGIN_PERSON[login] || "";
+  /* Match stamped person, or resolve via GitHub login (covers person wrongly set to login). */
+  if (person === whoL) return true;
+  if (mapped && mapped === whoL) return true;
+  if (!person) return true; /* legacy session with token only */
+  return false;
 }
 
 function profileHref(who) {
@@ -475,9 +484,9 @@ function afterIdentity(who, phrase, man) {
   applyLogin();
   syncGithubUI(who);
 
-  var linked = githubConnected(who);
   function afterKeys() {
-    if (linked) scheduleProfileRedirect(who);
+    syncGithubUI(who);
+    if (githubConnected(who)) scheduleProfileRedirect(who);
   }
 
   if (!K || !V) { afterKeys(); return Promise.resolve(); }
