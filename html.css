@@ -5090,8 +5090,8 @@ body.login-page #login-elorae {
 @media (max-width: 800px) {
   body.login-page #login-elorae { top: 22px; } /* match Guest bottom inset (phone) */
 }
-/* Quiet rule under ELORAE on the Connect screen */
-body.login-page.login-connecting #login-elorae::after {
+/* Quiet rule under ELORAE on every login step */
+body.login-page #login-elorae::after {
   content: "";
   display: block;
   width: min(280px, 72%);
