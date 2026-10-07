@@ -342,23 +342,23 @@
       '<script src="../cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n' +
       '<title>' + esc(title) + ' - Elorae</title>\n' +
-      '<link rel="stylesheet" href="../styles.css?v=art96">\n' +
-      '<link rel="stylesheet" href="../html.css?v=rich-paste">\n' +
+      '<link rel="stylesheet" href="/styles.css?v=art96">\n' +
+      '<link rel="stylesheet" href="/html.css?v=rich-paste">\n' +
       '<script src="../rail-toggle.js?v=nt26-veil"><\/script>\n' +
       '<script src="../skip-link.js?v=nt11-skip"><\/script>\n' +
-      '<link rel="icon" href="../favicon.svg">\n' +
+      '<link rel="icon" href="/favicon.svg">\n' +
       '</head>\n<body class="article">\n' +
-      '<div class="mast"><header class="topbar"><span class="mark"><span class="friend" data-owner="jack"><a href="../articles/galand-helviath.html">Galand</a></span><span class="friend" data-owner="jon"><a href="../articles/telorin.html">Telorin</a><a href="../articles/silar-scorria.html">Silar</a></span><span class="friend" data-owner="julie"><a href="../articles/saoirse.html">Saoirse</a></span><span class="friend" data-owner="sawyer"><a href="../articles/vaerek.html">Vaerek</a></span><a href="../login.html">Elorae</a></span><form action="../search.html"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="../atlas.html">Atlas</a><a class="" href="../codex/lore.html">Codex</a><a class="active" href="../index/ancients.html">Index</a><a class="" href="../journal.html">Journal</a></nav></header></div>\n' +
+      '<div class="mast"><header class="topbar"><span class="mark"><span class="friend" data-owner="jack"><a href="/articles/galand-helviath/">Galand</a></span><span class="friend" data-owner="jon"><a href="/articles/telorin/">Telorin</a><a href="/articles/silar-scorria/">Silar</a></span><span class="friend" data-owner="julie"><a href="/articles/saoirse/">Saoirse</a></span><span class="friend" data-owner="sawyer"><a href="/articles/vaerek/">Vaerek</a></span><a href="/login/">Elorae</a></span><form action="/search/"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="/atlas/">Atlas</a><a class="" href="/codex/lore/">Codex</a><a class="active" href="/index/ancients/">Index</a><a class="" href="/journal/">Journal</a></nav></header></div>\n' +
       '<nav id="section-bar"><button type="button" class="sec-toggle" data-sec-for="art-index" aria-controls="art-index-panel" aria-expanded="false">Categories</button></nav>\n' +
-      '<aside class="art-index" id="art-index"><button type="button" class="art-index-cue" aria-controls="art-index-panel" aria-expanded="false" aria-label="Index categories"><svg viewBox="0 0 6 10" aria-hidden="true"><polyline points="1,1 5,5 1,9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></button><nav class="art-index-panel" id="art-index-panel" aria-label="Index categories"><h3>Categories</h3><p class="ee-note" style="font-size:12px;color:#8f8a82;margin:12px 0">See the <a href="../index/ancients.html#' + esc(catId) + '">Index</a> for the full list.</p></nav></aside>\n' +
-      '<a class="art-back" href="../index/ancients.html#' + esc(catId) + '">Index</a>\n' +
+      '<aside class="art-index" id="art-index"><button type="button" class="art-index-cue" aria-controls="art-index-panel" aria-expanded="false" aria-label="Index categories"><svg viewBox="0 0 6 10" aria-hidden="true"><polyline points="1,1 5,5 1,9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></button><nav class="art-index-panel" id="art-index-panel" aria-label="Index categories"><h3>Categories</h3><p class="ee-note" style="font-size:12px;color:#8f8a82;margin:12px 0">See the <a href="/index/ancients/#' + esc(catId) + '">Index</a> for the full list.</p></nav></aside>\n' +
+      '<a class="art-back" href="/index/ancients/#' + esc(catId) + '">Index</a>\n' +
       '<!-- Chosen background art: swap the img src below to change it. -->\n' +
       '<section class="art-hero no-art"><div class="art-title"><h1>' + esc(title) + '</h1><p class="art-epithet"></p></div></section>\n' +
       '<main class="art-body">\n' +
       '<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier"><dt>Name</dt><dd>' + esc(title) + '</dd></dl></section>\n' +
       '<section class="art-sec" id="description"><h2>Description</h2><p class="art-line"></p></section>\n' +
       '</main>\n' +
-      '<script src="../search.js?v=nt28-eras"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=nt35-navdots"><\/script>\n' +
+      '<script src="../search.js?v=pretty-urls"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n' +
       '<script src="../glow.js?v=nt32-ambient"><\/script>\n' +
       '<script src="../art-index.js?v=art87"><\/script>\n' +
@@ -403,7 +403,7 @@
       var a = document.createElement("a");
       a.className = "index-card no-art";
       a.id = catId + "-" + slug;
-      a.href = "../" + artPath;
+      a.href = "/" + artPath.replace(/\.html$/, "/");
       a.innerHTML = "<span>" + esc(name) + "</span>";
       a.setAttribute("draggable", "true");
       a.classList.add("ee-index-draggable");

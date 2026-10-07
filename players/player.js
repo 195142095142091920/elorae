@@ -23,7 +23,7 @@
     .then(function (t) { return new DOMParser().parseFromString(t, "text/html"); }); }
   function viewer() { try { return localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
   function prettyPath(p) {
-    var m = /articles\/([^\/]+)\.html$/.exec(p);
+    var m = /articles\/([^\/]+?)(?:\.html)?\/?$/.exec(p);
     if (!m) return p;
     return m[1].split("-").map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(" ");
   }
@@ -56,7 +56,10 @@
       Array.prototype.forEach.call(s.querySelectorAll("a[href]"), function (a) {
         if (a.classList.contains("nt-pmark")) return;
         var h = new URL(a.getAttribute("href"), location.href).href, rel = h.replace(ROOT, "");
-        if (/^articles\/[^\/]+\.html$/.test(rel)) out.push({ short: text(a), article: rel });
+        if (/^articles\/[^\/]+(?:\.html)?\/?$/.test(rel)) {
+          var art = rel.replace(/\/$/, "").replace(/\.html$/, "") + ".html";
+          out.push({ short: text(a), article: art });
+        }
       });
     });
     return out;
@@ -111,7 +114,7 @@
       addKind();
       return;
     }
-    var fetchPath = path && path.indexOf("edit/secret.html") !== 0 ? path : "";
+    var fetchPath = path && !/^edit\/secret(\.html)?\/?/.test(path) ? path : "";
     function finish(title) {
       var nm = el("div", "nm");
       if (doLink && go) nm.appendChild(link(go, title));
@@ -207,7 +210,7 @@
         var key = path || ("secret:" + s.id);
         var enc = s.status === "encrypted";
         /* Encrypted: open via secret viewer (uses unlocked myKey from merged sign-in). */
-        var href = enc ? ("edit/secret.html?id=" + encodeURIComponent(s.id)) : "";
+        var href = enc ? ("/edit/secret/?id=" + encodeURIComponent(s.id)) : "";
         var canLink = enc ? true : !!(path && (vGM || s.owner === v));
         if (bag[key]) {
           bag[key].secret = true;
@@ -235,12 +238,12 @@
     if (v && v === slug && !vEnrolled) {
       var tip = el("p", "nt-pl-keytip");
       tip.appendChild(document.createTextNode("Enter with your phrase so Devin can publish your secrets key. "));
-      tip.appendChild(link("login.html", "Enter"));
+      tip.appendChild(link("/login/", "Enter"));
       root.appendChild(tip);
     } else if (v && v === slug && vEnrolled && !myKey) {
       var tip2 = el("p", "nt-pl-keytip");
       tip2.appendChild(document.createTextNode("Enter with your phrase to unlock secrets. "));
-      tip2.appendChild(link("login.html", "Enter"));
+      tip2.appendChild(link("/login/", "Enter"));
       root.appendChild(tip2);
     }
   }).catch(function () {});

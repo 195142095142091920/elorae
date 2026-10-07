@@ -1,6 +1,6 @@
 /* player-mark.js (nt35). When a player is signed in (login.js sets body.login-<who>) and their
    mark (span.friend[data-owner=<who>]) is in the mast, a small profile glyph after their
-   character names links to players/<who>.html. Nav · dots (same as Atlas/Codex) come from
+   character names links to /players/<who>/. Nav · dots (same as Atlas/Codex) come from
    html.css (.friend a + a::before). Nothing is added for visitors, the GM, or hidden marks. */
 (function () {
   "use strict";
@@ -28,13 +28,13 @@
   document.head.appendChild(css);
   var a = document.createElement("a");
   a.className = "nt-pmark";
-  a.href = ROOT + "players/" + who + ".html";
+  a.href = ROOT + "players/" + who + "/";
   /* Person silhouette — same stroke weight feel as seek-glyph. */
   a.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3.2 13.2c.4-2.8 2.2-4.2 4.8-4.2s4.4 1.4 4.8 4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
   var name = who.charAt(0).toUpperCase() + who.slice(1);
   a.setAttribute("aria-label", name + "\u2019s profile");
   a.title = name + "\u2019s profile";
-  if (/\/players\/[a-z]+\.html$/.test(location.pathname) && location.pathname.indexOf("/players/" + who + ".html") >= 0) {
+  if (/\/players\/[a-z]+\/?$/.test(location.pathname) && location.pathname.indexOf("/players/" + who) >= 0) {
     a.setAttribute("aria-current", "page");
     a.style.color = "#f3eee6";
   }

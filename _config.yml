@@ -33,8 +33,7 @@ exclude:
   - edit/test
   - scripts
 
-# Static deploy note: until the Pages workflow runs jekyll-build-pages,
-# pretty URLs for login are provided by login/index.html; seal.html and
-# seal/ redirect to /login/. Site-wide pretty URLs activate when CI uses
-# Jekyll (see scripts/html-extension-redirects.sh and the jekyll workflow
-# snippet in scripts/pages-workflow-jekyll.yml).
+# Pretty URLs: each page.html is mirrored at page/index.html for static Pages.
+# Nav/assets use root-absolute /page/ targets. Jekyll (_config permalink + 
+# scripts/pages-workflow-jekyll.yml + html-extension-redirects.sh) is prepared
+# for when the Pages workflow can be updated (requires GitHub workflow scope).

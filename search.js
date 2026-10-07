@@ -52,7 +52,7 @@
 
   function absHref(href) {
     if (!href) return "#";
-    if (/^(https?:|mailto:|#)/i.test(href)) return href;
+    if (/^(https?:|mailto:|#|\/)/i.test(href)) return href;
     return assetBase() + href;
   }
 
@@ -237,7 +237,7 @@
     var html = "";
     if (pack.cards.length) {
       html += '<div class="seek-panel-cards">' + pack.cards.map(function (e) {
-        var indexHref = absHref("index/ancients.html") + "?card=" + encodeURIComponent(e.href);
+        var indexHref = absHref("/index/ancients/") + "?card=" + encodeURIComponent(e.href);
         return '<a class="seek-panel-card" href="' + escapeHtml(indexHref) + '" data-article="' + escapeHtml(e.href) + '" title="Click: Index · Double-click: article">' +
           '<img src="' + escapeHtml(safeAssetUrl(e.image)) + '" alt="">' +
           '<span>' + escapeHtml(e.title) + "</span></a>";
@@ -284,7 +284,7 @@
   var CARD_CLICK_MS = 280;
 
   function indexHrefForArticle(articleHref) {
-    return absHref("index/ancients.html") + "?card=" + encodeURIComponent(articleHref || "");
+    return absHref("/index/ancients/") + "?card=" + encodeURIComponent(articleHref || "");
   }
 
   function goIndexCard(articleHref) {
@@ -615,7 +615,7 @@
   var body = document.body;
   if (!body || !body.classList.contains("article")) return;
   var h1 = document.querySelector(".art-title h1");
-  var loginGate = document.querySelector(".mast .topbar > .mark > a[href$=\"login.html\"], .mast .mark > a[href$=\"login.html\"]");
+  var loginGate = document.querySelector(".mast .topbar > .mark > a[href*=\"login\"], .mast .mark > a[href*=\"login\"]");
   if (!h1 || !loginMark) return;
   var name = (h1.textContent || "").trim().split(/\s+/)[0];
   if (name) loginMark.textContent = name;

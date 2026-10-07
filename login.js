@@ -136,8 +136,9 @@ function githubConnected(who) {
 }
 
 function profileHref(who) {
-  var root = (window.EloraeEdit && EloraeEdit.ROOT) || "";
-  return root + "players/" + who + ".html";
+  var root = (window.EloraeEdit && EloraeEdit.ROOT) || "/";
+  if (root.slice(-1) !== "/") root += "/";
+  return root + "players/" + who + "/";
 }
 
 function loginScriptBase() {
@@ -147,11 +148,11 @@ function loginScriptBase() {
 
 function indexHref() {
   /* Guest / quiet leave: root Index entry (no login gate, no login prompt). */
-  return new URL("index.html", loginScriptBase()).href;
+  return "/index/ancients/";
 }
 
 function loginHref() {
-  return new URL("login/", loginScriptBase()).href;
+  return "/login/";
 }
 
 function ensureLogout() {

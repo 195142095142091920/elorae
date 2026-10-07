@@ -53,7 +53,7 @@
     var a = document.createElement("a");
     a.id = "ee-dash";
     a.className = "ee-dash";
-    a.href = new URL("dashboard.html", base).href;
+    a.href = "/edit/dashboard/";
     a.textContent = "Dashboard";
     var st = document.getElementById("ee-dash-style");
     if (!st) {

@@ -305,7 +305,7 @@
           var on = allowed.indexOf(p) >= 0;
           return '<label class="ee-tog' + (noKey ? " ee-nokey" : "") + '" title="' + (noKey ? "No key yet" : "") + '"><input type="checkbox" data-id="' + esc(id) + '" data-who="' + esc(p) + '"' + (on ? " checked" : "") + ((locked || noKey) ? " disabled" : dis) + '> ' + esc(nameOf(p)) + '</label>';
         }).join("");
-      var title = enc ? '<a href="secret.html?id=' + encodeURIComponent(id) + '">' + esc(s.title) + '</a>' : '<a href="../' + esc(s.path) + '">' + esc(s.title) + '</a>';
+      var title = enc ? '<a href="/edit/secret/?id=' + encodeURIComponent(id) + '">' + esc(s.title) + '</a>' : '<a href="../' + esc(s.path) + '">' + esc(s.title) + '</a>';
       return '<tr data-row="' + esc(id) + '"><td class="ee-t">' + title + '<span class="ee-sub">' + (enc ? "Encrypted" : "Plaintext") + '</span></td>' +
         '<td>' + esc(nameOf(s.owner)) + '</td><td class="ee-sees">' + esc(sees) + '</td><td class="ee-togs">' +
         (enc ? boxes : '<button class="ee-btn" data-encrypt="' + esc(id) + '"' + ((st.priv && !st.busy) ? "" : " disabled") + '>Encrypt</button>') + '</td></tr>';
@@ -332,7 +332,7 @@
       '<section class="ee-sec"><h2>Secrets</h2><div class="ee-scroll"><table class="ee-table"><thead><tr><th>Title</th><th>Owner</th><th>Can see</th><th>Share</th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
       mediaSection() +
       '<section class="ee-sec"><h2>People</h2><ul class="ee-people">' + ppl + '</ul>' +
-      '<p class="ee-note">Invite each player with their GitHub username (Write access + bind <code>profiles.json</code>). Then they enter at <a href="../login.html?enroll">login</a> (phrase derives the key) and send you the enrollment code from the secret viewer if needed. Paste it here.</p>' +
+      '<p class="ee-note">Invite each player with their GitHub username (Write access + bind <code>profiles.json</code>). Then they enter at <a href="/login/?enroll">login</a> (phrase derives the key) and send you the enrollment code from the secret viewer if needed. Paste it here.</p>' +
       '<form id="ee-add"><textarea class="ee-code" id="ee-addcode" placeholder="Enrollment code"></textarea><div class="ee-row"><button class="ee-btn ee-primary" type="submit"' + (st.busy ? " disabled" : "") + '>Add key</button></div></form></section>';
     bind();
   }

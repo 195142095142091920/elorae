@@ -88,7 +88,7 @@
       (bad.length ? '<p class="ee-note">Ignored, because players can only edit articles: ' + esc(bad.join(", ")) + '</p>' : '');
   }
   function onDashboardPage() {
-    return /(?:^|\/)edit\/dashboard\.html$/.test(location.pathname);
+    return /(?:^|\/)edit\/dashboard(\.html)?\/?$/.test(location.pathname);
   }
   function renderPanel(msg, kind) {
     var b = $("ee-body"); if (!b) return;
@@ -105,7 +105,7 @@
       var dashCtl = (pr && P.isAdmin(pr))
         ? (onDash
           ? '<button type="button" class="ee-btn" id="ee-goto-dash">Dashboard</button>'
-          : '<a class="ee-btn" id="ee-goto-dash" href="' + esc(E.ROOT + "edit/dashboard.html") + '">Dashboard</a>')
+          : '<a class="ee-btn" id="ee-goto-dash" href="' + esc(E.ROOT + "edit/dashboard/") + '">Dashboard</a>')
         : '';
       b.innerHTML =
         '<p class="ee-k">Edit</p>' +

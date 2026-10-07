@@ -10,8 +10,8 @@
   var PENDING_ENROLL_KEY = "elorae-enroll-pending";
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function show(html) { card.innerHTML = '<p class="ee-k">Elorae</p>' + html; }
-  function loginEnrollHref() { return E.ROOT + "login.html?enroll"; }
-  function loginHref() { return E.ROOT + "login.html"; }
+  function loginEnrollHref() { return E.ROOT + "login/?enroll"; }
+  function loginHref() { return E.ROOT + "login/"; }
 
   function readPendingEnroll() {
     try {
