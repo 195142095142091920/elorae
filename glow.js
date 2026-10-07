@@ -26,8 +26,9 @@ if (canvas) {
   }
   function toneOf(name, t) {
     if (name !== "jon") return tones[name] || tones.devin;
-    /* Jon: smooth continuous sine blend green (Telorin) ↔ red (Silar), ~3.2s cycle. */
-    var u = (Math.sin((t / 3200) * Math.PI * 2) + 1) / 2;
+    /* Jon: slow continuous sine blend green (Telorin) ↔ red (Silar), ~6.4s full cycle
+       (matches CSS jon-mix 3.2s ease-in-out alternate). */
+    var u = (Math.sin((t / 6400) * Math.PI * 2) + 1) / 2;
     return lerpTone(tones.jon, tones.jon2, u);
   }
   function frame(now) {

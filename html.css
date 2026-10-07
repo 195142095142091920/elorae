@@ -55,9 +55,14 @@ body.seal-page.seal-devin .seal-name{text-shadow:0 0 14px var(--glow),0 0 28px v
 body.seal-jack{--glow:rgba(230,190,80,.55)}
 body.seal-julie{--glow:rgba(255,190,210,.5)}
 body.seal-sawyer{--glow:rgba(230,120,40,.5)}
-body.seal-jon{--glow:rgba(80,180,90,.5);--glow-b:rgba(230,90,40,.55)}
-@keyframes jon-glow-alt{0%{--glow:rgba(80,180,90,.55)}50%{--glow:rgba(230,90,40,.55)}100%{--glow:rgba(80,180,90,.55)}}
-body.seal-page.seal-jon{animation:jon-glow-alt 3.2s linear infinite}
+body.seal-jon{--glow:rgba(80,180,90,.5);--glow-b:rgba(230,90,40,.55);--jon-mix:0}
+/* Interpolable mix 0=green (Telorin) → 1=red (Silar). Custom-property color keyframes snap; a <number> fades. */
+@property --jon-mix{syntax:"<number>";inherits:true;initial-value:0}
+@keyframes jon-mix{from{--jon-mix:0}to{--jon-mix:1}}
+body.seal-page.seal-jon{
+  animation:jon-mix 3.2s ease-in-out infinite alternate;
+  --glow:rgba(calc(80 + 150 * var(--jon-mix)),calc(180 - 90 * var(--jon-mix)),calc(90 - 50 * var(--jon-mix)),.55);
+}
 /* Per-figure text glow on the seal mast: Telorin green, Silar red. */
 body.seal-page.seal-jon .friend[data-owner=jon] a[href*="telorin"]{text-shadow:0 0 12px rgba(80,180,90,.95),0 0 28px rgba(24,92,56,.85);--glow:rgba(80,180,90,.55)}
 body.seal-page.seal-jon .friend[data-owner=jon] a[href*="silar"]{text-shadow:0 0 12px rgba(255,150,72,.95),0 0 28px rgba(168,48,18,.85);--glow:rgba(230,90,40,.55)}
@@ -2754,14 +2759,15 @@ body.seal-page.seal-sawyer .mast .topbar.seal-top > .mark .friend[data-owner=saw
 }
 
 
-/* Jon success ambient: green ↔ red-orange pulse behind the seal box (glow1). */
-@keyframes jon-seal-wash {
-  0% { background: radial-gradient(closest-side, rgba(80,180,90,.55), transparent); }
-  50% { background: radial-gradient(closest-side, rgba(230,90,40,.55), transparent); }
-  100% { background: radial-gradient(closest-side, rgba(80,180,90,.55), transparent); }
-}
+/* Jon success ambient: slow continuous green↔red wash behind the seal box (nt31).
+   Uses body --jon-mix (see jon-mix keyframes); gradient color keyframes snapped/blinked. */
 body.seal-page.seal-jon .seal-card::before {
-  animation: jon-seal-wash 3.2s linear infinite;
+  animation: none;
+  background: radial-gradient(
+    closest-side,
+    rgba(calc(80 + 150 * var(--jon-mix)), calc(180 - 90 * var(--jon-mix)), calc(90 - 50 * var(--jon-mix)), .55),
+    transparent
+  );
 }
 
 
