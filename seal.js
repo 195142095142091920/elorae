@@ -8,6 +8,44 @@ var PHRASE_HASH = {
 };
 /* Player names shown on the seal welcome after a successful phrase. */
 var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",devin:"Devin"};
+var SEAL_PLAYERS = {jack:1,jon:1,julie:1,sawyer:1,devin:1};
+function readSealWho() {
+  try {
+    var m = document.cookie.match(/(?:^|;\s*)elorae-seal=([a-z]+)/);
+    if (m && SEAL_PLAYERS[m[1]]) return m[1];
+  } catch (e) {}
+  try {
+    var w = localStorage.getItem("elorae-seal") || "";
+    if (SEAL_PLAYERS[w]) return w;
+  } catch (e) {}
+  return "";
+}
+function setSealSession(who) {
+  if (!SEAL_PLAYERS[who]) return;
+  try { localStorage.setItem("elorae-seal", who); } catch (e) {}
+  try {
+    document.cookie = "elorae-seal=" + who + "; path=/; max-age=31536000; SameSite=Lax";
+  } catch (e) {}
+}
+function clearSealSession() {
+  try { localStorage.removeItem("elorae-seal"); } catch (e) {}
+  try { document.cookie = "elorae-seal=; path=/; max-age=0; SameSite=Lax"; } catch (e) {}
+}
+
+/* Access gate (backup): any non-seal page without a valid session → phrase sign-in.
+   Valid session does NOT force profile; Connect-to-GitHub success still does. */
+(function () {
+  try {
+    if (document.body && document.body.classList.contains("seal-page")) return;
+    var path = location.pathname || "";
+    if (/(^|\/)seal\.html$/i.test(path)) return;
+    if (readSealWho()) return;
+    var s = document.querySelector('script[src*="seal.js"]');
+    var seal = s ? new URL("seal.html", s.src).href : "seal.html";
+    location.replace(seal);
+  } catch (e) {}
+})();
+
 var PENDING_ENROLL_KEY = "elorae-enroll-pending";
 var GH_CONNECTING = false;
 var GH_STATUS_TIMER = null;
@@ -59,7 +97,7 @@ function ensureLogout() {
     btn.textContent = "Log out";
     mark.appendChild(btn);
     btn.addEventListener("click", function () {
-      try { localStorage.removeItem("elorae-seal"); } catch (e) {}
+      clearSealSession();
       clearMyKey();
       applySeal();
       if (document.body.classList.contains("seal-page")) showSignedOutUI();
@@ -70,8 +108,8 @@ function ensureLogout() {
 }
 
 function applySeal() {
-  var who = "";
-  try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
+  var who = readSealWho();
+  if (who) setSealSession(who); /* keep cookie in sync with existing localStorage sessions */
   ["seal-jack","seal-jon","seal-julie","seal-sawyer","seal-devin"].forEach(function (c) { document.body.classList.remove(c); });
   if (who) document.body.classList.add("seal-" + who);
   var form = document.getElementById("seal-form");
@@ -239,7 +277,7 @@ function onGithubConnected(who) {
 function onGithubFailed(msg) {
   GH_CONNECTING = false;
   setGhStatus(msg || "GitHub connection failed.", "err");
-  syncGithubUI(localStorage.getItem("elorae-seal") || "");
+  syncGithubUI(readSealWho());
 }
 
 applySeal();
@@ -268,7 +306,7 @@ if (document.body.classList.contains("seal-page")) {
     hashPhrase(key).then(function (digest) {
       var who = PHRASE_HASH[digest];
       if (!who) { sealErr("Try again."); return; }
-      try { localStorage.setItem("elorae-seal", who); } catch (err2) {}
+      setSealSession(who);
       return loadManifest().then(function (man) {
         return afterIdentity(who, key, man);
       });
@@ -283,7 +321,7 @@ if (document.body.classList.contains("seal-page")) {
   if (ghBtn) ghBtn.addEventListener("click", function (e) {
     e.preventDefault();
     var who = "";
-    try { who = localStorage.getItem("elorae-seal") || ""; } catch (err) {}
+    who = readSealWho();
     if (!who) { sealErr("Sign in with your phrase first."); return; }
     if (githubConnected()) {
       syncGithubUI(who);
@@ -295,7 +333,7 @@ if (document.body.classList.contains("seal-page")) {
   /* Existing edit gate notifies on session set / clear. */
   window.addEventListener("elorae-edit-session", function () {
     var who = "";
-    try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
+    who = readSealWho();
     if (!who || !document.body.classList.contains("seal-page")) return;
     if (githubConnected()) {
       if (GH_CONNECTING || !document.getElementById("seal-gh-actions") || !document.getElementById("seal-gh-actions").hidden) {
@@ -321,7 +359,7 @@ if (document.body.classList.contains("seal-page")) {
 
   /* Returning visit already sealed. */
   var whoNow = "";
-  try { whoNow = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
+  whoNow = readSealWho();
   if (whoNow) {
     applySeal();
     loadManifest().then(function (man) {
