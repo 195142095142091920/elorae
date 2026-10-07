@@ -261,8 +261,11 @@
       document.addEventListener("keydown", onKey, true);
       document.addEventListener("paste", onPaste, true);
       document.addEventListener("click", onClick, true);
+      document.addEventListener("selectionchange", onSelChange);
+      window.addEventListener("resize", positionStyleBar);
       state.editing = true;
       editBar();
+      ensureStyleBar();
     }).catch(function (err) {
       bar('<span class="ee-msg ee-bad">' + esc(err.message || "Could not start editing.") + '</span><button type="button" class="ee-btn" id="ee-x">Close</button>');
       $("ee-x").onclick = closeBar;
@@ -284,6 +287,166 @@
     if ($("ee-art")) $("ee-art").onclick = openArtPanel;
     if ($("ee-share")) $("ee-share").onclick = openSharePanel;
     if ($("ee-owner")) $("ee-owner").onclick = openOwnerPanel;
+    ensureStyleBar();
+  }
+
+  /* ---------------- Styling toolbar (caret block) ---------------- */
+  var STYLE_FONTS = [
+    { id: "serif", label: "Serif", cls: "ee-serif" },
+    { id: "sans", label: "Sans", cls: "ee-sans" }
+  ];
+  var STYLE_SIZES = [
+    { id: "sm", label: "S", cls: "ee-size-sm" },
+    { id: "md", label: "M", cls: "" },
+    { id: "lg", label: "L", cls: "ee-size-lg" }
+  ];
+  var STYLE_BLOCKS = [
+    { id: "p", label: "P", cls: "" },
+    { id: "h2", label: "H2", cls: "ee-h2" },
+    { id: "h3", label: "H3", cls: "ee-h3" },
+    { id: "cap", label: "Cap", cls: "ee-caption" }
+  ];
+  function ensureStyleBar() {
+    if (!state.editing) { removeStyleBar(); return; }
+    var b = $("ee-stylebar");
+    if (!b) {
+      b = el("div", { id: "ee-stylebar", role: "toolbar", "aria-label": "Text style" });
+      document.body.appendChild(b);
+      b.addEventListener("mousedown", function (e) {
+        // Keep selection in the editable when clicking toolbar.
+        if (e.target.closest && e.target.closest("button,select")) e.preventDefault();
+      });
+    }
+    b.innerHTML =
+      '<select id="ee-font" aria-label="Font" title="Font">' +
+        '<option value="">Font</option>' +
+        '<option value="serif">Serif</option>' +
+        '<option value="sans">Sans</option>' +
+      '</select>' +
+      '<select id="ee-size" aria-label="Size" title="Size">' +
+        '<option value="">Size</option>' +
+        '<option value="sm">S</option>' +
+        '<option value="md">M</option>' +
+        '<option value="lg">L</option>' +
+      '</select>' +
+      '<select id="ee-block" aria-label="Block style" title="Block">' +
+        '<option value="">Block</option>' +
+        '<option value="p">P</option>' +
+        '<option value="h2">H2</option>' +
+        '<option value="h3">H3</option>' +
+        '<option value="cap">Cap</option>' +
+      '</select>' +
+      '<button type="button" class="ee-glyph-btn" id="ee-bold" title="Bold" aria-label="Bold"><b>B</b></button>' +
+      '<button type="button" class="ee-glyph-btn" id="ee-italic" title="Italic" aria-label="Italic"><i>I</i></button>' +
+      '<button type="button" class="ee-glyph-btn" id="ee-link" title="Link" aria-label="Link">↗</button>';
+    $("ee-font").onchange = function () { applyFont(this.value); this.selectedIndex = 0; };
+    $("ee-size").onchange = function () { applySize(this.value); this.selectedIndex = 0; };
+    $("ee-block").onchange = function () { applyBlockStyle(this.value); this.selectedIndex = 0; };
+    $("ee-bold").onclick = function () { document.execCommand("bold", false, null); };
+    $("ee-italic").onclick = function () { document.execCommand("italic", false, null); };
+    $("ee-link").onclick = function () {
+      var cur = "";
+      try {
+        var n = window.getSelection() && window.getSelection().anchorNode;
+        var a = n && (n.nodeType === 1 ? n : n.parentElement);
+        a = a && a.closest && a.closest("a");
+        if (a) cur = a.getAttribute("href") || "";
+      } catch (e) {}
+      var url = window.prompt("Link URL", cur || "https://");
+      if (url == null) return;
+      url = String(url).trim();
+      if (!url) { document.execCommand("unlink", false, null); return; }
+      var safe = safeHref(url);
+      if (safe == null) { editBar("That link is not allowed.", "ee-bad-bar"); return; }
+      document.execCommand("createLink", false, safe);
+    };
+    positionStyleBar();
+  }
+  function removeStyleBar() {
+    var b = $("ee-stylebar");
+    if (b) b.remove();
+  }
+  function positionStyleBar() {
+    var b = $("ee-stylebar"), barEl = $("ee-bar");
+    if (!b) return;
+    // Sit just above the edit bar (desktop centered; phone full-width strip).
+    if (barEl) {
+      var r = barEl.getBoundingClientRect();
+      b.style.bottom = (window.innerHeight - r.top + 8) + "px";
+    } else {
+      b.style.bottom = "72px";
+    }
+  }
+  function selectionEditable() {
+    var sel = window.getSelection && window.getSelection();
+    if (!sel || !sel.rangeCount) return null;
+    var n = sel.anchorNode;
+    var el = n && (n.nodeType === 1 ? n : n.parentElement);
+    if (!el || !el.closest) return null;
+    var ed = el.closest(".ee-editable");
+    if (!ed || isTitleField(ed)) return null;
+    return ed;
+  }
+  function wrapSelection(className) {
+    if (!selectionEditable()) return;
+    var sel = window.getSelection();
+    if (!sel.rangeCount) return;
+    var range = sel.getRangeAt(0);
+    if (range.collapsed) {
+      // Apply to whole editable when nothing selected: wrap contents.
+      var ed = selectionEditable();
+      if (!ed) return;
+      if (!className) {
+        // Strip known style classes from descendants' wrappers where possible.
+        Array.prototype.slice.call(ed.querySelectorAll("span.ee-serif,span.ee-sans,span.ee-size-sm,span.ee-size-md,span.ee-size-lg,span.ee-h2,span.ee-h3,span.ee-caption")).forEach(function (sp) {
+          while (sp.firstChild) sp.parentNode.insertBefore(sp.firstChild, sp);
+          sp.remove();
+        });
+        return;
+      }
+      document.execCommand("insertHTML", false, '<span class="' + className + '">' + ed.innerHTML + "</span>");
+      return;
+    }
+    var frag = range.extractContents();
+    var span = document.createElement("span");
+    if (className) span.className = className;
+    span.appendChild(frag);
+    // Unwrap nested same-family spans to avoid deep stacks.
+    Array.prototype.slice.call(span.querySelectorAll("span")).forEach(function (inner) {
+      if (!inner.className || !/^ee-(serif|sans|size-sm|size-md|size-lg|h2|h3|caption)$/.test(inner.className)) return;
+      if (className && inner.className.split(/\s+/).indexOf(className) >= 0 || true) {
+        /* leave content; outer carries the new class */
+      }
+    });
+    range.insertNode(span);
+    sel.removeAllRanges();
+    var next = document.createRange();
+    next.selectNodeContents(span);
+    sel.addRange(next);
+  }
+  function applyFont(id) {
+    if (!id) return;
+    var map = { serif: "ee-serif", sans: "ee-sans" };
+    wrapSelection(map[id] || "");
+  }
+  function applySize(id) {
+    if (!id) return;
+    if (id === "md") { wrapSelection(""); return; }
+    var map = { sm: "ee-size-sm", lg: "ee-size-lg" };
+    wrapSelection(map[id] || "");
+  }
+  function applyBlockStyle(id) {
+    if (!id) return;
+    if (id === "p") { wrapSelection(""); return; }
+    var map = { h2: "ee-h2", h3: "ee-h3", cap: "ee-caption" };
+    wrapSelection(map[id] || "");
+  }
+  function onSelChange() {
+    if (!state.editing) return;
+    var b = $("ee-stylebar");
+    if (!b) return;
+    b.hidden = !selectionEditable();
+    positionStyleBar();
   }
 
   function jsonDoc(o) { var c = JSON.parse(JSON.stringify(o)); delete c.__sha; return JSON.stringify(c, null, 2) + "\n"; }
@@ -970,6 +1133,9 @@
     document.removeEventListener("keydown", onKey, true);
     document.removeEventListener("paste", onPaste, true);
     document.removeEventListener("click", onClick, true);
+    document.removeEventListener("selectionchange", onSelChange);
+    window.removeEventListener("resize", positionStyleBar);
+    removeStyleBar();
     state.editing = false;
   }
   function cancelEdit() {

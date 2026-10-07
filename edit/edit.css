@@ -216,3 +216,37 @@ main.read .ee-editable img { max-width: 100%; height: auto; vertical-align: midd
 .ee-size-sm { font-size: 0.85em; }
 .ee-size-md { font-size: 1em; }
 .ee-size-lg { font-size: 1.2em; }
+
+/* Floating style toolbar (above edit bar while editing body text) */
+#ee-stylebar {
+  position: fixed; z-index: 9055; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  box-sizing: border-box; padding: 6px 12px;
+  background: rgba(11,11,11,.96); border: 1px solid rgba(243,238,230,.09); border-radius: 4px;
+  color: #f3eee6; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#ee-stylebar[hidden] { display: none !important; }
+#ee-stylebar select {
+  appearance: none; -webkit-appearance: none;
+  background: transparent; border: 0; border-bottom: 1px solid rgba(143,138,130,.35);
+  color: #8f8a82; font: 10px/1.2 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; padding: 4px 2px; border-radius: 0; cursor: pointer;
+  max-width: 5.5em;
+}
+#ee-stylebar select:hover, #ee-stylebar select:focus { color: #f3eee6; outline: none; border-bottom-color: rgba(243,238,230,.55); }
+#ee-stylebar select option { background: #0b0b0b; color: #f3eee6; text-transform: none; letter-spacing: 0; }
+#ee-stylebar .ee-glyph-btn {
+  appearance: none; -webkit-appearance: none; background: none; border: 0; padding: 4px 2px; margin: 0;
+  cursor: pointer; color: #8f8a82; font: 12px/1 "Iowan Old Style", Palatino, serif; letter-spacing: .04em;
+}
+#ee-stylebar .ee-glyph-btn:hover, #ee-stylebar .ee-glyph-btn:focus-visible { color: #f3eee6; outline: none; }
+#ee-stylebar .ee-glyph-btn b, #ee-stylebar .ee-glyph-btn i { font-size: 13px; }
+@media (min-width: 801px) {
+  #ee-stylebar { width: min(640px, calc(100% - 48px)); justify-content: center; }
+}
+@media (max-width: 800px) {
+  #ee-stylebar {
+    left: 0; right: 0; transform: none; width: auto; border-radius: 0; border-width: 1px 0 0;
+    justify-content: flex-start; gap: 8px 12px; padding: 8px 14px;
+  }
+}
