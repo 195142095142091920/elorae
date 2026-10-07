@@ -4978,12 +4978,20 @@ body.login-page .login-stage.login-stage-abs{
 body.login-page.login-connecting .login-box{
   aspect-ratio:auto;min-height:400px;height:auto;padding-top:36px;padding-bottom:36px;
 }
+body.login-page #login-connect{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;text-align:center;
+}
 body.login-page .login-connect-steps{
-  list-style:none;margin:0;padding:0;width:100%;max-width:280px;text-align:left;
-  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#8f8a82;
+  list-style:none;margin:0 auto;padding:0;width:100%;max-width:280px;text-align:center;
+  font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:12px;line-height:1.5;color:#8f8a82;
 }
 body.login-page .login-connect-steps li{margin:0 0 16px}
 body.login-page .login-connect-steps li > span{display:block;margin:8px 0 0;letter-spacing:.02em}
+body.login-page .login-connect-btn{
+  display:inline-block;max-width:100%;text-align:center;letter-spacing:.08em;text-transform:none;font-weight:400;line-height:1.45;
+}
+body.login-page .login-connect-check{justify-content:center;}
+body.login-page #login-connect .login-actions[hidden]{display:none!important;}
 body.login-page .login-connect-btn,
 body.login-page .login-connect-submit,
 body.login-page .login-connect-back{

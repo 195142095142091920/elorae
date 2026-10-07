@@ -521,22 +521,35 @@ function renderLoginConnect() {
   if (!box || !E) return false;
   var L = E.TOKEN_LINKS || {};
   box.innerHTML =
-    '<p class="login-welcome">Connect</p>' +
     '<ol class="login-connect-steps">' +
     '<li><a class="login-connect-btn" id="login-mint" href="' + escHtml(L.classic || "#") + '" target="_blank" rel="noopener">Opens GitHub with public_repo filled in. Generate, then copy.</a></li>' +
     '<li><span>Paste it here</span>' +
     '<form id="login-connect-form" autocomplete="off">' +
     '<input id="login-connect-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
     '<label class="login-connect-check"><input type="checkbox" id="login-connect-remember" checked> Remember on this device</label>' +
-    '<div class="login-actions"><button type="submit" class="login-connect-submit">Enter</button></div>' +
+    '<div class="login-actions" id="login-connect-enter-actions" hidden><button type="submit" class="login-connect-submit">Enter</button></div>' +
     '<p class="login-err" id="login-connect-err" hidden></p></form></li>' +
     '</ol>' +
     '<button type="button" class="login-connect-back" id="login-connect-back">Back</button>';
+  function syncConnectEnter() {
+    var actions = document.getElementById("login-connect-enter-actions");
+    var input = document.getElementById("login-connect-token");
+    if (!actions) return;
+    var has = !!(input && String(input.value || "").replace(/\s+/g, ""));
+    if (has) actions.removeAttribute("hidden");
+    else actions.setAttribute("hidden", "");
+  }
   var form = document.getElementById("login-connect-form");
   if (form) form.addEventListener("submit", function (e) {
     e.preventDefault();
     submitLoginConnect();
   });
+  var tokenInput = document.getElementById("login-connect-token");
+  if (tokenInput) {
+    syncConnectEnter();
+    tokenInput.addEventListener("input", syncConnectEnter);
+    tokenInput.addEventListener("change", syncConnectEnter);
+  }
   var back = document.getElementById("login-connect-back");
   if (back) back.addEventListener("click", function (e) {
     e.preventDefault();
