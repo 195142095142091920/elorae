@@ -6,7 +6,7 @@ body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;bac
 
 .friend{display:none}
 body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],body.seal-julie .friend[data-owner=julie],body.seal-sawyer .friend[data-owner=sawyer]{display:inline}
-.friend a{margin-left:12px}
+.friend a{margin-left:0}
 
 
 
@@ -94,7 +94,7 @@ body.seal-devin{--glow:rgba(243,238,230,.7)}
 .seal-name{font-weight:400;letter-spacing:.14em;font-size:clamp(28px,4vw,40px)}
 
 .filters{gap:0}
-.filters a + a::before{content:"\00b7";color:#5c5852;padding:0 11px;letter-spacing:0}
+.filters a + a::before,.filters .seek-glyph::before,.friend a + a::before{content:"\00b7";color:#5c5852;padding:0 11px;letter-spacing:0}
 
 @media (min-width:801px){
   .topbar,
@@ -710,7 +710,9 @@ body.index-page .toc a {
     letter-spacing: 0.05em;
     white-space: nowrap;
   }
-  .mast .topbar .filters a + a::before {
+  .mast .topbar .filters a + a::before,
+  .mast .topbar .filters .seek-glyph::before,
+  .friend a + a::before {
     padding: 0 8px;
   }
   /* Secondary nav freezes flush under the fixed mast (sticky1). Sticky keeps its
@@ -2066,7 +2068,7 @@ body.journal-page .read h2 + .era-years {
   -webkit-appearance: none;
   background: none;
   border: 0;
-  margin: 0 0 0 12px;
+  margin: 0;
   padding: 4px;
   color: #8f8a82;
   cursor: pointer;
@@ -2316,7 +2318,7 @@ a.index-card.is-seek-flash {
 body.seek-panel-open { overflow: hidden; }
 
 @media (min-width: 801px) {
-  .seek-glyph { margin-left: 14px; }
+  .seek-glyph { margin-left: 0; }
   .seek-glyph svg { width: 15px; height: 15px; }
   .seek-panel-box {
     width: min(640px, 92vw);
@@ -2331,7 +2333,7 @@ body.seek-panel-open { overflow: hidden; }
 }
 
 @media (max-width: 800px) {
-  .seek-glyph { margin-left: 8px; padding: 6px; }
+  .seek-glyph { margin-left: 0; padding: 6px; }
   .seek-glyph svg { width: 13px; height: 13px; }
   #seek-panel {
     padding: 12px;
