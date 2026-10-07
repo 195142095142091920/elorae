@@ -4710,3 +4710,82 @@ body.index-page .index-card.no-art { background: #111; }
     pointer-events: none;
   }
 }
+
+/* ---- nt29: Timeline Eras summary — era name is a section header bar, not a list item ---- */
+.tl-era-block {
+  margin: 0 0 22px;
+  padding: 0;
+}
+.tl-era-bar {
+  text-transform: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 14px;
+  margin: 0 0 8px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(143, 138, 130, 0.22);
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 18px;
+  line-height: 1.35;
+  color: #f3eee6;
+}
+.tl-era-block:last-of-type .tl-era-bar,
+.tl-era-block:last-child {
+  /* keep a closing edge under the last blurb via the following Dates h2 border */
+}
+.tl-era-bar .tl-when {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8f8a82;
+  min-width: 1.6em;
+}
+.tl-era-bar .tl-era-name {
+  text-transform: none;
+  color: #f3eee6;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(243, 238, 230, 0.28);
+}
+.tl-era-bar .tl-era-name:hover { border-bottom-color: rgba(243, 238, 230, 0.7); }
+.tl-era-bar .era-years {
+  display: inline;
+  margin: 0;
+  margin-left: auto;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #8f8a82;
+}
+.tl-era-blurb {
+  margin: 0 0 4px;
+  font-size: 17px;
+  line-height: 1.45;
+  color: #d2cbc0;
+}
+/* numeral label inside the full-account era-years line under each era h2 */
+body.journal-page .read h2 + .era-years .tl-when {
+  margin-right: 10px;
+  letter-spacing: 0.12em;
+}
+@media (min-width: 801px) {
+  .tl-era-bar { font-size: 19px; padding: 12px 0; gap: 10px 18px; }
+  .tl-era-bar .tl-when { min-width: 2em; }
+  .tl-era-blurb { font-size: 18px; }
+}
+@media (max-width: 800px) {
+  .tl-era-bar {
+    font-size: 17px;
+    padding: 10px 0;
+    gap: 4px 10px;
+  }
+  .tl-era-bar .era-years {
+    flex: 1 0 100%;
+    margin-left: 0;
+    font-size: 11px;
+  }
+  .tl-era-blurb { font-size: 16px; }
+}

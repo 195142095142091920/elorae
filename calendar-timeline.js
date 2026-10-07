@@ -85,14 +85,17 @@
   sec.appendChild(el("h3", null, "Eras and dated events"));
   var eraSec = el("div", "nt-tl-eras"); sec.appendChild(eraSec);
   fetch(ROOT + "codex/timeline.html").then(function (r) { return r.text(); }).then(function (t) {
-    var d = new DOMParser().parseFromString(t, "text/html"), lists = d.querySelectorAll("ul.timeline-list");
-    if (lists.length < 2) return;
-    var eras = Array.prototype.map.call(lists[0].querySelectorAll("li"), function (li) {
-      var yrs = text(li.querySelector(".era-years")), m = /to\s+[0IVX]+-~?(\d+)|\[[IVX]+-(\d+)\]/.exec(yrs);
+    var d = new DOMParser().parseFromString(t, "text/html");
+    var eraBlocks = d.querySelectorAll("section.tl-era-block");
+    var dateList = d.querySelector("ul.timeline-list");
+    if (!eraBlocks.length || !dateList) return;
+    var eras = Array.prototype.map.call(eraBlocks, function (block) {
+      var yrs = text(block.querySelector(".era-years")), m = /to\s+[0IVX]+-~?(\d+)|\[[IVX]+-(\d+)\]/.exec(yrs);
       var v = /\[V-(\d+)\]/.exec(yrs), len = v ? Number(v[1]) : m ? Number(m[1] || m[2]) : 0;
-      return { key: text(li.querySelector(".tl-when")), name: text(li.querySelector("a")), href: (li.querySelector("a") || {}).getAttribute ? li.querySelector("a").getAttribute("href") : "", years: yrs, len: len };
+      var a = block.querySelector("a.tl-era-name, a[href]");
+      return { key: text(block.querySelector(".tl-when")) || block.getAttribute("data-era-key") || "", name: text(a), href: a ? a.getAttribute("href") : "", years: yrs, len: len };
     });
-    var events = Array.prototype.map.call(lists[1].querySelectorAll("li"), function (li) {
+    var events = Array.prototype.map.call(dateList.querySelectorAll("li"), function (li) {
       var w = text(li.querySelector(".tl-when")), m = /^([0IVX]+)-(\d+)$/.exec(w), what = li.querySelector(".tl-what");
       if (!m || !what) return null;
       /* keep the event's own words and inline links; drop only the trailing source links */
