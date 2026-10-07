@@ -4812,3 +4812,61 @@ body.journal-page .read h2 + .era-years .tl-when {
   body.journal-page main.read .tl-era-blurb { font-size: 16px; }
 }
 
+
+
+/* ---- nt36: player profile dashboard — all-black, no column veil ----
+   Player pages keep journal/lore body classes for mast/nav, but drop the
+   reading-column veil and journal artwork. Dashboard chrome on pure black. */
+body.player-page {
+  background: #000 !important;
+  background-color: #000 !important;
+}
+body.player-page .journal-bg {
+  display: none !important;
+}
+/* Kill the desktop reading-column veil (main.read::before gradient). */
+@media (min-width: 801px) {
+  body.player-page.journal-page main.read::before,
+  body.player-page main.read::before {
+    display: none !important;
+    content: none !important;
+    background: none !important;
+  }
+}
+body.player-page main.read {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 40px 48px 96px;
+  background: transparent;
+  text-shadow: none;
+  box-sizing: border-box;
+}
+body.player-page main.read > h1 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  text-align: left;
+  color: #f3eee6;
+  margin: 0 0 28px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid rgba(243, 238, 230, 0.09);
+}
+body.player-page #nt-player {
+  margin: 0;
+}
+@media (max-width: 800px) {
+  body.player-page main.read {
+    max-width: 100%;
+    margin: 0;
+    padding: 24px 16px 72px;
+  }
+  body.player-page main.read > h1 {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+  }
+}

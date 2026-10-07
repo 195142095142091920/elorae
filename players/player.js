@@ -1,13 +1,15 @@
-/* players/player.js (nt34). Player pages, built at runtime from the site's own files:
-   - characters: mast marks (span.friend[data-owner]) as cards (hero art, name, epithet);
-     Game Master (edit/visibility.json "admins") sees the party;
-   - combined: one card row of editable (profiles.json) + secret (visibility.json) articles.
-     Each card: image, title, and a type mark (edit / secret / both). No epithet.
+/* players/player.js (nt36). Player pages, built at runtime from the site's own files:
+   - characters: mast marks (span.friend[data-owner]) as cards (hero art, name, epithet) at
+     the top of the page — no "Characters" / "The party" heading. Game Master
+     (edit/visibility.json "admins") sees the party;
+   - combined: one card row of editable (profiles.json) + secret (visibility.json) articles
+     below. Each card: image, title, and a type mark (edit / secret / both). No epithet.
      Subjects already in Characters are excluded. Secrets only when the viewer has unlocked
      them (this player or GM) and only those also open to the viewer — nothing sealed in
      static HTML.
    No "Plays …" subtitle. No Articles / separate Editor / Secrets sections.
-   Renders inside <aside> (edit mode srcmap skips). */
+   Renders inside <aside> (edit mode srcmap skips). Dashboard chrome CSS lives in html.css
+   (body.player-page); card layout styles are injected here. */
 (function () {
   "use strict";
   var root = document.getElementById("nt-player"); if (!root) return;
@@ -29,19 +31,20 @@
   var css = document.createElement("style");
   css.id = "nt-player-css";
   css.textContent =
-    "#nt-player h2{margin-top:48px}" +
-    ".nt-pl-chars{display:flex;flex-wrap:wrap;justify-content:center;gap:26px;margin:18px 0 0}" +
-    ".nt-pl-chars+.nt-pl-chars{margin-top:48px}" +
-    ".nt-pl-char{width:150px;text-align:left}" +
-    ".nt-pl-char img,.nt-pl-char .ph{width:150px;height:200px;object-fit:cover;display:block;margin:0 0 8px}" +
+    ".nt-pl-chars{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:22px;margin:0}" +
+    ".nt-pl-chars+.nt-pl-chars{margin-top:36px;padding-top:36px;border-top:1px solid rgba(243,238,230,.09)}" +
+    ".nt-pl-char{width:150px;text-align:left;box-sizing:border-box;background:#0b0b0b;border:1px solid rgba(243,238,230,.09);border-radius:4px;overflow:hidden;padding:0 0 12px}" +
+    ".nt-pl-char img,.nt-pl-char .ph{width:100%;height:200px;object-fit:cover;display:block;margin:0 0 10px;background:#070707}" +
+    ".nt-pl-char .nm,.nt-pl-char .ep,.nt-pl-char .nt-pl-kind{padding:0 10px}" +
     ".nt-pl-char .nm{font-size:12px;letter-spacing:.14em;text-transform:uppercase}" +
     ".nt-pl-char .nm a{color:#f3eee6;text-decoration:none}" +
     ".nt-pl-char .ep{font-size:13px;line-height:1.45;color:#8f8a82;font-style:italic;margin-top:2px}" +
-    ".nt-pl-char .nt-pl-kind{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8f8a82;margin-top:4px;display:flex;align-items:center;gap:6px}" +
+    ".nt-pl-char .nt-pl-kind{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8f8a82;margin-top:6px;display:flex;align-items:center;gap:6px}" +
     ".nt-pl-char .nt-pl-kind .sy{font-size:13px;line-height:1;letter-spacing:0;text-transform:none}" +
     "@media (min-width:801px){.nt-pl-char .nm a:hover{color:#fff}}" +
-    "@media (max-width:800px){.nt-pl-chars{gap:16px}.nt-pl-char,.nt-pl-char img{width:calc(50vw - 30px)}" +
-    ".nt-pl-char .ph{width:calc(50vw - 30px)}.nt-pl-char img,.nt-pl-char .ph{height:calc((50vw - 30px) * 4 / 3)}}";
+    "@media (max-width:800px){.nt-pl-chars{gap:12px;justify-content:space-between}" +
+    ".nt-pl-char{width:calc(50% - 6px)}.nt-pl-char img,.nt-pl-char .ph{height:calc((50vw - 22px) * 4 / 3)}" +
+    ".nt-pl-chars+.nt-pl-chars{margin-top:28px;padding-top:28px}}";
   document.head.appendChild(css);
 
   function characters(who) {
@@ -161,9 +164,10 @@
     var inCharacters = charPathSet(chars);
     root.textContent = "";
 
-    /* Characters — unchanged (cards with epithet). No "Plays …" line. */
-    root.appendChild(el("h2", null, isGM ? "The party" : "Characters"));
-    var crow = el("div", "nt-pl-chars"); root.appendChild(crow);
+    /* Character cards at top — no "Characters" / "The party" heading. No "Plays …" line. */
+    var crow = el("div", "nt-pl-chars");
+    crow.setAttribute("aria-label", isGM ? "The party" : "Characters");
+    root.appendChild(crow);
     chars.forEach(function (c) {
       var box = el("div", "nt-pl-char"); crow.appendChild(box);
       fillCharCard(box, c.article, c.short);
