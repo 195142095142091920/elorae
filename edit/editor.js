@@ -179,7 +179,9 @@
       state.profiles = doc; state.profile = pr;
       E.session.set({ token: token, login: login, remember: !!remember, person: pr.person || "", role: pr.role || "", kind: kind, warn: warn, since: new Date().toISOString() });
       notify();
-      renderPanel(); glyph();
+      glyph();
+      if (location.hash === "#edit" && tryEnterEdit()) return;
+      renderPanel();
     }).catch(function (err) {
       showErr(err.status === 401 ? "GitHub didn't accept that token. It may be mistyped, expired or deleted. Make a new one with the button above." : (err.message || "Enter failed."));
     });
@@ -1348,24 +1350,63 @@
   }
 
   /* ---------------- Init ---------------- */
+  var bootExpired = false;
+  function clearEditHash() {
+    if (location.hash === "#edit") {
+      try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {
+        location.hash = "";
+      }
+    }
+  }
+  /* Nav Edit / #edit: enter edit mode when already connected — never bounce to Connect. */
+  function tryEnterEdit() {
+    if (!E.session.get() || !state.profile) return false;
+    if (state.editing || state.busy) { clearEditHash(); return true; }
+    var Org = window.EloraeIndexOrg;
+    if (isIndexOrganizePage() && Org && Org.start) {
+      closePanel();
+      clearEditHash();
+      Org.start();
+      return true;
+    }
+    if (!P.canEdit(state.profile, PATH)) return false;
+    if (!liveBlocks().length && !isIndexOrganizePage()) return false;
+    closePanel();
+    clearEditHash();
+    startEdit();
+    return true;
+  }
   function loadProfile() {
     var s = E.session.get();
     if (!s) return Promise.resolve(null);
-    return E.getFile("edit/profiles.json").then(function (f) {
+    function apply(f) {
       state.profiles = JSON.parse(f.text);
       state.profile = P.profileFor(state.profiles, s.login);
       return state.profile;
-    }).catch(function (err) {
-      if (err.status === 401) expired();
-      return null;
+    }
+    return E.getFile("edit/profiles.json").then(apply).catch(function (err) {
+      if (err.status !== 401) return null;
+      /* Stale tab session may shadow a remembered Connect — drop tab copy and retry once. */
+      if (E.session.dropTabSession) E.session.dropTabSession();
+      s = E.session.get();
+      if (!s) { bootExpired = true; expired(); return null; }
+      return E.getFile("edit/profiles.json").then(apply).catch(function (err2) {
+        if (err2.status === 401) { bootExpired = true; expired(); }
+        return null;
+      });
     });
   }
-  function onHash() { if (location.hash === "#edit") openPanel(); }
+  function onHash() {
+    if (location.hash !== "#edit") return;
+    if (bootExpired) return; /* expired() already offered re-enter; do not dump Connect */
+    if (tryEnterEdit()) return;
+    openPanel();
+  }
   window.addEventListener("hashchange", onHash);
   loadProfile().then(function () {
     glyph();
     onHash();
   });
 
-  window.EloraeEditor = { sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph };
+  window.EloraeEditor = { sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit };
 })();

@@ -27,10 +27,33 @@
     return p;
   }
 
+  var LINKED_KEY = "elorae-gh-linked";
+  function markLinked(person, login) {
+    try {
+      var raw = localStorage.getItem(LINKED_KEY);
+      var o = raw ? JSON.parse(raw) : {};
+      if (!o || typeof o !== "object") o = {};
+      if (person) o[String(person).toLowerCase()] = 1;
+      if (login) o["@" + String(login).toLowerCase()] = 1;
+      localStorage.setItem(LINKED_KEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function wasLinked(who) {
+    try {
+      var raw = localStorage.getItem(LINKED_KEY);
+      var o = raw ? JSON.parse(raw) : null;
+      if (!o || typeof o !== "object") return false;
+      if (!who) return Object.keys(o).length > 0;
+      var w = String(who).toLowerCase();
+      return !!(o[w] || o["@" + w]);
+    } catch (e) { return false; }
+  }
   var session = {
     get: function () {
       var raw = null;
-      try { raw = sessionStorage.getItem(KEY) || localStorage.getItem(KEY); } catch (e) {}
+      /* Prefer remembered localStorage so a stale sessionStorage token cannot
+         shadow a permanent Connect and force the Connect panel again. */
+      try { raw = localStorage.getItem(KEY) || sessionStorage.getItem(KEY); } catch (e) {}
       if (!raw) return null;
       try { var s = JSON.parse(raw); return s && s.token && s.login ? s : null; } catch (e) { return null; }
     },
@@ -39,10 +62,16 @@
       try {
         sessionStorage.setItem(KEY, raw);
         if (s.remember) localStorage.setItem(KEY, raw); else localStorage.removeItem(KEY);
+        markLinked(s.person, s.login);
       } catch (e) {}
     },
     clear: function () {
+      /* Drop tokens only — permanent linked flag stays so Connect is not re-prompted. */
       try { sessionStorage.removeItem(KEY); localStorage.removeItem(KEY); } catch (e) {}
+    },
+    wasLinked: wasLinked,
+    dropTabSession: function () {
+      try { sessionStorage.removeItem(KEY); } catch (e) {}
     }
   };
 

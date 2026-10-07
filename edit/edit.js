@@ -12,7 +12,7 @@
 
   function readSession() {
     try {
-      var raw = sessionStorage.getItem(KEY) || localStorage.getItem(KEY);
+      var raw = localStorage.getItem(KEY) || sessionStorage.getItem(KEY);
       var s = raw ? JSON.parse(raw) : null;
       return s && s.token && s.login ? s : null;
     } catch (e) { return null; }

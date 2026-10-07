@@ -109,29 +109,49 @@ function readEditSession() {
     }
   } catch (e) {}
   try {
-    var raw = sessionStorage.getItem("elorae-edit-session") || localStorage.getItem("elorae-edit-session");
+    var raw = localStorage.getItem("elorae-edit-session") || sessionStorage.getItem("elorae-edit-session");
     if (!raw) return null;
     var s = JSON.parse(raw);
     return s && s.token && s.login ? s : null;
   } catch (e) { return null; }
 }
 
+function githubLinkedFlag(who) {
+  try {
+    if (window.EloraeEdit && EloraeEdit.session && EloraeEdit.session.wasLinked) {
+      if (EloraeEdit.session.wasLinked(who)) return true;
+    }
+  } catch (e) {}
+  try {
+    var raw = localStorage.getItem("elorae-gh-linked");
+    var o = raw ? JSON.parse(raw) : null;
+    if (!o || typeof o !== "object") return false;
+    if (!who) return Object.keys(o).length > 0;
+    var w = String(who).toLowerCase();
+    return !!(o[w] || o["@" + w]);
+  } catch (e) { return false; }
+}
+
 /* GitHub login → elorae person (from edit/profiles.json). */
 var GH_LOGIN_PERSON = {"195142095142091920":"devin"};
 
-/* True when this browser has a GitHub edit session for the phrase identity. */
+/* True when this browser has connected GitHub for the phrase identity.
+   Token session OR durable linked flag (Connect is permanent — never re-prompt). */
 function githubConnected(who) {
   var s = readEditSession();
-  if (!s || !s.token || !s.login) return false;
-  if (!who) return true;
-  var whoL = String(who).toLowerCase();
-  var person = String(s.person || "").toLowerCase();
-  var login = String(s.login || "").toLowerCase();
-  var mapped = GH_LOGIN_PERSON[login] || "";
-  /* Match stamped person, or resolve via GitHub login (covers person wrongly set to login). */
-  if (person === whoL) return true;
-  if (mapped && mapped === whoL) return true;
-  if (!person) return true; /* legacy session with token only */
+  if (s && s.token && s.login) {
+    if (!who) return true;
+    var whoL = String(who).toLowerCase();
+    var person = String(s.person || "").toLowerCase();
+    var login = String(s.login || "").toLowerCase();
+    var mapped = GH_LOGIN_PERSON[login] || "";
+    /* Match stamped person, or resolve via GitHub login (covers person wrongly set to login). */
+    if (person === whoL) return true;
+    if (mapped && mapped === whoL) return true;
+    if (!person) return true; /* legacy session with token only */
+  }
+  /* Once connected on this browser, never show Connect again. */
+  if (githubLinkedFlag(who)) return true;
   return false;
 }
 
@@ -375,6 +395,19 @@ function ensureProfileGithub(who) {
 
 function syncGithubUI(who) {
   if (!who || isGuest()) { hideGithubUI(); return; }
+  /* Stamp durable linked flag from any existing token session (pre-flag Connect). */
+  try {
+    var sStamp = readEditSession();
+    if (sStamp && sStamp.token) {
+      var rawL = localStorage.getItem("elorae-gh-linked");
+      var oL = rawL ? JSON.parse(rawL) : {};
+      if (!oL || typeof oL !== "object") oL = {};
+      if (sStamp.person) oL[String(sStamp.person).toLowerCase()] = 1;
+      else if (who) oL[String(who).toLowerCase()] = 1;
+      if (sStamp.login) oL["@" + String(sStamp.login).toLowerCase()] = 1;
+      localStorage.setItem("elorae-gh-linked", JSON.stringify(oL));
+    }
+  } catch (e) {}
 
   /* Login page: Connect only under Welcome after phrase enter (never on phrase/guest/connect). */
   if (document.body.classList.contains("login-page")) {
