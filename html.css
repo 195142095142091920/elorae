@@ -28,11 +28,16 @@ body.login-jack .friend[data-owner=jack],body.login-jon .friend[data-owner=jon],
 body.login-devin .private-journal{display:block}
 .read{padding-top:28px}
 
-body.login-page{background:#070707}
+body.login-page{
+  background:#070707;
+  /* Login entrance uses at most two families among ELORAE / phrase / Enter / Guest. */
+  --login-font-sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --login-font-serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",serif;
+}
 .login-card{min-height:calc(100vh - 72px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.login-kicker{margin:0 0 18px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.28em;text-transform:uppercase;font-size:18px;color:#8f8a82;text-align:center;width:100%}
-#login-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;text-align:center;padding:8px 0}
-.login-card button{margin-top:18px;background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.login-kicker{margin:0 0 18px;font-family:var(--login-font-sans);letter-spacing:.28em;text-transform:uppercase;font-size:18px;color:#8f8a82;text-align:center;width:100%}
+#login-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:var(--login-font-serif);font-size:28px;text-align:center;padding:8px 0}
+.login-card button{margin-top:18px;background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:var(--login-font-sans)}
 .filters a,.toc a,#section-bar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 
 
@@ -4909,9 +4914,22 @@ body.login-page .login-box #login-guest{
   body.login-page .login-box #login-guest{bottom:22px}
 }
 
+
+
+/* Login entrance: only two families — sans (ELORAE, Enter, Guest) + serif (phrase). */
+body.login-page .login-kicker,
+body.login-page #login-submit,
+body.login-page #login-guest,
+body.login-page .login-guest,
+body.login-page .login-actions button{
+  font-family: var(--login-font-sans);
+}
+body.login-page #login-code{
+  font-family: var(--login-font-serif);
+}
 /* Login actions: Enter (primary) + Guest (secondary). */
 .login-actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;align-items:center;margin-top:18px}
-.login-actions button,.login-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;cursor:pointer}
+.login-actions button,.login-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:11px;cursor:pointer}
 .login-actions button.login-guest,button.login-guest{
   color:#8f8a82;
   font-size:10px;
@@ -4922,7 +4940,7 @@ body.login-page .login-box #login-guest{
   padding:4px 8px;
   min-height:0;
   min-width:0;
-  background:none;border:0;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;cursor:pointer;
+  background:none;border:0;text-transform:uppercase;font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);cursor:pointer;
 }
 .login-who{margin:10px 0 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8f8a82}
 .profile-gh-actions{justify-content:flex-start;margin:0 0 18px}
