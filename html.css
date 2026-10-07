@@ -4990,3 +4990,59 @@ body.login-page .login-connect-check{
 body.login-page .login-connect-check input{accent-color:#8f8a82;margin:0}
 body.login-page #login-connect .login-actions{margin-top:14px;justify-content:center}
 body.login-page #login-connect #login-connect-err{margin-top:10px}
+
+/* ---- login-elorae-center: no page scrollbar; ELORAE top; phrase+Enter box-center ---- */
+html:has(body.login-page),
+body.login-page {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+body.login-page {
+  box-sizing: border-box;
+  padding-top: 0 !important; /* mast is fixed; don't grow past 100dvh */
+}
+body.login-page .login-card {
+  min-height: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  box-sizing: border-box;
+  padding: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+body.login-page .login-box {
+  justify-content: flex-start; /* ELORAE at top; form centered absolutely */
+}
+body.login-page #login-elorae {
+  flex: 0 0 auto;
+  margin: 0;
+  align-self: center;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+body.login-page #login-form {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  margin: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+body.login-page #login-form[hidden] {
+  display: none;
+}
+/* Welcome/connect stage fills remaining box and stays centered when form is gone */
+body.login-page .login-swap {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}

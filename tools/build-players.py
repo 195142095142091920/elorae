@@ -35,7 +35,7 @@ scripts = (
     f'<canvas id="friend-glow"></canvas>\n'
     f'<script src="../glow.js?v={glow_v}"></script>\n'
     f'<script src="../back-to-top.js?v=nt5-top"></script>\n'
-    f'<script src="player.js?v=enter-welcome"></script>\n'
+    f'<script src="player.js?v=login-elorae-center"></script>\n'
 )
 
 def page(slug, name):
