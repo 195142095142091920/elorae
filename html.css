@@ -4987,20 +4987,39 @@ body.login-page .login-connect-steps{
 }
 body.login-page .login-connect-steps li{margin:0 0 16px}
 body.login-page .login-connect-steps li > span{display:block;margin:8px 0 0;letter-spacing:.02em}
-body.login-page .login-connect-btn{
-  display:inline-block;max-width:100%;text-align:center;letter-spacing:.08em;text-transform:none;font-weight:400;line-height:1.45;
+body.login-page .login-connect-hero{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  width:100%;max-width:280px;margin:8px auto 22px;text-align:center;
 }
+body.login-page .login-connect-primary{
+  display:inline-block;margin:0;padding:4px 8px;
+  font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);
+  font-size:13px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;
+  color:#fff;text-decoration:none;
+  text-shadow:0 0 14px rgba(255,255,255,.55),0 0 28px rgba(243,238,230,.35);
+}
+body.login-page .login-connect-primary:hover,
+body.login-page .login-connect-primary:focus-visible{
+  color:#fff;outline:none;
+  text-shadow:0 0 18px rgba(255,255,255,.85),0 0 36px rgba(243,238,230,.55);
+}
+body.login-page .login-connect-hint{
+  margin:12px 0 0;max-width:240px;
+  font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);
+  font-size:11px;font-weight:400;line-height:1.45;letter-spacing:.04em;
+  color:#8f8a82;text-align:center;text-transform:none;
+}
+body.login-page .login-connect-form{width:100%;max-width:280px;margin:0 auto;}
 body.login-page .login-connect-check{justify-content:center;}
 body.login-page #login-connect .login-actions[hidden]{display:none!important;}
 body.login-page .login-connect-btn,
 body.login-page .login-connect-submit,
 body.login-page .login-connect-back{
   appearance:none;-webkit-appearance:none;background:none;border:0;padding:0;margin:0;cursor:pointer;
-  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;
+  font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:11px;font-weight:700;
   letter-spacing:.2em;text-transform:uppercase;color:#f3eee6;text-decoration:none;
 }
 body.login-page .login-connect-back{color:#8f8a82;margin-top:8px}
-body.login-page .login-connect-btn:hover,
 body.login-page .login-connect-submit:hover,
 body.login-page .login-connect-back:hover{color:#fff;text-shadow:0 0 12px rgba(243,238,230,.45)}
 body.login-page #login-connect-token{

@@ -521,15 +521,15 @@ function renderLoginConnect() {
   if (!box || !E) return false;
   var L = E.TOKEN_LINKS || {};
   box.innerHTML =
-    '<ol class="login-connect-steps">' +
-    '<li><a class="login-connect-btn" id="login-mint" href="' + escHtml(L.classic || "#") + '" target="_blank" rel="noopener">Opens GitHub with public_repo filled in. Generate, then copy.</a></li>' +
-    '<li><span>Paste it here</span>' +
-    '<form id="login-connect-form" autocomplete="off">' +
+    '<div class="login-connect-hero">' +
+    '<a class="login-connect-btn login-connect-primary" id="login-mint" href="' + escHtml(L.classic || "#") + '" target="_blank" rel="noopener">Connect</a>' +
+    '<p class="login-connect-hint">Opens GitHub — generate a key, then copy it here.</p>' +
+    '</div>' +
+    '<form id="login-connect-form" class="login-connect-form" autocomplete="off">' +
     '<input id="login-connect-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
     '<label class="login-connect-check"><input type="checkbox" id="login-connect-remember" checked> Remember on this device</label>' +
     '<div class="login-actions" id="login-connect-enter-actions" hidden><button type="submit" class="login-connect-submit">Enter</button></div>' +
-    '<p class="login-err" id="login-connect-err" hidden></p></form></li>' +
-    '</ol>' +
+    '<p class="login-err" id="login-connect-err" hidden></p></form>' +
     '<button type="button" class="login-connect-back" id="login-connect-back">Back</button>';
   function syncConnectEnter() {
     var actions = document.getElementById("login-connect-enter-actions");
