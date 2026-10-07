@@ -748,7 +748,10 @@ if (document.body.classList.contains("login-page")) {
     var remembered = readRememberedPhrase();
     if (remembered && !phraseInput.value) phraseInput.value = remembered;
     syncEnterVisibility();
-    phraseInput.addEventListener("input", syncEnterVisibility);
+    phraseInput.addEventListener("input", function () {
+      loginClearErr();
+      syncEnterVisibility();
+    });
     phraseInput.addEventListener("change", function () { rememberPhrase(readPhrase()); syncEnterVisibility(); });
     phraseInput.addEventListener("blur", function () { rememberPhrase(readPhrase()); syncEnterVisibility(); });
   }
