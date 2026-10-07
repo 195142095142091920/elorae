@@ -202,7 +202,13 @@
   };
 
   /* ---------------- EDIT glyph ---------------- */
-  function liveBlocks() { return M.collectBlocks(document.body, M.DOM).filter(function (n) { return !n.closest("#ee-panel,#ee-bar"); }); }
+  // Article hero name (h1) + epithet: admin-only. Players keep body-only editing.
+  function titleOpts() { return { includeTitles: !!(state.profile && P.isAdmin(state.profile)) }; }
+  function liveBlocks() {
+    return M.collectBlocks(document.body, M.DOM, titleOpts()).filter(function (n) {
+      return !n.closest("#ee-panel,#ee-bar");
+    });
+  }
   function glyph() {
     var g = $("ee-glyph");
     var ok = !!(E.session.get() && state.profile && P.canEdit(state.profile, PATH) && liveBlocks().length);
@@ -232,7 +238,7 @@
     state.busy = true;
     bar('<span class="ee-msg">Loading the page source…</span>');
     E.getFile(PATH).then(function (f) {
-      var src = M.sourceBlocks(f.text), live = liveBlocks();
+      var src = M.sourceBlocks(f.text, titleOpts()), live = liveBlocks();
       var recs = [];
       for (var i = 0; i < src.length && i < live.length; i++) {
         var n = live[i], s = src[i];
@@ -271,7 +277,12 @@
   }
   function onKey(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;
-    if (e.key === "Enter") { e.preventDefault(); document.execCommand("insertLineBreak"); }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Name/epithet stay single-line (site header).
+      if (e.target.closest(".art-title")) return;
+      document.execCommand("insertLineBreak");
+    }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") { e.preventDefault(); save(); }
   }
   function onPaste(e) {
@@ -379,18 +390,21 @@
     if (!changed.length) return { none: true };
     var blocks = state.base.blocks;
     if (latest.sha !== state.base.sha) {
-      var nb = M.sourceBlocks(latest.text);
+      var nb = M.sourceBlocks(latest.text, titleOpts());
       if (nb.length !== blocks.length) return { conflict: true };
       for (var i = 0; i < changed.length; i++) if (nb[changed[i].idx].inner !== changed[i].src.inner) return { conflict: true };
       blocks = nb;
     }
     var edits = changed.map(function (r) {
       var b = blocks[r.idx];
-      return { start: b.start, end: b.end, html: preserveEntities(sanitize(r.el, r.src.tag, canon(r.src.inner)), b.inner), idx: r.idx };
+      var html = preserveEntities(sanitize(r.el, r.src.tag, canon(r.src.inner)), b.inner);
+      // Site rule: epithet / description lines have no ending period.
+      if (r.el.classList && r.el.classList.contains("art-epithet")) html = html.replace(/\.\s*$/, "");
+      return { start: b.start, end: b.end, html: html, idx: r.idx };
     });
     var out = M.splice(latest.text, edits);
     // Self-check: same block structure, untouched blocks byte-identical.
-    var after = M.sourceBlocks(out);
+    var after = M.sourceBlocks(out, titleOpts());
     if (after.length !== blocks.length) throw new Error("Safety check failed (the edit would change the page structure). Nothing was saved.");
     var touched = {}; edits.forEach(function (e) { touched[e.idx] = e.html; });
     for (var k = 0; k < after.length; k++) {
@@ -432,7 +446,7 @@
       if (!done) return;
       var commitUrl = done.res && done.res.commit && done.res.commit.html_url;
       if (mode === "direct") {
-        state.base = { sha: done.res.content.sha, text: done.r.out, blocks: M.sourceBlocks(done.r.out) };
+        state.base = { sha: done.res.content.sha, text: done.r.out, blocks: M.sourceBlocks(done.r.out, titleOpts()) };
       }
       state.records.forEach(function (rec) { rec.original = rec.el.innerHTML; });
       stopEditing();

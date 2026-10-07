@@ -226,8 +226,10 @@ async function signInViaPanel(page, token) {
       await page.click("#ee-glyph");
       await page.waitForSelector("#ee-save");
       const nEditable = await page.evaluate(() => document.querySelectorAll(".ee-editable").length);
-      const navEditable = await page.evaluate(() => document.querySelectorAll(".mast [contenteditable], nav [contenteditable], aside [contenteditable], #related [contenteditable], h1[contenteditable], h2[contenteditable]").length);
-      check("edit mode: content blocks editable, nav/chrome/headings/related not", nEditable === 20 && navEditable === 0, `editable=${nEditable} chrome=${navEditable}`);
+      const navEditable = await page.evaluate(() => document.querySelectorAll(".mast [contenteditable], nav [contenteditable], aside [contenteditable], #related [contenteditable], h2[contenteditable], h1[contenteditable]:not(.art-title h1)").length);
+      const titleEditable = await page.evaluate(() => document.querySelectorAll(".art-title [contenteditable]").length);
+      // arts-gh is not admin: body blocks only (no hero name/epithet).
+      check("edit mode: content blocks editable, nav/chrome/headings/related not", nEditable === 20 && navEditable === 0 && titleEditable === 0, `editable=${nEditable} chrome=${navEditable} title=${titleEditable}`);
       // Type into the 3rd lore paragraph.
       const target = 'main.art-body #lore p.art-life:nth-of-type(3)';
       await page.click(target);
@@ -283,7 +285,77 @@ async function signInViaPanel(page, token) {
       await ctx.close();
     }
 
-    /* 6. Conflicts. */
+    /* 5b. Admin: hero name (h1) + epithet editable; players still cannot. */
+    {
+      const mock = newMock();
+      // Sawyer (player): titles stay locked.
+      {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_sawyer", "sawyer-gh") });
+        const page = await ctx.newPage();
+        await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
+        await waitEditor(page);
+        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        const t = await page.evaluate(() => ({
+          n: document.querySelectorAll(".ee-editable").length,
+          title: document.querySelectorAll(".art-title [contenteditable]").length,
+          h1: !!(document.querySelector(".art-title h1[contenteditable]")),
+          ep: !!(document.querySelector(".art-title .art-epithet[contenteditable]"))
+        }));
+        check("player (Sawyer): hero name/epithet not editable", t.title === 0 && !t.h1 && !t.ep && t.n === 20, JSON.stringify(t));
+        await ctx.close();
+      }
+      // Devin (admin): edit epithet only — rest of file byte-identical; trailing period stripped.
+      {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+        const page = await ctx.newPage();
+        await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
+        await waitEditor(page);
+        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        const t = await page.evaluate(() => ({
+          n: document.querySelectorAll(".ee-editable").length,
+          title: document.querySelectorAll(".art-title [contenteditable]").length,
+          h1: document.querySelector(".art-title h1").textContent,
+          ep: document.querySelector(".art-title .art-epithet").textContent
+        }));
+        check("admin (Devin): hero name + epithet editable (+2 blocks)", t.title === 2 && t.n === 22, JSON.stringify(t));
+        await page.evaluate(() => { document.querySelector(".art-title .art-epithet").textContent = "Ranger of the Wreath."; });
+        await page.click("#ee-save"); await page.waitForSelector("#ee-bar.ee-done", { timeout: 10000 });
+        const put = mock.log.filter((e) => e.written).pop().written.text;
+        const before = S.sourceBlocks(vaerekSrc, { includeTitles: true });
+        const after = S.sourceBlocks(put, { includeTitles: true });
+        const epBefore = before.find((b) => b.tag === "p" && b.inner === "Wreathbound Ranger");
+        const epAfter = after.find((b) => b.start === epBefore.start || b.inner === "Ranger of the Wreath");
+        const nameSame = before[0].inner === after[0].inner && before[0].tag === "h1";
+        // Only the hero epithet range changes; trailing period stripped per site rule.
+        const expected = S.splice(vaerekSrc, [{ start: epBefore.start, end: epBefore.end, html: "Ranger of the Wreath" }]);
+        check("admin epithet save: only hero epithet region changes; trailing period stripped", put === expected && epAfter && epAfter.inner === "Ranger of the Wreath" && nameSame && !/\.$/.test(epAfter.inner), `ep=${JSON.stringify(epAfter && epAfter.inner)} delta=${put.length - vaerekSrc.length}`);
+        // Body lore paragraph with entities still untouched.
+        check("admin epithet save: body entity block unchanged", /didn&#x27;t last/.test(put) && put.includes(before.find((b) => /didn&#x27;t last/.test(b.inner)).inner));
+        await ctx.close();
+      }
+      // Devin: edit name only — only the h1 region changes.
+      {
+        mock.setUpstream(vaerekPath, vaerekSrc); // reset after epithet test mutated the mock file
+        mock.log.length = 0;
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+        const page = await ctx.newPage();
+        await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
+        await waitEditor(page);
+        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        await page.evaluate(() => { document.querySelector(".art-title h1").textContent = "Vaerek Rathkin Prime"; });
+        await page.click("#ee-save"); await page.waitForSelector("#ee-bar.ee-done", { timeout: 10000 });
+        const put = mock.log.filter((e) => e.written).pop().written.text;
+        const h1 = S.sourceBlocks(vaerekSrc, { includeTitles: true })[0];
+        const expected = S.splice(vaerekSrc, [{ start: h1.start, end: h1.end, html: "Vaerek Rathkin Prime" }]);
+        check("admin name save: only h1 region changes", put === expected && S.sourceBlocks(put, { includeTitles: true })[0].inner === "Vaerek Rathkin Prime", `h1=${JSON.stringify(S.sourceBlocks(put,{includeTitles:true})[0].inner)} delta=${put.length - vaerekSrc.length}`);
+        // Entity preservation for titles: preserveEntities keeps &#x27; from the source when the glyph remains.
+        const kept = await page.evaluate(() => window.EloraeEditor.preserveEntities("Vaerek's Rathkin X", "Vaerek&#x27;s Rathkin"));
+        check("admin name: preserveEntities keeps &#x27; in title text", kept === "Vaerek&#x27;s Rathkin X", kept);
+        await ctx.close();
+      }
+    }
+
+    /* 6. Conflicts. */ 
     {
       const mock = newMock();
       const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_arts", "arts-gh") });

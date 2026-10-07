@@ -117,11 +117,13 @@
   }
 
   /* ---- Editable block selection, shared by the live DOM and the raw-source tree ---- */
-  var BLOCK_TAGS = { p: 1, li: 1, dd: 1, blockquote: 1, cite: 1, figcaption: 1, td: 1, th: 1 };
+  var BLOCK_TAGS = { p: 1, li: 1, dd: 1, blockquote: 1, cite: 1, figcaption: 1, td: 1, th: 1, h1: 1 };
   // Content-region roots (outermost match wins).
+  // .art-title is the article hero name + epithet (above the background image).
   function isRegionRoot(n) {
     var c = n.classes;
     if (n.tag === "main" && (c.indexOf("art-body") >= 0 || c.indexOf("read") >= 0)) return true;
+    if (c.indexOf("art-title") >= 0) return true;
     return false;
   }
   // Never editable inside these (navigation / chrome / link lists / structure).
@@ -140,23 +142,32 @@
     return false;
   }
   // A = adapter { tag(n), classes(n), id(n), children(n) }
-  function collectBlocks(rootNode, A) {
+  // opts.includeTitles: when false, skip blocks inside .art-title (name/epithet). Admins pass true.
+  function collectBlocks(rootNode, A, opts) {
+    opts = opts || {};
+    var includeTitles = opts.includeTitles !== false;
     var out = [];
     function view(n) { return { tag: A.tag(n), classes: A.classes(n), id: A.id(n) }; }
-    function walkRegion(n) {
+    function walkRegion(n, inTitle) {
       var kids = A.children(n);
       for (var i = 0; i < kids.length; i++) {
         var k = kids[i], v = view(k);
         if (isExcluded(v)) continue;
-        if (BLOCK_TAGS[v.tag] && !hasBlockDescendant(k, A)) { out.push(k); continue; }
-        walkRegion(k);
+        if (BLOCK_TAGS[v.tag] && !hasBlockDescendant(k, A)) {
+          if (inTitle && !includeTitles) continue;
+          out.push(k); continue;
+        }
+        walkRegion(k, inTitle);
       }
     }
     function find(n) {
       var kids = A.children(n);
       for (var i = 0; i < kids.length; i++) {
         var v = view(kids[i]);
-        if (isRegionRoot(v)) { walkRegion(kids[i]); continue; }
+        if (isRegionRoot(v)) {
+          walkRegion(kids[i], v.classes.indexOf("art-title") >= 0);
+          continue;
+        }
         if (v.tag === "script" || v.tag === "style" || v.tag === "template") continue;
         find(kids[i]);
       }
@@ -177,8 +188,8 @@
     children: function (n) { return Array.prototype.slice.call(n.children || []); }
   };
 
-  function sourceBlocks(src) {
-    return collectBlocks(parse(src), TREE).map(function (b) {
+  function sourceBlocks(src, opts) {
+    return collectBlocks(parse(src), TREE, opts).map(function (b) {
       return { tag: b.tag, start: b.openEnd, end: b.closeStart, inner: src.slice(b.openEnd, b.closeStart) };
     });
   }
