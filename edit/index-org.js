@@ -395,7 +395,8 @@
     E.getFile(artPath).then(function () {
       state.busy = false;
       barMsg("articles/" + slug + ".html already exists. Pick another name.", "ee-bad-bar");
-    }, function () {
+    }, function (err) {
+      if (err && err.status && err.status !== 404) throw err;
       var box = cardsContainerFor(catId);
       var empty = box.querySelector("p.index-empty");
       if (empty) empty.remove();
