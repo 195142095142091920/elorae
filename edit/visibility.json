@@ -197,14 +197,16 @@
       "title": "Yena",
       "owner": "jack",
       "path": "articles/yena.html",
-      "status": "plaintext",
+      "status": "encrypted",
       "everyone": false,
       "allowed": [
         "devin",
         "jack"
       ],
-      "epoch": 0,
-      "keys": {},
+      "epoch": 1,
+      "keys": {
+        "devin": "DPrsmfF8WW+j6nABqgqGFTMCuJ3RdJcmWM/5iY9B+TMqrkb0zdy4y9xfwAP29HrDXI4/SzZA8ckyBS0fLPpH76Ozvb/xptJwnaJ0lYcXpPHFq4ivsiVPpjru5wO5vkTP5AK+FtJe3Oo60Ht8q/vnlwQwdL3yp554fEL2YnfNk+g3po3exzCbgVvTAYddJd13ll1nQw+CGc6qDy6rKZIgtmorkYR5LGS481BrwkILl6kQCJSyEHpfp1KKUqMFbJFDMZRGUR+eDDkgk1MitEfvNUdHQCx1v0E8wKg42FejbVad3ZXwnsbtrLwr/U4SUoU+rWgC+zxXKNClO5Cu57HQS3dJ3OPOYhaVMZM0OyN/Zz5itIgRpGCDfVI5b024KczdJNbmTqwZXHOrk1oPrx35JvqSq0xKXxaXMgt04/vcVuppSK9+igslO81kGySc6eSoApfWrRCEpOKvbUH0RjB3oWMH+XLKK0jkZhH1uVvER+iTHJmMuoqkx6aIH5lONjCG"
+      },
       "openKey": null
     }
   }
