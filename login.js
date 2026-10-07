@@ -527,7 +527,6 @@ function renderLoginConnect() {
     '</div>' +
     '<form id="login-connect-form" class="login-connect-form" autocomplete="off">' +
     '<input id="login-connect-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
-    '<label class="login-connect-check"><input type="checkbox" id="login-connect-remember" checked> Remember on this device</label>' +
     '<div class="login-actions" id="login-connect-enter-actions" hidden><button type="submit" class="login-connect-submit">Enter</button></div>' +
     '<p class="login-err" id="login-connect-err" hidden></p></form>' +
     '<button type="button" class="login-connect-back" id="login-connect-back">Back</button>';
@@ -572,7 +571,6 @@ function leaveLoginConnect() {
 function submitLoginConnect() {
   var E = window.EloraeEdit;
   var input = document.getElementById("login-connect-token");
-  var rememberEl = document.getElementById("login-connect-remember");
   if (!E) { setConnectErr("GitHub helpers are not loaded."); return; }
   var token = String((input && input.value) || "").replace(/\s+/g, "");
   if (!token) { setConnectErr("Paste your token."); return; }
@@ -581,7 +579,7 @@ function submitLoginConnect() {
     setConnectErr("That doesn't look like a GitHub token. It should start with ghp_ or github_pat_.");
     return;
   }
-  var remember = !!(rememberEl && rememberEl.checked);
+  var remember = true;
   var login, warn = "";
   setConnectErr("Checking…");
   E.api("/user", { token: token, withHeaders: true }).then(function (r) {
