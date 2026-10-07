@@ -1,1 +1,1 @@
-login-pretty
+enter-welcome

@@ -9,13 +9,13 @@ redirect_from:
 <!doctype html>
 <html lang="en">
 <head>
-<script src="session-gate.js?v=login-pretty"></script>
+<script src="session-gate.js?v=enter-welcome"></script>
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Elorae</title>
 <link rel="stylesheet" href="styles.css?v=art96">
-<link rel="stylesheet" href="html.css?v=login-pretty">
+<link rel="stylesheet" href="html.css?v=enter-welcome">
 <script src="rail-toggle.js?v=nt26-veil"></script>
 <script src="skip-link.js?v=nt11-skip"></script>
 <link rel="icon" href="favicon.svg">
@@ -24,28 +24,35 @@ redirect_from:
 <div class="mast"><header class="topbar login-top"><span class="mark"></span></header></div>
 <main class="login-card">
 <div class="login-box">
+<p class="login-kicker" id="login-elorae">ELORAE</p>
 <form id="login-form" autocomplete="off">
 <input id="login-code" name="phrase" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">
 <div class="login-actions">
-<button type="submit" id="login-submit">Sign in</button>
+<button type="submit" id="login-submit">Enter</button>
 </div>
 </form>
 <p class="login-err" id="login-err" hidden>Try again.</p>
-<p class="login-welcome" id="login-welcome" hidden></p>
+<div class="login-swap" id="login-swap">
+<div class="login-stage" id="login-welcome-stage">
+<p class="login-welcome" id="login-welcome" hidden>Welcome</p>
+<p class="login-name" id="login-name" hidden></p>
 <div class="login-actions" id="login-gh-actions" hidden>
 <button type="button" id="login-github">Connect to GitHub</button>
 </div>
 <p class="login-gh-status" id="login-gh-status" hidden></p>
+</div>
+<div class="login-stage" id="login-connect" hidden></div>
+</div>
 <button type="button" id="login-guest" class="login-guest">Guest</button>
 </div>
 </main>
-<!-- Phrase sign-in + optional guest browse; welcome + Connect stay on login. -->
-<script src="edit/core.js?v=login-pretty"></script>
-<script src="edit/crypto.js?v=login-pretty"></script>
+<!-- Phrase enter + optional guest browse; welcome + Connect in-box fade; ELORAE kicker. -->
+<script src="edit/core.js?v=enter-welcome"></script>
+<script src="edit/crypto.js?v=enter-welcome"></script>
 <script src="edit/vis.js?v=e11"></script>
-<script src="login.js?v=login-pretty"></script>
+<script src="login.js?v=enter-welcome"></script>
 <canvas id="friend-glow"></canvas>
 <script src="glow.js?v=glow5"></script>
-<script src="edit/edit.js?v=e11" defer></script>
+<script src="edit/edit.js?v=enter-welcome" defer></script>
 </body>
 </html>

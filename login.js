@@ -159,7 +159,7 @@ function ensureLogout() {
   return btn;
 }
 
-/* Quiet leave-guest: reuse logout slot as "Sign in" when browsing as guest. */
+/* Quiet leave-guest: reuse logout slot as "Enter" when browsing as guest. */
 function ensureGuestExit() {
   var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
   if (!mark) return null;
@@ -169,7 +169,7 @@ function ensureGuestExit() {
     btn.type = "button";
     btn.id = "login-guest-exit";
     btn.className = "login-logout login-guest-exit";
-    btn.textContent = "Sign in";
+    btn.textContent = "Enter";
     mark.appendChild(btn);
     btn.addEventListener("click", function () {
       clearGuest();
@@ -191,18 +191,35 @@ function applyLogin() {
 
   var form = document.getElementById("login-form");
   var welcome = document.getElementById("login-welcome");
+  var nameEl = document.getElementById("login-name");
   var guestBtn = document.getElementById("login-guest");
+  var connect = document.getElementById("login-connect");
+  var welcomeStage = document.getElementById("login-welcome-stage");
   if (form) form.hidden = !!who;
   if (guestBtn) guestBtn.hidden = !!who;
+  if (connect && !GH_CONNECTING) {
+    connect.hidden = true;
+    connect.innerHTML = "";
+  }
+  if (welcomeStage && who && (!connect || connect.hidden)) welcomeStage.hidden = false;
   if (welcome) {
     if (who) {
-      welcome.textContent = "Welcome, " + (NAMES[who] || who);
+      welcome.textContent = "Welcome";
       welcome.hidden = false;
     } else {
       welcome.hidden = true;
-      welcome.textContent = "";
     }
   }
+  if (nameEl) {
+    if (who) {
+      nameEl.textContent = NAMES[who] || who;
+      nameEl.hidden = false;
+    } else {
+      nameEl.hidden = true;
+      nameEl.textContent = "";
+    }
+  }
+  if (!who) document.body.classList.remove("login-connecting");
 
   var logout = ensureLogout();
   if (logout) logout.hidden = who !== "devin";
@@ -310,16 +327,20 @@ function ensureProfileGithub(who) {
 function syncGithubUI(who) {
   if (!who || isGuest()) { hideGithubUI(); return; }
 
-  /* Login page: Connect only under Welcome after phrase sign-in (never on phrase/guest). */
+  /* Login page: Connect only under Welcome after phrase enter (never on phrase/guest/connect). */
   if (document.body.classList.contains("login-page")) {
     var loginActions = document.getElementById("login-gh-actions");
     var loginBtn = document.getElementById("login-github");
     var welcome = document.getElementById("login-welcome");
     var form = document.getElementById("login-form");
+    var connect = document.getElementById("login-connect");
+    var welcomeStage = document.getElementById("login-welcome-stage");
     var prof = document.getElementById("profile-gh-actions");
     if (prof) prof.hidden = true;
     if (!loginActions) return;
-    var onWelcome = !!(who && welcome && !welcome.hidden && form && form.hidden);
+    var connecting = !!(connect && !connect.hidden);
+    var onWelcome = !!(who && welcome && !welcome.hidden && form && form.hidden && !connecting);
+    if (welcomeStage && !connecting) welcomeStage.hidden = false;
     if (!onWelcome || githubConnected()) {
       loginActions.hidden = true;
       if (loginBtn) loginBtn.hidden = true;
@@ -350,10 +371,21 @@ function syncGithubUI(who) {
 function showSignedOutUI() {
   var form = document.getElementById("login-form");
   var welcome = document.getElementById("login-welcome");
+  var nameEl = document.getElementById("login-name");
   var guestBtn = document.getElementById("login-guest");
+  var connect = document.getElementById("login-connect");
+  var welcomeStage = document.getElementById("login-welcome-stage");
   if (form) form.hidden = false;
   if (guestBtn) guestBtn.hidden = false;
-  if (welcome) { welcome.hidden = true; welcome.textContent = ""; }
+  if (welcome) welcome.hidden = true;
+  if (nameEl) { nameEl.hidden = true; nameEl.textContent = ""; }
+  if (connect) { connect.hidden = true; connect.innerHTML = ""; }
+  if (welcomeStage) {
+    welcomeStage.hidden = false;
+    welcomeStage.style.opacity = "";
+    welcomeStage.classList.remove("login-stage-abs");
+  }
+  document.body.classList.remove("login-connecting");
   hideGithubUI();
   GH_CONNECTING = false;
   loginClearErr();
@@ -427,9 +459,182 @@ function loadManifest() {
   return V.manifest(false).catch(function () { return null; });
 }
 
+function escHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+function profileForGh(doc, login) {
+  if (!login) return null;
+  var src = (doc && doc.profiles) || {};
+  var key = String(login).toLowerCase();
+  if (src[key] && typeof src[key] === "object") return src[key];
+  var keys = Object.keys(src);
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i];
+    if (k.charAt(0) === "_" || k.indexOf("//") === 0) continue;
+    if (k.toLowerCase() === key && src[k] && typeof src[k] === "object") return src[k];
+  }
+  return null;
+}
+
+function loginStageCrossfade(fromEl, toEl, done) {
+  if (!toEl) { if (done) done(); return; }
+  var ms = 420;
+  toEl.hidden = false;
+  toEl.style.opacity = "0";
+  if (fromEl) {
+    fromEl.classList.add("login-stage-abs");
+    toEl.classList.add("login-stage-abs");
+    fromEl.style.opacity = "1";
+  }
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      if (fromEl) fromEl.style.opacity = "0";
+      toEl.style.opacity = "1";
+      setTimeout(function () {
+        if (fromEl) {
+          fromEl.hidden = true;
+          fromEl.style.opacity = "";
+          fromEl.classList.remove("login-stage-abs");
+        }
+        toEl.style.opacity = "";
+        toEl.classList.remove("login-stage-abs");
+        if (done) done();
+      }, ms);
+    });
+  });
+}
+
+function setConnectErr(msg) {
+  var err = document.getElementById("login-connect-err");
+  if (!err) return;
+  if (!msg) { err.hidden = true; err.textContent = ""; return; }
+  err.textContent = msg;
+  err.hidden = false;
+}
+
+function renderLoginConnect() {
+  var box = document.getElementById("login-connect");
+  var E = window.EloraeEdit;
+  if (!box || !E) return false;
+  var L = E.TOKEN_LINKS || {};
+  box.innerHTML =
+    '<p class="login-welcome">Connect</p>' +
+    '<ol class="login-connect-steps">' +
+    '<li><a class="login-connect-btn" id="login-mint" href="' + escHtml(L.classic || "#") + '" target="_blank" rel="noopener">Make my token</a>' +
+    '<span>Opens GitHub with public_repo filled in. Generate, then copy.</span></li>' +
+    '<li><span>Paste it here</span>' +
+    '<form id="login-connect-form" autocomplete="off">' +
+    '<input id="login-connect-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
+    '<label class="login-connect-check"><input type="checkbox" id="login-connect-remember" checked> Remember on this device</label>' +
+    '<div class="login-actions"><button type="submit" class="login-connect-submit">Enter</button></div>' +
+    '<p class="login-err" id="login-connect-err" hidden></p></form></li>' +
+    '</ol>' +
+    '<button type="button" class="login-connect-back" id="login-connect-back">Back</button>';
+  var form = document.getElementById("login-connect-form");
+  if (form) form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    submitLoginConnect();
+  });
+  var back = document.getElementById("login-connect-back");
+  if (back) back.addEventListener("click", function (e) {
+    e.preventDefault();
+    leaveLoginConnect();
+  });
+  return true;
+}
+
+function leaveLoginConnect() {
+  GH_CONNECTING = false;
+  var welcomeStage = document.getElementById("login-welcome-stage");
+  var connect = document.getElementById("login-connect");
+  document.body.classList.remove("login-connecting");
+  loginStageCrossfade(connect, welcomeStage, function () {
+    if (connect) { connect.innerHTML = ""; connect.hidden = true; }
+    syncGithubUI(readLoginWho());
+  });
+}
+
+function submitLoginConnect() {
+  var E = window.EloraeEdit;
+  var input = document.getElementById("login-connect-token");
+  var rememberEl = document.getElementById("login-connect-remember");
+  if (!E) { setConnectErr("GitHub helpers are not loaded."); return; }
+  var token = String((input && input.value) || "").replace(/\s+/g, "");
+  if (!token) { setConnectErr("Paste your token."); return; }
+  var kind = E.tokenKind(token);
+  if (kind === "unknown") {
+    setConnectErr("That doesn't look like a GitHub token. It should start with ghp_ or github_pat_.");
+    return;
+  }
+  var remember = !!(rememberEl && rememberEl.checked);
+  var login, warn = "";
+  setConnectErr("Checking…");
+  E.api("/user", { token: token, withHeaders: true }).then(function (r) {
+    login = r.data.login;
+    var scopes = (r.scopes || "").split(/\s*,\s*/).filter(Boolean);
+    if (kind === "classic" && scopes.indexOf("repo") >= 0) {
+      warn = "This token can write to all your repositories. A token with only public_repo is enough.";
+    }
+    if (kind === "classic" && scopes.indexOf("repo") < 0 && scopes.indexOf("public_repo") < 0) {
+      throw new Error("This token is missing the public_repo permission. Make a new one with Make my token.");
+    }
+    return E.api(E.repoPath(""), { token: token }).catch(function (err) {
+      if (err.status === 404 || err.status === 403) {
+        throw new Error(kind === "fine-grained"
+          ? "GitHub doesn't let fine-grained tokens edit a repository owned by another person. Use Make my token (classic public_repo)."
+          : "This token can't reach " + E.REPO + ".");
+      }
+      throw err;
+    });
+  }).then(function (repo) {
+    if (!repo.permissions || !repo.permissions.push) {
+      throw new Error(kind === "fine-grained"
+        ? "This fine-grained token can't write here. Use Make my token."
+        : "@" + login + " isn't a collaborator on the site yet. Accept the invitation, then enter again.");
+    }
+    return E.api(E.repoPath("/contents/edit/profiles.json?ref=" + E.BRANCH), { token: token });
+  }).then(function (d) {
+    var raw = E.b64DecodeUtf8(d.content);
+    var doc = JSON.parse(raw);
+    var pr = profileForGh(doc, login);
+    if (!pr) throw new Error("Connected to GitHub as @" + login + ", but there's no edit profile for you yet. Ask Devin to add @" + login + ".");
+    E.session.set({
+      token: token, login: login, remember: remember,
+      person: pr.person || "", role: pr.role || "", kind: kind, warn: warn,
+      since: new Date().toISOString()
+    });
+    try { window.dispatchEvent(new Event("elorae-edit-session")); } catch (e) {}
+  }).catch(function (err) {
+    setConnectErr(err.status === 401
+      ? "GitHub didn't accept that token. It may be mistyped, expired or deleted."
+      : (err.message || "Enter failed."));
+  });
+}
+
 function goConnectGithub() {
   loginClearErr();
   GH_CONNECTING = true;
+  /* Login page: fade Welcome → Connect inside the same box (no #edit popup). */
+  if (document.body.classList.contains("login-page")) {
+    setGhStatus("");
+    document.body.classList.add("login-connecting");
+    if (!renderLoginConnect()) {
+      GH_CONNECTING = false;
+      document.body.classList.remove("login-connecting");
+      setGhStatus("GitHub helpers are not loaded.", "err");
+      return;
+    }
+    var welcomeStage = document.getElementById("login-welcome-stage");
+    var connect = document.getElementById("login-connect");
+    loginStageCrossfade(welcomeStage, connect, function () {
+      var t = document.getElementById("login-connect-token");
+      if (t) try { t.focus(); } catch (e) {}
+    });
+    return;
+  }
   setGhStatus("Connect with the GitHub panel…", "info");
   try {
     if (location.hash === "#edit") {
@@ -444,6 +649,14 @@ function goConnectGithub() {
 
 function onGithubConnected(who) {
   GH_CONNECTING = false;
+  document.body.classList.remove("login-connecting");
+  var connect = document.getElementById("login-connect");
+  var welcomeStage = document.getElementById("login-welcome-stage");
+  if (connect && !connect.hidden) {
+    connect.hidden = true;
+    connect.innerHTML = "";
+  }
+  if (welcomeStage) welcomeStage.hidden = false;
   setGhStatus("GitHub connected", "ok");
   syncGithubUI(who);
   GH_STATUS_TIMER = setTimeout(function () {
@@ -465,7 +678,7 @@ function onGithubFailed(msg) {
 
 applyLogin();
 
-/* Login page: phrase sign-in, welcome + optional Connect, guest browse. */
+/* Login page: phrase enter, welcome + optional Connect (in-box), guest browse. */
 if (document.body.classList.contains("login-page")) {
   var form = document.getElementById("login-form");
   var phraseInput = document.getElementById("login-code");
@@ -520,7 +733,7 @@ if (document.body.classList.contains("login-page")) {
   if (ghBtn) ghBtn.addEventListener("click", function (e) {
     e.preventDefault();
     var who = readLoginWho();
-    if (!who) { loginErr("Sign in with your phrase first."); return; }
+    if (!who) { loginErr("Enter with your phrase first."); return; }
     if (githubConnected()) {
       syncGithubUI(who);
       return;
@@ -541,14 +754,9 @@ if (document.body.classList.contains("login-page")) {
     }
   });
 
-  window.addEventListener("hashchange", function () {
-    if (!GH_CONNECTING) return;
-    if (location.hash === "#edit") return;
-    if (githubConnected()) return;
-    onGithubFailed("GitHub connection cancelled.");
-  });
+  /* In-box Connect: no #edit popup, so hash cancel does not apply on the login page. */
 
-  /* Already signed in on login → Welcome (+ Connect if needed); guest/unsigned see phrase form. */
+  /* Already entered on login → Welcome (+ Connect if needed); guest/unsigned see phrase form. */
 } else {
   /* Non-login pages: GitHub connect on own profile + OAuth result handling. */
   var whoElse = readLoginWho();

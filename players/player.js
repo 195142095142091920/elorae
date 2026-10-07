@@ -234,13 +234,13 @@
     /* Soft nudge: signed in as this player (or viewing own page) but no published key yet. */
     if (v && v === slug && !vEnrolled) {
       var tip = el("p", "nt-pl-keytip");
-      tip.appendChild(document.createTextNode("Sign in with your phrase so Devin can publish your secrets key. "));
-      tip.appendChild(link("login.html", "Sign in"));
+      tip.appendChild(document.createTextNode("Enter with your phrase so Devin can publish your secrets key. "));
+      tip.appendChild(link("login.html", "Enter"));
       root.appendChild(tip);
     } else if (v && v === slug && vEnrolled && !myKey) {
       var tip2 = el("p", "nt-pl-keytip");
-      tip2.appendChild(document.createTextNode("Sign in with your phrase to unlock secrets. "));
-      tip2.appendChild(link("login.html", "Sign in"));
+      tip2.appendChild(document.createTextNode("Enter with your phrase to unlock secrets. "));
+      tip2.appendChild(link("login.html", "Enter"));
       root.appendChild(tip2);
     }
   }).catch(function () {});

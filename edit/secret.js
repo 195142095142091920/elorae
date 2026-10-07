@@ -44,14 +44,14 @@
     }
     show((extra ? '<p class="ee-note">' + esc(extra) + '</p>' : '') +
       '<p class="ee-who">Secrets key</p>' +
-      '<p class="ee-note">Sign in with your phrase. Your secrets key is derived automatically; Devin still needs to publish it before encrypted pages open.</p>' +
-      '<p class="ee-note"><a href="' + esc(loginHref()) + '">Sign in</a></p>');
+      '<p class="ee-note">Enter with your phrase. Your secrets key is derived automatically; Devin still needs to publish it before encrypted pages open.</p>' +
+      '<p class="ee-note"><a href="' + esc(loginHref()) + '">Enter</a></p>');
   }
 
   function needSignIn(title, msg) {
     show((title ? '<p class="ee-who">' + esc(title) + '</p>' : '') +
-      '<p class="ee-note">' + esc(msg || "Sign in with your phrase to open this.") + '</p>' +
-      '<p class="ee-note"><a href="' + esc(loginHref()) + '">Sign in</a></p>');
+      '<p class="ee-note">' + esc(msg || "Enter with your phrase to open this.") + '</p>' +
+      '<p class="ee-note"><a href="' + esc(loginHref()) + '">Enter</a></p>');
   }
 
   function open(man, id) {
@@ -67,7 +67,7 @@
 
     var mine = V.myKey.get();
     if (!mine) {
-      return needSignIn(sec.title, "Sign in with your phrase to unlock your secrets key, then open this page.");
+      return needSignIn(sec.title, "Enter with your phrase to unlock your secrets key, then open this page.");
     }
 
     return V.myKey.privateKey().then(function (priv) {
@@ -98,7 +98,7 @@
       var personRec = who && man.people && man.people[who];
       if (who && personRec && !personRec.key) return finishKeySetup();
       if (V.myKey.get()) return show('<p class="ee-note">Your secrets key is unlocked. Open a shared link to read a page.</p>');
-      return needSignIn("", "Sign in with your phrase to unlock your secrets key.");
+      return needSignIn("", "Enter with your phrase to unlock your secrets key.");
     }
     return open(man, id);
   }).catch(function () { show('<p class="ee-err">Could not load.</p>'); });

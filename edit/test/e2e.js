@@ -166,11 +166,11 @@ async function signInViaPanel(page, token) {
       await page2.waitForSelector("#ee-bar.ee-expired", { timeout: 10000 });
       const exp = await page2.textContent("#ee-bar");
       const gone = await page2.evaluate(() => !localStorage.getItem("elorae-edit-session") && !sessionStorage.getItem("elorae-edit-session"));
-      check("expired token: friendly 'sign in again' prompt, token forgotten, no EDIT", /expired/.test(exp) && gone && !(await page2.$("#ee-glyph")), exp.trim().slice(0, 90));
+      check("expired token: friendly 'enter again' prompt, token forgotten, no EDIT", /expired/.test(exp) && gone && !(await page2.$("#ee-glyph")), exp.trim().slice(0, 90));
       await page2.screenshot({ path: `${SHOTS}/expired-desktop.png` });
       await page2.click("#ee-resign");
       await page2.waitForSelector("#ee-panel:not([hidden]) #ee-token");
-      check("expired token: 'Sign in again' opens the steps with an explanation", /expired or was deleted/.test(await page2.textContent("#ee-body")));
+      check("expired token: 'Enter again' opens the steps with an explanation", /expired or was deleted/.test(await page2.textContent("#ee-body")));
       mock.tokens["ghp_test_sawyer"] = "sawyer-gh";
       // broad classic token warning + sign out
       await page2.fill("#ee-token", "ghp_test_broad"); await page2.click("#ee-form button[type=submit]");
@@ -650,12 +650,12 @@ async function signInViaPanel(page, token) {
     }
 
         
-        /* Dashboard sign-out: clear dash state, Sign in only; keep V.myKey; re-boot after queue. */
+        /* Dashboard sign-out: clear dash state, Enter only; keep V.myKey; re-boot after queue. */
         {
           const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
           const page = await ctx.newPage();
           await page.goto(BASE + "edit/dashboard.html", { waitUntil: "networkidle" });
-          await page.waitForFunction(() => (document.querySelectorAll("tr[data-row]").length >= 1) || /Sign in/.test((document.getElementById("ee-dash-main") || {}).innerText || ""), null, { timeout: 15000 });
+          await page.waitForFunction(() => (document.querySelectorAll("tr[data-row]").length >= 1) || /Enter/.test((document.getElementById("ee-dash-main") || {}).innerText || ""), null, { timeout: 15000 });
           const before = await page.evaluate(() => (document.querySelectorAll("tr[data-row]").length));
           check("dashboard sign-out setup: secrets table loaded", before >= 1, "rows=" + before);
           await page.evaluate(() => { try { sessionStorage.setItem("elorae-secret-key", JSON.stringify({ person: "devin", jwk: { kty: "RSA" } })); } catch (e) {} });
@@ -665,7 +665,7 @@ async function signInViaPanel(page, token) {
           await page.click("#ee-signout");
           await page.waitForFunction(() => {
             const t = (document.getElementById("ee-dash-main") || {}).innerText || "";
-            return /Sign in/i.test(t) && !/Your key/i.test(t) && document.querySelectorAll("tr[data-row]").length === 0;
+            return /Enter/i.test(t) && !/Your key/i.test(t) && document.querySelectorAll("tr[data-row]").length === 0;
           }, null, { timeout: 10000 });
           const after = await page.evaluate(() => ({
             main: (document.getElementById("ee-dash-main") || {}).innerText || "",
@@ -674,7 +674,7 @@ async function signInViaPanel(page, token) {
             sess: sessionStorage.getItem("elorae-edit-session") || localStorage.getItem("elorae-edit-session"),
             hasSignIn: !!document.getElementById("ee-in")
           }));
-          check("dashboard sign-out: Sign in only (no secrets table)", after.rows === 0 && after.hasSignIn && /Sign in/i.test(after.main));
+          check("dashboard sign-out: Enter only (no secrets table)", after.rows === 0 && after.hasSignIn && /Enter/i.test(after.main));
           check("dashboard sign-out: edit session cleared", !after.sess);
           check("dashboard sign-out: V.myKey preserved", !!after.key && /devin/.test(after.key));
           // Sign back in via panel → dashboard re-boots

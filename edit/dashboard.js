@@ -26,7 +26,7 @@
 
   function showSignedOut() {
     clearDashState();
-    main.innerHTML = '<p class="ee-note">Sign in with your GitHub token to use the dashboard.</p><div class="ee-row"><button class="ee-btn ee-primary" id="ee-in">Sign in</button></div>';
+    main.innerHTML = '<p class="ee-note">Enter with your GitHub token to use the dashboard.</p><div class="ee-row"><button class="ee-btn ee-primary" id="ee-in">Enter</button></div>';
     var btn = $("ee-in");
     if (btn) btn.onclick = function () { window.EloraeEditor.openPanel(); };
   }
@@ -41,7 +41,7 @@
       st.profile = P.profileFor(JSON.parse(f.text), s.login);
       if (!P.isAdmin(st.profile)) {
         clearDashState();
-        main.innerHTML = '<p class="ee-note">The dashboard is only for admins.</p><div class="ee-row"><button class="ee-btn ee-primary" id="ee-in">Sign in</button></div>';
+        main.innerHTML = '<p class="ee-note">The dashboard is only for admins.</p><div class="ee-row"><button class="ee-btn ee-primary" id="ee-in">Enter</button></div>';
         var btn = $("ee-in");
         if (btn) btn.onclick = function () { window.EloraeEditor.openPanel(); };
         return false;
@@ -332,7 +332,7 @@
       '<section class="ee-sec"><h2>Secrets</h2><div class="ee-scroll"><table class="ee-table"><thead><tr><th>Title</th><th>Owner</th><th>Can see</th><th>Share</th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
       mediaSection() +
       '<section class="ee-sec"><h2>People</h2><ul class="ee-people">' + ppl + '</ul>' +
-      '<p class="ee-note">Invite each player with their GitHub username (Write access + bind <code>profiles.json</code>). Then they sign in at <a href="../login.html?enroll">login</a> (phrase derives the key) and send you the enrollment code from the secret viewer if needed. Paste it here.</p>' +
+      '<p class="ee-note">Invite each player with their GitHub username (Write access + bind <code>profiles.json</code>). Then they enter at <a href="../login.html?enroll">login</a> (phrase derives the key) and send you the enrollment code from the secret viewer if needed. Paste it here.</p>' +
       '<form id="ee-add"><textarea class="ee-code" id="ee-addcode" placeholder="Enrollment code"></textarea><div class="ee-row"><button class="ee-btn ee-primary" type="submit"' + (st.busy ? " disabled" : "") + '>Add key</button></div></form></section>';
     bind();
   }

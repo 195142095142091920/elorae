@@ -30,7 +30,7 @@ body.login-devin .private-journal{display:block}
 
 body.login-page{background:#070707}
 .login-card{min-height:calc(100vh - 72px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.login-kicker{margin:0 0 18px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:#8f8a82}
+.login-kicker{margin:0 0 18px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.28em;text-transform:uppercase;font-size:12px;color:#8f8a82;text-align:center;width:100%}
 #login-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;text-align:center;padding:8px 0}
 .login-card button{margin-top:18px;background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 .filters a,.toc a,#section-bar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
@@ -4876,22 +4876,27 @@ body.player-page #nt-player {
    (same specificity as UA [hidden]; author rule wins and leaked Connect on login prompt). */
 body.login-page #login-gh-actions[hidden],
 body.login-page #login-welcome[hidden],
+body.login-page #login-name[hidden],
 body.login-page #login-gh-status[hidden],
 body.login-page #login-guest[hidden],
 body.login-page #login-err[hidden],
+body.login-page #login-connect[hidden],
+body.login-page #login-welcome-stage[hidden],
 body.login-page .login-actions[hidden] {
   display: none !important;
 }
 
-/* Login chrome: phrase + sign-in only — no friend/player names in the mast. */
+/* Login chrome: phrase + enter only — no friend/player names in the mast. */
 body.login-page .mast .friend{display:none!important}
 body.login-page .mast .nt-pmark{display:none!important}
 body.login-page .login-gh-status{margin-top:14px;font-size:12px;letter-spacing:.08em;color:#8f8a82;text-align:center}
 body.login-page .login-gh-status[data-kind=ok]{color:#c8e0c0}
 body.login-page .login-gh-status[data-kind=err]{color:#e0a8a0}
 body.login-page #login-welcome{text-align:center;letter-spacing:.12em}
+body.login-page #login-name{text-align:center;margin:0 0 18px}
+body.login-page #login-elorae{flex:0 0 auto;margin:0 0 22px;align-self:center}
 
-/* Login: Guest sits center-bottom of the square box (not beside Sign in). */
+/* Login: Guest sits center-bottom of the square box (not beside Enter). */
 body.login-page .login-box #login-guest{
   position:absolute;
   left:50%;
@@ -4904,7 +4909,7 @@ body.login-page .login-box #login-guest{
   body.login-page .login-box #login-guest{bottom:22px}
 }
 
-/* Login actions: Sign in (primary) + Guest (secondary). */
+/* Login actions: Enter (primary) + Guest (secondary). */
 .login-actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;align-items:center;margin-top:18px}
 .login-actions button,.login-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;cursor:pointer}
 .login-actions button.login-guest,button.login-guest{
@@ -4932,3 +4937,56 @@ body.login-guest .login-guest-exit:hover,body.login-guest .login-guest-exit:focu
   .login-actions button:not(.login-guest),.login-copy{min-height:44px;min-width:88px;padding:12px 20px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
   .login-actions button.login-guest,button.login-guest{min-height:36px;padding:8px 12px}
 }
+
+
+/* Login: static centered box; Welcome ↔ Connect crossfade in one window. */
+body.login-page .login-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+body.login-page .login-box{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+body.login-page .login-swap{
+  position:relative;width:100%;flex:1 1 auto;min-height:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+body.login-page .login-stage{
+  width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .42s ease;
+}
+body.login-page .login-stage.login-stage-abs{
+  position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+}
+body.login-page.login-connecting .login-box{
+  aspect-ratio:auto;min-height:400px;height:auto;padding-top:36px;padding-bottom:36px;
+}
+body.login-page .login-connect-steps{
+  list-style:none;margin:0;padding:0;width:100%;max-width:280px;text-align:left;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#8f8a82;
+}
+body.login-page .login-connect-steps li{margin:0 0 16px}
+body.login-page .login-connect-steps li > span{display:block;margin:8px 0 0;letter-spacing:.02em}
+body.login-page .login-connect-btn,
+body.login-page .login-connect-submit,
+body.login-page .login-connect-back{
+  appearance:none;-webkit-appearance:none;background:none;border:0;padding:0;margin:0;cursor:pointer;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;color:#f3eee6;text-decoration:none;
+}
+body.login-page .login-connect-back{color:#8f8a82;margin-top:8px}
+body.login-page .login-connect-btn:hover,
+body.login-page .login-connect-submit:hover,
+body.login-page .login-connect-back:hover{color:#fff;text-shadow:0 0 12px rgba(243,238,230,.45)}
+body.login-page #login-connect-token{
+  box-sizing:border-box;width:100%;background:transparent;border:0;border-bottom:1px solid rgba(143,138,130,.28);
+  color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:18px;letter-spacing:.04em;
+  padding:10px 0;outline:none;text-align:center;margin-top:8px;
+}
+body.login-page #login-connect-token:focus{border-bottom-color:rgba(243,238,230,.55)}
+body.login-page .login-connect-check{
+  display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:#8f8a82;cursor:pointer;
+  letter-spacing:.02em;text-transform:none;font-weight:400;
+}
+body.login-page .login-connect-check input{accent-color:#8f8a82;margin:0}
+body.login-page #login-connect .login-actions{margin-top:14px;justify-content:center}
+body.login-page #login-connect #login-connect-err{margin-top:10px}

@@ -31,7 +31,7 @@ Permission levels in `edit/profiles.json`:
 - `"role": "admin"`: everything, including `edit/**` (profiles, visibility, secrets, keys) and `.github/**`.
 - `"role": "editor"` (a player) with `"permissions"`: exact article paths such as `"articles/vaerek.html"`, or
   `"articles/*.html"` for every article. Nothing outside `articles/` takes effect.
-- `"permissions": "view"`: can sign in but can't edit anything.
+- `"permissions": "view"`: can enter but can't edit anything.
 - `"save": "direct"` commits straight to `main`. `"save": "pr"` (the default for non-admins) creates a branch `edit/<login>/…` and opens a pull request.
 
 To give a player another article, an admin adds its exact path (for example `articles/telorin.html`) to their permissions.
@@ -57,10 +57,10 @@ To give a player another article, an admin adds its exact path (for example `art
    **Make my token**. GitHub opens with the name and the `public_repo` scope pre-filled. Pick an
    expiry (90 days is fine), leave everything else unticked (especially `workflow`), click
    **Generate token** and copy it.
-3. Paste it into step 2 of the panel and click **Sign in**. *Remember on this device* is on by
+3. Paste it into step 2 of the panel and click **Enter**. *Remember on this device* is on by
    default: after that the **EDIT** button appears on your own article pages by itself, with no
    `#edit` needed. The panel shows "Signed in as …" and the pages you can edit.
-4. When the token expires or is deleted, the site says so and offers **Sign in again**. Use
+4. When the token expires or is deleted, the site says so and offers **Enter again**. Use
    **Sign out on this device** to remove the token from that browser.
 
 The token stays in your browser (localStorage when remembered, otherwise sessionStorage) and is sent
@@ -72,7 +72,7 @@ requests: write, 90 days). The repository must be selected by hand: *Only select
 `elorae`.
 
 ## Editing
-Sign in, then click **EDIT** (bottom-right, only on pages you can edit; for players that means only
+Enter, then click **EDIT** (bottom-right, only on pages you can edit; for players that means only
 their own article pages). Article text and dossier values become editable (for Devin, codex prose,
 journal text and Index text too). On secret/private articles, Devin gets **Share** (Everyone / per-player toggles or Encrypt, same commits as the dashboard; requires unlocked secrets key) and **Owner** (assign which player may edit the page via `profiles.json`). Devin can also edit the article hero **name** (`h1`) and **epithet**
 (`.art-epithet`) in place; players cannot. Nav, other headings, links lists and structure don't. **Save** works like this:
@@ -156,7 +156,7 @@ The new layer gives real secrecy:
    choose your name and enter your passphrase.
 
 ### Setup, Devin
-1. Sign in at `edit/dashboard.html` (or the DASHBOARD link) with your token. The dashboard activates on that same page as soon as you sign in (no need to navigate away); the DASHBOARD link also appears immediately in the top nav on every content page.
+1. Enter at `edit/dashboard.html` (or the DASHBOARD link) with your token. The dashboard activates on that same page as soon as you enter (no need to navigate away); the DASHBOARD link also appears immediately in the top nav on every content page.
 2. Create your secrets key with your own passphrase. Next time, unlock it with that passphrase.
 3. Paste each person's enrollment code under **People → Add key**.
 4. **Encrypt** a secret, then use its toggles: *Everyone*, plus a checkbox per person. Each click is one

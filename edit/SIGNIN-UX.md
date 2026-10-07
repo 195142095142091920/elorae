@@ -13,15 +13,15 @@ static GitHub Pages site. No server or secret is involved unless noted.
    1. **Make my token** opens `https://github.com/settings/tokens/new?description=Elorae%20edit%20mode&scopes=public_repo`
       (a classic token with the name and `public_repo` pre-filled). The player picks an expiry and
       clicks *Generate token*, then copies it.
-   2. They paste it and click **Sign in**. *Remember on this device* is **on by default**.
+   2. They paste it and click **Enter**. *Remember on this device* is **on by default**.
 4. The editor checks the token (`GET /user`, `GET /repos/…`, `edit/profiles.json`) and shows
    **"Signed in as Sawyer @login · You can edit: Vaerek Rathkin"** (titles come from the pages
    themselves), whether saves go live directly or as a PR, and **Sign out on this device**.
 5. From then on, on that device, the **EDIT** button appears on their own article pages by itself.
    No `#edit` is needed. It never appears on other pages (articles-only ceiling) or for visitors.
 6. If the token expires or is deleted, the next page load shows a small bar: *"Your edit sign-in has
-   expired… [Sign in again]"*. The dead token is forgotten, and the button reopens the steps with an
-   explanation. If it expires mid-edit, Save keeps the edits on the page and asks them to sign in again first.
+   expired… [Enter again]"*. The dead token is forgotten, and the button reopens the steps with an
+   explanation. If it expires mid-edit, Save keeps the edits on the page and asks them to enter again first.
 
 Errors are in plain English: not a token, wrong or expired token, a fine-grained token (unsupported
 here, see below), missing `public_repo`, not yet a collaborator (with the invitations link), or no
@@ -39,7 +39,7 @@ enough" note.
 | F5 | Expired tokens failed silently or as a raw "401". | Fixed: proactive check on page load and a friendly re-sign-in. Note: GitHub's token-expiry header isn't exposed to browsers (CORS), so expiry is detected when GitHub rejects the token. |
 | F6 | Not knowing what you can edit. | Fixed: "You can edit: <their articles>" list with links. |
 | F7 | Accepting the collaborator invite is easy to miss. | Partly fixed: a specific error and an invitations link. Devin still has to send the invite. |
-| F8 | Signing in again on each device (phone and laptop). | Inherent to browser-only storage. O3/O4 would make it "click Sign in with GitHub" instead. |
+| F8 | Signing in again on each device (phone and laptop). | Inherent to browser-only storage. O3/O4 would make it "click Enter with GitHub" instead. |
 
 ## 3. Options, ranked by effort (low → high) with security notes
 
@@ -65,7 +65,7 @@ fine-grained template, and update `REPO` in `edit/core.js` and the workflow owne
 **O2. Branch protection plus required Edit-guard check (≈10 min, no code).** Not sign-in UX, but it
 makes any token leak far less harmful: non-admin changes can only reach `main` via reviewed PRs.
 
-**O3. "Sign in with GitHub" via a GitHub App plus a tiny proxy (≈half a day for Devin, ~150 lines).**
+**O3. "Enter with GitHub" via a GitHub App plus a tiny proxy (≈half a day for Devin, ~150 lines).**
 GitHub's OAuth endpoints (`github.com/login/oauth/access_token`, `github.com/login/device/code`)
 **don't send CORS headers**, so a static site can't complete OAuth or the device flow from the browser.
 It needs a small proxy, e.g. a Cloudflare Worker (free tier). What Devin would set up:
@@ -79,7 +79,7 @@ It needs a small proxy, e.g. a Cloudflare Worker (free tier). What Devin would s
 4. **Deploy the Worker** (~40 lines): `POST /token` forwards `{code}` (or the device code) plus the
    client id and secret to `https://github.com/login/oauth/access_token` and returns the JSON with
    `Access-Control-Allow-Origin: https://elorae.world`. Optional `POST /refresh` for refresh tokens.
-5. Tell me the App's client id and the Worker URL. The editor would then show a **Sign in with GitHub**
+5. Tell me the App's client id and the Worker URL. The editor would then show a **Enter with GitHub**
    button: redirect, then back with `?code=`, then the Worker, then a user-to-server token (`ghu_…`).
    It acts as the player but can only touch repos where the App is installed (just `elorae`), and only
    with Contents/PR permissions. It expires after 8 hours with a refresh token, so no tokens are copied by hand.

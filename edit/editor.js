@@ -26,7 +26,7 @@
     p = el("div", { id: "ee-panel", hidden: "" });
     p.innerHTML =
       '<div class="ee-scrim" data-ee-close="1"></div>' +
-      '<div class="ee-box" role="dialog" aria-modal="true" aria-label="Edit sign in">' +
+      '<div class="ee-box" role="dialog" aria-modal="true" aria-label="Enter">' +
       '<button type="button" class="ee-close" data-ee-close="1" aria-label="Close">' + X_SVG + '</button>' +
       '<div class="ee-body" id="ee-body"></div></div>';
     document.body.appendChild(p);
@@ -116,7 +116,7 @@
         (msg ? '<p class="ee-err">' + esc(msg) + '</p>' : '') +
         '<div class="ee-row">' + dashCtl +
         '<button type="button" class="ee-btn" id="ee-signout">Sign out on this device</button></div>' +
-        '<p class="ee-note">' + (s.remember ? "Remembered on this device. The EDIT button appears on your pages without #edit." : "Only for this tab. You'll need to sign in again after closing it.") + '</p>';
+        '<p class="ee-note">' + (s.remember ? "Remembered on this device. The EDIT button appears on your pages without #edit." : "Only for this tab. You'll need to enter again after closing it.") + '</p>';
       if ($("ee-goto-dash") && onDash) $("ee-goto-dash").onclick = function () { closePanel(); };
       $("ee-signout").onclick = function () { E.session.clear(); state.profile = null; cancelEdit(); glyph(); renderPanel("Signed out. Your token is removed from this browser.", "info"); notify(); };
       fillTitles();
@@ -132,7 +132,7 @@
       '<form id="ee-form" autocomplete="off">' +
       '<input id="ee-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
       '<label class="ee-check"><input type="checkbox" id="ee-remember" checked> Remember on this device</label>' +
-      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">Sign in</button></div>' +
+      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">Enter</button></div>' +
       '<p class="ee-err" id="ee-err" hidden></p></form></li>' +
       '</ol>' +
       '<p class="ee-note">Your token stays in this browser and is only sent to GitHub. First time? Accept the collaborator invite first: <a href="' + esc(L.invitations) + '" target="_blank" rel="noopener">invitations</a>. Site owner: a <a href="' + esc(L.fineGrained) + '" target="_blank" rel="noopener">fine-grained token</a> works too. <a href="https://github.com/' + E.REPO + '/blob/main/edit/README.md" target="_blank" rel="noopener">Help</a></p>';
@@ -169,7 +169,7 @@
       if (!repo.permissions || !repo.permissions.push) {
         throw new Error(kind === "fine-grained"
           ? "This fine-grained token can't write here. Players need a classic token from “Make my token”."
-          : "@" + login + " isn't a collaborator on the site yet. Accept the invitation (link below) or ask Devin to send one, then sign in again.");
+          : "@" + login + " isn't a collaborator on the site yet. Accept the invitation (link below) or ask Devin to send one, then enter again.");
       }
       return E.getFileWith(token, "edit/profiles.json");
     }).then(function (f) {
@@ -181,15 +181,15 @@
       notify();
       renderPanel(); glyph();
     }).catch(function (err) {
-      showErr(err.status === 401 ? "GitHub didn't accept that token. It may be mistyped, expired or deleted. Make a new one with the button above." : (err.message || "Sign-in failed."));
+      showErr(err.status === 401 ? "GitHub didn't accept that token. It may be mistyped, expired or deleted. Make a new one with the button above." : (err.message || "Enter failed."));
     });
   }
 
   // A remembered token stopped working (expired or revoked): forget it and offer a friendly re-sign-in.
   function expired() {
     E.session.clear(); state.profile = null; notify(); glyph();
-    var b = bar('<span class="ee-msg">Your edit sign-in has expired. Make a new token to keep editing.</span>' +
-      '<button type="button" class="ee-btn" id="ee-x">Not now</button><button type="button" class="ee-btn ee-primary" id="ee-resign">Sign in again</button>', "ee-expired");
+    var b = bar('<span class="ee-msg">Your edit session has expired. Make a new token to keep editing.</span>' +
+      '<button type="button" class="ee-btn" id="ee-x">Not now</button><button type="button" class="ee-btn ee-primary" id="ee-resign">Enter again</button>', "ee-expired");
     $("ee-x").onclick = closeBar;
     $("ee-resign").onclick = function () { closeBar(); openPanel("Your previous token expired or was deleted. Make a new one (step 1), then paste it (step 2).", "info"); };
   }
@@ -921,13 +921,13 @@
     }).catch(function (err) {
       var m;
       if (err.conflict || err.status === 409 || (err.status === 422 && /sha|match/i.test(err.message))) m = conflictMsg();
-      else if (err.status === 401) m = "Your sign-in expired, so nothing was saved. Keep this tab open, sign in again (Edit, then Sign in), then press Save again.";
+      else if (err.status === 401) m = "Your session expired, so nothing was saved. Keep this tab open, enter again (Edit, then Enter), then press Save again.";
       else if (err.status === 403 || err.status === 404) m = "GitHub refused the save (" + err.status + "): the token may lack Contents write access" + (mode === "pr" ? " or Pull requests access" : "") + ". Nothing was saved.";
       else m = err.message || "Save failed. Nothing was saved.";
       editBar(m, "ee-bad-bar");
       if (err.status === 401) {
         E.session.clear(); notify();
-        openPanel("Your token expired or was deleted. Make a new one, sign in, then press Save again. Your edits are still on the page.", "info");
+        openPanel("Your token expired or was deleted. Make a new one, enter, then press Save again. Your edits are still on the page.", "info");
       }
     }).then(function () { state.busy = false; });
   }
