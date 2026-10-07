@@ -475,19 +475,28 @@ function afterIdentity(who, phrase, man) {
   applyLogin();
   syncGithubUI(who);
 
-  if (!K || !V) return Promise.resolve();
+  var linked = githubConnected(who);
+  function afterKeys() {
+    if (linked) scheduleProfileRedirect(who);
+  }
+
+  if (!K || !V) { afterKeys(); return Promise.resolve(); }
 
   if (hasKey) {
     return unlockWithPhrase(man, who, phrase).then(function () {
-      /* unlocked */
+      afterKeys();
     }, function () {
       /* Old key wrapped with a different passphrase: leave dashboard path intact. */
+      afterKeys();
     });
   }
 
   /* No published key yet: derive + stash locally for Devin; nothing shown on login. */
-  return silentEnroll(who, phrase).catch(function () {
+  return silentEnroll(who, phrase).then(function () {
+    afterKeys();
+  }, function () {
     /* Identity still sticks; key can be retried later. */
+    afterKeys();
   });
 }
 
@@ -710,6 +719,20 @@ function goConnectGithub() {
   }
 }
 
+
+/* Already GitHub-linked: brief Welcome, then profile (no Connect). */
+function scheduleProfileRedirect(who) {
+  if (!who || !document.body.classList.contains("login-page")) return;
+  syncGithubUI(who);
+  if (GH_STATUS_TIMER) { clearTimeout(GH_STATUS_TIMER); GH_STATUS_TIMER = null; }
+  GH_STATUS_TIMER = setTimeout(function () {
+    GH_STATUS_TIMER = null;
+    var dest = profileHref(who);
+    if (location.pathname.indexOf("/players/" + who) >= 0) return;
+    location.href = dest;
+  }, 900);
+}
+
 function onGithubConnected(who) {
   GH_CONNECTING = false;
   document.body.classList.remove("login-connecting");
@@ -722,16 +745,7 @@ function onGithubConnected(who) {
   }
   if (welcomeStage) welcomeStage.hidden = false;
   setGhStatus("GitHub connected", "ok");
-  syncGithubUI(who);
-  GH_STATUS_TIMER = setTimeout(function () {
-    var dest = profileHref(who);
-    if (location.pathname.indexOf("/players/" + who) >= 0) {
-      setGhStatus("");
-      syncGithubUI(who);
-    } else {
-      location.href = dest;
-    }
-  }, 900);
+  scheduleProfileRedirect(who);
 }
 
 function onGithubFailed(msg) {
@@ -835,7 +849,9 @@ if (document.body.classList.contains("login-page")) {
 
   /* In-box Connect: no #edit popup, so hash cancel does not apply on the login page. */
 
-  /* Already entered on login → Welcome (+ Connect if needed); guest/unsigned see phrase form. */
+  /* Already entered + GitHub-linked → Welcome then profile (no Connect). */
+  var whoLinked = readLoginWho();
+  if (whoLinked && githubConnected(whoLinked)) scheduleProfileRedirect(whoLinked);
 } else {
   /* Non-login pages: GitHub connect on own profile + OAuth result handling. */
   var whoElse = readLoginWho();
