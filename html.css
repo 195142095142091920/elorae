@@ -5139,8 +5139,8 @@ body.article .art-body .ee-caption, body.book .read .ee-caption, body.journal-pa
 body.article .art-body .ee-quote, .read .ee-quote { display: block; margin: 0.5em 0; font-style: italic; color: #e4ddd2; }
 body.article .art-body .ee-serif, .read .ee-serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; }
 body.article .art-body .ee-sans, .read .ee-sans { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
-body.article .art-body .ee-size-sm, .read .ee-size-sm { font-size: 0.85em; }
-body.article .art-body .ee-size-lg, .read .ee-size-lg { font-size: 1.2em; }
+body.article .art-body .ee-size-sm, .read .ee-size-sm { font-size: 0.9em; }
+body.article .art-body .ee-size-lg, .read .ee-size-lg { font-size: 1.3em; }
 body.article .art-body img, body.book .read img, body.journal-page .read img { max-width: 100%; height: auto; }
 
 /* Nav Enter: soft white glow (gentle; not sharp). */
@@ -5210,3 +5210,10 @@ body.login-page.login-gh-connected #login-gh-actions,
 body.login-page.login-gh-connected #login-github {
   display: none !important;
 }
+
+/* Article body text base = reading size (Medium), so typed/pasted lines without a class
+   read the same as Lore; empty Lore paragraph keeps a line so the caret can land in it. */
+body.article .art-sec { font-size: 17px; line-height: 1.65; }
+body.article .art-life:empty { min-height: 1.65em; }
+@media (min-width: 801px) { body.article .art-sec { font-size: 18px; line-height: 1.75; } }
+@media (max-width: 800px) { body.article .art-sec { font-size: 16px; } }

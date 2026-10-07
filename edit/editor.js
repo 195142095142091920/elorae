@@ -338,6 +338,18 @@
           state.page.locks[i] = n.outerHTML;
         });
         document.documentElement.classList.add("ee-editing", "ee-page-editing");
+        // New lines become real paragraphs (body size), not bare divs.
+        try { document.execCommand("defaultParagraphSeparator", false, "p"); } catch (e0) {}
+        // Empty article: put the caret inside the first empty Lore paragraph so typing
+        // starts at body size instead of extending the small "Lore" heading.
+        try {
+          var emptyP = mainEl.querySelector("p.art-life:empty, .read p:empty");
+          if (emptyP) {
+            mainEl.focus();
+            var r0 = document.createRange(); r0.setStart(emptyP, 0); r0.collapse(true);
+            var s0 = window.getSelection(); s0.removeAllRanges(); s0.addRange(r0);
+          }
+        } catch (e1) {}
         document.addEventListener("keydown", onKey, true);
         document.addEventListener("paste", onPaste, true);
         document.addEventListener("click", onClick, true);
@@ -405,13 +417,13 @@
 
   /* ---------------- Styling toolbar (caret block) ---------------- */
   var STYLE_FONTS = [
-    { id: "serif", label: "Serif", cls: "ee-serif" },
-    { id: "sans", label: "Sans", cls: "ee-sans" }
+    { id: "serif", label: "Serif \u2014 Iowan Old Style", cls: "ee-serif" },
+    { id: "sans", label: "Sans-serif \u2014 Helvetica Neue", cls: "ee-sans" }
   ];
   var STYLE_SIZES = [
-    { id: "sm", label: "S", cls: "ee-size-sm" },
-    { id: "md", label: "M", cls: "" },
-    { id: "lg", label: "L", cls: "ee-size-lg" }
+    { id: "sm", label: "Small", cls: "ee-size-sm" },
+    { id: "md", label: "Medium (default)", cls: "" },
+    { id: "lg", label: "Large", cls: "ee-size-lg" }
   ];
   var STYLE_BLOCKS = [
     { id: "p", label: "P", cls: "" },
@@ -478,21 +490,21 @@
     b.innerHTML =
       '<select id="ee-font" aria-label="Font" title="Font">' +
         '<option value="">Font</option>' +
-        '<option value="serif">Serif</option>' +
-        '<option value="sans">Sans</option>' +
+        '<option value="serif">Serif \u2014 Iowan Old Style</option>' +
+        '<option value="sans">Sans-serif \u2014 Helvetica Neue</option>' +
       '</select>' +
       '<select id="ee-size" aria-label="Size" title="Size">' +
         '<option value="">Size</option>' +
-        '<option value="sm">S</option>' +
-        '<option value="md">M</option>' +
-        '<option value="lg">L</option>' +
+        '<option value="sm">Small</option>' +
+        '<option value="md">Medium (default)</option>' +
+        '<option value="lg">Large</option>' +
       '</select>' +
       '<select id="ee-block" aria-label="Block style" title="Block">' +
         '<option value="">Block</option>' +
-        '<option value="p">P</option>' +
-        '<option value="h2">H2</option>' +
-        '<option value="h3">H3</option>' +
-        '<option value="cap">Cap</option>' +
+        '<option value="p">Paragraph</option>' +
+        '<option value="h2">Heading</option>' +
+        '<option value="h3">Subheading</option>' +
+        '<option value="cap">Caption</option>' +
       '</select>' +
       '<button type="button" class="ee-glyph-btn" id="ee-bold" title="Bold" aria-label="Bold"><b>B</b></button>' +
       '<button type="button" class="ee-glyph-btn" id="ee-italic" title="Italic" aria-label="Italic"><i>I</i></button>' +
