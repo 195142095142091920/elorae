@@ -1,1 +1,1 @@
-connect-welcome-only
+login-pretty

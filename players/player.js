@@ -5,7 +5,7 @@
    - combined: one card row of editable (profiles.json) + secret (visibility.json) articles
      below under a "My Articles" heading. Each card: image, title, and a type mark (edit / secret / both). No epithet.
      Subjects already in Characters are excluded. Secrets only when the viewer has unlocked
-     them (this player or GM) and only those also open to the viewer — nothing sealed in
+     them (this player or GM) and only those also open to the viewer — nothing private in
      static HTML.
    No "Plays …" subtitle. No Articles / separate Editor / Secrets sections.
    Renders inside <aside> (edit mode srcmap skips). Dashboard chrome CSS lives in html.css
@@ -21,7 +21,7 @@
   function link(href, t) { var a = el("a", null, t); a.href = url(href); return a; }
   function doc(p) { return fetch(url(p)).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
     .then(function (t) { return new DOMParser().parseFromString(t, "text/html"); }); }
-  function viewer() { try { return localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
+  function viewer() { try { return localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
   function prettyPath(p) {
     var m = /articles\/([^\/]+)\.html$/.exec(p);
     if (!m) return p;
@@ -144,7 +144,7 @@
   function fillCharCard(box, path, fallbackName) {
     doc(path).then(function (d) {
       var main = d.querySelector("main.art-body");
-      if (main && main.classList.contains("sealed")) { box.remove(); return; }
+      if (main && main.classList.contains("private")) { box.remove(); return; }
       var hero = d.querySelector(".art-hero img");
       if (hero) {
         var ln = link(path, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
@@ -235,12 +235,12 @@
     if (v && v === slug && !vEnrolled) {
       var tip = el("p", "nt-pl-keytip");
       tip.appendChild(document.createTextNode("Sign in with your phrase so Devin can publish your secrets key. "));
-      tip.appendChild(link("seal.html", "Sign in"));
+      tip.appendChild(link("login.html", "Sign in"));
       root.appendChild(tip);
     } else if (v && v === slug && vEnrolled && !myKey) {
       var tip2 = el("p", "nt-pl-keytip");
       tip2.appendChild(document.createTextNode("Sign in with your phrase to unlock secrets. "));
-      tip2.appendChild(link("seal.html", "Sign in"));
+      tip2.appendChild(link("login.html", "Sign in"));
       root.appendChild(tip2);
     }
   }).catch(function () {});

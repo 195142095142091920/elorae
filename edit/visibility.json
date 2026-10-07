@@ -1,5 +1,5 @@
 {
-  "_readme": "Visibility manifest for secret pages. Only admins may change it (edit-guard). people.<slug>.key holds that person's PUBLIC key and their passphrase-ENCRYPTED private key (safe to publish; the passphrase is never stored). secrets.<id>.path is the sealed article (articles/<id>.html). status 'plaintext' = not migrated yet: the article and its image are public files, hidden only by CSS (.sealed + seal.js); 'encrypted' = an encrypted copy (page HTML with images inlined) lives in edit/secrets/<id>.json. keys.<slug> = the content key wrapped for that person. everyone=true publishes the content key as openKey. devin is always allowed.",
+  "_readme": "Visibility manifest for secret pages. Only admins may change it (edit-guard). people.<slug>.key holds that person's PUBLIC key and their passphrase-ENCRYPTED private key (safe to publish; the passphrase is never stored). secrets.<id>.path is the private article (articles/<id>.html). status 'plaintext' = not migrated yet: the article and its image are public files, hidden only by CSS (.private + login.js); 'encrypted' = an encrypted copy (page HTML with images inlined) lives in edit/secrets/<id>.json. keys.<slug> = the content key wrapped for that person. everyone=true publishes the content key as openKey. devin is always allowed.",
   "version": 1,
   "admins": [
     "devin"

@@ -1,11 +1,11 @@
-/* player-mark.js (nt35). When a player is signed in (seal.js sets body.seal-<who>) and their
+/* player-mark.js (nt35). When a player is signed in (login.js sets body.login-<who>) and their
    mark (span.friend[data-owner=<who>]) is in the mast, a small profile glyph after their
    character names links to players/<who>.html. Nav · dots (same as Atlas/Codex) come from
    html.css (.friend a + a::before). Nothing is added for visitors, the GM, or hidden marks. */
 (function () {
   "use strict";
   var ROOT = new URL("./", document.currentScript.src).href;
-  var who = ""; try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
+  var who = ""; try { who = localStorage.getItem("elorae-login") || ""; } catch (e) {}
   if (!/^[a-z]+$/.test(who)) return;
   var mark = document.querySelector('.mast .friend[data-owner="' + who + '"]');
   if (!mark || mark.querySelector(".nt-pmark")) return;

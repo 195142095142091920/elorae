@@ -1,11 +1,11 @@
 body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;background:#070707}#section-bar{display:flex;justify-content:center;gap:18px;background:#070707;padding:12px}#section-bar a{color:#8f8a82;text-decoration:none;letter-spacing:.12em;text-transform:uppercase;font-size:12px}#section-bar a.active{color:#f3eee6}.read{max-width:720px;margin:32px auto 80px;padding:0 22px;font-family:"Iowan Old Style","Palatino Linotype",Palatino,serif;font-size:18px;line-height:1.55}.read h2{font-weight:400;font-style:italic}.read img{width:100%;height:auto}.toc{position:fixed;left:0;top:96px;bottom:0;width:240px;overflow:auto;padding:28px 22px;background:#070707}.toc a{display:block;margin:0 0 10px;color:#8f8a82;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:12px}.toc a.on{color:#f3eee6}.with-toc{margin-left:240px}.index-flow{display:flex;flex-wrap:wrap;justify-content:center;gap:34px 26px;padding:32px 40px 72px}.index-card{width:220px;color:#f3eee6;text-decoration:none}.index-card span{display:block;min-height:2.7em;margin:0 0 12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase}.index-card img{width:220px;height:300px;object-fit:cover}@media(max-width:800px){.toc{position:static;width:auto}.with-toc{margin-left:0}.wall{grid-template-columns:1fr 1fr}}
 
-.private{display:none}body.seal-devin .private{display:block}body.seal-jack .private[data-owner=jack]{display:block}body.seal-jon .private[data-owner=jon]{display:block}body.seal-julie .private[data-owner=julie]{display:block}body.seal-sawyer .private[data-owner=sawyer]{display:block}#seek{background:#070707;color:#f3eee6;border:0;border-bottom:1px solid #8f8a82;font:13px Helvetica,Arial,sans-serif;letter-spacing:.08em;opacity:0;position:absolute;left:-9999px;width:0;height:0;margin:0;padding:0}.tile.is-seek-miss,.index-card.is-seek-miss{display:none!important}.index-cat.is-seek-empty{display:none!important}.tile.is-dim{display:none!important}
+.private{display:none}body.login-devin .private{display:block}body.login-jack .private[data-owner=jack]{display:block}body.login-jon .private[data-owner=jon]{display:block}body.login-julie .private[data-owner=julie]{display:block}body.login-sawyer .private[data-owner=sawyer]{display:block}#seek{background:#070707;color:#f3eee6;border:0;border-bottom:1px solid #8f8a82;font:13px Helvetica,Arial,sans-serif;letter-spacing:.08em;opacity:0;position:absolute;left:-9999px;width:0;height:0;margin:0;padding:0}.tile.is-seek-miss,.index-card.is-seek-miss{display:none!important}.index-cat.is-seek-empty{display:none!important}.tile.is-dim{display:none!important}
 
 
 
 .friend{display:none}
-body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],body.seal-julie .friend[data-owner=julie],body.seal-sawyer .friend[data-owner=sawyer]{display:inline}
+body.login-jack .friend[data-owner=jack],body.login-jon .friend[data-owner=jon],body.login-julie .friend[data-owner=julie],body.login-sawyer .friend[data-owner=sawyer]{display:inline}
 .friend a{margin-left:0}
 
 
@@ -25,14 +25,14 @@ body.seal-jack .friend[data-owner=jack],body.seal-jon .friend[data-owner=jon],bo
 }
 
 .private-journal{display:none;right:0;left:auto}
-body.seal-devin .private-journal{display:block}
+body.login-devin .private-journal{display:block}
 .read{padding-top:28px}
 
-body.seal-page{background:#070707}
-.seal-card{min-height:calc(100vh - 72px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.seal-kicker{margin:0 0 18px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:#8f8a82}
-#seal-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;text-align:center;padding:8px 0}
-.seal-card button{margin-top:18px;background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+body.login-page{background:#070707}
+.login-card{min-height:calc(100vh - 72px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.login-kicker{margin:0 0 18px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:#8f8a82}
+#login-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;text-align:center;padding:8px 0}
+.login-card button{margin-top:18px;background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 .filters a,.toc a,#section-bar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 
 
@@ -50,23 +50,23 @@ body.seal-page{background:#070707}
 
 }
 .friend a{position:relative}
-body.seal-page.seal-jack .friend[data-owner=jack] a,body.seal-page.seal-julie .friend[data-owner=julie] a,body.seal-page.seal-sawyer .friend[data-owner=sawyer] a,body.seal-page.seal-jon .friend[data-owner=jon] a{text-shadow:0 0 12px var(--glow),0 0 24px var(--glow)}
-body.seal-page.seal-devin .seal-name{text-shadow:0 0 14px var(--glow),0 0 28px var(--glow)}
-body.seal-jack{--glow:rgba(230,190,80,.55)}
-body.seal-julie{--glow:rgba(255,190,210,.5)}
-body.seal-sawyer{--glow:rgba(230,120,40,.5)}
-body.seal-jon{--glow:rgba(80,180,90,.5);--glow-b:rgba(230,90,40,.55);--jon-mix:0}
+body.login-page.login-jack .friend[data-owner=jack] a,body.login-page.login-julie .friend[data-owner=julie] a,body.login-page.login-sawyer .friend[data-owner=sawyer] a,body.login-page.login-jon .friend[data-owner=jon] a{text-shadow:0 0 12px var(--glow),0 0 24px var(--glow)}
+body.login-page.login-devin .login-name{text-shadow:0 0 14px var(--glow),0 0 28px var(--glow)}
+body.login-jack{--glow:rgba(230,190,80,.55)}
+body.login-julie{--glow:rgba(255,190,210,.5)}
+body.login-sawyer{--glow:rgba(230,120,40,.5)}
+body.login-jon{--glow:rgba(80,180,90,.5);--glow-b:rgba(230,90,40,.55);--jon-mix:0}
 /* Interpolable mix 0=green (Telorin) → 1=red (Silar). Custom-property color keyframes snap; a <number> fades. */
 @property --jon-mix{syntax:"<number>";inherits:true;initial-value:0}
 @keyframes jon-mix{from{--jon-mix:0}to{--jon-mix:1}}
-body.seal-page.seal-jon{
+body.login-page.login-jon{
   animation:jon-mix 3.2s ease-in-out infinite alternate;
   --glow:rgba(calc(80 + 150 * var(--jon-mix)),calc(180 - 90 * var(--jon-mix)),calc(90 - 50 * var(--jon-mix)),.55);
 }
-/* Per-figure text glow on the seal mast: Telorin green, Silar red. */
-body.seal-page.seal-jon .friend[data-owner=jon] a[href*="telorin"]{text-shadow:0 0 12px rgba(80,180,90,.95),0 0 28px rgba(24,92,56,.85);--glow:rgba(80,180,90,.55)}
-body.seal-page.seal-jon .friend[data-owner=jon] a[href*="silar"]{text-shadow:0 0 12px rgba(255,150,72,.95),0 0 28px rgba(168,48,18,.85);--glow:rgba(230,90,40,.55)}
-body.seal-devin{--glow:rgba(243,238,230,.7)}
+/* Per-figure text glow on the login mast: Telorin green, Silar red. */
+body.login-page.login-jon .friend[data-owner=jon] a[href*="telorin"]{text-shadow:0 0 12px rgba(80,180,90,.95),0 0 28px rgba(24,92,56,.85);--glow:rgba(80,180,90,.55)}
+body.login-page.login-jon .friend[data-owner=jon] a[href*="silar"]{text-shadow:0 0 12px rgba(255,150,72,.95),0 0 28px rgba(168,48,18,.85);--glow:rgba(230,90,40,.55)}
+body.login-devin{--glow:rgba(243,238,230,.7)}
 
 
 
@@ -79,19 +79,19 @@ body.seal-devin{--glow:rgba(243,238,230,.7)}
 
 .journal-page{background:#070707 center/cover no-repeat}
 
-#seal-form{display:flex;flex-direction:column;align-items:center}
-.seal-welcome{margin:0 0 6px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;font-size:11px;color:#8f8a82}
-.seal-name{margin:0 0 14px;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;color:#f3eee6}
+#login-form{display:flex;flex-direction:column;align-items:center}
+.login-welcome{margin:0 0 6px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;font-size:11px;color:#8f8a82}
+.login-name{margin:0 0 14px;font-family:"Iowan Old Style",Palatino,serif;font-size:28px;color:#f3eee6}
 
-.seal-top{position:fixed;left:0;right:0;top:0;background:#070707;justify-content:flex-start}
-.seal-top #seal-back{color:#f3eee6;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.22em}
-#seal-code{width:min(280px,80vw);font-size:18px;letter-spacing:.08em;padding:10px 12px}
-#seal-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}
+.login-top{position:fixed;left:0;right:0;top:0;background:#070707;justify-content:flex-start}
+.login-top #login-back{color:#f3eee6;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.22em}
+#login-code{width:min(280px,80vw);font-size:18px;letter-spacing:.08em;padding:10px 12px}
+#login-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}
 @keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}
-.seal-card button,.seal-err{font-size:11px;letter-spacing:.22em;color:#8f8a82}
-.seal-card{min-height:100dvh;padding:88px 24px 72px}
-.seal-note{margin-top:16px;max-width:36ch;line-height:1.5;color:#cfc6b8;font-size:16px}
-.seal-name{font-weight:400;letter-spacing:.14em;font-size:clamp(28px,4vw,40px)}
+.login-card button,.login-err{font-size:11px;letter-spacing:.22em;color:#8f8a82}
+.login-card{min-height:100dvh;padding:88px 24px 72px}
+.login-note{margin-top:16px;max-width:36ch;line-height:1.5;color:#cfc6b8;font-size:16px}
+.login-name{font-weight:400;letter-spacing:.14em;font-size:clamp(28px,4vw,40px)}
 
 .filters{gap:0}
 .filters a + a::before,.filters .seek-glyph::before,.friend a + a::before{content:"\00b7";color:#5c5852;padding:0 11px;letter-spacing:0}
@@ -120,7 +120,7 @@ body.seal-devin{--glow:rgba(243,238,230,.7)}
     z-index:4;
   }
   .mast .topbar > .mark,
-  .mast .topbar > a[href$="seal.html"]{
+  .mast .topbar > a[href$="login.html"]{
     position:absolute;
     right:36px;
     top:0;
@@ -147,11 +147,11 @@ body.seal-devin{--glow:rgba(243,238,230,.7)}
   #seek{position:absolute;left:-9999px;top:50%;transform:translateY(-50%);width:0;height:0;margin:0;padding:0;opacity:0;z-index:3;border:0}
   .wall{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
-body.seal-jack .mark > a[href$="seal.html"],
-body.seal-jon .mark > a[href$="seal.html"],
-body.seal-julie .mark > a[href$="seal.html"],
-body.seal-sawyer .mark > a[href$="seal.html"],
-body.seal-devin .mark > a[href$="seal.html"]{display:none}
+body.login-jack .mark > a[href$="login.html"],
+body.login-jon .mark > a[href$="login.html"],
+body.login-julie .mark > a[href$="login.html"],
+body.login-sawyer .mark > a[href$="login.html"],
+body.login-devin .mark > a[href$="login.html"]{display:none}
 
 
 .tile .label{
@@ -584,7 +584,7 @@ body.index-page .toc a {
     min-height: 0;
   }
   .mast .topbar > .mark,
-  .mast .topbar > a[href$="seal.html"] {
+  .mast .topbar > a[href$="login.html"] {
     position: static;
     top: auto;
     right: auto;
@@ -664,7 +664,7 @@ body.index-page .toc a {
     text-align: center;
   }
   .journal-page .mast .topbar > .mark,
-  .journal-page .mast .topbar > a[href$="seal.html"] {
+  .journal-page .mast .topbar > a[href$="login.html"] {
     position: static;
     top: auto;
     right: auto;
@@ -1808,52 +1808,52 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.journal-flow .journal-bg img.bg-off { opacity: 0; }
 }
 
-/* Seal page: the phrase and the welcome sit in a lifted square box over a soft ambient glow
-   (seal2). The glow takes the signed-in friend's --glow tone, an ember tone before entry. */
+/* Login page: the phrase and the welcome sit in a lifted square box over a soft ambient glow
+   (login2). The glow takes the signed-in friend's --glow tone, an ember tone before entry. */
 @media (min-width: 801px) {
-  body.seal-page { --seal-glow: var(--glow, rgba(214,128,64,.34)); }
-  body.seal-page .seal-card { position: relative; overflow: hidden; box-sizing: border-box; }
-  body.seal-page .seal-card::before {
+  body.login-page { --login-glow: var(--glow, rgba(214,128,64,.34)); }
+  body.login-page .login-card { position: relative; overflow: hidden; box-sizing: border-box; }
+  body.login-page .login-card::before {
     content: ""; position: absolute; z-index: 0; left: 50%; top: 50%;
     width: 820px; height: 820px; transform: translate(-50%, -50%);
-    background: radial-gradient(closest-side, var(--seal-glow), transparent);
+    background: radial-gradient(closest-side, var(--login-glow), transparent);
     filter: blur(70px); opacity: .7; pointer-events: none;
   }
-  body.seal-page .seal-box {
+  body.login-page .login-box {
     position: relative; z-index: 1; box-sizing: border-box;
     width: 400px; aspect-ratio: 1 / 1; padding: 48px 44px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: #0b0b0b; border: 1px solid rgba(243,238,230,.09); border-radius: 4px;
     box-shadow: 0 34px 70px -24px rgba(0,0,0,.9), 0 12px 28px -14px rgba(0,0,0,.75);
   }
-  body.seal-page #seal-form { width: 100%; }
-  body.seal-page #seal-form[hidden] { display: none; }
-  body.seal-page .seal-box #seal-code { box-sizing: border-box; width: 100%; max-width: 280px; }
-  body.seal-page .seal-name a { color: inherit; text-decoration: none; }
-  body.seal-page .seal-name a:hover { color: #fff; }
-  body.seal-page .seal-box > :last-child { margin-bottom: 0; }
+  body.login-page #login-form { width: 100%; }
+  body.login-page #login-form[hidden] { display: none; }
+  body.login-page .login-box #login-code { box-sizing: border-box; width: 100%; max-width: 280px; }
+  body.login-page .login-name a { color: inherit; text-decoration: none; }
+  body.login-page .login-name a:hover { color: #fff; }
+  body.login-page .login-box > :last-child { margin-bottom: 0; }
 }
 @media (max-width: 800px) {
-  body.seal-page { --seal-glow: var(--glow, rgba(214,128,64,.34)); }
-  body.seal-page .seal-card { position: relative; overflow: hidden; box-sizing: border-box; }
-  body.seal-page .seal-card::before {
+  body.login-page { --login-glow: var(--glow, rgba(214,128,64,.34)); }
+  body.login-page .login-card { position: relative; overflow: hidden; box-sizing: border-box; }
+  body.login-page .login-card::before {
     content: ""; position: absolute; z-index: 0; left: 50%; top: 50%;
     width: 520px; height: 520px; transform: translate(-50%, -50%);
-    background: radial-gradient(closest-side, var(--seal-glow), transparent);
+    background: radial-gradient(closest-side, var(--login-glow), transparent);
     filter: blur(48px); opacity: .7; pointer-events: none;
   }
-  body.seal-page .seal-box {
+  body.login-page .login-box {
     position: relative; z-index: 1; box-sizing: border-box;
     width: min(330px, 100%); aspect-ratio: 1 / 1; padding: 36px 28px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     background: #0b0b0b; border: 1px solid rgba(243,238,230,.09); border-radius: 4px;
     box-shadow: 0 26px 54px -20px rgba(0,0,0,.9), 0 10px 22px -12px rgba(0,0,0,.75);
   }
-  body.seal-page #seal-form { width: 100%; }
-  body.seal-page #seal-form[hidden] { display: none; }
-  body.seal-page .seal-box #seal-code { box-sizing: border-box; width: 100%; max-width: 280px; }
-  body.seal-page .seal-name a { color: inherit; text-decoration: none; }
-  body.seal-page .seal-box > :last-child { margin-bottom: 0; }
+  body.login-page #login-form { width: 100%; }
+  body.login-page #login-form[hidden] { display: none; }
+  body.login-page .login-box #login-code { box-sizing: border-box; width: 100%; max-width: 280px; }
+  body.login-page .login-name a { color: inherit; text-decoration: none; }
+  body.login-page .login-box > :last-child { margin-bottom: 0; }
 }
 
 /* search-page seek3 */
@@ -2458,16 +2458,16 @@ body.seek-panel-open { overflow: hidden; }
     padding-bottom: 0;
   }
   /* Scroll content starts below the fixed mast (match measured phone heights). */
-  body:not(.article):not([hidden]):not(.journal-page):not(.seal-page) {
+  body:not(.article):not([hidden]):not(.journal-page):not(.login-page) {
     padding-top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
   body.journal-page:not(.article) {
     padding-top: calc(72px + env(safe-area-inset-top, 0px));
   }
-  body.seal-page {
+  body.login-page {
     padding-top: calc(28px + env(safe-area-inset-top, 0px));
   }
-  body.seal-page .seal-card {
+  body.login-page .login-card {
     padding-top: 36px;
   }
 }
@@ -2492,14 +2492,14 @@ body.seek-panel-open { overflow: hidden; }
   }
   .mast .topbar > .mark,
   .mast .topbar > .mark a,
-  .mast .topbar > a[href$="seal.html"] {
+  .mast .topbar > a[href$="login.html"] {
     min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
   /* Mast grows with 44px filter row; keep body clear. */
-  body:not(.article):not([hidden]):not(.journal-page):not(.seal-page) {
+  body:not(.article):not([hidden]):not(.journal-page):not(.login-page) {
     padding-top: calc(var(--phone-mast-h, 80px) + env(safe-area-inset-top, 0px));
   }
   body.journal-page:not(.article) {
@@ -2508,9 +2508,9 @@ body.seek-panel-open { overflow: hidden; }
 }
 
 
-/* Phone: seal back + Enter tap targets; keep Back left-aligned (seal-tap1). */
+/* Phone: login back + Enter tap targets; keep Back left-aligned (login-tap1). */
 @media (max-width: 800px) {
-  body.seal-page .mast .topbar.seal-top {
+  body.login-page .mast .topbar.login-top {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
@@ -2518,7 +2518,7 @@ body.seek-panel-open { overflow: hidden; }
     padding: 0 8px;
     background: #070707;
   }
-  body.seal-page .mast .topbar.seal-top #seal-back {
+  body.login-page .mast .topbar.login-top #login-back {
     min-width: 44px;
     min-height: 44px;
     padding: 12px 14px;
@@ -2526,13 +2526,13 @@ body.seek-panel-open { overflow: hidden; }
     align-items: center;
     box-sizing: border-box;
   }
-  body.seal-page {
+  body.login-page {
     padding-top: calc(44px + env(safe-area-inset-top, 0px));
   }
-  body.seal-page .seal-card {
+  body.login-page .login-card {
     padding-top: 28px;
   }
-  body.seal-page .seal-card button:not(.seal-guest) {
+  body.login-page .login-card button:not(.login-guest) {
     min-height: 44px;
     min-width: 88px;
     padding: 12px 20px;
@@ -2541,7 +2541,7 @@ body.seek-panel-open { overflow: hidden; }
     justify-content: center;
     box-sizing: border-box;
   }
-  body.seal-page .seal-box #seal-code {
+  body.login-page .login-box #login-code {
     min-height: 44px;
     font-size: 18px;
   }
@@ -2608,7 +2608,7 @@ body.seek-panel-open { overflow: hidden; }
 }
 
 
-/* Phone: keep sealed friend marks on one mast row (friends1). */
+/* Phone: keep private friend marks on one mast row (friends1). */
 @media (max-width: 800px) {
   .mast .topbar > .mark {
     flex-wrap: nowrap;
@@ -2625,11 +2625,11 @@ body.seek-panel-open { overflow: hidden; }
     letter-spacing: 0.06em;
     padding: 0 1px;
   }
-  /* Keep sealed marks; only reveal when owner matches (same as shared .friend). */
-  body.seal-jack .mast .topbar > .mark > .friend[data-owner=jack],
-  body.seal-jon .mast .topbar > .mark > .friend[data-owner=jon],
-  body.seal-julie .mast .topbar > .mark > .friend[data-owner=julie],
-  body.seal-sawyer .mast .topbar > .mark > .friend[data-owner=sawyer] {
+  /* Keep private marks; only reveal when owner matches (same as shared .friend). */
+  body.login-jack .mast .topbar > .mark > .friend[data-owner=jack],
+  body.login-jon .mast .topbar > .mark > .friend[data-owner=jon],
+  body.login-julie .mast .topbar > .mark > .friend[data-owner=julie],
+  body.login-sawyer .mast .topbar > .mark > .friend[data-owner=sawyer] {
     display: inline-flex;
     gap: 6px;
   }
@@ -2716,15 +2716,15 @@ body:has(#section-bar.show) .mast::after {
 }
 
 
-/* Seal page: after sign-in, figure name(s) sit in the top-right mark (friends2).
+/* Login page: after sign-in, figure name(s) sit in the top-right mark (friends2).
    Jon shows both Telorin and Silar. Back stays left. */
-body.seal-page .mast .topbar.seal-top {
+body.login-page .mast .topbar.login-top {
   position: relative;
   display: flex;
   align-items: center;
   min-height: 56px;
 }
-body.seal-page .mast .topbar.seal-top > .mark {
+body.login-page .mast .topbar.login-top > .mark {
   position: absolute;
   right: 36px;
   top: 0;
@@ -2734,27 +2734,27 @@ body.seal-page .mast .topbar.seal-top > .mark {
   gap: 14px;
   z-index: 2;
 }
-body.seal-page .mast .topbar.seal-top > .mark .friend {
+body.login-page .mast .topbar.login-top > .mark .friend {
   display: none;
   align-items: center;
   gap: 14px;
 }
-body.seal-page.seal-jack .mast .topbar.seal-top > .mark .friend[data-owner=jack],
-body.seal-page.seal-jon .mast .topbar.seal-top > .mark .friend[data-owner=jon],
-body.seal-page.seal-julie .mast .topbar.seal-top > .mark .friend[data-owner=julie],
-body.seal-page.seal-sawyer .mast .topbar.seal-top > .mark .friend[data-owner=sawyer] {
+body.login-page.login-jack .mast .topbar.login-top > .mark .friend[data-owner=jack],
+body.login-page.login-jon .mast .topbar.login-top > .mark .friend[data-owner=jon],
+body.login-page.login-julie .mast .topbar.login-top > .mark .friend[data-owner=julie],
+body.login-page.login-sawyer .mast .topbar.login-top > .mark .friend[data-owner=sawyer] {
   display: inline-flex;
 }
 @media (max-width: 800px) {
-  body.seal-page .mast .topbar.seal-top > .mark {
+  body.login-page .mast .topbar.login-top > .mark {
     right: 12px;
     height: 44px;
     gap: 8px;
   }
-  body.seal-page .mast .topbar.seal-top > .mark .friend {
+  body.login-page .mast .topbar.login-top > .mark .friend {
     gap: 8px;
   }
-  body.seal-page .mast .topbar.seal-top > .mark a {
+  body.login-page .mast .topbar.login-top > .mark a {
     font-size: 11px;
     letter-spacing: 0.06em;
   }
@@ -2764,29 +2764,29 @@ body.seal-page.seal-sawyer .mast .topbar.seal-top > .mark .friend[data-owner=saw
 /* Jon success ambient (nt32): continuous green↔red wash behind the welcome box.
    Dual-layer opacity crossfade (universally interpolable — no @property / gradient snap).
    Character-mark text-shadows stay fixed green/red (rules above). glow.js also writes
-   concrete --seal-glow each frame as a belt-and-suspenders sync. */
-@keyframes jon-seal-a{from{opacity:.7}to{opacity:0}}
-@keyframes jon-seal-b{from{opacity:0}to{opacity:.7}}
-body.seal-page.seal-jon .seal-card::before{
-  animation:jon-seal-a 3.2s ease-in-out infinite alternate;
+   concrete --login-glow each frame as a belt-and-suspenders sync. */
+@keyframes jon-login-a{from{opacity:.7}to{opacity:0}}
+@keyframes jon-login-b{from{opacity:0}to{opacity:.7}}
+body.login-page.login-jon .login-card::before{
+  animation:jon-login-a 3.2s ease-in-out infinite alternate;
   background:radial-gradient(closest-side,rgba(80,180,90,.55),transparent);
 }
-body.seal-page.seal-jon .seal-card::after{
+body.login-page.login-jon .login-card::after{
   content:"";position:absolute;z-index:0;left:50%;top:50%;
   transform:translate(-50%,-50%);pointer-events:none;
   background:radial-gradient(closest-side,rgba(230,90,40,.55),transparent);
-  animation:jon-seal-b 3.2s ease-in-out infinite alternate;
+  animation:jon-login-b 3.2s ease-in-out infinite alternate;
 }
 @media (min-width:801px){
-  body.seal-page.seal-jon .seal-card::after{width:820px;height:820px;filter:blur(70px)}
+  body.login-page.login-jon .login-card::after{width:820px;height:820px;filter:blur(70px)}
 }
 @media (max-width:800px){
-  body.seal-page.seal-jon .seal-card::after{width:520px;height:520px;filter:blur(48px)}
+  body.login-page.login-jon .login-card::after{width:520px;height:520px;filter:blur(48px)}
 }
 
 
 /* Devin: white glow; Log out in the mast instead of a profile name (devin1). */
-.seal-logout {
+.login-logout {
   display: none;
   appearance: none;
   -webkit-appearance: none;
@@ -2804,17 +2804,17 @@ body.seal-page.seal-jon .seal-card::after{
   cursor: pointer;
   text-shadow: 0 0 12px var(--glow), 0 0 24px var(--glow);
 }
-body.seal-devin .seal-logout {
+body.login-devin .login-logout {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
 }
-.seal-logout:hover,
-.seal-logout:focus-visible {
+.login-logout:hover,
+.login-logout:focus-visible {
   color: #fff;
   text-shadow: 0 0 16px rgba(243,238,230,.95), 0 0 32px rgba(243,238,230,.55);
 }
-body.seal-devin .friend { display: none !important; }
+body.login-devin .friend { display: none !important; }
 
 
 /* Codex Contents: <details class="toc-drop"> inside aside.toc (tocdrop1).
@@ -2966,11 +2966,11 @@ body.seal-devin .friend { display: none !important; }
 
 /* ---- Phone audit fixes (audit1) ---- */
 
-/* Seal: the phone mast rule made the figure mark full-width (left -12px), so it sat on top of
+/* Login: the phone mast rule made the figure mark full-width (left -12px), so it sat on top of
    Back and swallowed taps; names also centered instead of top-right. Right-align, auto width,
    same 56px row as Back. */
 @media (max-width: 800px) {
-  body.seal-page .mast .topbar.seal-top > .mark {
+  body.login-page .mast .topbar.login-top > .mark {
     left: auto;
     right: 12px;
     width: auto;
@@ -3214,7 +3214,7 @@ body.seal-devin .friend { display: none !important; }
 
 /* ---- Phone chrome stack art67 (articles + safe-area flush) ----
    - Hard opaque #070707 mast flush to screen top (safe-area padding ON the mast).
-   - Page-name mark (JS sets seal link text).
+   - Page-name mark (JS sets login link text).
    - Three equidistant rows.
    - Desktop untouched. */
 html, body {
@@ -3298,8 +3298,8 @@ html, body {
     margin: 0 !important;
     box-sizing: border-box !important;
   }
-  /* Page-name mark: seal link is the title (JS sets text); friends stay seal-gated. */
-  body.article .mast .topbar > .mark > a[href$="seal.html"] {
+  /* Page-name mark: login link is the title (JS sets text); friends stay login-gated. */
+  body.article .mast .topbar > .mark > a[href$="login.html"] {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -3308,11 +3308,11 @@ html, body {
     text-transform: uppercase !important;
     color: #f3eee6 !important;
   }
-  /* Phone article: page name only in the title row (not seal friend chips). */
+  /* Phone article: page name only in the title row (not login friend chips). */
   body.article .mast .topbar > .mark > .friend{
     display: none !important;
   }
-  body.article .mast .topbar > .mark > .seal-logout{
+  body.article .mast .topbar > .mark > .login-logout{
     display: none !important;
   }
   body.article .mast .topbar .filters {
@@ -3437,7 +3437,7 @@ html, body {
   body.atlas-page .mast,
   body.lore-page .mast,
   body.book .mast,
-  body.seal-page .mast {
+  body.login-page .mast {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -3535,7 +3535,7 @@ html, body {
     padding: var(--phone-mast-pad-y) 8px !important;
   }
   .mast .topbar > .mark,
-  .mast .topbar > a[href$="seal.html"],
+  .mast .topbar > a[href$="login.html"],
   body.article .mast .topbar > .mark,
   body.journal-page .mast .topbar > .mark {
     min-height: var(--phone-mast-row) !important;
@@ -3560,7 +3560,7 @@ html, body {
   }
   .mast .topbar > .mark,
   .mast .topbar > .mark a,
-  .mast .topbar > a[href$="seal.html"] {
+  .mast .topbar > a[href$="login.html"] {
     min-height: var(--phone-mast-row) !important;
   }
   /* Keep type quiet (art68); don't grow glyph beyond the row. */
@@ -3573,7 +3573,7 @@ html, body {
   .seek-glyph svg { width: 14px !important; height: 14px !important; }
 
   /* Body clearance under fixed mast (Index / Atlas / Codex / Journal). */
-  body:not(.article):not([hidden]):not(.journal-page):not(.seal-page) {
+  body:not(.article):not([hidden]):not(.journal-page):not(.login-page) {
     padding-top: calc(var(--phone-mast-h) + env(safe-area-inset-top, 0px)) !important;
   }
   body.journal-page:not(.article) {
@@ -3645,8 +3645,8 @@ html, body {
     scroll-margin-top: calc(var(--phone-stack-h) + env(safe-area-inset-top, 0px) + 12px) !important;
   }
 
-  /* Seal page shorter mast clearance if present. */
-  body.seal-page {
+  /* Login page shorter mast clearance if present. */
+  body.login-page {
     padding-top: calc(var(--phone-mast-row) + env(safe-area-inset-top, 0px)) !important;
   }
 }
@@ -3678,7 +3678,7 @@ html, body {
   .mast .topbar,
   .mast .topbar > .mark,
   .mast .topbar .filters,
-  .mast .topbar > .mark > a[href$="seal.html"] {
+  .mast .topbar > .mark > a[href$="login.html"] {
     position: relative !important;
     z-index: 2 !important;
   }
@@ -3700,14 +3700,14 @@ html, body {
 
   /* Two equal mast rows — text vertically centered in each. */
   .mast .topbar > .mark,
-  .mast .topbar > a[href$="seal.html"],
+  .mast .topbar > a[href$="login.html"],
   body.article .mast .topbar > .mark,
   body.journal-page .mast .topbar > .mark {
     min-height: var(--phone-mast-row) !important;
     height: var(--phone-mast-row) !important;
     max-height: var(--phone-mast-row) !important;
     overflow: visible !important;
-    overflow-x: auto !important; /* keep friends scroll if sealed */
+    overflow-x: auto !important; /* keep friends scroll if private */
     overflow-y: visible !important;
     display: flex !important;
     align-items: center !important;
@@ -3718,8 +3718,8 @@ html, body {
     -webkit-transform: none !important;
     transform: none !important;
   }
-  .mast .topbar > .mark > a[href$="seal.html"],
-  body.article .mast .topbar > .mark > a[href$="seal.html"]{
+  .mast .topbar > .mark > a[href$="login.html"],
+  body.article .mast .topbar > .mark > a[href$="login.html"]{
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -3793,7 +3793,7 @@ html, body {
   body.atlas-page .mast,
   body.lore-page .mast,
   body.book .mast,
-  body.seal-page .mast {
+  body.login-page .mast {
     padding-top: var(--sat-lock, env(safe-area-inset-top, 0px)) !important;
     transition: none !important;
     animation: none !important;
@@ -3841,11 +3841,11 @@ html, body {
   body.journal-flow aside.toc:has(> .toc-drop){
     top: calc(var(--phone-stack-h, 116px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
   }
-  body:not(.article):not([hidden]):not(.journal-page):not(.seal-page),
+  body:not(.article):not([hidden]):not(.journal-page):not(.login-page),
   body.journal-page:not(.article) {
     padding-top: calc(var(--phone-mast-h, 80px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
   }
-  body.seal-page {
+  body.login-page {
     padding-top: calc(var(--phone-mast-row, 40px) + var(--sat-lock, env(safe-area-inset-top, 0px))) !important;
   }
 
@@ -4682,17 +4682,17 @@ html.nav-fade-on .nav-fade {
   }
 }
 
-/* ---- art95: sealed articles + Index entries (owner-gated) ----
-   Same seal as the old wall: seal.js sets body.seal-<owner> from the phrase (localStorage
-   elorae-seal); devin sees every sealed piece, other owners only their own. Unlike .private
+/* ---- art95: private articles + Index entries (owner-gated) ----
+   Same login gate as the old wall: login.js sets body.login-<owner> from the phrase (localStorage
+   elorae-login); devin sees every private piece, other owners only their own. Unlike .private
    (whose unlock forces display:block and cannot reach <body>), this gate only hides, so an
    unlocked element keeps its own display (flex rails, grid cards, article hero/body). */
-body:not(.seal-devin) .sealed[data-owner="devin"],
-body:not(.seal-devin):not(.seal-jack) .sealed[data-owner="jack"],
-body:not(.seal-devin):not(.seal-jon) .sealed[data-owner="jon"],
-body:not(.seal-devin):not(.seal-julie) .sealed[data-owner="julie"],
-body:not(.seal-devin):not(.seal-sawyer) .sealed[data-owner="sawyer"],
-body:not(.seal-devin):not(.seal-jack) .sealed-group { display: none !important; }
+body:not(.login-devin) .private[data-owner="devin"],
+body:not(.login-devin):not(.login-jack) .private[data-owner="jack"],
+body:not(.login-devin):not(.login-jon) .private[data-owner="jon"],
+body:not(.login-devin):not(.login-julie) .private[data-owner="julie"],
+body:not(.login-devin):not(.login-sawyer) .private[data-owner="sawyer"],
+body:not(.login-devin):not(.login-jack) .private-group { display: none !important; }
 /* Articles without art yet (Telorin): shorter, plain hero; Index card shows the name only. */
 body.article .art-hero.no-art { height: 52vh !important; height: 52svh !important; }
 body.article .art-hero.no-art::after { display: none; }
@@ -4872,27 +4872,27 @@ body.player-page #nt-player {
 }
 
 
-/* Phrase-page: .seal-actions {display:flex} must not override HTML [hidden]
+/* Phrase-page: .login-actions {display:flex} must not override HTML [hidden]
    (same specificity as UA [hidden]; author rule wins and leaked Connect on login prompt). */
-body.seal-page #seal-gh-actions[hidden],
-body.seal-page #seal-welcome[hidden],
-body.seal-page #seal-gh-status[hidden],
-body.seal-page #seal-guest[hidden],
-body.seal-page #seal-err[hidden],
-body.seal-page .seal-actions[hidden] {
+body.login-page #login-gh-actions[hidden],
+body.login-page #login-welcome[hidden],
+body.login-page #login-gh-status[hidden],
+body.login-page #login-guest[hidden],
+body.login-page #login-err[hidden],
+body.login-page .login-actions[hidden] {
   display: none !important;
 }
 
-/* Seal login chrome: phrase + sign-in only — no friend/player names in the mast. */
-body.seal-page .mast .friend{display:none!important}
-body.seal-page .mast .nt-pmark{display:none!important}
-body.seal-page .seal-gh-status{margin-top:14px;font-size:12px;letter-spacing:.08em;color:#8f8a82;text-align:center}
-body.seal-page .seal-gh-status[data-kind=ok]{color:#c8e0c0}
-body.seal-page .seal-gh-status[data-kind=err]{color:#e0a8a0}
-body.seal-page #seal-welcome{text-align:center;letter-spacing:.12em}
+/* Login chrome: phrase + sign-in only — no friend/player names in the mast. */
+body.login-page .mast .friend{display:none!important}
+body.login-page .mast .nt-pmark{display:none!important}
+body.login-page .login-gh-status{margin-top:14px;font-size:12px;letter-spacing:.08em;color:#8f8a82;text-align:center}
+body.login-page .login-gh-status[data-kind=ok]{color:#c8e0c0}
+body.login-page .login-gh-status[data-kind=err]{color:#e0a8a0}
+body.login-page #login-welcome{text-align:center;letter-spacing:.12em}
 
-/* Seal login: Guest sits center-bottom of the square box (not beside Sign in). */
-body.seal-page .seal-box #seal-guest{
+/* Login: Guest sits center-bottom of the square box (not beside Sign in). */
+body.login-page .login-box #login-guest{
   position:absolute;
   left:50%;
   bottom:28px;
@@ -4901,13 +4901,13 @@ body.seal-page .seal-box #seal-guest{
   z-index:2;
 }
 @media (max-width:800px){
-  body.seal-page .seal-box #seal-guest{bottom:22px}
+  body.login-page .login-box #login-guest{bottom:22px}
 }
 
-/* Seal actions: Sign in (primary) + Guest (secondary). */
-.seal-actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;align-items:center;margin-top:18px}
-.seal-actions button,.seal-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;cursor:pointer}
-.seal-actions button.seal-guest,button.seal-guest{
+/* Login actions: Sign in (primary) + Guest (secondary). */
+.login-actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;align-items:center;margin-top:18px}
+.login-actions button,.login-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;cursor:pointer}
+.login-actions button.login-guest,button.login-guest{
   color:#8f8a82;
   font-size:10px;
   letter-spacing:.2em;
@@ -4919,16 +4919,16 @@ body.seal-page .seal-box #seal-guest{
   min-width:0;
   background:none;border:0;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;cursor:pointer;
 }
-.seal-who{margin:10px 0 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8f8a82}
+.login-who{margin:10px 0 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8f8a82}
 .profile-gh-actions{justify-content:flex-start;margin:0 0 18px}
-.profile-gh-actions + .seal-gh-status{text-align:left;margin-top:0;margin-bottom:18px}
-body.seal-guest .seal-guest-exit{display:inline-flex;align-items:center;min-height:44px;text-shadow:none;font-weight:400;color:#8f8a82}
-body.seal-guest .seal-guest-exit:hover,body.seal-guest .seal-guest-exit:focus-visible{color:#f3eee6}
+.profile-gh-actions + .login-gh-status{text-align:left;margin-top:0;margin-bottom:18px}
+body.login-guest .login-guest-exit{display:inline-flex;align-items:center;min-height:44px;text-shadow:none;font-weight:400;color:#8f8a82}
+body.login-guest .login-guest-exit:hover,body.login-guest .login-guest-exit:focus-visible{color:#f3eee6}
 @media (min-width:801px){
-  .seal-actions button:hover,.seal-copy:hover{color:#fff}
-  .seal-actions button.seal-guest:hover,button.seal-guest:hover{color:#cfc6b8;opacity:1}
+  .login-actions button:hover,.login-copy:hover{color:#fff}
+  .login-actions button.login-guest:hover,button.login-guest:hover{color:#cfc6b8;opacity:1}
 }
 @media (max-width:800px){
-  .seal-actions button:not(.seal-guest),.seal-copy{min-height:44px;min-width:88px;padding:12px 20px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
-  .seal-actions button.seal-guest,button.seal-guest{min-height:36px;padding:8px 12px}
+  .login-actions button:not(.login-guest),.login-copy{min-height:44px;min-width:88px;padding:12px 20px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+  .login-actions button.login-guest,button.login-guest{min-height:36px;padding:8px 12px}
 }

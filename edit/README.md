@@ -21,7 +21,7 @@ Nothing secret is committed. There are no passwords or tokens in the repo.
 `articles/*.html` in code (`edit/perms.js`, used by both the editor and the guard). Codex, journal,
 the Index pages and every other page outside `articles/` are off-limits to players: no EDIT button
 there, and the guard rejects such commits. Within `articles/`, a player gets only the exact pages
-listed for them, so other characters' articles and the 12 sealed articles stay admin-only. Any non-admin
+listed for them, so other characters' articles and the 12 private articles stay admin-only. Any non-admin
 rule in `profiles.json` that reaches outside `articles/` (for example `index/x.html`, `codex/**`,
 `**` or `articles/**`) is **ignored** by the editor, shown as "ignored" in the sign-in
 panel, and reported as a warning by the guard. Only `"role": "admin"` lifts the ceiling.
@@ -74,7 +74,7 @@ requests: write, 90 days). The repository must be selected by hand: *Only select
 ## Editing
 Sign in, then click **EDIT** (bottom-right, only on pages you can edit; for players that means only
 their own article pages). Article text and dossier values become editable (for Devin, codex prose,
-journal text and Index text too). On secret/sealed articles, Devin gets **Share** (Everyone / per-player toggles or Encrypt, same commits as the dashboard; requires unlocked secrets key) and **Owner** (assign which player may edit the page via `profiles.json`). Devin can also edit the article hero **name** (`h1`) and **epithet**
+journal text and Index text too). On secret/private articles, Devin gets **Share** (Everyone / per-player toggles or Encrypt, same commits as the dashboard; requires unlocked secrets key) and **Owner** (assign which player may edit the page via `profiles.json`). Devin can also edit the article hero **name** (`h1`) and **epithet**
 (`.art-epithet`) in place; players cannot. Nav, other headings, links lists and structure don't. **Save** works like this:
 
 1. GET `/repos/195142095142091920/elorae/contents/<path>?ref=main` to read the current source and its `sha`.
@@ -120,18 +120,18 @@ can be forged. Then:
   environment refuses to deploy them, so you may see a failed "Deploy" run on `edit/*` branches.
 
 ## Visibility layer (secrets)
-Today, the 12 "sealed" pages (Bel Harath, Haethlin in the Dream, Ito Gangara, Vallorca, Yena (Jack's);
+Today, the 12 "private" pages (Bel Harath, Haethlin in the Dream, Ito Gangara, Vallorca, Yena (Jack's);
 Curse of Olesh, Cursed of Olesh, Darmstadt, Elraim, Imani Valash, Rathalon, Sen Teloch Ini (Devin's))
-are **public plaintext**. Each one is a sealed article, `articles/<id>.html`
-(`<main class="art-body sealed" data-owner=…>`), with its image in `assets/`, its `search-index.js`
-entry and its card in the Index **Sealed** category (`index/ancients.html`), all in the public repo.
-They are hidden only by CSS (`.sealed` + `seal.js`). The old friend-door phrases are in a comment in
-`seal.js`, and the SHA-256 hashes of one-word phrases can be brute-forced instantly anyway. That
+are **public plaintext**. Each one is a private article, `articles/<id>.html`
+(`<main class="art-body private" data-owner=…>`), with its image in `assets/`, its `search-index.js`
+entry and its card in the Index **Private** category (`index/ancients.html`), all in the public repo.
+They are hidden only by CSS (`.private` + `login.js`). The old friend-door phrases are in a comment in
+`login.js`, and the SHA-256 hashes of one-word phrases can be brute-forced instantly anyway. That
 mechanism is a curtain, not a lock.
 
 The new layer gives real secrecy:
 
-- Each secret's sealed article (`visibility.json` `path`, HTML with images inlined) is encrypted with its own random **AES-256-GCM**
+- Each secret's private article (`visibility.json` `path`, HTML with images inlined) is encrypted with its own random **AES-256-GCM**
   content key and stored in `edit/secrets/<id>.json`.
 - Each person has an **RSA-OAEP-3072** keypair made in their own browser. `edit/visibility.json`
   stores their public key and their private key **encrypted with their passphrase**
@@ -165,9 +165,9 @@ The new layer gives real secrecy:
 ### Migration status
 Encrypting a secret in the dashboard **adds** the encrypted copy and does not remove anything. The
 plaintext now lives in `articles/<id>.html` and stays public until a separate, explicit cleanup
-removes or replaces that article, its `search-index.js` entry, its card in the Index Sealed category
+removes or replaces that article, its `search-index.js` entry, its card in the Index Private category
 (`index/ancients.html`) and its image in `assets/`, and points the card at `edit/secret.html?id=<id>`.
-The viewer shows the decrypted article as the unlocked original (it drops only the `.sealed` CSS gate). Image files also stay in git history,
+The viewer shows the decrypted article as the unlocked original (it drops only the `.private` CSS gate). Image files also stay in git history,
 so truly secret art needs a history rewrite or new art. This cleanup is deliberately not automated.
 
 ## Shared art catalog

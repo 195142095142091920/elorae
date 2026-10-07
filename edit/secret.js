@@ -1,7 +1,7 @@
 /* Secret viewer: edit/secret.html?id=<secret> opens an encrypted page for people it is shared
-   with. Enroll + unlock live on seal.html (phrase-is-key). ?enroll redirects there.
-   If V.myKey is already unlocked from seal, open without a second passphrase prompt.
-   Pending enrollment codes (for Devin) live in localStorage — not on the seal welcome. */
+   with. Enroll + unlock live on login.html (phrase-is-key). ?enroll redirects there.
+   If V.myKey is already unlocked from login, open without a second passphrase prompt.
+   Pending enrollment codes (for Devin) live in localStorage — not on the login welcome. */
 (function () {
   "use strict";
   var E = window.EloraeEdit, K = window.EloraeCrypto, V = window.EloraeVis;
@@ -10,8 +10,8 @@
   var PENDING_ENROLL_KEY = "elorae-enroll-pending";
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function show(html) { card.innerHTML = '<p class="ee-k">Elorae</p>' + html; }
-  function sealEnrollHref() { return E.ROOT + "seal.html?enroll"; }
-  function sealHref() { return E.ROOT + "seal.html"; }
+  function loginEnrollHref() { return E.ROOT + "login.html?enroll"; }
+  function loginHref() { return E.ROOT + "login.html"; }
 
   function readPendingEnroll() {
     try {
@@ -24,8 +24,8 @@
 
   function finishKeySetup(extra) {
     var pending = readPendingEnroll();
-    var seal = E.sealWho();
-    if (pending && (!seal || pending.person === seal)) {
+    var who = E.loginWho();
+    if (pending && (!who || pending.person === who)) {
       var code = JSON.stringify(pending);
       show((extra ? '<p class="ee-note">' + esc(extra) + '</p>' : '') +
         '<p class="ee-who">Send this to Devin</p>' +
@@ -45,13 +45,13 @@
     show((extra ? '<p class="ee-note">' + esc(extra) + '</p>' : '') +
       '<p class="ee-who">Secrets key</p>' +
       '<p class="ee-note">Sign in with your phrase. Your secrets key is derived automatically; Devin still needs to publish it before encrypted pages open.</p>' +
-      '<p class="ee-note"><a href="' + esc(sealHref()) + '">Sign in</a></p>');
+      '<p class="ee-note"><a href="' + esc(loginHref()) + '">Sign in</a></p>');
   }
 
   function needSignIn(title, msg) {
     show((title ? '<p class="ee-who">' + esc(title) + '</p>' : '') +
       '<p class="ee-note">' + esc(msg || "Sign in with your phrase to open this.") + '</p>' +
-      '<p class="ee-note"><a href="' + esc(sealHref()) + '">Sign in</a></p>');
+      '<p class="ee-note"><a href="' + esc(loginHref()) + '">Sign in</a></p>');
   }
 
   function open(man, id) {
@@ -59,9 +59,9 @@
     if (!sec) return show('<p class="ee-note">Nothing here.</p>');
     if (sec.status !== "encrypted") return show('<p class="ee-note">This page has not been encrypted yet.</p>');
 
-    var seal = E.sealWho();
-    var personRec = seal && man.people && man.people[seal];
-    if (seal && personRec && !personRec.key) {
+    var who = E.loginWho();
+    var personRec = who && man.people && man.people[who];
+    if (who && personRec && !personRec.key) {
       return finishKeySetup(sec.title ? ("“" + sec.title + "” needs your secrets key published.") : "");
     }
 
@@ -87,16 +87,16 @@
   }
 
   if (q.has("enroll")) {
-    location.replace(sealEnrollHref());
+    location.replace(loginEnrollHref());
     return;
   }
 
   V.manifest(false).then(function (man) {
     var id = q.get("id");
     if (!id) {
-      var seal = E.sealWho();
-      var personRec = seal && man.people && man.people[seal];
-      if (seal && personRec && !personRec.key) return finishKeySetup();
+      var who = E.loginWho();
+      var personRec = who && man.people && man.people[who];
+      if (who && personRec && !personRec.key) return finishKeySetup();
       if (V.myKey.get()) return show('<p class="ee-note">Your secrets key is unlocked. Open a shared link to read a page.</p>');
       return needSignIn("", "Sign in with your phrase to unlock your secrets key.");
     }

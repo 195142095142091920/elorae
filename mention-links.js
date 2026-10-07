@@ -9,9 +9,9 @@
    - Card data uses the same fields as card-lore.js extract() (name, epithet, lore quote,
      dossier rows, lore opening) read from the article page, with the blurred backdrop from
      card-lore-palette.js when that is loaded.
-   Sealed subjects: names come from search-index.js; entries marked private are used only when
-   this viewer has unlocked that owner (body.seal-<owner>, or seal-devin). A card is never shown
-   for an article whose body is sealed for this viewer.
+   Private subjects: names come from search-index.js; entries marked private are used only when
+   this viewer has unlocked that owner (body.login-<owner>, or login-devin). A card is never shown
+   for an article whose body is private for this viewer.
    Edit safety: wrappers are runtime-only <a class="nt-mention"> around unchanged text, so
    edit/'s srcmap sees the same blocks and text; startEdit also resets each edited block to its
    source HTML. On top of that, no plain-text wrapping happens while an editor session exists,
@@ -31,7 +31,7 @@
   }
   function unlocked(owner) {
     var c = document.body.classList;
-    return !!owner && (c.contains("seal-devin") || c.contains("seal-" + owner));
+    return !!owner && (c.contains("login-devin") || c.contains("login-" + owner));
   }
   function text(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
   function opening(t) {
@@ -46,7 +46,7 @@
   function extract(html) {
     var doc = new DOMParser().parseFromString(html, "text/html");
     var body = doc.querySelector("main.art-body");
-    if (body && body.classList.contains("sealed") && !unlocked(body.getAttribute("data-owner"))) return null;
+    if (body && body.classList.contains("private") && !unlocked(body.getAttribute("data-owner"))) return null;
     var lore = doc.querySelector("#lore"), firstLife = lore && lore.querySelector("p.art-life");
     var q = lore && lore.querySelector("blockquote.art-quote"), rows = [], dt = null;
     var dl = doc.querySelector("#dossier dl.art-dossier");

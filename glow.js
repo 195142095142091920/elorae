@@ -14,7 +14,7 @@ if (canvas) {
   var bits = [];
   function who() {
     var c = document.body.className;
-    var m = c.match(/seal-(jack|jon|julie|sawyer|devin)/);
+    var m = c.match(/login-(jack|jon|julie|sawyer|devin)/);
     return m ? m[1] : "";
   }
   function lerpTone(a, b, t) {
@@ -35,14 +35,14 @@ if (canvas) {
   function frame(now) {
     var name = who();
     var link = name && (name === "devin"
-      ? (document.getElementById("seal-name") || document.getElementById("seal-logout"))
-      : (document.querySelector('.friend[data-owner="' + name + '"]') || document.getElementById("seal-name")));
+      ? (document.getElementById("login-name") || document.getElementById("login-logout"))
+      : (document.querySelector('.friend[data-owner="' + name + '"]') || document.getElementById("login-name")));
 
-    /* Seal welcome-box ambient: concrete --seal-glow each frame (continuous; no blink). */
-    var card = document.querySelector("body.seal-page.seal-jon .seal-card");
+    /* Login welcome-box ambient: concrete --login-glow each frame (continuous; no blink). */
+    var card = document.querySelector("body.login-page.login-jon .login-card");
     if (card) {
       var amb = jonAmbient(now || 0);
-      card.style.setProperty("--seal-glow", "rgba(" + amb[0] + "," + amb[1] + "," + amb[2] + ",.55)");
+      card.style.setProperty("--login-glow", "rgba(" + amb[0] + "," + amb[1] + "," + amb[2] + ",.55)");
     }
 
     if (!name || !link || link.hidden || getComputedStyle(link).display === "none") {

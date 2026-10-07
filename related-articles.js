@@ -2,10 +2,10 @@
    in the site's own .art-rel-head / .art-related markup:
      - Place · <name>: other articles naming the same Atlas place this article names.
      - Seen together in the Journal: articles linked in the same Journal chapters as this one.
-   Sealed subjects are never listed (search-index "private" entries, and anything the rails
-   mark sealed), so nothing hidden is revealed. Links already in Related are not repeated.
+   Private subjects are never listed (search-index "private" entries, and anything the rails
+   mark private), so nothing hidden is revealed. Links already in Related are not repeated.
    Runs at runtime only, inside #related (which edit mode's srcmap excludes), and not at all
-   during an edit session. Sealed articles themselves get nothing. */
+   during an edit session. Private articles themselves get nothing. */
 (function () {
   "use strict";
   if (!document.body.classList.contains("article")) return;
@@ -16,7 +16,7 @@
     return /(^|#)edit\b/.test(location.hash) || document.documentElement.classList.contains("ee-editing");
   }
   var main = document.querySelector("main.art-body"), sec = document.getElementById("related");
-  if (!main || !sec || main.classList.contains("sealed") || editing()) return;
+  if (!main || !sec || main.classList.contains("private") || editing()) return;
   var PLACES = ["Winterlands", "Syr Sable", "Corranth", "Ilium Aghor", "Uma Sura", "Essen Revir", "Tumunz", "Jatar", "Elen Asva",
     "Far Nybei", "Kaiden", "Kanta Masa", "Gem Waste", "Celestial Sands", "Heartroot", "Shasir", "Nathalor"];
   function text(n) { return n ? n.textContent.replace(/\s+/g, " ").trim() : ""; }
@@ -30,12 +30,12 @@
   ]).then(function (res) {
     if (editing()) return;
     var t = res[0], all = JSON.parse(t.slice(t.indexOf("["), t.lastIndexOf("]") + 1));
-    var sealed = {};
-    all.forEach(function (e) { if (e.private) sealed[e.href] = 1; });
-    Array.prototype.forEach.call(document.querySelectorAll(".sealed a[href], a.sealed[href], .sealed-group a[href], a[data-owner]"), function (a) {
-      var m = /articles\/[^\/?#]+\.html/.exec(a.getAttribute("href") || ""); if (m) sealed[m[0]] = 1;
+    var private = {};
+    all.forEach(function (e) { if (e.private) private[e.href] = 1; });
+    Array.prototype.forEach.call(document.querySelectorAll(".private a[href], a.private[href], .private-group a[href], a[data-owner]"), function (a) {
+      var m = /articles\/[^\/?#]+\.html/.exec(a.getAttribute("href") || ""); if (m) private[m[0]] = 1;
     });
-    var others = all.filter(function (e) { return e.kind === "article" && !e.private && !sealed[e.href] && e.href !== "articles/" + here + ".html"; });
+    var others = all.filter(function (e) { return e.kind === "article" && !e.private && !private[e.href] && e.href !== "articles/" + here + ".html"; });
     var shown = {};
     Array.prototype.forEach.call(document.querySelectorAll("#related a[href], .nt-siblings a[href]"), function (a) { shown[new URL(a.getAttribute("href"), location.href).pathname] = 1; });
     function add(head, items) {

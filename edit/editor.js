@@ -292,7 +292,7 @@
   }
   function nameOfPerson(man, p) { return (man.people[p] && man.people[p].name) || p; }
 
-  /* ---- Share (secret visibility) on sealed/secret articles ---- */
+  /* ---- Share (secret visibility) on private/secret articles ---- */
   function secretIdForPath(man, path) {
     var secrets = (man && man.secrets) || {}, id;
     for (id in secrets) if (secrets[id] && secrets[id].path === path) return id;
@@ -306,7 +306,7 @@
     V.manifest(true).then(function (man) {
       var id = secretIdForPath(man, PATH);
       if (!id) {
-        b.innerHTML = '<p class="ee-k">Share</p><p class="ee-note">This page is not a secret in <code>visibility.json</code>. Sealed articles that are registered there get Everyone / per-player toggles here.</p>' +
+        b.innerHTML = '<p class="ee-k">Share</p><p class="ee-note">This page is not a secret in <code>visibility.json</code>. Private articles that are registered there get Everyone / per-player toggles here.</p>' +
           '<div class="ee-row"><button type="button" class="ee-btn" id="ee-share-back">Back</button></div>';
         $("ee-share-back").onclick = closePanel;
         return;

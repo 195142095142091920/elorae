@@ -188,6 +188,6 @@
     pagePath: pagePath, session: session, api: api, repoPath: repoPath,
     getFile: getFile, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,
     b64EncodeUtf8: b64EncodeUtf8, b64EncodeBytes: b64EncodeBytes, b64DecodeUtf8: b64DecodeUtf8,
-    sealWho: function () { try { return localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
+    loginWho: function () { try { return localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
   };
 })();

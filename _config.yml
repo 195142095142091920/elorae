@@ -1,0 +1,40 @@
+# Elorae — GitHub Pages / Jekyll
+# Pretty folder URLs: page.html → /page/ (and articles/foo.html → /articles/foo/).
+# Old .html paths get HTML redirects in CI (see .github/workflows/pages.yml).
+title: Elorae
+url: https://elorae.world
+permalink: pretty
+
+plugins:
+  - jekyll-redirect-from
+  - jekyll-optional-front-matter
+  - jekyll-relative-links
+
+optional_front_matter:
+  remove_originals: false
+
+# Keep custom 404 at /404.html (pretty would otherwise make /404/).
+defaults:
+  - scope:
+      path: "404.html"
+    values:
+      permalink: /404.html
+
+exclude:
+  - README.md
+  - MILESTONES.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - _verify
+  - .git
+  - .github
+  - edit/test
+  - scripts
+
+# Static deploy note: until the Pages workflow runs jekyll-build-pages,
+# pretty URLs for login are provided by login/index.html; seal.html and
+# seal/ redirect to /login/. Site-wide pretty URLs activate when CI uses
+# Jekyll (see scripts/html-extension-redirects.sh and the jekyll workflow
+# snippet in scripts/pages-workflow-jekyll.yml).

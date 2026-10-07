@@ -4,8 +4,8 @@
    a.toc-name.on, preferring the open category; a Factions sub-group counts as its own list).
    Renders as a <nav>
    appended at the end of main.art-body (edit/ skips <nav>, so it is never an editable block).
-   Sealed entries (.sealed, .sealed-group, any [data-owner] link) are skipped for every reader,
-   unlocked or not, and nothing is rendered on a sealed article itself. */
+   Private entries (.private, .private-group, any [data-owner] link) are skipped for every reader,
+   unlocked or not, and nothing is rendered on a private article itself. */
 (function () {
   if (!document.body.classList.contains("article")) return;
   var main = document.querySelector("main.art-body");
@@ -13,14 +13,14 @@
   if (!main || !on || document.querySelector(".nt-siblings")) return;
   var group = on.closest(".toc-group") || on.closest(".toc-nest") || on.closest(".toc-cat");
   if (!group) return;
-  /* Sealed entries are never used, for anyone: the site gates them with CSS only
-     (body.seal-<owner>), so their titles must not be copied into a visible element. */
+  /* Private entries are never used, for anyone: the site gates them with CSS only
+     (body.login-<owner>), so their titles must not be copied into a visible element. */
   function publicLink(a) {
-    return !a.closest(".sealed,.sealed-group,[hidden]") && !a.hasAttribute("data-owner");
+    return !a.closest(".private,.private-group,[hidden]") && !a.hasAttribute("data-owner");
   }
   var links = Array.prototype.slice.call(group.querySelectorAll("a.toc-name")).filter(publicLink);
   var i = links.indexOf(on);
-  if (on.closest(".sealed,.sealed-group") || on.hasAttribute("data-owner") || i < 0 || links.length < 2) return;
+  if (on.closest(".private,.private-group") || on.hasAttribute("data-owner") || i < 0 || links.length < 2) return;
   var prev = links[i - 1], next = links[i + 1];
   var css = document.createElement("style");
   css.textContent =

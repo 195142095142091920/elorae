@@ -42,8 +42,8 @@ scenario("player can't grant himself permissions", ["edit/profiles.json", "artic
 scenario("viewer refused", ["articles/vaerek.html"], "x [edit-mode]", "viewer-gh", 1);
 scenario("unknown login with [edit-mode] refused", ["articles/vaerek.html"], "x [edit-mode]", "stranger", 1, "has no edit profile");
 scenario("jon edits both his articles (Silar Scorria + Telorin)", ["articles/silar-scorria.html", "articles/telorin.html"], "x [edit-mode]", "jon-gh", 0);
-scenario("jon refused on a sealed article", ["articles/yena.html"], "x [edit-mode]", "jon-gh", 1, "may not edit articles/yena.html");
-scenario("admin (Devin) edits index/, journal, sealed article, edit/", ["index/ancients.html", "journal.html", "articles/yena.html", "edit/visibility.json", "index.html"], "x [edit-mode]", "owner-gh", 0);
+scenario("jon refused on a private article", ["articles/yena.html"], "x [edit-mode]", "jon-gh", 1, "may not edit articles/yena.html");
+scenario("admin (Devin) edits index/, journal, private article, edit/", ["index/ancients.html", "journal.html", "articles/yena.html", "edit/visibility.json", "index.html"], "x [edit-mode]", "owner-gh", 0);
 fs.rmSync(dir, { recursive: true, force: true });
 console.log(`\n${pass}/${pass + fail} passed`);
 process.exit(fail ? 1 : 0);

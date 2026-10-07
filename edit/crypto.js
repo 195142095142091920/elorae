@@ -95,10 +95,10 @@
     }).then(function (pt) { return JSON.parse(deutf8(pt)); });
   }
 
-  // Expand a short seal phrase into PBKDF2 material (64 hex chars) so enroll's >=12
+  // Expand a short login phrase into PBKDF2 material (64 hex chars) so enroll's >=12
   // length floor never rejects known PHRASE_HASH phrases like "light". Domain-separated
   // from the identity hash (which is SHA-256 of the raw phrase alone).
-  function sealMaterial(phrase) {
+  function phraseMaterial(phrase) {
     return S.digest("SHA-256", utf8("elorae-secrets-v1:" + String(phrase || "").normalize("NFKC"))).then(function (buf) {
       var u = new Uint8Array(buf), hex = "";
       for (var i = 0; i < u.length; i++) hex += (u[i] < 16 ? "0" : "") + u[i].toString(16);
@@ -109,6 +109,6 @@
   return {
     b64: b64, unb64: unb64, enroll: enroll, unlock: unlock, exportPrivate: exportPrivate, importPrivate: importPrivate,
     newContentKey: newContentKey, wrapFor: wrapFor, unwrap: unwrap, encryptSecret: encryptSecret, decryptSecret: decryptSecret,
-    PBKDF2_ITER: PBKDF2_ITER, sealMaterial: sealMaterial
+    PBKDF2_ITER: PBKDF2_ITER, phraseMaterial: phraseMaterial
   };
 });

@@ -57,13 +57,13 @@
     var dir = payload.path.replace(/[^/]*$/, "");
     var inject = '<base href="' + E.ROOT + dir + '">';
     var html = payload.html.replace(/<head(\s[^>]*)?>/i, function (m) { return m + inject; });
-    // A sealed article's hero and body are hidden by CSS unless the friend-door seal matches.
-    // Whoever decrypted this copy may read it, so drop that gate (the "sealed" class) on the
-    // article's own hero/body only; navigation (e.g. the Sealed list) stays gated as on the original.
+    // A private article's hero and body are hidden by CSS unless the friend-door login matches.
+    // Whoever decrypted this copy may read it, so drop that gate (the "private" class) on the
+    // article's own hero/body only; navigation (e.g. the Private list) stays gated as on the original.
     html = html.replace(/(<(?:section|main)\b[^>]*\sclass=")([^"]*)(")/gi, function (m, a, cls, c) {
       var t = cls.split(/\s+/);
-      if (t.indexOf("sealed") < 0 || (t.indexOf("art-hero") < 0 && t.indexOf("art-body") < 0)) return m;
-      return a + t.filter(function (x) { return x && x !== "sealed"; }).join(" ") + c;
+      if (t.indexOf("private") < 0 || (t.indexOf("art-hero") < 0 && t.indexOf("art-body") < 0)) return m;
+      return a + t.filter(function (x) { return x && x !== "private"; }).join(" ") + c;
     });
     document.open();
     document.write(html);

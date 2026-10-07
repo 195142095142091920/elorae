@@ -40,7 +40,7 @@
   }
 
   // DASHBOARD link: only while a GitHub admin edit session is active (role/person
-  // stamped at sign-in after profiles.json check). Friend seal alone never grants it.
+  // stamped at sign-in after profiles.json check). Friend login alone never grants it.
   // Prepend so the phone friends row shows it without swiping.
   function dash() {
     var s = readSession();

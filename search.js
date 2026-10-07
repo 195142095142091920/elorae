@@ -13,13 +13,13 @@
   var indexLoading = null;
   var indexReady = !!(window.SEARCH_INDEX);
 
-  function sealWho() {
-    try { return localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; }
+  function loginWho() {
+    try { return localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; }
   }
 
   function canSee(entry) {
     if (!entry.private) return true;
-    var who = sealWho();
+    var who = loginWho();
     if (who === "devin") return true;
     return !!(who && entry.owner && who === entry.owner);
   }
@@ -615,10 +615,10 @@
   var body = document.body;
   if (!body || !body.classList.contains("article")) return;
   var h1 = document.querySelector(".art-title h1");
-  var seal = document.querySelector(".mast .topbar > .mark > a[href$=\"seal.html\"], .mast .mark > a[href$=\"seal.html\"]");
-  if (!h1 || !seal) return;
+  var loginGate = document.querySelector(".mast .topbar > .mark > a[href$=\"login.html\"], .mast .mark > a[href$=\"login.html\"]");
+  if (!h1 || !loginMark) return;
   var name = (h1.textContent || "").trim().split(/\s+/)[0];
-  if (name) seal.textContent = name;
+  if (name) loginMark.textContent = name;
 })();
 
 /* art72: lock phone safe-area once (no scroll/resize chrome rewrite) */

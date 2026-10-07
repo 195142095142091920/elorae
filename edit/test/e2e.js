@@ -48,7 +48,7 @@ async function ctxFor(browser, mock, opts = {}) {
   return ctx;
 }
 const sessionInit = (token, login, extra = {}) => `try{sessionStorage.setItem("elorae-edit-session", ${JSON.stringify(JSON.stringify(Object.assign({ token, login, remember: false }, extra)))})}catch(e){}`;
-const sealInit = (who) => `try{localStorage.setItem("elorae-seal", ${JSON.stringify(who)})}catch(e){}`;
+const loginInit = (who) => `try{localStorage.setItem("elorae-login", ${JSON.stringify(who)})}catch(e){}`;
 
 async function waitEditor(page) { await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state, null, { timeout: 10000 }); await page.waitForTimeout(400); }
 
@@ -482,11 +482,11 @@ async function signInViaPanel(page, token) {
       const mock = newMock();
       const cases = [
         ["anonymous", "", false],
-        ["seal jack", sealInit("jack"), false],
-        ["seal devin only", sealInit("devin"), false],
+        ["login jack", loginInit("jack"), false],
+        ["login devin only", loginInit("devin"), false],
         ["arts editor", sessionInit("ghp_test_arts", "arts-gh", { role: "editor" }), false],
         ["admin edit session", sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }), true],
-        ["admin session + seal jack", sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) + sealInit("jack"), true]
+        ["admin session + login jack", sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) + loginInit("jack"), true]
       ];
       for (const [name, init, want] of cases) {
         const ctx = await ctxFor(browser, mock, { init });
@@ -589,7 +589,7 @@ async function signInViaPanel(page, token) {
         check("owner save: vaerek moved to Julie, removed from Sawyer", julie.indexOf("articles/vaerek.html") >= 0 && sawyer.indexOf("articles/vaerek.html") < 0, JSON.stringify({ julie, sawyer }));
         await ctx.close();
       }
-      // Share panel on sealed yena (encrypted on live; in mock from disk after pull it may be encrypted)
+      // Share panel on private yena (encrypted on live; in mock from disk after pull it may be encrypted)
       {
         const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
         const page = await ctx.newPage();
@@ -758,7 +758,7 @@ async function signInViaPanel(page, token) {
       check("dashboard (Devin): lists all 12 secrets", rows === 12, `rows=${rows}`);
       const links = await page.$$eval("tr[data-row]", (t) => t.map((r) => [r.dataset.row, r.querySelector(".ee-t a").getAttribute("href"), r.querySelector(".ee-t a").href]));
       const ids = Object.keys(JSON.parse(fs.readFileSync(path.join(ROOT, "edit/visibility.json"), "utf8")).secrets);
-      check("dashboard: each of the 12 links to its sealed article ../articles/<id>.html (file exists)", links.length === 12 && links.every(([id, h, abs]) => h === "../articles/" + id + ".html" && abs === BASE + "articles/" + id + ".html" && fs.existsSync(path.join(ROOT, "articles", id + ".html"))) && ids.every((id) => links.some((l) => l[0] === id)), links.map((l) => l[1]).join(" "));
+      check("dashboard: each of the 12 links to its private article ../articles/<id>.html (file exists)", links.length === 12 && links.every(([id, h, abs]) => h === "../articles/" + id + ".html" && abs === BASE + "articles/" + id + ".html" && fs.existsSync(path.join(ROOT, "articles", id + ".html"))) && ids.every((id) => links.some((l) => l[0] === id)), links.map((l) => l[1]).join(" "));
       await page.fill("#ee-p1", pass.devin); await page.fill("#ee-p2", pass.devin);
       await page.click("#ee-enroll button");
       await page.waitForFunction(() => /Key created/.test((document.getElementById("ee-msg") || {}).textContent || ""), null, { timeout: 30000 });
@@ -779,7 +779,7 @@ async function signInViaPanel(page, token) {
       await page.screenshot({ path: `${SHOTS}/dashboard-desktop.png`, fullPage: true });
 
       async function tryOpen(who, label) {
-        const c = await ctxFor(browser, mock, { init: who ? sealInit(who) : "" });
+        const c = await ctxFor(browser, mock, { init: who ? loginInit(who) : "" });
         const pg = await c.newPage();
         await pg.goto(BASE + "edit/secret.html?id=yena", { waitUntil: "networkidle" });
         await pg.waitForTimeout(300);
@@ -789,7 +789,7 @@ async function signInViaPanel(page, token) {
           await pg.click("#ee-f button[type=submit]");
         }
         let opened = false;
-        // Opened = the Yena article rendered AND visible (the .sealed CSS gate must not hide it for a non-owner reader).
+        // Opened = the Yena article rendered AND visible (the .private CSS gate must not hide it for a non-owner reader).
         try { await pg.waitForFunction(() => { const h = document.querySelector(".art-title h1"), m = document.querySelector("main.art-body"); return h && /Yena/.test(h.textContent) && m && m.offsetHeight > 0 && h.offsetHeight > 0; }, null, { timeout: 8000 }); opened = true; } catch (e) {}
         const msg = opened ? "" : await pg.textContent("body");
         await c.close();
@@ -836,20 +836,20 @@ async function signInViaPanel(page, token) {
         await pg.waitForFunction(() => document.querySelector(".art-title h1"), null, { timeout: 10000 });
         await pg.waitForTimeout(4000);
         const buf = await pg.screenshot();
-        const dom = await pg.evaluate(() => { const b = document.body.cloneNode(true); b.querySelectorAll(".art-hero.sealed, .art-body.sealed").forEach((e) => { e.classList.remove("sealed"); if (!e.className) e.removeAttribute("class"); }); b.querySelectorAll("img,[data-src],button[data-src]").forEach((i) => { i.removeAttribute("src"); i.removeAttribute("data-src"); }); b.querySelectorAll("canvas").forEach((c) => c.replaceWith(document.createElement("canvas"))); return b.outerHTML; });
+        const dom = await pg.evaluate(() => { const b = document.body.cloneNode(true); b.querySelectorAll(".art-hero.private, .art-body.private").forEach((e) => { e.classList.remove("private"); if (!e.className) e.removeAttribute("class"); }); b.querySelectorAll("img,[data-src],button[data-src]").forEach((i) => { i.removeAttribute("src"); i.removeAttribute("data-src"); }); b.querySelectorAll("canvas").forEach((c) => c.replaceWith(document.createElement("canvas"))); return b.outerHTML; });
         await c.close();
         buf.dom = dom;
         return buf;
       };
-      const a = await shot(BASE + "articles/yena.html", sealInit("jack"));
-      const a2 = await shot(BASE + "articles/yena.html", sealInit("jack"));
-      const b2 = await shot(BASE + "edit/secret.html?id=yena", sealInit("jack"));
+      const a = await shot(BASE + "articles/yena.html", loginInit("jack"));
+      const a2 = await shot(BASE + "articles/yena.html", loginInit("jack"));
+      const b2 = await shot(BASE + "edit/secret.html?id=yena", loginInit("jack"));
       fs.writeFileSync(`${SHOTS}/yena-original.png`, a); fs.writeFileSync(`${SHOTS}/yena-original-2.png`, a2); fs.writeFileSync(`${SHOTS}/yena-decrypted.png`, b2);
       // Pixel stats: [pixels differing at all, pixels differing by > 8/255, mean abs difference]
       const pxdiff = (x, y) => JSON.parse(require("child_process").execFileSync("python3", ["-c", "import sys,json;from PIL import Image;import numpy as n;a=n.asarray(Image.open(sys.argv[1]).convert('RGB')).astype(int);b=n.asarray(Image.open(sys.argv[2]).convert('RGB')).astype(int);d=abs(a-b).max(axis=2);print(json.dumps([int((d>0).sum()),int((d>8).sum()),float(d.mean())]))", x, y]).toString());
       const noise = pxdiff(`${SHOTS}/yena-original.png`, `${SHOTS}/yena-original-2.png`);
       const dd = pxdiff(`${SHOTS}/yena-original.png`, `${SHOTS}/yena-decrypted.png`);
-      check("decrypted Yena: same rendered DOM as the unlocked sealed article (image URLs and the .sealed gate class aside)", a.dom === b2.dom && a.dom === a2.dom);
+      check("decrypted Yena: same rendered DOM as the unlocked private article (image URLs and the .private gate class aside)", a.dom === b2.dom && a.dom === a2.dom);
       check("decrypted Yena: screenshot matches the original (within the page's own frame-to-frame noise)", dd[1] <= 0.001 * 1440 * 900 && dd[2] < 0.5, `orig vs decrypted: ${dd[0]} px differ, ${dd[1]} by >8/255, mean ${dd[2].toFixed(3)}; orig vs orig: ${noise[0]} px, ${noise[1]} by >8/255`);
     }
   } catch (e) {

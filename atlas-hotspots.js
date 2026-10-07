@@ -2,7 +2,7 @@
    names (positions are % of assets/EloraeLowRes.png, checked against the printed labels).
    Choosing one lists, under the map: the place's Atlas page (if any), the articles whose
    search-index text names it or one of its regions, and the Journal chapters that name it.
-   Sealed articles are never listed. Clicking the map itself still opens the zoom view.
+   Private articles are never listed. Clicking the map itself still opens the zoom view.
    Built at runtime only (the info panel is an <aside>, which edit mode's srcmap skips), and not
    at all during an edit session. */
 (function () {
