@@ -1516,8 +1516,47 @@
         { path: pretty, text: body }
       ];
       return E.commitFiles(files, "Edit: new article " + artSlug + " [edit-mode]", E.BRANCH).then(function () {
-        editBar("Created /articles/" + artSlug + "/ — opening…", "ee-done");
-        setTimeout(function () { location.href = "/articles/" + artSlug + "/#edit"; }, 800);
+        var prettyUrl = "/articles/" + artSlug + "/";
+        var htmlUrl = "/articles/" + artSlug + ".html";
+        var maxMs = 180000;
+        var intervalMs = 4000;
+        var started = Date.now();
+        editBar("Created — publishing to the site…", "ee-busy");
+        function isRealArticle(body) {
+          var s = String(body || "");
+          if (/page does not exist|permalink\s*404/i.test(s)) return false;
+          if (/<main[^>]*art-body|class="[^"]*art-body|class="art-title"|class="[^"]*art-title/i.test(s)) return true;
+          if (/<body[^>]*class="[^"]*\barticle\b/i.test(s) && /<h1/i.test(s)) return true;
+          return false;
+        }
+        function probe(url) {
+          return fetch(url, { method: "GET", cache: "no-store", credentials: "same-origin" }).then(function (r) {
+            if (!r.ok) return null;
+            return r.text().then(function (body) { return isRealArticle(body) ? url : null; });
+          }, function () { return null; });
+        }
+        function tick() {
+          return probe(prettyUrl).then(function (hit) {
+            if (hit) return hit + "#edit";
+            return probe(htmlUrl).then(function (hit2) { return hit2 ? hit2 + "#edit" : null; });
+          }).then(function (dest) {
+            if (dest) {
+              editBar("Published — opening…", "ee-done");
+              location.href = dest;
+              return;
+            }
+            if (Date.now() - started >= maxMs) {
+              editBar(
+                'Still publishing. Try <a href="' + prettyUrl + '#edit">' + prettyUrl + '</a> or <a href="' + htmlUrl + '#edit">' + htmlUrl + '</a> in a minute.',
+                "ee-bad-bar"
+              );
+              return;
+            }
+            editBar("Publishing… (" + Math.round((Date.now() - started) / 1000) + "s)", "ee-busy");
+            return new Promise(function (res) { setTimeout(res, intervalMs); }).then(tick);
+          });
+        }
+        return tick();
       });
     }).catch(function (e) {
       editBar(e.message || "Could not create article.", "ee-bad-bar");
