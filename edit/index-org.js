@@ -334,11 +334,12 @@
 
   function articleTemplate(name, slug, catId) {
     var title = name;
-    var vEdit = "index-dnd";
+    var vEdit = "img-resize";
     // Minimal article; art-index stub — Category rail still works for chrome.
     return '<!doctype html>\n<html lang="en">\n<head>\n' +
       '<script src="../session-gate.js?v=guest-browse"><\/script>\n\n' +
       '<meta charset="utf-8">\n' +
+      '<script src="/img.js?v=img-resize"><\/script>\n' +
       '<script src="../cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n' +
       '<title>' + esc(title) + ' - Elorae</title>\n' +
@@ -358,7 +359,7 @@
       '<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier"><dt>Name</dt><dd>' + esc(title) + '</dd></dl></section>\n' +
       '<section class="art-sec" id="description"><h2>Description</h2><p class="art-line"></p></section>\n' +
       '</main>\n' +
-      '<script src="../search.js?v=pretty-urls"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
+      '<script src="../search.js?v=img-resize"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n' +
       '<script src="../glow.js?v=nt32-ambient"><\/script>\n' +
       '<script src="../art-index.js?v=art87"><\/script>\n' +

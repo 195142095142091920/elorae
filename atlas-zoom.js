@@ -26,7 +26,7 @@
     x = ox - (ox - x) * ns / s; y = oy - (oy - y) * ns / s; s = ns;
     clamp(); apply();
   }
-  function open() { img.src = src.currentSrc || src.src; s = 1; x = 0; y = 0; apply(); box.hidden = false; document.documentElement.classList.add("map-zoom-open"); }
+  function open() { img.src = window.eloraeImg ? window.eloraeImg.orig(src.getAttribute("src")) : (src.currentSrc || src.src); /* zoom: full-res original */ s = 1; x = 0; y = 0; apply(); box.hidden = false; document.documentElement.classList.add("map-zoom-open"); }
   function close() { box.hidden = true; document.documentElement.classList.remove("map-zoom-open"); }
   src.addEventListener("click", open);
   var shut = box.querySelector(".map-zoom-close");

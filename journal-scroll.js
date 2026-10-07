@@ -97,6 +97,7 @@
         var art = node.matches("figure") ? node.querySelector("img") : null;
         if (art) {
           var src = art.getAttribute("src");
+          if (src && window.eloraeImg) src = window.eloraeImg.orig(src); /* img-resize: bg sized on its own */
           if (src) {
             /* Heading triggers first chapter art; later figures trigger on their own. */
             marks.push({ el: first ? h : art, src: src });
@@ -109,7 +110,17 @@
     var back = layer.cloneNode(false);
     back.classList.add("bg-off");
     layer.parentNode.appendChild(back);
-    var layers = [layer, back], front = 0, shown = layer.getAttribute("src"), base = shown, want = shown;
+    var cur0 = layer.getAttribute("src");
+    if (window.eloraeImg) cur0 = window.eloraeImg.orig(cur0);
+    back.setAttribute("data-eimg-orig", cur0);
+    layer.setAttribute("data-eimg-orig", cur0);
+    var layers = [layer, back], front = 0, shown = cur0, base = shown, want = shown;
+  }
+  /* img-resize: fixed full-viewport cover backdrop; ~7:3 art (/img.js). */
+  var BG = { sizes: "(max-aspect-ratio: 7/3) 234vh, 100vw", min: 640, max: 2560, fallback: 1920 };
+  function setLayer(img, src) {
+    if (window.eloraeImg) window.eloraeImg.set(img, src, BG);
+    else { img.setAttribute("src", src); img.setAttribute("data-eimg-orig", src); }
   }
   function swapTo(src) {
     if (src === want) return;
@@ -122,9 +133,9 @@
       front = 1 - front;
       shown = src;
     }
-    if (next.getAttribute("src") === src && next.complete) { show(); return; }
+    if (next.getAttribute("data-eimg-orig") === src && next.complete) { show(); return; }
     next.onload = show;
-    next.setAttribute("src", src);
+    setLayer(next, src);
   }
   function follow(line) {
     if (!marks.length) return;

@@ -40,6 +40,15 @@
       .replace(/&amp;/g, "&");
   }
 
+  /* img-resize: Cloudflare-resized art sized to the display box (see /img.js). Art is ~7:3
+     and cover-cropped, so a portrait box needs height x 2.33 px of width. */
+  var HIT_ART = { sizes: "(max-width: 800px) 176px, 276px", min: 160, max: 640, fallback: 320, lazy: true };
+  var PANEL_ART = { sizes: "(max-width: 800px) 340px, 500px", min: 320, max: 1280, fallback: 480, lazy: true };
+  function artImg(src, o, attrs) {
+    if (window.eloraeImg) return window.eloraeImg.html(src, o, attrs);
+    return '<img src="' + escapeHtml(src) + '" ' + attrs + '>';
+  }
+
   function safeAssetUrl(href) {
     return absHref(decodeEntities(href || ""));
   }
@@ -160,7 +169,7 @@
     hits.innerHTML = "<h2>Mentions</h2>" + rows.map(function (r) {
       var e = r.entry;
       var thumb = e.image
-        ? '<img class="hit-art" src="' + escapeHtml(safeAssetUrl(e.image)) + '" alt="">'
+        ? artImg(safeAssetUrl(e.image), HIT_ART, 'class="hit-art" alt=""')
         : '<span class="hit-art hit-art-empty" aria-hidden="true"></span>';
       var kind = e.kind ? '<span class="hit-kind">' + escapeHtml(e.kind) + "</span>" : "";
       var sn = r.snip ? '<p class="hit-snip">' + r.snip + "</p>" : "";
@@ -239,7 +248,7 @@
       html += '<div class="seek-panel-cards">' + pack.cards.map(function (e) {
         var indexHref = absHref("/index/ancients/") + "?card=" + encodeURIComponent(e.href);
         return '<a class="seek-panel-card" href="' + escapeHtml(indexHref) + '" data-article="' + escapeHtml(e.href) + '" title="Click: Index · Double-click: article">' +
-          '<img src="' + escapeHtml(safeAssetUrl(e.image)) + '" alt="">' +
+          artImg(safeAssetUrl(e.image), PANEL_ART, 'alt=""') +
           '<span>' + escapeHtml(e.title) + "</span></a>";
       }).join("") + "</div>";
     }

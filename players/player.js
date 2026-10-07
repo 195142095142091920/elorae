@@ -18,6 +18,11 @@
   function url(p) { return new URL(p, ROOT).href; }
   function text(n) { return n ? n.textContent.replace(/\s+/g, " ").trim() : ""; }
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  /* img-resize: character card art renders ~150-180px wide (/img.js). */
+  function artSrc(img, src) {
+    if (window.eloraeImg) window.eloraeImg.set(img, src, { sizes: "180px", min: 160, max: 640, fallback: 320, lazy: true });
+    else img.src = src;
+  }
   function link(href, t) { var a = el("a", null, t); a.href = url(href); return a; }
   function doc(p) { return fetch(url(p)).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
     .then(function (t) { return new DOMParser().parseFromString(t, "text/html"); }); }
@@ -131,7 +136,7 @@
       var hero = d.querySelector(".art-hero img");
       if (hero) {
         var img = document.createElement("img");
-        img.src = new URL(hero.getAttribute("src"), url(fetchPath)).href;
+        artSrc(img, new URL(hero.getAttribute("src"), url(fetchPath)).href);
         img.alt = ""; img.loading = "lazy";
         if (doLink && go) {
           var ln = link(go, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
@@ -152,7 +157,7 @@
       if (hero) {
         var ln = link(path, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
         var img = document.createElement("img");
-        img.src = new URL(hero.getAttribute("src"), url(path)).href;
+        artSrc(img, new URL(hero.getAttribute("src"), url(path)).href);
         img.alt = ""; img.loading = "lazy";
         ln.appendChild(img); box.appendChild(ln);
       } else box.appendChild(el("div", "ph"));

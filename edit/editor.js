@@ -987,8 +987,12 @@
       }
       return '<div class="ee-gallery" id="ee-gal-grid">' + items.map(function (m) {
         var src = gallerySrc(m);
+        /* img-resize: thumbnail sized to its ~120-240 x 96px cover box (/img.js); ~7:3 art. */
+        var thumb = window.eloraeImg
+          ? window.eloraeImg.html(E.ROOT + m.path, { sizes: "(max-width: 800px) 180px, 240px", min: 160, max: 640, fallback: 320, lazy: true }, 'alt=""')
+          : '<img src="' + esc(src) + '" alt="">';
         return '<button type="button" class="ee-gal-item" data-gal-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' +
-          '<img src="' + esc(src) + '" alt="">' +
+          thumb +
           '<span>' + esc(m.title || m.id) + '</span></button>';
       }).join("") + '</div>';
     }
@@ -1433,6 +1437,7 @@
         to.setAttribute("src", src);
         var alt = from.getAttribute("alt");
         if (alt != null) to.setAttribute("alt", alt);
+        keepImgSizing(from, to);
         return true;
       }
       if ((tag === "a" || tag === "abbr") && from.getAttribute("title")) to.setAttribute("title", from.getAttribute("title"));
@@ -1514,6 +1519,7 @@
         "<!doctype html>\n<html lang=\"en\">\n<head>\n" +
         "<script src=\"/session-gate.js?v=guest-browse\"></script>\n\n" +
         "<meta charset=\"utf-8\">\n" +
+        "<script src=\"/img.js?v=img-resize\"></script>\n" +
         "<script src=\"/cats-rail-boot.js?v=art74\"></script>\n" +
         "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">\n" +
         "<title>" + escTitle + " - Elorae</title>\n" +
@@ -1530,9 +1536,9 @@
         "<header class=\"art-title\"><h1>" + escTitle + "</h1><p class=\"art-epithet\"></p></header>\n" +
         "<section class=\"art-sec\" id=\"lore\"><h2>Lore</h2><p class=\"art-life\"></p></section>\n" +
         "</main>\n" +
-        "<script src=\"/search.js?v=pretty-urls\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
+        "<script src=\"/search.js?v=img-resize\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=edit-polish\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=img-resize\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -1637,6 +1643,30 @@
     if (/^[a-z][a-z0-9+.-]*:/i.test(v) && !/^(https?|mailto):/i.test(v)) return null;
     return String(h).trim();
   }
+  /* img-resize: keep responsive-image attributes (srcset/sizes from scripts/img-resize.py)
+     through a save, when every srcset candidate is a safe non-data URL. */
+  function keepImgSizing(from, to) {
+    var ss = from.getAttribute("srcset");
+    if (ss) {
+      var ok = ss.split(/,\s+/).every(function (c) {
+        var m = /^(\S+)(\s+\d+(?:\.\d+)?[wx])?$/.exec(c.trim());
+        return m && !/^data:/i.test(m[1]) && safeSrc(m[1]) != null;
+      });
+      if (ok) {
+        to.setAttribute("srcset", ss);
+        var sz = from.getAttribute("sizes");
+        if (sz && /^[\w\s(),.:\/%-]+$/.test(sz)) to.setAttribute("sizes", sz);
+      }
+    }
+    var ld = from.getAttribute("loading");
+    if (ld === "lazy" || ld === "eager") to.setAttribute("loading", ld);
+    var dc = from.getAttribute("decoding");
+    if (dc === "async" || dc === "sync" || dc === "auto") to.setAttribute("decoding", dc);
+    ["width", "height"].forEach(function (k) {
+      var v = from.getAttribute(k);
+      if (v && /^\d{1,5}$/.test(v)) to.setAttribute(k, v);
+    });
+  }
   function safeSrc(s) {
     var raw = String(s == null ? "" : s).trim();
     if (!raw) return null;
@@ -1664,6 +1694,7 @@
         to.setAttribute("src", src);
         var alt = from.getAttribute("alt");
         if (alt != null) to.setAttribute("alt", alt);
+        keepImgSizing(from, to);
         return true;
       }
       if ((tag === "a" || tag === "abbr") && from.getAttribute("title")) to.setAttribute("title", from.getAttribute("title"));
