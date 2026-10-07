@@ -379,6 +379,7 @@ function showSignedOutUI() {
   if (guestBtn) guestBtn.hidden = false;
   if (welcome) welcome.hidden = true;
   if (nameEl) { nameEl.hidden = true; nameEl.textContent = ""; }
+  clearConnectBack();
   if (connect) { connect.hidden = true; connect.innerHTML = ""; }
   if (welcomeStage) {
     welcomeStage.hidden = false;
@@ -515,6 +516,19 @@ function setConnectErr(msg) {
   err.hidden = false;
 }
 
+
+function clearConnectBack() {
+  var back = document.getElementById("login-connect-back");
+  if (back) back.remove();
+}
+
+function pinConnectBack() {
+  var back = document.getElementById("login-connect-back");
+  var box = document.querySelector("body.login-page .login-box");
+  if (!back || !box) return;
+  box.appendChild(back);
+}
+
 function renderLoginConnect() {
   var box = document.getElementById("login-connect");
   var E = window.EloraeEdit;
@@ -555,6 +569,7 @@ function renderLoginConnect() {
     e.preventDefault();
     leaveLoginConnect();
   });
+  pinConnectBack();
   return true;
 }
 
@@ -564,6 +579,7 @@ function leaveLoginConnect() {
   var connect = document.getElementById("login-connect");
   document.body.classList.remove("login-connecting");
   loginStageCrossfade(connect, welcomeStage, function () {
+    clearConnectBack();
     if (connect) { connect.innerHTML = ""; connect.hidden = true; }
     syncGithubUI(readLoginWho());
   });
@@ -664,6 +680,7 @@ function onGithubConnected(who) {
   var connect = document.getElementById("login-connect");
   var welcomeStage = document.getElementById("login-welcome-stage");
   if (connect && !connect.hidden) {
+    clearConnectBack();
     connect.hidden = true;
     connect.innerHTML = "";
   }

@@ -4976,7 +4976,8 @@ body.login-page .login-stage.login-stage-abs{
   position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
 }
 body.login-page.login-connecting .login-box{
-  aspect-ratio:auto;min-height:400px;height:auto;padding-top:36px;padding-bottom:36px;
+  position:relative;
+  aspect-ratio:auto;min-height:400px;height:auto;padding-top:36px;padding-bottom:56px;
 }
 body.login-page #login-connect{
   display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;text-align:center;
@@ -5023,6 +5024,18 @@ body.login-page .login-connect-back{
   appearance:none;-webkit-appearance:none;background:none;border:0;padding:0;margin:0;cursor:pointer;
   font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:11px;font-weight:700;
   letter-spacing:.2em;text-transform:uppercase;color:#f3eee6;text-decoration:none;
+}
+body.login-page .login-box #login-connect-back{
+  position:absolute;
+  left:50%;
+  bottom:28px; /* match ELORAE top inset / Guest bottom inset */
+  transform:translateX(-50%);
+  margin:0;
+  z-index:2;
+  color:#8f8a82;
+}
+@media (max-width:800px){
+  body.login-page .login-box #login-connect-back{bottom:22px}
 }
 body.login-page .login-connect-back{color:#8f8a82;margin-top:8px}
 body.login-page .login-connect-submit:hover,
