@@ -14,12 +14,24 @@
     try {
       var ls = localStorage.getItem(KEY);
       var ss = sessionStorage.getItem(KEY);
-      var raw = ls || ss;
-      var s = raw ? JSON.parse(raw) : null;
-      if (!s || !s.token || !s.login) return null;
-      /* Promote remembered tab-only sessions so Edit survives a reload. */
-      if (!ls && s.remember) { try { localStorage.setItem(KEY, raw); } catch (e2) {} }
-      if (ls && ss && ls !== ss) { try { sessionStorage.setItem(KEY, ls); } catch (e2) {} }
+      function parseOne(raw) {
+        if (!raw) return null;
+        var s = JSON.parse(raw);
+        if (!s || !s.token || !s.login) return null;
+        return s;
+      }
+      /* Invalid LS must not shadow a good SS Connect (same heal as core.js). */
+      var sLs = null, sSs = null;
+      try { sLs = parseOne(ls); } catch (e1) { sLs = null; }
+      try { sSs = parseOne(ss); } catch (e2) { sSs = null; }
+      var s = sLs || sSs;
+      if (!s) return null;
+      if (sLs && sSs) s = sLs;
+      try {
+        var healed = JSON.stringify(s);
+        localStorage.setItem(KEY, healed);
+        sessionStorage.setItem(KEY, healed);
+      } catch (e3) {}
       return s;
     } catch (e) { return null; }
   }

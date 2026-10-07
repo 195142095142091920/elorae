@@ -109,10 +109,25 @@ function readEditSession() {
     }
   } catch (e) {}
   try {
-    var raw = localStorage.getItem("elorae-edit-session") || sessionStorage.getItem("elorae-edit-session");
-    if (!raw) return null;
-    var s = JSON.parse(raw);
-    return s && s.token && s.login ? s : null;
+    function parseOne(raw) {
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      return s && s.token && s.login ? s : null;
+    }
+    var ls = localStorage.getItem("elorae-edit-session");
+    var ss = sessionStorage.getItem("elorae-edit-session");
+    var sLs = null, sSs = null;
+    try { sLs = parseOne(ls); } catch (e1) { sLs = null; }
+    try { sSs = parseOne(ss); } catch (e2) { sSs = null; }
+    var s = sLs || sSs;
+    if (!s) return null;
+    if (sLs && sSs) s = sLs;
+    try {
+      var healed = JSON.stringify(s);
+      localStorage.setItem("elorae-edit-session", healed);
+      sessionStorage.setItem("elorae-edit-session", healed);
+    } catch (e3) {}
+    return s;
   } catch (e) { return null; }
 }
 
@@ -741,6 +756,12 @@ function submitLoginConnect() {
         }
       }
     } catch (eMark) {}
+    /* Confirm the token actually landed — silent set() failures used to leave Edit on Make-token. */
+    var check = E.session.get();
+    if (!check || !check.token) {
+      setConnectErr("Could not save the GitHub link in this browser. Check that storage is allowed for elorae.world, then try Enter again.");
+      return;
+    }
     try { window.dispatchEvent(new Event("elorae-edit-session")); } catch (e) {}
   }).catch(function (err) {
     setConnectErr(err.status === 401

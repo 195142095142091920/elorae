@@ -113,18 +113,21 @@
   var session = {
     get: function () {
       var ls = null, ss = null;
-      /* Prefer remembered localStorage so a stale sessionStorage token cannot
-         shadow a permanent Connect and force the Connect panel again. */
       try { ls = localStorage.getItem(KEY); } catch (e) {}
       try { ss = sessionStorage.getItem(KEY); } catch (e) {}
-      var raw = ls || ss;
-      var s = parseSessionRaw(raw);
+      /* Parse each store on its own. A non-null but invalid LS value (tombstone,
+         partial JSON, cleared token) must NOT shadow a good SS Connect token —
+         the old `parse(ls || ss)` path did, which re-opened Make-token after login Connect. */
+      var sLs = parseSessionRaw(ls);
+      var sSs = parseSessionRaw(ss);
+      var s = sLs || sSs;
       if (!s) return null;
-      /* Heal storage: promote remember to LS; keep SS in sync with the winner. */
+      /* Both valid: prefer remembered localStorage over a tab-only copy. */
+      if (sLs && sSs) s = sLs;
+      /* Heal storage: always persist the winner to both so Edit / login agree. */
       try {
         s.remember = true;
         var healed = JSON.stringify(s);
-        if (ls && ss && ls !== ss) sessionStorage.setItem(KEY, ls);
         localStorage.setItem(KEY, healed);
         sessionStorage.setItem(KEY, healed);
       } catch (e) {}

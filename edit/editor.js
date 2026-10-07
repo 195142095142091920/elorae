@@ -1365,12 +1365,12 @@
     if (s && s.token) return true;
     if (!E.session.wasLinked) return false;
     var who = "";
-    try { who = (E.loginWho && E.loginWho()) || ""; } catch (e) {}
+    try { who = String((E.loginWho && E.loginWho()) || "").toLowerCase(); } catch (e) {}
     /* Phrase identity (Devin) or any alias left by login Connect. */
     if (who && E.session.wasLinked(who)) return true;
-    /* No phrase who yet — still honor a linked flag stamped under GitHub login / person. */
-    if (!who && E.session.wasLinked("devin")) return true;
-    if (!who && E.session.wasLinked("195142095142091920")) return true;
+    /* Owner: always honor linked stamps under person or GitHub login, even if phrase who is empty. */
+    if ((!who || who === "devin") && E.session.wasLinked("devin")) return true;
+    if ((!who || who === "devin") && E.session.wasLinked("195142095142091920")) return true;
     return false;
   }
   /* Nav Edit / #edit: enter edit mode when already connected — never bounce to Connect. */
@@ -1420,6 +1420,14 @@
       /* Profile still loading or page not editable — signed-in panel, not Make-token. */
       openPanel();
       return;
+    }
+    /* Salvage: a bad tab copy may have blocked LS; drop SS and re-read once. */
+    if (E.session.dropTabSession) E.session.dropTabSession();
+    if (E.session.get()) {
+      return loadProfile().then(function () {
+        if (tryEnterEdit()) return;
+        openPanel();
+      });
     }
     if (alreadyConnectedHere()) {
       /* Linked via login Connect but token missing/invalid — soft re-enter only. */
