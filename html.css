@@ -2759,15 +2759,27 @@ body.seal-page.seal-sawyer .mast .topbar.seal-top > .mark .friend[data-owner=saw
 }
 
 
-/* Jon success ambient: slow continuous green↔red wash behind the seal box (nt31).
-   Uses body --jon-mix (see jon-mix keyframes); gradient color keyframes snapped/blinked. */
-body.seal-page.seal-jon .seal-card::before {
-  animation: none;
-  background: radial-gradient(
-    closest-side,
-    rgba(calc(80 + 150 * var(--jon-mix)), calc(180 - 90 * var(--jon-mix)), calc(90 - 50 * var(--jon-mix)), .55),
-    transparent
-  );
+/* Jon success ambient (nt32): continuous green↔red wash behind the welcome box.
+   Dual-layer opacity crossfade (universally interpolable — no @property / gradient snap).
+   Character-mark text-shadows stay fixed green/red (rules above). glow.js also writes
+   concrete --seal-glow each frame as a belt-and-suspenders sync. */
+@keyframes jon-seal-a{from{opacity:.7}to{opacity:0}}
+@keyframes jon-seal-b{from{opacity:0}to{opacity:.7}}
+body.seal-page.seal-jon .seal-card::before{
+  animation:jon-seal-a 3.2s ease-in-out infinite alternate;
+  background:radial-gradient(closest-side,rgba(80,180,90,.55),transparent);
+}
+body.seal-page.seal-jon .seal-card::after{
+  content:"";position:absolute;z-index:0;left:50%;top:50%;
+  transform:translate(-50%,-50%);pointer-events:none;
+  background:radial-gradient(closest-side,rgba(230,90,40,.55),transparent);
+  animation:jon-seal-b 3.2s ease-in-out infinite alternate;
+}
+@media (min-width:801px){
+  body.seal-page.seal-jon .seal-card::after{width:820px;height:820px;filter:blur(70px)}
+}
+@media (max-width:800px){
+  body.seal-page.seal-jon .seal-card::after{width:520px;height:520px;filter:blur(48px)}
 }
 
 

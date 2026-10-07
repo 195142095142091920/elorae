@@ -2,7 +2,7 @@ var canvas = document.getElementById("friend-glow");
 if (canvas) {
   var ctx = canvas.getContext("2d");
   /* Login / success tones: Jack yellow-gold, Julie pink, Sawyer red-orange,
-     Jon smooth green↔red continuous blend, Devin white. */
+     Jon Telorin green / Silar red (marks stay fixed; ambient blends), Devin white. */
   var tones = {
     jack: [230, 190, 80],
     julie: [255, 210, 220],
@@ -24,18 +24,27 @@ if (canvas) {
       Math.round(a[2] + (b[2] - a[2]) * t)
     ];
   }
-  function toneOf(name, t) {
-    if (name !== "jon") return tones[name] || tones.devin;
-    /* Jon: slow continuous sine blend green (Telorin) ↔ red (Silar), ~6.4s full cycle
-       (matches CSS jon-mix 3.2s ease-in-out alternate). */
+  /* Ambient blend only — ~6.4s full cycle (matches CSS 3.2s ease-in-out alternate). */
+  function jonAmbient(t) {
     var u = (Math.sin((t / 6400) * Math.PI * 2) + 1) / 2;
     return lerpTone(tones.jon, tones.jon2, u);
+  }
+  function toneOf(name) {
+    return tones[name] || tones.devin;
   }
   function frame(now) {
     var name = who();
     var link = name && (name === "devin"
       ? (document.getElementById("seal-name") || document.getElementById("seal-logout"))
       : (document.querySelector('.friend[data-owner="' + name + '"]') || document.getElementById("seal-name")));
+
+    /* Seal welcome-box ambient: concrete --seal-glow each frame (continuous; no blink). */
+    var card = document.querySelector("body.seal-page.seal-jon .seal-card");
+    if (card) {
+      var amb = jonAmbient(now || 0);
+      card.style.setProperty("--seal-glow", "rgba(" + amb[0] + "," + amb[1] + "," + amb[2] + ",.55)");
+    }
+
     if (!name || !link || link.hidden || getComputedStyle(link).display === "none") {
       /* art73: only mutate when visible — rewriting style every rAF can flash chrome. */
       if (canvas.style.display !== "none") canvas.style.display = "none";
@@ -44,7 +53,6 @@ if (canvas) {
       requestAnimationFrame(frame);
       return;
     }
-    var tone = toneOf(name, now || 0);
     var anchors = name === "jon" ? Array.prototype.slice.call(link.querySelectorAll("a")) : [link];
     if (!anchors.length) anchors = [link];
 
@@ -68,18 +76,20 @@ if (canvas) {
       });
     }
 
-    /* Particles and wash blend continuously; mast link text-shadow stays per-figure. */
-    paint(canvas, anchors[0], tone);
-    var second = document.getElementById("friend-glow-2");
-    if (anchors.length > 1) {
+    /* Character-mark particles stay per-figure (Telorin green, Silar red) — not the ambient blend. */
+    if (name === "jon" && anchors.length > 1) {
+      paint(canvas, anchors[0], tones.jon);
+      var second = document.getElementById("friend-glow-2");
       if (!second) {
         second = document.createElement("canvas");
         second.id = "friend-glow-2";
         document.documentElement.appendChild(second);
       }
-      paint(second, anchors[1], tone);
-    } else if (second) {
-      second.style.display = "none";
+      paint(second, anchors[1], tones.jon2);
+    } else {
+      paint(canvas, anchors[0], toneOf(name));
+      var second2 = document.getElementById("friend-glow-2");
+      if (second2) second2.style.display = "none";
     }
     requestAnimationFrame(frame);
   }
