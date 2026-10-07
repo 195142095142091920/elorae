@@ -222,6 +222,7 @@ async function signInViaPanel(page, token) {
       await waitEditor(page);
       await page.waitForSelector("#ee-glyph", { timeout: 5000 });
       check("articles editor: EDIT glyph on articles/vaerek.html", true);
+
       await page.screenshot({ path: `${SHOTS}/glyph-desktop.png` });
       await page.click("#ee-glyph");
       await page.waitForSelector("#ee-save");
@@ -461,7 +462,22 @@ async function signInViaPanel(page, token) {
       await ctx.close();
     }
 
-    /* 9. Dashboard link: Devin only. */
+    
+    /* 7c. Admin site-wide EDIT (players remain articles-only via ceiling). */
+    {
+      const mock = newMock();
+      const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+      const page = await ctx.newPage();
+      for (const path of ["codex/lore.html", "journal.html", "atlas.html", "journal/iii-xxx.html", "players/devin.html"]) {
+        await page.goto(BASE + path, { waitUntil: "networkidle" });
+        await waitEditor(page);
+        const g = await page.$("#ee-glyph");
+        check(`admin site-wide: EDIT glyph on ${path}`, !!g);
+      }
+      await ctx.close();
+    }
+
+/* 9. Dashboard link: Devin only. */
     {
       const mock = newMock();
       const cases = [

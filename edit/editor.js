@@ -271,7 +271,7 @@
   function editBar(msg, cls) {
     var mode = P.saveMode(state.profile) === "direct" ? "Saves to the live site" : "Saves as a pull request";
     var admin = P.isAdmin(state.profile);
-    var artBtn = (admin && document.querySelector(".art-hero img") && Media)
+    var artBtn = (admin && Media)
       ? '<button type="button" class="ee-btn" id="ee-art">Art</button>' : '';
     var shareBtn = (admin && V) ? '<button type="button" class="ee-btn" id="ee-share">Share</button>' : '';
     var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
@@ -561,30 +561,131 @@
 
 
   function openArtPanel() {
-    if (!P.isAdmin(state.profile)) return;
-    var hero = document.querySelector(".art-hero img");
-    if (!hero) return;
+    if (!P.isAdmin(state.profile) || !Media) return;
     openPanel();
     var b = $("ee-body");
+    b.innerHTML = '<p class="ee-k">Art</p><p class="ee-note">Loading gallery…</p>';
+    E.getFile(Media.CATALOG).then(function (f) {
+      renderGallery(JSON.parse(f.text));
+    }, function () {
+      renderGallery({ version: 1, media: {} });
+    });
+  }
+
+  function gallerySrc(entry) {
+    return Media.srcFromArticle(PATH, entry.path);
+  }
+
+  function renderGallery(catalog) {
+    var b = $("ee-body");
+    if (!b) return;
+    var items = Media.listVisible(catalog, "devin", true);
+    var hasHero = !!document.querySelector(".art-hero img");
+    var grid = items.length
+      ? '<div class="ee-gallery">' + items.map(function (m) {
+          var src = gallerySrc(m);
+          return '<button type="button" class="ee-gal-item" data-gal-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' +
+            '<img src="' + esc(src) + '" alt="">' +
+            '<span>' + esc(m.title || m.id) + '</span></button>';
+        }).join("") + '</div>'
+      : '<p class="ee-note">Catalog is empty. Upload below, or add images from the dashboard.</p>';
+    var applyHint = hasHero
+      ? "Click a thumbnail to set this page's hero. Or upload a new file."
+      : "Click a thumbnail to insert it at the caret (while editing), or upload a new file. This page has no art-hero — use Insert.";
     b.innerHTML =
       '<p class="ee-k">Art</p>' +
-      '<p class="ee-note">Replace this article\'s hero image. The file goes into the shared catalog (<code>assets/</code> + <code>edit/media/catalog.json</code>) and this page\'s <code>src</code> is updated. Visibility only gates the editor gallery — asset URLs stay public on Pages.</p>' +
-      '<form id="ee-art-form">' +
+      '<p class="ee-note">' + applyHint + ' Visibility only gates the editor gallery — <code>assets/</code> URLs stay public on Pages.</p>' +
+      grid +
+      '<form id="ee-art-form" class="ee-gal-up">' +
+      '<p class="ee-sub">Upload new</p>' +
       '<input type="file" id="ee-art-file" accept="image/png,image/jpeg,image/webp,image/gif">' +
       '<input type="text" id="ee-art-title" placeholder="Title (optional)" autocomplete="off">' +
       '<input type="text" id="ee-art-tags" placeholder="Tags (comma-separated)" autocomplete="off">' +
       '<label class="ee-check"><input type="checkbox" id="ee-art-everyone" checked> Everyone can use in the editor</label>' +
-      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">Upload &amp; replace hero</button>' +
+      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">' + (hasHero ? "Upload &amp; replace hero" : "Upload &amp; insert") + '</button>' +
       '<button type="button" class="ee-btn" id="ee-art-back">Back</button></div>' +
       '<p class="ee-err" id="ee-art-err" hidden></p></form>';
     $("ee-art-back").onclick = function () { closePanel(); };
     $("ee-art-form").onsubmit = function (e) {
       e.preventDefault();
-      replaceHeroImage();
+      replaceHeroImage(hasHero ? "hero" : "insert");
     };
+    Array.prototype.forEach.call(b.querySelectorAll("[data-gal-id]"), function (btn) {
+      btn.onclick = function () {
+        var id = btn.getAttribute("data-gal-id");
+        var entry = catalog.media[id];
+        if (!entry) return;
+        if (hasHero) applyCatalogToHero(entry);
+        else insertCatalogImage(entry);
+      };
+    });
   }
 
-  function replaceHeroImage() {
+  function applyCatalogToHero(entry) {
+    var hero = document.querySelector(".art-hero img");
+    if (!hero) return;
+    var rel = gallerySrc(entry);
+    bar('<span class="ee-msg">Setting hero…</span>');
+    E.getFile(PATH).then(function (page) {
+      var html = page.text;
+      var re = /(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\ssrc=")([^"]+)(")/i;
+      if (!re.test(html)) throw new Error("Could not find the hero image in the page source.");
+      var nextHtml = html.replace(re, function (m, a, _old, c) { return a + rel + c; });
+      if (entry.title) {
+        nextHtml = nextHtml.replace(/(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\salt=")([^"]*)(")/i, function (m, a, _o, c) {
+          return a + String(entry.title).replace(/"/g, "") + c;
+        });
+      }
+      return E.commitFiles([{ path: PATH, text: nextHtml }], "Media: set hero on " + PATH + " to " + entry.path + " [edit-mode]", E.BRANCH).then(function () {
+        hero.src = rel;
+        if (entry.title) hero.alt = entry.title;
+        closePanel();
+        editBar("Hero set from gallery · live in about 1–2 minutes", "ee-done");
+        var b = $("ee-bar");
+        if (b && !b.querySelector("#ee-x")) {
+          b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
+          $("ee-x").onclick = closeBar;
+        }
+      });
+    }).catch(function (e) {
+      editBar();
+      openArtPanel();
+      setTimeout(function () {
+        var err = $("ee-art-err");
+        if (err) { err.textContent = e.message || "Failed."; err.hidden = false; }
+      }, 0);
+    });
+  }
+
+  function insertCatalogImage(entry) {
+    var rel = gallerySrc(entry);
+    var imgHtml = '<img src="' + rel.replace(/"/g, "") + '" alt="' + String(entry.title || "").replace(/"/g, "") + '">';
+    // Prefer caret inside an editable block; else append to first editable.
+    var sel = window.getSelection && window.getSelection();
+    var ok = false;
+    if (sel && sel.rangeCount && state.editing) {
+      var node = sel.anchorNode;
+      var el = node && (node.nodeType === 1 ? node : node.parentElement);
+      if (el && el.closest && el.closest(".ee-editable")) {
+        document.execCommand("insertHTML", false, imgHtml);
+        ok = true;
+      }
+    }
+    if (!ok && state.editing) {
+      var first = document.querySelector(".ee-editable");
+      if (first) { first.insertAdjacentHTML("beforeend", imgHtml); ok = true; }
+    }
+    if (!ok) {
+      var err = $("ee-art-err");
+      if (err) { err.textContent = "Enter edit mode and place the caret where the image should go."; err.hidden = false; }
+      return;
+    }
+    closePanel();
+    editBar("Image inserted — Save to commit");
+  }
+
+  function replaceHeroImage(mode) {
+    mode = mode || (document.querySelector(".art-hero img") ? "hero" : "insert");
     var file = $("ee-art-file").files[0];
     var err = $("ee-art-err");
     function fail(m) { err.textContent = m; err.hidden = false; }
@@ -593,7 +694,7 @@
     var tags = ($("ee-art-tags").value || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
     var everyone = $("ee-art-everyone").checked;
     var hero = document.querySelector(".art-hero img");
-    if (!hero) return fail("No hero image on this page.");
+    if (mode === "hero" && !hero) return fail("No hero image on this page.");
     bar('<span class="ee-msg">Uploading art…</span>');
     Media.validateFile(file).then(function (info) {
       return E.getFile(Media.CATALOG).then(function (f) {
@@ -605,13 +706,16 @@
         everyone: everyone, allowed: everyone ? Media.PEOPLE.slice() : ["devin"]
       });
       var rel = Media.srcFromArticle(PATH, prep.entry.path);
-      // Update hero src (+ alt if empty) in the live page source via a small dedicated commit together with the catalog + bytes.
+      if (mode === "insert") {
+        return E.commitFiles(prep.files, "Media: upload " + prep.id + " via edit gallery [edit-mode]", E.BRANCH).then(function () {
+          insertCatalogImage(prep.entry);
+        });
+      }
       return E.getFile(PATH).then(function (page) {
         var html = page.text;
         var re = /(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\ssrc=")([^"]+)(")/i;
         if (!re.test(html)) throw new Error("Could not find the hero image in the page source.");
         var nextHtml = html.replace(re, function (m, a, _old, c) { return a + rel + c; });
-        // Also bump alt to title when present
         if (title) nextHtml = nextHtml.replace(/(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\salt=")([^"]*)(")/i, function (m, a, _o, c) { return a + title.replace(/"/g, "") + c; });
         prep.files.push({ path: PATH, text: nextHtml });
         return E.commitFiles(prep.files, "Media: replace hero on " + PATH + " with " + prep.id + " [edit-mode]", E.BRANCH).then(function () {
@@ -619,8 +723,6 @@
           if (title) hero.alt = title;
           closePanel();
           editBar("Hero image replaced · live in about 1–2 minutes", "ee-done");
-          $("ee-x") && ($("ee-x").onclick = closeBar);
-          // Offer Close on done bar
           var b = $("ee-bar");
           if (b && !b.querySelector("#ee-x")) {
             b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
@@ -630,6 +732,7 @@
       });
     }).catch(function (e) { fail(e.message || "Upload failed."); editBar(); });
   }
+
   function onKey(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;
     if (e.key === "Enter") {

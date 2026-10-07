@@ -181,3 +181,12 @@ body.ee-page a { color: #f3eee6; }
 .ee-invite-user { flex: 1 1 140px; min-width: 120px; max-width: 220px; padding: 6px 8px; font: inherit; font-size: 13px; background: #1a1917; border: 1px solid #3a3732; color: #e8e4dc; border-radius: 3px; }
 .ee-invite-user:focus { outline: none; border-color: #8a7f6a; }
 .ee-bound { color: #9aaf8a !important; }
+
+/* Art gallery picker */
+.ee-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin: 10px 0 14px; max-height: 240px; overflow: auto; }
+.ee-gal-item { display: flex; flex-direction: column; gap: 4px; padding: 0; border: 1px solid #3a3732; background: #141311; color: #e8e4dc; cursor: pointer; border-radius: 3px; overflow: hidden; text-align: left; font: 10px/1.3 Helvetica, Arial, sans-serif; }
+.ee-gal-item:hover, .ee-gal-item:focus { border-color: #8a7f6a; outline: none; }
+.ee-gal-item img { display: block; width: 100%; height: 72px; object-fit: cover; background: #0b0b0b; }
+.ee-gal-item span { padding: 0 6px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ee-gal-up { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2a2824; }
+.ee-gal-up .ee-sub { margin-bottom: 6px; }
