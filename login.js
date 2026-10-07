@@ -259,9 +259,21 @@ function applyLogin() {
 
   stripLegacyNavEnter();
   var logout = ensureLogout();
-  if (logout) logout.hidden = who !== "devin";
+  /* Log out: Devin only (owner). hidden + attribute for CSS [hidden] rules. */
+  if (logout) {
+    var showLogout = who === "devin";
+    logout.hidden = !showLogout;
+    if (!showLogout) logout.setAttribute("hidden", "");
+    else logout.removeAttribute("hidden");
+  }
   var gExit = ensureGuestExit();
-  if (gExit) gExit.hidden = !guest || document.body.classList.contains("login-page");
+  /* Enter: only while guest-browsing (no player session). Never for signed-in anyone. */
+  if (gExit) {
+    var showEnter = !!guest && !who && !document.body.classList.contains("login-page");
+    gExit.hidden = !showEnter;
+    if (!showEnter) gExit.setAttribute("hidden", "");
+    else gExit.removeAttribute("hidden");
+  }
 
   hideGithubUI();
   if (who && !guest) syncGithubUI(who);

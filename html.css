@@ -2809,7 +2809,18 @@ body.login-page.login-jon .login-card::after{
   cursor: pointer;
   text-shadow: 0 0 12px var(--glow), 0 0 24px var(--glow);
 }
-body.login-devin .login-logout {
+body.login-devin #login-logout:not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+/* Enter shares .login-logout styles but must stay hidden whenever a player session is active. */
+#login-guest-exit[hidden],
+#login-logout[hidden],
+body:not(.login-guest) #login-guest-exit {
+  display: none !important;
+}
+body.login-guest #login-guest-exit:not([hidden]) {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -3317,7 +3328,10 @@ html, body {
   body.article .mast .topbar > .mark > .friend{
     display: none !important;
   }
-  body.article .mast .topbar > .mark > .login-logout{
+  body.article .mast .topbar > .mark > #login-guest-exit{
+    display: none !important;
+  }
+  body.article:not(.login-devin) .mast .topbar > .mark > #login-logout{
     display: none !important;
   }
   body.article .mast .topbar .filters {
