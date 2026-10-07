@@ -101,17 +101,29 @@ function clearMyKey() {
   } catch (e) {}
 }
 
-function githubConnected() {
+function readEditSession() {
   try {
     if (window.EloraeEdit && EloraeEdit.session) {
       var s0 = EloraeEdit.session.get();
-      if (s0 && s0.token && s0.login) return true;
+      if (s0 && s0.token && s0.login) return s0;
     }
+  } catch (e) {}
+  try {
     var raw = sessionStorage.getItem("elorae-edit-session") || localStorage.getItem("elorae-edit-session");
-    if (!raw) return false;
+    if (!raw) return null;
     var s = JSON.parse(raw);
-    return !!(s && s.token && s.login);
-  } catch (e) { return false; }
+    return s && s.token && s.login ? s : null;
+  } catch (e) { return null; }
+}
+
+/* True when this browser has a GitHub edit session for the phrase identity (or any, if person unset). */
+function githubConnected(who) {
+  var s = readEditSession();
+  if (!s) return false;
+  if (who && s.person) {
+    return String(s.person).toLowerCase() === String(who).toLowerCase();
+  }
+  return true;
 }
 
 function profileHref(who) {
@@ -356,12 +368,18 @@ function syncGithubUI(who) {
     var connecting = !!(connect && !connect.hidden);
     var onWelcome = !!(who && welcome && !welcome.hidden && form && form.hidden && !connecting);
     if (welcomeStage && !connecting) welcomeStage.hidden = false;
-    if (!onWelcome || githubConnected()) {
+    var linked = githubConnected(who);
+    if (linked) document.body.classList.add("login-gh-connected");
+    else document.body.classList.remove("login-gh-connected");
+    /* Already linked: never show Connect — welcome/name stay. */
+    if (!onWelcome || linked) {
       loginActions.hidden = true;
-      if (loginBtn) loginBtn.hidden = true;
+      loginActions.setAttribute("hidden", "");
+      if (loginBtn) { loginBtn.hidden = true; loginBtn.setAttribute("hidden", ""); }
     } else {
       loginActions.hidden = false;
-      if (loginBtn) loginBtn.hidden = false;
+      loginActions.removeAttribute("hidden");
+      if (loginBtn) { loginBtn.hidden = false; loginBtn.removeAttribute("hidden"); }
     }
     return;
   }
@@ -375,11 +393,13 @@ function syncGithubUI(who) {
   var aside = document.getElementById("nt-player");
   var slug = aside ? (aside.getAttribute("data-person") || "") : who;
   if (slug && slug !== who) { actions.hidden = true; return; }
-  if (githubConnected()) {
+  if (githubConnected(who)) {
     actions.hidden = true;
+    actions.setAttribute("hidden", "");
   } else {
     actions.hidden = false;
-    if (btn) btn.hidden = false;
+    actions.removeAttribute("hidden");
+    if (btn) { btn.hidden = false; btn.removeAttribute("hidden"); }
   }
 }
 
@@ -402,6 +422,7 @@ function showSignedOutUI() {
     welcomeStage.classList.remove("login-stage-abs");
   }
   document.body.classList.remove("login-connecting");
+  document.body.classList.remove("login-gh-connected");
   hideGithubUI();
   GH_CONNECTING = false;
   loginClearErr();
@@ -452,6 +473,7 @@ function afterIdentity(who, phrase, man) {
   var hasKey = personHasKey(man, who);
 
   applyLogin();
+  syncGithubUI(who);
 
   if (!K || !V) return Promise.resolve();
 

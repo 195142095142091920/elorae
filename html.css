@@ -5190,3 +5190,9 @@ body.login-page #login-form > #login-code {
   position: relative;
   z-index: 1;
 }
+
+/* Welcome: hide Connect entirely when this browser already has their GitHub edit session. */
+body.login-page.login-gh-connected #login-gh-actions,
+body.login-page.login-gh-connected #login-github {
+  display: none !important;
+}
