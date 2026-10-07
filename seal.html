@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<title>Redirect</title>
+<script>
+(function () {
+  var q = location.search || "";
+  var h = location.hash || "";
+  location.replace("/login/" + q + h);
+})();
+</script>
 <meta http-equiv="refresh" content="0;url=/login/">
 <link rel="canonical" href="/login/">
-<title>Redirect</title>
 </head>
 <body>
 <p><a href="/login/">Continue to sign in</a></p>
