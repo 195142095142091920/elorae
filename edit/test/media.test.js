@@ -34,5 +34,18 @@ check("unique id on collision", prep2.id === "my-hero-2" && prep2.entry.path ===
 check("cleanFilename", Media.cleanFilename("../etc/passwd.png", "png") === "etcpasswd.png" || Media.cleanFilename("Hello World.PNG", "png") === "hello-world.png");
 check("cleanFilename hello", Media.cleanFilename("Hello World.PNG", "png") === "hello-world.png");
 
+
+const seeded = Media.seedFromAssetPaths(cat0, [
+  "assets/Vaerek, At Ease.png",
+  "assets/lore-blur/vaerek.jpg",
+  "assets/Heldranc Flies.png",
+  "not-an-asset.gif",
+  "assets/Vaerek, At Ease.png"
+], { everyone: true });
+check("seedFromAssetPaths adds top-level only", seeded.added.length === 2 && seeded.catalog.media["vaerek-at-ease"] && seeded.catalog.media["heldranc-flies"]);
+check("seedFromAssetPaths skips subfolders/dupes", seeded.skipped >= 2);
+check("seedFromAssetPaths everyone", seeded.catalog.media["vaerek-at-ease"].everyone === true);
+check("isAssetImagePath", Media.isAssetImagePath("assets/Foo.png") && !Media.isAssetImagePath("assets/lore-blur/x.jpg"));
+
 console.log("\n" + pass + "/" + (pass + fail) + " passed");
 process.exit(fail ? 1 : 0);

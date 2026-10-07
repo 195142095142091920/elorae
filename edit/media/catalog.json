@@ -1,5 +1,1070 @@
 {
-  "_readme": "Shared art catalog for edit mode. media.<id> = one image. path is under assets/ (or edit/media/files/). everyone=true means every signed-in editor may browse/insert it; otherwise allowed[] lists person slugs (devin always may). owner set at upload. NOTE: files under assets/ are public URLs on GitHub Pages \u2014 visibility only gates the editor gallery, not HTTP access. Encrypting private images is a later step.",
+  "_readme": "Shared art catalog for edit mode. media.<id> = one image. path is under assets/ (or edit/media/files/). everyone=true means every signed-in editor may browse/insert it; otherwise allowed[] lists person slugs (devin always may). owner set at upload. NOTE: files under assets/ are public URLs on GitHub Pages — visibility only gates the editor gallery, not HTTP access. Encrypting private images is a later step. Seeded from existing assets/ so the Edit gallery matches live site art.",
   "version": 1,
-  "media": {}
+  "media": {
+    "aghor": {
+      "path": "assets/Aghor.png",
+      "title": "Aghor",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "ashforge-kuroishi": {
+      "path": "assets/Ashforge Kuroishi.png",
+      "title": "Ashforge Kuroishi",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "aszurithice-human-form": {
+      "path": "assets/Aszurithice, Human Form.png",
+      "title": "Aszurithice, Human Form",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "aszurithice": {
+      "path": "assets/Aszurithice.png",
+      "title": "Aszurithice",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "auralon": {
+      "path": "assets/Auralon.png",
+      "title": "Auralon",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "baiji": {
+      "path": "assets/Baiji.png",
+      "title": "Baiji",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "bel-harath": {
+      "path": "assets/Bel Harath.png",
+      "title": "Bel Harath",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "cadarinost-falls": {
+      "path": "assets/Cadarinost Falls.png",
+      "title": "Cadarinost Falls",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "cartographer": {
+      "path": "assets/Cartographer.png",
+      "title": "Cartographer",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "caurobor": {
+      "path": "assets/Caurobor.png",
+      "title": "Caurobor",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "curse-of-olesh": {
+      "path": "assets/Curse of Olesh.png",
+      "title": "Curse of Olesh",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "cursed-of-olesh": {
+      "path": "assets/Cursed of Olesh.png",
+      "title": "Cursed of Olesh",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "darmstadt": {
+      "path": "assets/Darmstadt.png",
+      "title": "Darmstadt",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "eloraelowres": {
+      "path": "assets/EloraeLowRes.png",
+      "title": "EloraeLowRes",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "elraim": {
+      "path": "assets/Elraim.jpg",
+      "title": "Elraim",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "filibeth": {
+      "path": "assets/Filibeth.png",
+      "title": "Filibeth",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "galands-first-flight": {
+      "path": "assets/Galand's First Flight.png",
+      "title": "Galand's First Flight",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "godtree": {
+      "path": "assets/Godtree.png",
+      "title": "Godtree",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "haethlin-in-the-dream": {
+      "path": "assets/Haethlin in the Dream .png",
+      "title": "Haethlin in the Dream",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "haethlin": {
+      "path": "assets/Haethlin.png",
+      "title": "Haethlin",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "hanto-han": {
+      "path": "assets/Hanto Han.png",
+      "title": "Hanto Han",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "heldranc-flies": {
+      "path": "assets/Heldranc Flies.png",
+      "title": "Heldranc Flies",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "heldranc-human-form": {
+      "path": "assets/Heldranc, Human Form.webp",
+      "title": "Heldranc, Human Form",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "hesk": {
+      "path": "assets/Hesk.png",
+      "title": "Hesk",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "imani-valash": {
+      "path": "assets/Imani Valash.png",
+      "title": "Imani Valash",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "ito-gangara": {
+      "path": "assets/Ito Gangara.png",
+      "title": "Ito Gangara",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "kojin-in-redroot-village": {
+      "path": "assets/Kojin, in Redroot Village.png",
+      "title": "Kojin, in Redroot Village",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "kojin": {
+      "path": "assets/Kojin.png",
+      "title": "Kojin",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "maegoroth": {
+      "path": "assets/Maegoroth.png",
+      "title": "Maegoroth",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "mano": {
+      "path": "assets/Mano.png",
+      "title": "Mano",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "mintas-fae": {
+      "path": "assets/Mintas Fae.png",
+      "title": "Mintas Fae",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "montmorian-and-the-alabaster-blade": {
+      "path": "assets/Montmorian and the Alabaster Blade.png",
+      "title": "Montmorian and the Alabaster Blade",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "montmorian-in-his-chamber": {
+      "path": "assets/Montmorian in his Chamber .png",
+      "title": "Montmorian in his Chamber",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "montmorian-rages": {
+      "path": "assets/Montmorian Rages.png",
+      "title": "Montmorian Rages",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "nyralshirad-human-form": {
+      "path": "assets/Nyralshirad Human Form.png",
+      "title": "Nyralshirad Human Form",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "nyralshirad": {
+      "path": "assets/Nyralshirad.png",
+      "title": "Nyralshirad",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "perstrin-naba": {
+      "path": "assets/Perstrin Naba.png",
+      "title": "Perstrin Naba",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "pethengoroms-fate": {
+      "path": "assets/Pethengorom's Fate.png",
+      "title": "Pethengorom's Fate",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "pethengorom-human-form": {
+      "path": "assets/Pethengorom, Human Form.png",
+      "title": "Pethengorom, Human Form",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "pethengorom": {
+      "path": "assets/Pethengorom.png",
+      "title": "Pethengorom",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "phantom-cavern": {
+      "path": "assets/Phantom Cavern.png",
+      "title": "Phantom Cavern",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "rathalon": {
+      "path": "assets/Rathalon.png",
+      "title": "Rathalon",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "revenant-host": {
+      "path": "assets/Revenant Host.png",
+      "title": "Revenant Host",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "salaseth-ii": {
+      "path": "assets/Salaseth II.png",
+      "title": "Salaseth II",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "saoirse-in-the-burning-canyon": {
+      "path": "assets/Saoirse In the Burning Canyon.png",
+      "title": "Saoirse In the Burning Canyon",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "saoirse": {
+      "path": "assets/Saoirse.png",
+      "title": "Saoirse",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "sen-teloch-ini": {
+      "path": "assets/Sen Teloch Ini.png",
+      "title": "Sen Teloch Ini",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "silar-scorria": {
+      "path": "assets/Silar Scorria.png",
+      "title": "Silar Scorria",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "sthistu": {
+      "path": "assets/Sthistu.png",
+      "title": "Sthistu",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "vaerek-at-ease": {
+      "path": "assets/Vaerek, At Ease.png",
+      "title": "Vaerek, At Ease",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "vaerek-vessel-of-heldranc": {
+      "path": "assets/Vaerek, Vessel of Heldranc.png",
+      "title": "Vaerek, Vessel of Heldranc",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "vallorca": {
+      "path": "assets/Vallorca.png",
+      "title": "Vallorca",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "vehem-adahr": {
+      "path": "assets/Vehem Adahr.png",
+      "title": "Vehem Adahr",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "vorn": {
+      "path": "assets/Vorn.png",
+      "title": "Vorn",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "yena": {
+      "path": "assets/Yena.png",
+      "title": "Yena",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "yuo-nanaga": {
+      "path": "assets/Yuo Nanaga.png",
+      "title": "Yuo Nanaga",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    }
+  }
 }

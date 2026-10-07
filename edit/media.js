@@ -175,6 +175,64 @@
     return prefix + assetPath;
   }
 
+  var IMG_EXT = { png: 1, jpg: 1, jpeg: 1, webp: 1, gif: 1 };
+
+  function isAssetImagePath(path) {
+    var p = String(path || "");
+    if (p.indexOf(ASSET_DIR + "/") !== 0) return false;
+    // Top-level assets only (skip lore-blur/ and other subfolders).
+    var rest = p.slice(ASSET_DIR.length + 1);
+    if (!rest || rest.indexOf("/") >= 0) return false;
+    var ext = (rest.match(/\.([a-z0-9]+)$/i) || [])[1];
+    return !!(ext && IMG_EXT[ext.toLowerCase()]);
+  }
+
+  function titleFromPath(path) {
+    var base = String(path || "").split("/").pop() || "Image";
+    return base.replace(/\.[a-z0-9]+$/i, "").trim() || "Image";
+  }
+
+  // Merge existing on-disk assets into a catalog without re-upload.
+  // paths: ["assets/Foo.png", ...] (from GitHub contents listing or a seed list).
+  // Returns { catalog, added: [{id,path}], skipped: n }. Does not mutate input.
+  function seedFromAssetPaths(catalog, paths, opts) {
+    opts = opts || {};
+    var next = JSON.parse(JSON.stringify(catalog && catalog.media ? catalog : { version: 1, media: {} }));
+    next.version = next.version || 1;
+    next.media = next.media || {};
+    if (catalog && catalog._readme && !next._readme) next._readme = catalog._readme;
+    var usedPaths = {};
+    Object.keys(next.media).forEach(function (id) {
+      if (next.media[id] && next.media[id].path) usedPaths[next.media[id].path] = id;
+    });
+    var added = [];
+    var skipped = 0;
+    var owner = opts.owner || "devin";
+    var everyone = opts.everyone !== false;
+    var allowed = Array.isArray(opts.allowed) ? opts.allowed.slice() : PEOPLE.slice();
+    if (allowed.indexOf("devin") < 0) allowed.unshift("devin");
+    (paths || []).forEach(function (path) {
+      path = String(path || "");
+      if (!isAssetImagePath(path)) { skipped++; return; }
+      if (usedPaths[path]) { skipped++; return; }
+      var id = uniqueId(next, idFromPath(path));
+      var entry = {
+        path: path,
+        title: titleFromPath(path),
+        tags: Array.isArray(opts.tags) ? opts.tags.filter(Boolean) : ["site", "seed"],
+        uploadedBy: opts.uploadedBy || "seed",
+        date: opts.date || "2026-10-07T00:00:00.000Z",
+        owner: owner,
+        allowed: allowed.slice(),
+        everyone: !!everyone
+      };
+      next.media[id] = entry;
+      usedPaths[path] = id;
+      added.push({ id: id, path: path });
+    });
+    return { catalog: next, added: added, skipped: skipped };
+  }
+
   return {
     CATALOG: CATALOG,
     ASSET_DIR: ASSET_DIR,
@@ -189,6 +247,9 @@
     prepareUpload: prepareUpload,
     setVisibility: setVisibility,
     srcFromArticle: srcFromArticle,
-    idFromPath: idFromPath
+    idFromPath: idFromPath,
+    isAssetImagePath: isAssetImagePath,
+    titleFromPath: titleFromPath,
+    seedFromAssetPaths: seedFromAssetPaths
   };
 });

@@ -774,10 +774,22 @@
     openPanel();
     var b = $("ee-body");
     b.innerHTML = '<p class="ee-k">Art</p><p class="ee-note">Loading gallery…</p>';
-    E.getFile(Media.CATALOG).then(function (f) {
-      renderGallery(JSON.parse(f.text));
+    var catP = E.getFile(Media.CATALOG).then(function (f) {
+      return JSON.parse(f.text);
     }, function () {
-      renderGallery({ version: 1, media: {} });
+      return { version: 1, media: {} };
+    });
+    // Durable: always merge top-level assets/ so live site art appears without re-upload.
+    var assetsP = (E.listDir ? E.listDir(Media.ASSET_DIR) : Promise.reject(new Error("no listDir"))).then(function (entries) {
+      return entries.filter(function (e) { return e.type === "file"; }).map(function (e) { return e.path; });
+    }, function () { return []; });
+    Promise.all([catP, assetsP]).then(function (pair) {
+      var cat = pair[0], paths = pair[1];
+      if (paths && paths.length) {
+        var seeded = Media.seedFromAssetPaths(cat, paths, { everyone: true, tags: ["site", "seed"] });
+        cat = seeded.catalog;
+      }
+      renderGallery(cat);
     });
   }
 

@@ -86,6 +86,15 @@
         st.catalog = JSON.parse(f.text); st.catalog.__sha = f.sha;
       }, function () {
         st.catalog = { version: 1, media: {} };
+      }).then(function () {
+        if (!E.listDir || !Media.seedFromAssetPaths) return;
+        return E.listDir(Media.ASSET_DIR).then(function (entries) {
+          var paths = entries.filter(function (e) { return e.type === "file"; }).map(function (e) { return e.path; });
+          var seeded = Media.seedFromAssetPaths(st.catalog, paths, { everyone: true, tags: ["site", "seed"] });
+          var sha = st.catalog.__sha;
+          st.catalog = seeded.catalog;
+          if (sha) st.catalog.__sha = sha;
+        }, function () { /* listing optional */ });
       });
     });
   }

@@ -298,6 +298,17 @@
     });
   }
 
+  // Directory listing via Contents API -> [{ name, path, type, sha, size }].
+  function listDir(path, ref) {
+    var url = repoPath("/contents/" + enc(path) + "?ref=" + encodeURIComponent(ref || BRANCH));
+    return api(url).then(function (d) {
+      if (!Array.isArray(d)) throw ApiError(404, "Not a directory: " + path);
+      return d.map(function (e) {
+        return { name: e.name, path: e.path, type: e.type, sha: e.sha, size: e.size };
+      });
+    });
+  }
+
   function putFile(path, text, sha, message, branch) {
     var body = { message: message, content: b64EncodeUtf8(text), branch: branch || BRANCH };
     if (sha) body.sha = sha;
@@ -379,7 +390,7 @@
     tokenKind: tokenKind, TOKEN_LINKS: TOKEN_LINKS, OWNER: owner,
     REPO: REPO, BRANCH: BRANCH, API: API, ROOT: ROOT,
     pagePath: pagePath, session: session, api: api, repoPath: repoPath,
-    getFile: getFile, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,
+    getFile: getFile, listDir: listDir, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,
     b64EncodeUtf8: b64EncodeUtf8, b64EncodeBytes: b64EncodeBytes, b64DecodeUtf8: b64DecodeUtf8,
     loginWho: function () { return readPhraseWho(); }
   };
