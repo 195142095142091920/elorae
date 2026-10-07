@@ -5084,14 +5084,26 @@ body.login-page #login-elorae {
 @media (max-width: 800px) {
   body.login-page #login-elorae { top: 22px; } /* match Guest bottom inset (phone) */
 }
-/* Quiet rule under ELORAE on every login step */
+/* Quiet rule under ELORAE on every login step.
+   Use a real .login-elorae-rule span (not only ::after): 1px background
+   hairlines can vanish on some displays; border-top is reliable.
+   Scoped to body.login-page only. */
+body.login-page #login-elorae .login-elorae-rule,
 body.login-page #login-elorae::after {
   content: "";
   display: block;
+  box-sizing: border-box;
   width: min(280px, 72%);
-  height: 1px;
+  height: 0;
   margin: 14px auto 0;
-  background: rgba(143, 138, 130, 0.28);
+  border: 0;
+  border-top: 1px solid rgba(243, 238, 230, 0.22);
+  background: none;
+  pointer-events: none;
+}
+body.login-page #login-elorae:has(.login-elorae-rule)::after {
+  content: none;
+  display: none;
 }
 body.login-page #login-form {
   position: absolute;
