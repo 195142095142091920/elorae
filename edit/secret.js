@@ -42,6 +42,13 @@
       };
       return;
     }
+    var whoNow = E.loginWho();
+    if (whoNow) {
+      show((extra ? '<p class="ee-note">' + esc(extra) + '</p>' : '') +
+        '<p class="ee-who">Secrets key</p>' +
+        '<p class="ee-note">Your secrets key is not published yet. Ask Devin to publish it, then open this page again.</p>');
+      return;
+    }
     show((extra ? '<p class="ee-note">' + esc(extra) + '</p>' : '') +
       '<p class="ee-who">Secrets key</p>' +
       '<p class="ee-note">Enter with your phrase. Your secrets key is derived automatically; Devin still needs to publish it before encrypted pages open.</p>' +
@@ -67,6 +74,10 @@
 
     var mine = V.myKey.get();
     if (!mine) {
+      if (who) {
+        return show((sec.title ? '<p class="ee-who">' + esc(sec.title) + '</p>' : '') +
+          '<p class="ee-note">Your secrets key is not unlocked in this browser. Sign out and enter with your phrase again, or ask Devin if your key still needs publishing.</p>');
+      }
       return needSignIn(sec.title, "Enter with your phrase to unlock your secrets key, then open this page.");
     }
 
@@ -98,6 +109,7 @@
       var personRec = who && man.people && man.people[who];
       if (who && personRec && !personRec.key) return finishKeySetup();
       if (V.myKey.get()) return show('<p class="ee-note">Your secrets key is unlocked. Open a shared link to read a page.</p>');
+      if (who) return show('<p class="ee-note">Your secrets key is not unlocked in this browser. Sign out and enter with your phrase again if encrypted pages stay closed.</p>');
       return needSignIn("", "Enter with your phrase to unlock your secrets key.");
     }
     return open(man, id);

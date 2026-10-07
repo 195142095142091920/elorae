@@ -234,17 +234,12 @@
         fillComboCard(box, it.path, it.title, it.link, { edit: it.edit, secret: it.secret }, it.href);
       });
     }
-    /* Soft nudge: signed in as this player (or viewing own page) but no published key yet. */
-    if (v && v === slug && !vEnrolled) {
+    /* Unlock-secrets nudge: signed-out visitors only. Never show to signed-in players. */
+    if (!v) {
       var tip = el("p", "nt-pl-keytip");
-      tip.appendChild(document.createTextNode("Enter with your phrase so Devin can publish your secrets key. "));
+      tip.appendChild(document.createTextNode("Enter with your phrase to unlock secrets. "));
       tip.appendChild(link("/login/", "Enter"));
       root.appendChild(tip);
-    } else if (v && v === slug && vEnrolled && !myKey) {
-      var tip2 = el("p", "nt-pl-keytip");
-      tip2.appendChild(document.createTextNode("Enter with your phrase to unlock secrets. "));
-      tip2.appendChild(link("/login/", "Enter"));
-      root.appendChild(tip2);
     }
   }).catch(function () {});
 })();
