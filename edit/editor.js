@@ -189,6 +189,8 @@
 
   // A remembered token stopped working (expired or revoked): forget it and offer a friendly re-sign-in.
   function expired() {
+    var prev = E.session.get();
+    if (prev && E.session.markLinked) E.session.markLinked(prev.person, prev.login);
     E.session.clear(); state.profile = null; notify(); glyph();
     var b = bar('<span class="ee-msg">Your edit session has expired. Make a new token to keep editing.</span>' +
       '<button type="button" class="ee-btn" id="ee-x">Not now</button><button type="button" class="ee-btn ee-primary" id="ee-resign">Enter again</button>', "ee-expired");
@@ -1358,6 +1360,17 @@
       }
     }
   }
+  function alreadyConnectedHere() {
+    var s = E.session.get();
+    if (s && s.token) return true;
+    var who = "";
+    try { who = (E.loginWho && E.loginWho()) || ""; } catch (e) {}
+    if (!who || !E.session.wasLinked) return false;
+    if (E.session.wasLinked(who)) return true;
+    /* Owner connected before person was stamped: GitHub login only in linked map. */
+    if (who === "devin" && E.session.wasLinked("195142095142091920")) return true;
+    return false;
+  }
   /* Nav Edit / #edit: enter edit mode when already connected — never bounce to Connect. */
   function tryEnterEdit() {
     if (!E.session.get() || !state.profile) return false;
@@ -1396,17 +1409,29 @@
       });
     });
   }
-  function onHash() {
+  function decideEditHash() {
     if (location.hash !== "#edit") return;
     if (bootExpired) return; /* expired() already offered re-enter; do not dump Connect */
     if (tryEnterEdit()) return;
-    openPanel();
+    /* Live session: never show first-time Make-token Connect (signed-in panel only). */
+    if (E.session.get()) {
+      openPanel();
+      return;
+    }
+    if (alreadyConnectedHere()) {
+      clearEditHash();
+      expired(); /* soft re-enter bar only; linked flag already set */
+      return;
+    }
+    openPanel(); /* first-time Connect only */
+  }
+  var profileReady = loadProfile().then(function () { glyph(); });
+  function onHash() {
+    if (location.hash !== "#edit") return;
+    profileReady.then(decideEditHash);
   }
   window.addEventListener("hashchange", onHash);
-  loadProfile().then(function () {
-    glyph();
-    onHash();
-  });
+  profileReady.then(decideEditHash);
 
-  window.EloraeEditor = { sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit };
+  window.EloraeEditor = { sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash };
 })();

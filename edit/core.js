@@ -48,21 +48,46 @@
       return !!(o[w] || o["@" + w]);
     } catch (e) { return false; }
   }
+  /* Owner GitHub login → person (pre-flag Connect migration). */
+  var LOGIN_PERSON = { "195142095142091920": "devin" };
+  function stampSessionLinked(s) {
+    if (!s) return;
+    var person = s.person || LOGIN_PERSON[String(s.login || "").toLowerCase()] || "";
+    markLinked(person, s.login);
+  }
   var session = {
     get: function () {
-      var raw = null;
+      var ls = null, ss = null;
       /* Prefer remembered localStorage so a stale sessionStorage token cannot
          shadow a permanent Connect and force the Connect panel again. */
-      try { raw = localStorage.getItem(KEY) || sessionStorage.getItem(KEY); } catch (e) {}
+      try { ls = localStorage.getItem(KEY); } catch (e) {}
+      try { ss = sessionStorage.getItem(KEY); } catch (e) {}
+      var raw = ls || ss;
       if (!raw) return null;
-      try { var s = JSON.parse(raw); return s && s.token && s.login ? s : null; } catch (e) { return null; }
+      var s;
+      try { s = JSON.parse(raw); } catch (e) { return null; }
+      if (!s || !s.token || !s.login) return null;
+      /* Heal storage: promote remember to LS; keep SS in sync with the winner. */
+      try {
+        if (ls && ss && ls !== ss) sessionStorage.setItem(KEY, ls);
+        if (!ls && s.remember) {
+          localStorage.setItem(KEY, raw);
+          ls = raw;
+        }
+        if (ls && !ss) sessionStorage.setItem(KEY, ls);
+      } catch (e) {}
+      /* Every successful read re-stamps linked (migrates Connect from before elorae-gh-linked). */
+      stampSessionLinked(s);
+      return s;
     },
     set: function (s) {
-      var raw = JSON.stringify(s);
       try {
+        /* Connect is permanent on this device — always persist so Edit never re-prompts. */
+        s.remember = true;
+        var raw = JSON.stringify(s);
         sessionStorage.setItem(KEY, raw);
-        if (s.remember) localStorage.setItem(KEY, raw); else localStorage.removeItem(KEY);
-        markLinked(s.person, s.login);
+        localStorage.setItem(KEY, raw);
+        stampSessionLinked(s);
       } catch (e) {}
     },
     clear: function () {
@@ -70,6 +95,7 @@
       try { sessionStorage.removeItem(KEY); localStorage.removeItem(KEY); } catch (e) {}
     },
     wasLinked: wasLinked,
+    markLinked: markLinked,
     dropTabSession: function () {
       try { sessionStorage.removeItem(KEY); } catch (e) {}
     }

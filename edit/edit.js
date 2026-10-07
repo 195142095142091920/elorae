@@ -12,9 +12,15 @@
 
   function readSession() {
     try {
-      var raw = localStorage.getItem(KEY) || sessionStorage.getItem(KEY);
+      var ls = localStorage.getItem(KEY);
+      var ss = sessionStorage.getItem(KEY);
+      var raw = ls || ss;
       var s = raw ? JSON.parse(raw) : null;
-      return s && s.token && s.login ? s : null;
+      if (!s || !s.token || !s.login) return null;
+      /* Promote remembered tab-only sessions so Edit survives a reload. */
+      if (!ls && s.remember) { try { localStorage.setItem(KEY, raw); } catch (e2) {} }
+      if (ls && ss && ls !== ss) { try { sessionStorage.setItem(KEY, ls); } catch (e2) {} }
+      return s;
     } catch (e) { return null; }
   }
   function wanted() { return location.hash === "#edit" || !!readSession(); }
@@ -98,8 +104,23 @@
     a.setAttribute("aria-label", "Edit this page");
     a.addEventListener("click", function (e) {
       e.preventDefault();
-      if (location.hash !== "#edit") location.hash = "#edit";
       start();
+      function kick() {
+        var Ed = window.EloraeEditor;
+        if (Ed && Ed.tryEnterEdit && Ed.tryEnterEdit()) return;
+        if (Ed && Ed.onHash && location.hash === "#edit") { Ed.onHash(); return; }
+        if (location.hash !== "#edit") location.hash = "#edit";
+        else if (Ed && Ed.onHash) Ed.onHash();
+      }
+      /* If editor already booted and hash is already #edit, hashchange will not fire — kick directly. */
+      if (window.EloraeEditor) kick();
+      else if (location.hash !== "#edit") location.hash = "#edit";
+      else {
+        var n = 0, t = setInterval(function () {
+          n++;
+          if (window.EloraeEditor || n > 40) { clearInterval(t); kick(); }
+        }, 50);
+      }
     });
     var st = document.getElementById("ee-edit-style");
     if (!st) {
