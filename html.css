@@ -4945,7 +4945,7 @@ body.login-page #login-code{
 .login-who{margin:10px 0 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8f8a82}
 .profile-gh-actions{justify-content:flex-start;margin:0 0 18px}
 .profile-gh-actions + .login-gh-status{text-align:left;margin-top:0;margin-bottom:18px}
-body.login-guest .login-guest-exit{display:inline-flex;align-items:center;min-height:44px;text-shadow:none;font-weight:400;color:#8f8a82}
+body.login-guest .login-guest-exit{display:inline-flex;align-items:center;min-height:44px;font-weight:400;color:#f3eee6}
 body.login-guest .login-guest-exit:hover,body.login-guest .login-guest-exit:focus-visible{color:#f3eee6}
 @media (min-width:801px){
   .login-actions button:hover,.login-copy:hover{color:#fff}
@@ -5128,3 +5128,33 @@ body.article .art-body .ee-sans, .read .ee-sans { font-family: "Helvetica Neue",
 body.article .art-body .ee-size-sm, .read .ee-size-sm { font-size: 0.85em; }
 body.article .art-body .ee-size-lg, .read .ee-size-lg { font-size: 1.2em; }
 body.article .art-body img, body.book .read img, body.journal-page .read img { max-width: 100%; height: auto; }
+
+/* Nav Enter: soft white glow (invite click; gentler than Connect). */
+.mast .topbar > .mark > a[href$="login.html"],
+.mast .topbar > a[href$="login.html"],
+body.article .mast .topbar > .mark > a[href$="login.html"],
+#login-guest-exit,
+.login-guest-exit {
+  color: #f3eee6;
+  text-shadow: 0 0 8px rgba(255,255,255,.28), 0 0 18px rgba(243,238,230,.16);
+  transition: color .2s ease, text-shadow .2s ease;
+}
+.mast .topbar > .mark > a[href$="login.html"]:hover,
+.mast .topbar > .mark > a[href$="login.html"]:focus-visible,
+.mast .topbar > a[href$="login.html"]:hover,
+.mast .topbar > a[href$="login.html"]:focus-visible,
+body.article .mast .topbar > .mark > a[href$="login.html"]:hover,
+body.article .mast .topbar > .mark > a[href$="login.html"]:focus-visible,
+#login-guest-exit:hover,
+#login-guest-exit:focus-visible,
+.login-guest-exit:hover,
+.login-guest-exit:focus-visible {
+  color: #fff;
+  outline: none;
+  text-shadow: 0 0 10px rgba(255,255,255,.4), 0 0 22px rgba(243,238,230,.22);
+}
+body.login-guest .login-guest-exit:hover,
+body.login-guest .login-guest-exit:focus-visible {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255,255,255,.4), 0 0 22px rgba(243,238,230,.22);
+}
