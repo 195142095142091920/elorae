@@ -523,7 +523,8 @@ function renderLoginConnect() {
   box.innerHTML =
     '<div class="login-connect-hero">' +
     '<a class="login-connect-btn login-connect-primary" id="login-mint" href="' + escHtml(L.classic || "#") + '" target="_blank" rel="noopener">Connect</a>' +
-    '<p class="login-connect-hint">Opens GitHub — generate a key, then copy it here.</p>' +
+    '<p class="login-connect-label">Connect</p>' +
+    '<p class="login-connect-hint">Opens GitHub with public_repo filled in. Generate a key, then copy it here.</p>' +
     '</div>' +
     '<form id="login-connect-form" class="login-connect-form" autocomplete="off">' +
     '<input id="login-connect-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
