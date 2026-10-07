@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Elorae</title>
 <link rel="stylesheet" href="/styles.css?v=art96">
-<link rel="stylesheet" href="/html.css?v=login-enter-under">
+<link rel="stylesheet" href="/html.css?v=enter-under-phrase">
 <script src="/rail-toggle.js?v=nt26-veil"></script>
 <script src="/skip-link.js?v=nt11-skip"></script>
 <link rel="icon" href="/favicon.svg">
@@ -15,12 +15,14 @@
 <body class="login-page">
 <div class="mast"><header class="topbar login-top"><span class="mark"></span></header></div>
 <main class="login-card">
-<div class="login-panel">
 <div class="login-box">
 <p class="login-kicker" id="login-elorae">ELORAE</p>
 <form id="login-form" autocomplete="off">
 <p class="login-err" id="login-err" hidden>Try again.</p>
 <input id="login-code" name="phrase" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">
+<div class="login-actions" id="login-enter-actions" hidden>
+<button type="submit" id="login-submit">Enter</button>
+</div>
 </form>
 <div class="login-swap" id="login-swap">
 <div class="login-stage" id="login-welcome-stage">
@@ -34,10 +36,6 @@
 <div class="login-stage" id="login-connect" hidden></div>
 </div>
 <button type="button" id="login-guest" class="login-guest">Guest</button>
-</div>
-<div class="login-actions" id="login-enter-actions" hidden>
-<button type="submit" form="login-form" id="login-submit">Enter</button>
-</div>
 </div>
 </main>
 <!-- Phrase enter + optional guest browse; welcome + Connect in-box fade; ELORAE kicker. -->
