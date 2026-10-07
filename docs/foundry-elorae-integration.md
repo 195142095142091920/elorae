@@ -1,6 +1,6 @@
 # Foundry VTT ↔ elorae.world integration
 
-**Status:** research + proposal only. No modules were built or installed in this pass.  
+**Status:** research landed; **module zips packaged** under `docs/foundry-modules/` (lookup/chronicle-sync **v0.1.1**, calendar **v0.1.0**) for Devin review. **Not installed** in Foundry by this agent (no host `Data/modules` access). Join rewrite still off.  
 **Date:** 2026-10-07  
 **Campaign:** Devin’s tabletop (pf2e on Foundry)  
 **Site:** https://elorae.world/ (static GitHub Pages, repo `elorae`)
@@ -204,6 +204,7 @@ Order that minimizes risk to play:
 
 | Path | Contents |
 |---|---|
+| `docs/foundry-modules/` | **Review zips + INSTALL.md** (in this repo) |
 | `/workspace/foundry-modules/` | Draft module sources + zips + `_tests` + `copy-world-test/` macros |
 | `/workspace/backups/foundry-modules-20261006-0427/` | Snapshot of the same |
 | `/workspace/foundry-research/` | Earlier plan, ideas, sample `lore.json` / `journal.json`, proposed `build-data.py` |
@@ -217,4 +218,4 @@ Order that minimizes risk to play:
 2. **Copy-world enable of `elorae-chronicle-sync`** with join rewrite still off; run macro preflight + chronicle test.  
 3. **Site export:** land `tools/build-data.py` (or fold into `build-site.py` / `recap.mjs`) so `data/lore.json` + `data/journal.json` + generated `foundry-welcome.html` publish with the site — then flip modules to prefer JSON.
 
-No module source is added to this repo in this task; review and install remain manual and copy-first.
+Module **zips** (not full source trees) are in `docs/foundry-modules/` for review; install remains manual and copy-first. Source trees stay under `/workspace/foundry-modules/`.
