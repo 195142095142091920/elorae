@@ -160,3 +160,10 @@ body.ee-page a { color: #f3eee6; }
 @media (min-width: 801px) {
   #ee-panel .ee-box { max-height: 86vh; overflow-y: auto; }
 }
+
+.ee-media-up { display: grid; gap: 10px; margin: 12px 0 18px; max-width: 520px; }
+.ee-media-up input[type=text], .ee-media-up input[type=file] {
+  box-sizing: border-box; width: 100%; background: transparent; border: 0; border-bottom: 1px solid rgba(143,138,130,.28);
+  color: #f3eee6; font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif; padding: 8px 0;
+}
+.ee-media-up code { color: #f3eee6; }

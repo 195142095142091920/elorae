@@ -3,9 +3,9 @@
    payload) to main with Devin's own token, message tagged [edit-mode]. */
 (function () {
   "use strict";
-  var E = window.EloraeEdit, P = window.EloraeEditPerms, K = window.EloraeCrypto, V = window.EloraeVis;
+  var E = window.EloraeEdit, P = window.EloraeEditPerms, K = window.EloraeCrypto, V = window.EloraeVis, Media = window.EloraeMedia;
   var main = document.getElementById("ee-dash-main");
-  var st = { man: null, profile: null, priv: null, busy: false, msg: "" };
+  var st = { man: null, profile: null, priv: null, busy: false, msg: "", catalog: null };
   var ME = "devin";
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -46,7 +46,13 @@
   }
 
   function load() {
-    return V.manifest(true).then(function (m) { st.man = m; });
+    return V.manifest(true).then(function (m) { st.man = m; }).then(function () {
+      return E.getFile(Media.CATALOG).then(function (f) {
+        st.catalog = JSON.parse(f.text); st.catalog.__sha = f.sha;
+      }, function () {
+        st.catalog = { version: 1, media: {} };
+      });
+    });
   }
 
   function commit(files, message) {
@@ -197,6 +203,29 @@
     });
   }
 
+
+  function mediaSection() {
+    if (!st.catalog) return '';
+    var rows = Media.listVisible(st.catalog, ME, true).map(function (m) {
+      var boxes = '<label class="ee-tog"><input type="checkbox" data-media="' + esc(m.id) + '" data-who="everyone"' + (m.everyone ? " checked" : "") + (st.busy ? " disabled" : "") + '> Everyone</label>' +
+        Media.PEOPLE.filter(function (p) { return p !== "devin"; }).map(function (p) {
+          var on = m.everyone || (m.allowed || []).indexOf(p) >= 0;
+          return '<label class="ee-tog"><input type="checkbox" data-media="' + esc(m.id) + '" data-who="' + esc(p) + '"' + (on ? " checked" : "") + (m.everyone || st.busy ? " disabled" : "") + '> ' + esc(nameOf(p)) + '</label>';
+        }).join("");
+      return '<tr data-media-row="' + esc(m.id) + '"><td class="ee-t"><a href="../' + esc(m.path) + '" target="_blank" rel="noopener">' + esc(m.title) + '</a><span class="ee-sub">' + esc(m.path) + (m.tags && m.tags.length ? " · " + esc(m.tags.join(", ")) : "") + '</span></td><td>' + esc(nameOf(m.owner)) + '</td><td class="ee-togs">' + boxes + '</td></tr>';
+    }).join("");
+    return '<section class="ee-sec"><h2>Media</h2>' +
+      '<p class="ee-note">Shared art catalog. Upload goes to <code>assets/</code> and <code>edit/media/catalog.json</code>. Visibility only gates the editor gallery — files under assets/ stay public URLs on Pages.</p>' +
+      '<form id="ee-media-up" class="ee-media-up">' +
+      '<input type="file" id="ee-media-file" accept="image/png,image/jpeg,image/webp,image/gif">' +
+      '<input type="text" id="ee-media-title" placeholder="Title" autocomplete="off">' +
+      '<input type="text" id="ee-media-tags" placeholder="Tags (comma-separated)" autocomplete="off">' +
+      '<label class="ee-check"><input type="checkbox" id="ee-media-everyone"> Everyone can use in the editor</label>' +
+      '<div class="ee-row"><button class="ee-btn ee-primary" type="submit"' + (st.busy ? " disabled" : "") + '>Upload</button></div></form>' +
+      '<div class="ee-scroll"><table class="ee-table"><thead><tr><th>Title</th><th>Owner</th><th>Can see (editor)</th></tr></thead><tbody>' +
+      (rows || '<tr><td colspan="3" class="ee-note">No uploads yet.</td></tr>') + '</tbody></table></div></section>';
+  }
+
   /* ---- render ---- */
   function render() {
     var man = st.man, rec = myRecord();
@@ -231,6 +260,7 @@
       '<section class="ee-sec"><h2>Your key</h2>' + keyBox + '</section>' +
       (st.msg ? '<p class="ee-status" id="ee-msg">' + esc(st.msg) + '</p>' : '') +
       '<section class="ee-sec"><h2>Secrets</h2><div class="ee-scroll"><table class="ee-table"><thead><tr><th>Title</th><th>Owner</th><th>Can see</th><th>Share</th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
+      mediaSection() +
       '<section class="ee-sec"><h2>People</h2><ul class="ee-people">' + ppl + '</ul>' +
       '<p class="ee-note">Each person makes a key at <a href="secret.html?enroll">secret.html?enroll</a> and sends you the code. Paste it here.</p>' +
       '<form id="ee-add"><textarea class="ee-code" id="ee-addcode" placeholder="Enrollment code"></textarea><div class="ee-row"><button class="ee-btn ee-primary" type="submit"' + (st.busy ? " disabled" : "") + '>Add key</button></div></form></section>';
@@ -263,7 +293,7 @@
         return V.unlockAs(st.man, ME, $("ee-pass").value).then(function (priv) { st.priv = priv; return "Unlocked"; });
       });
     };
-    Array.prototype.forEach.call(main.querySelectorAll("input[data-who]"), function (cb) {
+    Array.prototype.forEach.call(main.querySelectorAll("input[data-id][data-who]"), function (cb) {
       cb.onchange = function () { toggle(cb.getAttribute("data-id"), cb.getAttribute("data-who"), cb.checked); };
     });
     Array.prototype.forEach.call(main.querySelectorAll("[data-encrypt]"), function (b) {
@@ -276,6 +306,48 @@
       try { rec = JSON.parse($("ee-addcode").value.trim()); } catch (x) { st.msg = "That isn't an enrollment code."; return render(); }
       addPerson(rec);
     };
+    var up = $("ee-media-up");
+    if (up) up.onsubmit = function (e) {
+      e.preventDefault();
+      var fileEl = $("ee-media-file");
+      var file = fileEl && fileEl.files && fileEl.files[0];
+      var title = ($("ee-media-title") || {}).value || "";
+      var tags = (($("ee-media-tags") || {}).value || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
+      var everyone = !!($("ee-media-everyone") && $("ee-media-everyone").checked);
+      run("Uploading", function () {
+        return Media.validateFile(file).then(function (info) {
+          var prep = Media.prepareUpload(st.catalog, info, {
+            title: title.trim() || info.name, tags: tags, owner: ME, uploadedBy: ME,
+            everyone: everyone, allowed: everyone ? Media.PEOPLE.slice() : [ME, "devin"]
+          });
+          return commit(prep.files, "Media: upload " + prep.id + " via dashboard").then(function () {
+            st.catalog = prep.catalog;
+            return "Uploaded " + prep.entry.title;
+          });
+        });
+      });
+    };
+    Array.prototype.forEach.call(main.querySelectorAll("input[data-media][data-who]"), function (inp) {
+      inp.onchange = function () {
+        var id = inp.getAttribute("data-media"), who = inp.getAttribute("data-who");
+        run("Updating " + id, function () {
+          var entry = st.catalog.media[id], patch = {};
+          if (who === "everyone") patch.everyone = inp.checked;
+          else {
+            var a = (entry.allowed || []).slice();
+            if (inp.checked && a.indexOf(who) < 0) a.push(who);
+            if (!inp.checked) a = a.filter(function (p) { return p !== who; });
+            patch.allowed = a;
+            if (!inp.checked) patch.everyone = false;
+          }
+          var next = Media.setVisibility(st.catalog, id, patch);
+          return commit([{ path: Media.CATALOG, text: json(next) }], "Media: visibility " + id + " via dashboard").then(function () {
+            st.catalog = next;
+            return "Saved";
+          });
+        });
+      };
+    });
   }
 
   window.addEventListener("elorae-edit-session", boot);

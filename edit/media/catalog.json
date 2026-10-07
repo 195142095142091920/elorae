@@ -1,0 +1,5 @@
+{
+  "_readme": "Shared art catalog for edit mode. media.<id> = one image. path is under assets/ (or edit/media/files/). everyone=true means every signed-in editor may browse/insert it; otherwise allowed[] lists person slugs (devin always may). owner set at upload. NOTE: files under assets/ are public URLs on GitHub Pages \u2014 visibility only gates the editor gallery, not HTTP access. Encrypting private images is a later step.",
+  "version": 1,
+  "media": {}
+}

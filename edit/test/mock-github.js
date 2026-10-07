@@ -5,9 +5,11 @@ const fs = require("fs");
 const path = require("path");
 
 function blobSha(text) {
-  const b = Buffer.from(text, "utf8");
+  const b = Buffer.isBuffer(text) ? text : Buffer.from(text, "utf8");
   return crypto.createHash("sha1").update(`blob ${b.length}\0`).update(b).digest("hex");
 }
+function asUtf8(v) { return Buffer.isBuffer(v) ? v.toString("utf8") : v; }
+
 
 class MockGitHub {
   constructor({ repo, root, tokens, overrides, scopes, noRepo, noPush }) {
@@ -25,7 +27,10 @@ class MockGitHub {
     if (c && p in c.files) return c.files[p];
     if (p in this.overrides) return this.overrides[p];
     const abs = path.join(this.root, p);
-    return fs.existsSync(abs) && fs.statSync(abs).isFile() ? fs.readFileSync(abs, "utf8") : null;
+    if (!(fs.existsSync(abs) && fs.statSync(abs).isFile())) return null;
+    // Text for source/json; Buffer for images (detected by extension).
+    if (/\.(png|jpe?g|gif|webp|avif)$/i.test(p)) return fs.readFileSync(abs);
+    return fs.readFileSync(abs, "utf8");
   }
   setUpstream(p, text) { const parent = this.heads.main; const s = this._newCommit("main", parent); this.commits[s].files[p] = text; this.heads.main = s; }
   async handle(route) {
@@ -56,15 +61,17 @@ class MockGitHub {
         const ref = url.searchParams.get("ref") || "main";
         const text = this.file(fp, ref);
         if (text == null) return json(404, { message: "Not Found" });
-        return json(200, { type: "file", path: fp, sha: blobSha(text), encoding: "base64", content: Buffer.from(text, "utf8").toString("base64") });
+        const buf = Buffer.isBuffer(text) ? text : Buffer.from(text, "utf8");
+        return json(200, { type: "file", path: fp, sha: blobSha(text), encoding: "base64", content: buf.toString("base64"), size: buf.length });
       }
       if (method === "PUT") {
         const branch = body.branch || "main";
         const cur = this.file(fp, branch);
         if (cur != null && body.sha !== blobSha(cur)) return json(409, { message: `${fp} does not match ${body.sha}` });
-        const text = Buffer.from(body.content, "base64").toString("utf8");
+        const raw = Buffer.from(body.content, "base64");
+        const text = /\.(png|jpe?g|gif|webp|avif)$/i.test(fp) ? raw : raw.toString("utf8");
         const s = this._newCommit(branch, this.heads[branch]); this.commits[s].files[fp] = text; this.heads[branch] = s;
-        entry.written = { path: fp, text, branch, message: body.message };
+        entry.written = { path: fp, text: asUtf8(text), branch, message: body.message, binary: Buffer.isBuffer(text) };
         return json(200, { content: { path: fp, sha: blobSha(text) }, commit: { sha: s, html_url: `https://github.com/${this.repo}/commit/${s}` } });
       }
     }
@@ -78,7 +85,7 @@ class MockGitHub {
       this.heads[b] = body.sha; return json(201, { ref: body.ref, object: { sha: body.sha } });
     }
     if ((m = p.match(new RegExp("^" + R + "/git/commits/([0-9a-f]+)$")))) return json(200, { sha: m[1], tree: { sha: "tree-of-" + m[1] } });
-    if (p === R + "/git/blobs" && method === "POST") { const sha = crypto.randomBytes(20).toString("hex"); this.blobs[sha] = Buffer.from(body.content, "base64").toString("utf8"); return json(201, { sha }); }
+    if (p === R + "/git/blobs" && method === "POST") { const sha = crypto.randomBytes(20).toString("hex"); this.blobs[sha] = Buffer.from(body.content, "base64"); return json(201, { sha }); }
     if (p === R + "/git/trees" && method === "POST") { const sha = crypto.randomBytes(20).toString("hex"); this.trees[sha] = { base: body.base_tree, entries: body.tree }; return json(201, { sha }); }
     if (p === R + "/git/commits" && method === "POST") {
       const sha = crypto.randomBytes(20).toString("hex");

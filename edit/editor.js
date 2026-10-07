@@ -2,7 +2,7 @@
    Loaded on demand by edit/edit.js (never for anonymous visitors). */
 (function () {
   "use strict";
-  var E = window.EloraeEdit, P = window.EloraeEditPerms, M = window.EloraeSrcMap;
+  var E = window.EloraeEdit, P = window.EloraeEditPerms, M = window.EloraeSrcMap, Media = window.EloraeMedia;
   if (!E || !P || !M || window.EloraeEditor) return;
 
   var X_SVG = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5L12.5 12.5M12.5 1.5L1.5 12.5" fill="none" stroke="#f3eee6" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
@@ -269,11 +269,86 @@
   }
   function editBar(msg, cls) {
     var mode = P.saveMode(state.profile) === "direct" ? "Saves to the live site" : "Saves as a pull request";
+    var artBtn = (P.isAdmin(state.profile) && document.querySelector(".art-hero img") && Media)
+      ? '<button type="button" class="ee-btn" id="ee-art">Art</button>' : '';
     bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
+      artBtn +
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-save">Save</button>', cls);
     $("ee-save").onclick = save;
     $("ee-cancel").onclick = function () { cancelEdit(); closeBar(); };
+    if ($("ee-art")) $("ee-art").onclick = openArtPanel;
+  }
+
+  function openArtPanel() {
+    if (!P.isAdmin(state.profile)) return;
+    var hero = document.querySelector(".art-hero img");
+    if (!hero) return;
+    openPanel();
+    var b = $("ee-body");
+    b.innerHTML =
+      '<p class="ee-k">Art</p>' +
+      '<p class="ee-note">Replace this article\'s hero image. The file goes into the shared catalog (<code>assets/</code> + <code>edit/media/catalog.json</code>) and this page\'s <code>src</code> is updated. Visibility only gates the editor gallery — asset URLs stay public on Pages.</p>' +
+      '<form id="ee-art-form">' +
+      '<input type="file" id="ee-art-file" accept="image/png,image/jpeg,image/webp,image/gif">' +
+      '<input type="text" id="ee-art-title" placeholder="Title (optional)" autocomplete="off">' +
+      '<input type="text" id="ee-art-tags" placeholder="Tags (comma-separated)" autocomplete="off">' +
+      '<label class="ee-check"><input type="checkbox" id="ee-art-everyone" checked> Everyone can use in the editor</label>' +
+      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">Upload &amp; replace hero</button>' +
+      '<button type="button" class="ee-btn" id="ee-art-back">Back</button></div>' +
+      '<p class="ee-err" id="ee-art-err" hidden></p></form>';
+    $("ee-art-back").onclick = function () { closePanel(); };
+    $("ee-art-form").onsubmit = function (e) {
+      e.preventDefault();
+      replaceHeroImage();
+    };
+  }
+
+  function replaceHeroImage() {
+    var file = $("ee-art-file").files[0];
+    var err = $("ee-art-err");
+    function fail(m) { err.textContent = m; err.hidden = false; }
+    err.hidden = true;
+    var title = ($("ee-art-title").value || "").trim();
+    var tags = ($("ee-art-tags").value || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
+    var everyone = $("ee-art-everyone").checked;
+    var hero = document.querySelector(".art-hero img");
+    if (!hero) return fail("No hero image on this page.");
+    bar('<span class="ee-msg">Uploading art…</span>');
+    Media.validateFile(file).then(function (info) {
+      return E.getFile(Media.CATALOG).then(function (f) {
+        return { info: info, catalog: JSON.parse(f.text) };
+      }, function () { return { info: info, catalog: { version: 1, media: {} } }; });
+    }).then(function (ctx) {
+      var prep = Media.prepareUpload(ctx.catalog, ctx.info, {
+        title: title || ctx.info.name, tags: tags, owner: "devin", uploadedBy: "devin",
+        everyone: everyone, allowed: everyone ? Media.PEOPLE.slice() : ["devin"]
+      });
+      var rel = Media.srcFromArticle(PATH, prep.entry.path);
+      // Update hero src (+ alt if empty) in the live page source via a small dedicated commit together with the catalog + bytes.
+      return E.getFile(PATH).then(function (page) {
+        var html = page.text;
+        var re = /(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\ssrc=")([^"]+)(")/i;
+        if (!re.test(html)) throw new Error("Could not find the hero image in the page source.");
+        var nextHtml = html.replace(re, function (m, a, _old, c) { return a + rel + c; });
+        // Also bump alt to title when present
+        if (title) nextHtml = nextHtml.replace(/(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\salt=")([^"]*)(")/i, function (m, a, _o, c) { return a + title.replace(/"/g, "") + c; });
+        prep.files.push({ path: PATH, text: nextHtml });
+        return E.commitFiles(prep.files, "Media: replace hero on " + PATH + " with " + prep.id + " [edit-mode]", E.BRANCH).then(function () {
+          hero.src = rel;
+          if (title) hero.alt = title;
+          closePanel();
+          editBar("Hero image replaced · live in about 1–2 minutes", "ee-done");
+          $("ee-x") && ($("ee-x").onclick = closeBar);
+          // Offer Close on done bar
+          var b = $("ee-bar");
+          if (b && !b.querySelector("#ee-x")) {
+            b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
+            $("ee-x").onclick = closeBar;
+          }
+        });
+      });
+    }).catch(function (e) { fail(e.message || "Upload failed."); editBar(); });
   }
   function onKey(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;

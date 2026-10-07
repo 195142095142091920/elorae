@@ -170,9 +170,15 @@ removes or replaces that article, its `search-index.js` entry, its card in the I
 The viewer shows the decrypted article as the unlocked original (it drops only the `.sealed` CSS gate). Image files also stay in git history,
 so truly secret art needs a history rewrite or new art. This cleanup is deliberately not automated.
 
+## Shared art catalog
+Admins can upload images from the dashboard (**Media**) or replace an article hero via **Art** while editing.
+Uploads go to `assets/` and are listed in `edit/media/catalog.json` with title, tags, and who may see them
+**in the editor**. Devin always sees all. Files under `assets/` remain public URLs on GitHub Pages —
+catalog visibility does not hide HTTP access. Encrypting private images is planned later.
+
 ## Files
 `edit/edit.js` (bootstrap, the only thing pages load), `core.js` (session + GitHub API),
 `perms.js` (globs, shared with the guard), `srcmap.js` (tokenizer/splicer), `editor.js` (UI and
 save), `edit.css`, `profiles.json`, `visibility.json`, `secrets/`, `crypto.js`, `vis.js`,
-`secret.html` + `secret.js`, `dashboard.html` + `dashboard.js`, `guard.js`, `workflows/edit-guard.yml` (to install), `test/` (`e2e.js`: browser test
+`secret.html` + `secret.js`, `media.js` + `media/catalog.json`, `dashboard.html` + `dashboard.js`, `guard.js`, `workflows/edit-guard.yml` (to install), `test/` (`e2e.js`: browser test
 with a mocked GitHub API, see its header; `guard.test.js`: guard scenarios, `node edit/test/guard.test.js`).

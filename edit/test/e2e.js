@@ -547,6 +547,35 @@ async function signInViaPanel(page, token) {
       }
     }
 
+    /* 9c. Media catalog: admin upload + visibility (binary commit). */
+    {
+      const mock = newMock();
+      const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+      const page = await ctx.newPage();
+      await page.goto(BASE + "edit/dashboard.html", { waitUntil: "networkidle" });
+      await page.waitForSelector("#ee-media-up", { timeout: 15000 });
+      // Minimal PNG (1x1)
+      const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+      await page.setInputFiles("#ee-media-file", { name: "Test Hero.png", mimeType: "image/png", buffer: png });
+      await page.fill("#ee-media-title", "Test Hero");
+      await page.fill("#ee-media-tags", "heroes, test");
+      await page.click("#ee-media-up button[type=submit]");
+      await page.waitForFunction(() => /Uploaded Test Hero/.test((document.getElementById("ee-msg") || {}).textContent || ""), null, { timeout: 30000 });
+      const cat = JSON.parse(mock.file("edit/media/catalog.json"));
+      const id = Object.keys(cat.media)[0];
+      const entry = cat.media[id];
+      const bin = mock.file(entry.path);
+      check("media upload: catalog entry + binary asset committed", id === "test-hero" && entry.path === "assets/test-hero.png" && entry.title === "Test Hero" && entry.tags.join() === "heroes,test" && Buffer.isBuffer(bin) && bin.length >= 8 && bin[0] === 0x89, JSON.stringify({ id, path: entry && entry.path, len: bin && bin.length }));
+      // Restrict to Devin only, then confirm list still shows for admin
+      await page.uncheck('input[data-media="test-hero"][data-who="everyone"]');
+      // everyone starts unchecked; check sawyer then uncheck
+      const sawyer = await page.$('input[data-media="test-hero"][data-who="sawyer"]');
+      if (sawyer) { await page.check('input[data-media="test-hero"][data-who="sawyer"]'); await page.waitForFunction(() => /Saved/.test((document.getElementById("ee-msg") || {}).textContent || ""), null, { timeout: 20000 }); }
+      const cat2 = JSON.parse(mock.file("edit/media/catalog.json"));
+      check("media visibility: sawyer allowed in catalog", (cat2.media["test-hero"].allowed || []).indexOf("sawyer") >= 0, JSON.stringify(cat2.media["test-hero"]));
+      await ctx.close();
+    }
+
     /* 10. Visibility layer: enroll, encrypt one secret, share/unshare, everyone. */
     {
       const mock = newMock();

@@ -84,6 +84,11 @@
     for (var i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
     return btoa(s);
   }
+  function b64EncodeBytes(u8) {
+    var s = "";
+    for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    return btoa(s);
+  }
   function b64DecodeUtf8(b64) {
     var s = atob(String(b64).replace(/\s+/g, "")), u = new Uint8Array(s.length);
     for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
@@ -121,7 +126,8 @@
     }).then(function (c) {
       baseTree = c.tree.sha;
       return Promise.all(files.map(function (f) {
-        return api(repoPath("/git/blobs"), { method: "POST", body: { content: b64EncodeUtf8(f.text), encoding: "base64" } })
+        var content = f.binary ? (f.contentBase64 || b64EncodeBytes(f.bytes)) : b64EncodeUtf8(f.text);
+        return api(repoPath("/git/blobs"), { method: "POST", body: { content: content, encoding: "base64" } })
           .then(function (b) { return { path: f.path, mode: "100644", type: "blob", sha: b.sha }; });
       }));
     }).then(function (tree) {
@@ -181,7 +187,7 @@
     REPO: REPO, BRANCH: BRANCH, API: API, ROOT: ROOT,
     pagePath: pagePath, session: session, api: api, repoPath: repoPath,
     getFile: getFile, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,
-    b64EncodeUtf8: b64EncodeUtf8, b64DecodeUtf8: b64DecodeUtf8,
+    b64EncodeUtf8: b64EncodeUtf8, b64EncodeBytes: b64EncodeBytes, b64DecodeUtf8: b64DecodeUtf8,
     sealWho: function () { try { return localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
   };
 })();
