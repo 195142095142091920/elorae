@@ -159,6 +159,18 @@ function ensureLogout() {
   return btn;
 }
 
+
+/* Remove legacy mark login "Enter" (old ELORAE brand); guest uses #login-guest-exit only. */
+function stripLegacyNavEnter() {
+  var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
+  if (!mark) return;
+  var links = mark.querySelectorAll('a[href$="login.html"], a[href$="/login"], a[href$="/login/"]');
+  for (var i = 0; i < links.length; i++) {
+    var a = links[i];
+    if (/^\s*Enter\s*$/i.test(a.textContent || "")) a.parentNode.removeChild(a);
+  }
+}
+
 /* Quiet leave-guest: reuse logout slot as "Enter" when browsing as guest. */
 function ensureGuestExit() {
   var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
@@ -223,6 +235,7 @@ function applyLogin() {
   }
   if (!who) document.body.classList.remove("login-connecting");
 
+  stripLegacyNavEnter();
   var logout = ensureLogout();
   if (logout) logout.hidden = who !== "devin";
   var gExit = ensureGuestExit();
