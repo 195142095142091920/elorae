@@ -5,39 +5,34 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Elorae</title>
 <link rel="stylesheet" href="styles.css?v=art96">
-<link rel="stylesheet" href="html.css?v=merged-signin">
+<link rel="stylesheet" href="html.css?v=phrase-is-key">
 <script src="rail-toggle.js?v=nt26-veil"></script>
 <script src="skip-link.js?v=nt11-skip"></script>
 <link rel="icon" href="favicon.svg">
 </head>
 <body class="seal-page">
-<div class="mast"><header class="topbar seal-top"><a href="index/ancients.html" id="seal-back">Back</a><span class="mark"><span class="friend" data-owner="jack"><a href="articles/galand-helviath.html">Galand</a></span><span class="friend" data-owner="jon"><a href="articles/telorin.html">Telorin</a><a href="articles/silar-scorria.html">Silar</a></span><span class="friend" data-owner="julie"><a href="articles/saoirse.html">Saoirse</a></span><span class="friend" data-owner="sawyer"><a href="articles/vaerek.html">Vaerek</a></span></span></header></div>
+<div class="mast"><header class="topbar seal-top"><a href="index/ancients.html" id="seal-back">Back</a><span class="mark"></span></header></div>
 <main class="seal-card">
 <div class="seal-box">
 <form id="seal-form" autocomplete="off">
 <input id="seal-code" name="phrase" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">
-<p class="seal-who" id="seal-who-hint" hidden></p>
 <div class="seal-actions">
 <button type="submit" id="seal-submit">Sign in</button>
-<button type="button" id="seal-create" hidden>Create key</button>
 </div>
 </form>
 <p class="seal-err" id="seal-err" hidden>Try again.</p>
-<p class="seal-welcome" id="seal-welcome" hidden>Welcome,</p>
-<p class="seal-name" id="seal-name" hidden></p>
-<p class="seal-note" id="seal-note" hidden>You may now view your private material.</p>
-<div id="seal-enroll" class="seal-enroll" hidden>
-<p class="seal-note">No secrets key is published for you yet. Create one with the same phrase — you will get a one-time enrollment code to send to Devin.</p>
+<p class="seal-welcome" id="seal-welcome" hidden></p>
+<div class="seal-actions" id="seal-gh-actions" hidden>
+<button type="button" id="seal-github">Connect to GitHub</button>
 </div>
-<div id="seal-code-box" class="seal-code-box" hidden></div>
+<p class="seal-gh-status" id="seal-gh-status" hidden></p>
 </div>
 </main>
-<!-- Merged sign-in: identity + unlock/enroll need core/crypto/vis. Other pages load seal.js alone. -->
-<script src="edit/core.js?v=merged-signin"></script>
-<script src="edit/crypto.js?v=e11"></script>
+<!-- Phrase-is-key: identity + secrets derive from one phrase. GitHub connect uses existing #edit token flow. -->
+<script src="edit/core.js?v=phrase-is-key"></script>
+<script src="edit/crypto.js?v=phrase-is-key"></script>
 <script src="edit/vis.js?v=e11"></script>
-<script src="seal.js?v=merged-signin"></script>
-<script src="player-mark.js?v=nt35-navdots"></script>
+<script src="seal.js?v=phrase-is-key"></script>
 <canvas id="friend-glow"></canvas>
 <script src="glow.js?v=glow5"></script>
 <script src="edit/edit.js?v=e11" defer></script>

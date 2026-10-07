@@ -234,8 +234,8 @@
     /* Soft nudge: signed in as this player (or viewing own page) but no published key yet. */
     if (v && v === slug && !vEnrolled) {
       var tip = el("p", "nt-pl-keytip");
-      tip.appendChild(document.createTextNode("Finish key setup to open encrypted pages. "));
-      tip.appendChild(link("seal.html?enroll", "Finish key setup"));
+      tip.appendChild(document.createTextNode("Sign in with your phrase so Devin can publish your secrets key. "));
+      tip.appendChild(link("seal.html", "Sign in"));
       root.appendChild(tip);
     } else if (v && v === slug && vEnrolled && !myKey) {
       var tip2 = el("p", "nt-pl-keytip");

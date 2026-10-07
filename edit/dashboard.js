@@ -332,7 +332,7 @@
       '<section class="ee-sec"><h2>Secrets</h2><div class="ee-scroll"><table class="ee-table"><thead><tr><th>Title</th><th>Owner</th><th>Can see</th><th>Share</th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
       mediaSection() +
       '<section class="ee-sec"><h2>People</h2><ul class="ee-people">' + ppl + '</ul>' +
-      '<p class="ee-note">Invite each player with their GitHub username (Write access + bind <code>profiles.json</code>). Then they make a key at <a href="../seal.html?enroll">seal.html?enroll</a> and send you the code. Paste it here.</p>' +
+      '<p class="ee-note">Invite each player with their GitHub username (Write access + bind <code>profiles.json</code>). Then they sign in at <a href="../seal.html?enroll">seal.html?enroll</a> (phrase derives the key) and send you the enrollment code from the secret viewer if needed. Paste it here.</p>' +
       '<form id="ee-add"><textarea class="ee-code" id="ee-addcode" placeholder="Enrollment code"></textarea><div class="ee-row"><button class="ee-btn ee-primary" type="submit"' + (st.busy ? " disabled" : "") + '>Add key</button></div></form></section>';
     bind();
   }

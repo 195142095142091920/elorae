@@ -4872,6 +4872,14 @@ body.player-page #nt-player {
 }
 
 
+/* Seal login chrome: phrase + sign-in only — no friend/player names in the mast. */
+body.seal-page .mast .friend{display:none!important}
+body.seal-page .mast .nt-pmark{display:none!important}
+body.seal-page .seal-gh-status{margin-top:14px;font-size:12px;letter-spacing:.08em;color:#8f8a82;text-align:center}
+body.seal-page .seal-gh-status[data-kind=ok]{color:#c8e0c0}
+body.seal-page .seal-gh-status[data-kind=err]{color:#e0a8a0}
+body.seal-page #seal-welcome{text-align:center;letter-spacing:.12em}
+
 /* Merged sign-in: enrollment code + dual actions on seal.html */
 .seal-actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;margin-top:18px}
 .seal-actions button,.seal-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;cursor:pointer}

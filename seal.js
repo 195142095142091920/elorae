@@ -6,10 +6,12 @@ var PHRASE_HASH = {
   "340bbcf62fb5b430085a948675b2b76a33f7eb855f94b538a077973a96571c61":"sawyer",
   "0eedbe39d20f666a54f9fd82e2a7b8c7673ade3d1f86f530d68b56d3e6500740":"devin"
 };
-/* Figure links for the top-nav friend marks (not the welcome line). */
-var FRIENDS = {jack:[["Galand","articles/galand-helviath.html"]],jon:[["Telorin","articles/telorin.html"],["Silar","articles/silar-scorria.html"]],julie:[["Saoirse","articles/saoirse.html"]],sawyer:[["Vaerek","articles/vaerek.html"]]};
 /* Player names shown on the seal welcome after a successful phrase. */
 var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",devin:"Devin"};
+var PENDING_ENROLL_KEY = "elorae-enroll-pending";
+var GH_CONNECTING = false;
+var GH_STATUS_TIMER = null;
+
 function hexDigest(buf) {
   return Array.prototype.map.call(new Uint8Array(buf), function (b) {
     return (b < 16 ? "0" : "") + b.toString(16);
@@ -25,6 +27,24 @@ function clearMyKey() {
     if (window.EloraeVis && EloraeVis.myKey) EloraeVis.myKey.clear();
     else sessionStorage.removeItem("elorae-secret-key");
   } catch (e) {}
+}
+
+function githubConnected() {
+  try {
+    if (window.EloraeEdit && EloraeEdit.session) {
+      var s0 = EloraeEdit.session.get();
+      if (s0 && s0.token && s0.login) return true;
+    }
+    var raw = sessionStorage.getItem("elorae-edit-session") || localStorage.getItem("elorae-edit-session");
+    if (!raw) return false;
+    var s = JSON.parse(raw);
+    return !!(s && s.token && s.login);
+  } catch (e) { return false; }
+}
+
+function profileHref(who) {
+  var root = (window.EloraeEdit && EloraeEdit.ROOT) || "";
+  return root + "players/" + who + ".html";
 }
 
 function ensureLogout() {
@@ -54,24 +74,23 @@ function applySeal() {
   try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
   ["seal-jack","seal-jon","seal-julie","seal-sawyer","seal-devin"].forEach(function (c) { document.body.classList.remove(c); });
   if (who) document.body.classList.add("seal-" + who);
-  var note = document.getElementById("seal-note");
   var form = document.getElementById("seal-form");
   var welcome = document.getElementById("seal-welcome");
-  var name = document.getElementById("seal-name");
-  if (note && form) {
-    note.hidden = !who;
-    form.hidden = !!who;
-  }
-  if (welcome) welcome.hidden = !who;
-  if (name) {
-    name.hidden = !who;
-    /* Welcome shows the player's name (Jack / Jon / …), not their figure (seal4).
-       Old figure-link welcome (seal2): built FRIENDS[who] anchors into #seal-name. */
-    name.textContent = NAMES[who] || "";
+  if (form) form.hidden = !!who;
+  if (welcome) {
+    if (who) {
+      welcome.textContent = "Welcome, " + (NAMES[who] || who);
+      welcome.hidden = false;
+    } else {
+      welcome.hidden = true;
+      welcome.textContent = "";
+    }
   }
   /* Devin: no profile mark — only a Log out control in the mast. */
   var logout = ensureLogout();
   if (logout) logout.hidden = who !== "devin";
+  if (document.body.classList.contains("seal-page") && who) syncGithubUI(who);
+  else hideGithubUI();
   return who;
 }
 
@@ -86,127 +105,103 @@ function sealClearErr() {
   if (err) { err.hidden = true; err.textContent = "Try again."; }
 }
 
+function hideGithubUI() {
+  var actions = document.getElementById("seal-gh-actions");
+  var status = document.getElementById("seal-gh-status");
+  if (actions) actions.hidden = true;
+  if (status) { status.hidden = true; status.textContent = ""; }
+}
+
+function setGhStatus(msg, kind) {
+  var status = document.getElementById("seal-gh-status");
+  if (!status) return;
+  if (GH_STATUS_TIMER) { clearTimeout(GH_STATUS_TIMER); GH_STATUS_TIMER = null; }
+  if (!msg) { status.hidden = true; status.textContent = ""; status.removeAttribute("data-kind"); return; }
+  status.textContent = msg;
+  status.hidden = false;
+  status.setAttribute("data-kind", kind || "info");
+}
+
+function syncGithubUI(who) {
+  var actions = document.getElementById("seal-gh-actions");
+  var btn = document.getElementById("seal-github");
+  if (!actions) return;
+  if (githubConnected()) {
+    actions.hidden = true;
+  } else {
+    actions.hidden = false;
+    if (btn) btn.hidden = false;
+  }
+}
+
 function showSignedOutUI() {
   var form = document.getElementById("seal-form");
   var welcome = document.getElementById("seal-welcome");
-  var name = document.getElementById("seal-name");
-  var note = document.getElementById("seal-note");
-  var enrollBox = document.getElementById("seal-enroll");
-  var codeBox = document.getElementById("seal-code-box");
   if (form) form.hidden = false;
-  if (welcome) welcome.hidden = true;
-  if (name) name.hidden = true;
-  if (note) note.hidden = true;
-  if (enrollBox) enrollBox.hidden = true;
-  if (codeBox) { codeBox.hidden = true; codeBox.innerHTML = ""; }
-  updateSealButtons();
+  if (welcome) { welcome.hidden = true; welcome.textContent = ""; }
+  hideGithubUI();
+  GH_CONNECTING = false;
+  sealClearErr();
 }
 
 function personHasKey(man, who) {
   return !!(man && man.people && man.people[who] && man.people[who].key);
 }
 
-function updateSealButtons() {
-  var submit = document.getElementById("seal-submit");
-  var create = document.getElementById("seal-create");
-  if (!submit && !create) return;
-  var wantEnroll = /(?:\?|&)enroll(?:&|=|$)/.test(location.search) || location.search.indexOf("enroll") >= 0;
-  try { wantEnroll = new URLSearchParams(location.search).has("enroll"); } catch (e) {}
-  var who = "";
-  try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
-  /* Default: one Sign in button. Create key shown when ?enroll or after identity with no key. */
-  if (submit) submit.hidden = false;
-  if (create) create.hidden = !wantEnroll;
+function stashPendingEnroll(rec) {
+  try { localStorage.setItem(PENDING_ENROLL_KEY, JSON.stringify(rec)); } catch (e) {}
 }
 
-function setWelcomeNote(text) {
-  var note = document.getElementById("seal-note");
-  if (!note) return;
-  note.textContent = text;
-  note.hidden = false;
+/* Phrase → sealMaterial (domain-separated SHA-256 hex) → PBKDF2 enroll/unlock.
+   Short seal phrases like "light" always expand to 64 chars, so K.enroll's length floor passes. */
+function withSealMaterial(phrase, fn) {
+  var K = window.EloraeCrypto;
+  if (!K || !K.sealMaterial) return Promise.reject(new Error("Crypto is not loaded."));
+  return K.sealMaterial(phrase).then(fn);
 }
 
-function showEnrollmentCode(rec) {
-  var code = JSON.stringify(rec);
-  var box = document.getElementById("seal-code-box");
-  if (!box) return;
-  box.hidden = false;
-  box.innerHTML =
-    '<p class="seal-welcome">Your enrollment code</p>' +
-    '<textarea class="seal-enroll-code" readonly id="seal-enroll-code" rows="6"></textarea>' +
-    '<div class="seal-actions"><button type="button" id="seal-copy" class="seal-copy">Copy</button></div>' +
-    '<p class="seal-note">Send this code to Devin. It holds only your public key and a passphrase-locked private key, so it is safe to send. Never send the phrase itself. Until Devin adds your key, your identity still works; encrypted pages wait.</p>';
-  var ta = document.getElementById("seal-enroll-code");
-  if (ta) ta.value = code;
-  var copy = document.getElementById("seal-copy");
-  if (copy) copy.onclick = function () {
-    if (ta) ta.select();
-    try { navigator.clipboard.writeText(code); } catch (x) { try { document.execCommand("copy"); } catch (y) {} }
-    copy.textContent = "Copied";
-  };
-  var form = document.getElementById("seal-form");
-  var enrollBox = document.getElementById("seal-enroll");
-  if (form) form.hidden = true;
-  if (enrollBox) enrollBox.hidden = true;
+function silentEnroll(who, phrase) {
+  var K = window.EloraeCrypto, V = window.EloraeVis;
+  return withSealMaterial(phrase, function (material) {
+    return K.enroll(who, material).then(function (rec) {
+      stashPendingEnroll(rec);
+      return K.unlock(rec, material).then(function (priv) {
+        return K.exportPrivate(priv).then(function (jwk) {
+          if (V && V.myKey) V.myKey.set(who, jwk);
+          return rec;
+        });
+      });
+    });
+  });
+}
+
+function unlockWithPhrase(man, who, phrase) {
+  var V = window.EloraeVis;
+  if (!V) return Promise.resolve();
+  return withSealMaterial(phrase, function (material) {
+    return V.unlockAs(man, who, material);
+  });
 }
 
 function afterIdentity(who, phrase, man) {
   var K = window.EloraeCrypto, V = window.EloraeVis;
   var hasKey = personHasKey(man, who);
-  var enrollBox = document.getElementById("seal-enroll");
-  var create = document.getElementById("seal-create");
-  var wantEnroll = false;
-  try { wantEnroll = new URLSearchParams(location.search).has("enroll"); } catch (e) {}
 
   applySeal();
 
-  if (!K || !V) {
-    setWelcomeNote("You may now view your private material.");
-    return Promise.resolve();
-  }
+  if (!K || !V) return Promise.resolve();
 
   if (hasKey) {
-    return V.unlockAs(man, who, phrase).then(function () {
-      setWelcomeNote("You may now view your private material.");
-      if (enrollBox) enrollBox.hidden = true;
-    }, function (x) {
-      /* Identity still sticks; key unlock failed (wrong wrap or not yet the merged phrase). */
-      setWelcomeNote("Signed in. Your secrets key did not unlock — try again, or finish key setup if this is a new key.");
-      sealErr(x.message || "Could not unlock your key.");
+    return unlockWithPhrase(man, who, phrase).then(function () {
+      /* unlocked */
+    }, function () {
+      /* Old key wrapped with a different passphrase: leave Dashboard / paste-key path intact. */
     });
   }
 
-  /* No key published yet: identity works; offer Create key / enroll. Keep phrase form visible. */
-  setWelcomeNote("Signed in. Create your secrets key with the same phrase, then send the code to Devin. Encrypted pages wait until your key is added.");
-  var form = document.getElementById("seal-form");
-  if (form) form.hidden = false;
-  if (enrollBox) enrollBox.hidden = false;
-  if (create) create.hidden = false;
-  if (wantEnroll) {
-    return runEnroll(who, phrase);
-  }
-  return Promise.resolve();
-}
-
-function runEnroll(who, phrase) {
-  var K = window.EloraeCrypto, V = window.EloraeVis;
-  if (!K) return Promise.reject(new Error("Crypto is not loaded."));
-  sealClearErr();
-  sealErr("Creating…");
-  return K.enroll(who, phrase).then(function (rec) {
-    sealClearErr();
-    /* Unlock locally so this session can use the key once Devin publishes it;
-       until then encrypted bodies still wait (no wrapped content keys yet). */
-    return K.unlock(rec, phrase).then(function (priv) {
-      return K.exportPrivate(priv).then(function (jwk) {
-        if (V && V.myKey) V.myKey.set(who, jwk);
-        showEnrollmentCode(rec);
-        applySeal();
-        setWelcomeNote("Send the enrollment code to Devin. Until your key is added, identity works; encrypted pages wait.");
-      });
-    });
-  }, function (x) {
-    sealErr(x.message || "Could not create key.");
+  /* No published key yet: derive + enroll locally; enrollment code is NOT shown on seal. */
+  return silentEnroll(who, phrase).catch(function () {
+    /* Identity still sticks; key can be retried later. */
   });
 }
 
@@ -216,9 +211,40 @@ function loadManifest() {
   return V.manifest(false).catch(function () { return null; });
 }
 
+function goConnectGithub() {
+  sealClearErr();
+  GH_CONNECTING = true;
+  setGhStatus("Connect with the GitHub panel…", "info");
+  try {
+    if (location.hash === "#edit") {
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    } else {
+      location.hash = "edit";
+    }
+  } catch (e) {
+    location.hash = "edit";
+  }
+}
+
+function onGithubConnected(who) {
+  GH_CONNECTING = false;
+  setGhStatus("GitHub connected", "ok");
+  syncGithubUI(who);
+  /* Brief confirmation, then profile page (where the connection lives). */
+  GH_STATUS_TIMER = setTimeout(function () {
+    location.href = profileHref(who);
+  }, 900);
+}
+
+function onGithubFailed(msg) {
+  GH_CONNECTING = false;
+  setGhStatus(msg || "GitHub connection failed.", "err");
+  syncGithubUI(localStorage.getItem("elorae-seal") || "");
+}
+
 applySeal();
 
-/* Seal page only: merged identity + secrets unlock / enroll. Other pages keep applySeal only. */
+/* Seal page only: phrase-is-key identity + secrets + optional GitHub connect. */
 if (document.body.classList.contains("seal-page")) {
   var form = document.getElementById("seal-form");
   var phraseInput = document.getElementById("seal-code");
@@ -235,6 +261,7 @@ if (document.body.classList.contains("seal-page")) {
   function signIn(e) {
     if (e) e.preventDefault();
     sealClearErr();
+    setGhStatus("");
     var key = readPhrase();
     if (!key) { sealErr("Enter your phrase."); return; }
     pendingPhrase = key;
@@ -252,71 +279,66 @@ if (document.body.classList.contains("seal-page")) {
 
   if (form) form.addEventListener("submit", signIn);
 
-  var createBtn = document.getElementById("seal-create");
-  if (createBtn) createBtn.addEventListener("click", function (e) {
+  var ghBtn = document.getElementById("seal-github");
+  if (ghBtn) ghBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    sealClearErr();
-    var key = pendingPhrase || readPhrase();
     var who = "";
     try { who = localStorage.getItem("elorae-seal") || ""; } catch (err) {}
-    if (!who) {
-      /* Identify first, then enroll. */
-      if (!key) { sealErr("Enter your phrase."); return; }
-      pendingPhrase = key;
-      hashPhrase(key).then(function (digest) {
-        who = PHRASE_HASH[digest];
-        if (!who) { sealErr("Try again."); return; }
-        try { localStorage.setItem("elorae-seal", who); } catch (err2) {}
-        applySeal();
-        return runEnroll(who, key);
-      }).catch(function () { sealErr("Try again."); });
+    if (!who) { sealErr("Sign in with your phrase first."); return; }
+    if (githubConnected()) {
+      syncGithubUI(who);
       return;
     }
-    if (!key) { sealErr("Enter the same phrase you signed in with."); return; }
-    runEnroll(who, key);
+    goConnectGithub();
   });
 
-  updateSealButtons();
+  /* Existing edit gate notifies on session set / clear. */
+  window.addEventListener("elorae-edit-session", function () {
+    var who = "";
+    try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
+    if (!who || !document.body.classList.contains("seal-page")) return;
+    if (githubConnected()) {
+      if (GH_CONNECTING || !document.getElementById("seal-gh-actions") || !document.getElementById("seal-gh-actions").hidden) {
+        onGithubConnected(who);
+      } else {
+        syncGithubUI(who);
+      }
+    } else if (GH_CONNECTING) {
+      /* Session cleared mid-connect (expired / signed out) — treat as failure. */
+      onGithubFailed("GitHub connection failed.");
+    } else {
+      syncGithubUI(who);
+    }
+  });
 
-  /* Returning visit already sealed: refresh welcome; try unlock if deps + key exist (needs phrase again). */
+  /* Leaving #edit without a session after we started connect → cancelled / failed. */
+  window.addEventListener("hashchange", function () {
+    if (!GH_CONNECTING) return;
+    if (location.hash === "#edit") return;
+    if (githubConnected()) return;
+    onGithubFailed("GitHub connection cancelled.");
+  });
+
+  /* Returning visit already sealed. */
   var whoNow = "";
   try { whoNow = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
   if (whoNow) {
+    applySeal();
     loadManifest().then(function (man) {
-      if (!man) return;
-      var hasKey = personHasKey(man, whoNow);
       var mine = window.EloraeVis && EloraeVis.myKey && EloraeVis.myKey.get();
-      var enrollBox = document.getElementById("seal-enroll");
-      var create = document.getElementById("seal-create");
-      var wantEnroll = false;
-      try { wantEnroll = new URLSearchParams(location.search).has("enroll"); } catch (e) {}
-      if (mine && mine.person === whoNow) {
-        setWelcomeNote("You may now view your private material.");
-      } else if (hasKey) {
-        setWelcomeNote("Signed in. Enter your phrase again to unlock your secrets key.");
-        var f = document.getElementById("seal-form");
-        if (f) f.hidden = false;
-      } else {
-        setWelcomeNote("Signed in. Create your secrets key with your phrase, then send the code to Devin.");
-        if (enrollBox) enrollBox.hidden = false;
-        if (create) create.hidden = false;
-      }
-      if (wantEnroll && !hasKey) {
-        if (enrollBox) enrollBox.hidden = false;
-        if (create) create.hidden = false;
-      }
+      if (mine && mine.person === whoNow) return;
+      /* Identity remembered; secrets key needs the phrase again this session. */
+      var f = document.getElementById("seal-form");
+      if (f) f.hidden = false;
     });
-  } else {
-    var wantEnroll0 = false;
-    try { wantEnroll0 = new URLSearchParams(location.search).has("enroll"); } catch (e) {}
-    if (wantEnroll0) {
-      setWelcomeNote("Enter your phrase to create your secrets key. The same phrase signs you in.");
-      var note0 = document.getElementById("seal-note");
-      if (note0) note0.hidden = false;
-      var create0 = document.getElementById("seal-create");
-      if (create0) create0.hidden = false;
-    }
   }
+
+  /* ?enroll: same as sign-in — phrase derives key; no separate Create-key UI. */
+  try {
+    if (new URLSearchParams(location.search).has("enroll") && !whoNow) {
+      /* Form already visible when signed out. */
+    }
+  } catch (e) {}
 }
 
 var back = document.getElementById("seal-back");
