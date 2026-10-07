@@ -7,7 +7,26 @@
   "people": {
     "devin": {
       "name": "Devin",
-      "key": null
+      "key": {
+        "v": 1,
+        "person": "devin",
+        "alg": "RSA-OAEP-3072-SHA256",
+        "publicKey": {
+          "kty": "RSA",
+          "n": "xsHe3Q7x9Vyq79gBVc27NOeednt3mLEqFuQnQ5KtGQfkVep6NRA9PjgVT9TgM7UUdjvShMBslhAtc3sW7yHcPKqm5xT8-LPqOFv2w4i1lJbcldl0W_gQqwrowz4Ss_YcbVW-SkAcjautpsXM9DsyJJpAIVr6kkGUGCNFX0rs-utsv-OMCMXELZwTDIitvLD61bseGL6f5rykEp0BlqQGG_uMZlLQbrcdwZxvbfHV7KwoPpDmEn-9Sos7ct4gvMvTtIKnQHE_fxu1y5CARTsZWMiI4inoTQa-WzfwwZ1M4W1f9JifleRa0Pb2hR0L6xB2ZcS1mYU5V8aS9NwEfV2paAe3sYw6iXj9lDeQ76ajhYrk-8bxIVNK2KsHiJ2NFyqHRorkVxO4xCgUx054p_o6Tx0Vwep91ii9MpL5H0wyoRiV4hFiRGAD8fC64J_GwCpBJuGl1uFJORSTGjhmtN4sdlgknIEHhMh9sm2qNvmgYJMnPuaIqVeRhv6078EF1VYB",
+          "e": "AQAB",
+          "alg": "RSA-OAEP-256",
+          "ext": true
+        },
+        "privateKey": {
+          "kdf": "PBKDF2-SHA256",
+          "iter": 600000,
+          "salt": "1tCb5Jo0AuregEQ9USuvVQ==",
+          "iv": "m+GcXyzSagPdCgtV",
+          "ct": "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"
+        },
+        "created": "2026-10-07T03:58:53.802Z"
+      }
     },
     "jack": {
       "name": "Jack",
