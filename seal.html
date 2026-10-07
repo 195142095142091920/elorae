@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-<script src="session-gate.js?v=guest-browse"></script>
+<script src="session-gate.js?v=seal-welcome"></script>
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Elorae</title>
 <link rel="stylesheet" href="styles.css?v=art96">
-<link rel="stylesheet" href="html.css?v=seal-no-back">
+<link rel="stylesheet" href="html.css?v=seal-welcome">
 <script src="rail-toggle.js?v=nt26-veil"></script>
 <script src="skip-link.js?v=nt11-skip"></script>
 <link rel="icon" href="favicon.svg">
@@ -23,14 +23,19 @@
 </div>
 </form>
 <p class="seal-err" id="seal-err" hidden>Try again.</p>
+<p class="seal-welcome" id="seal-welcome" hidden></p>
+<div class="seal-actions" id="seal-gh-actions" hidden>
+<button type="button" id="seal-github">Connect to GitHub</button>
+</div>
+<p class="seal-gh-status" id="seal-gh-status" hidden></p>
 <button type="button" id="seal-guest" class="seal-guest">Guest</button>
 </div>
 </main>
-<!-- Phrase sign-in + optional guest browse. -->
-<script src="edit/core.js?v=guest-browse"></script>
-<script src="edit/crypto.js?v=guest-browse"></script>
+<!-- Phrase sign-in + optional guest browse; welcome + Connect stay on seal. -->
+<script src="edit/core.js?v=seal-welcome"></script>
+<script src="edit/crypto.js?v=seal-welcome"></script>
 <script src="edit/vis.js?v=e11"></script>
-<script src="seal.js?v=seal-no-back"></script>
+<script src="seal.js?v=seal-welcome"></script>
 <canvas id="friend-glow"></canvas>
 <script src="glow.js?v=glow5"></script>
 <script src="edit/edit.js?v=e11" defer></script>

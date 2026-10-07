@@ -1,7 +1,8 @@
 /* Session gate: no valid elorae-seal → redirect to phrase sign-in, unless guest browse
    (localStorage elorae-guest=1). Valid session or guest → free navigation (no forced profile).
    Seal page is exempt. Guest never opens edit/secret or edit/dashboard (no hint).
-   Profile redirect remains only after Connect to GitHub success (seal.js). */
+   After phrase sign-in, seal shows Welcome (+ Connect if needed); profile redirect
+   remains only after Connect to GitHub success (seal.js). Guests never see Connect. */
 (function () {
   "use strict";
   var PLAYERS = { jack: 1, jon: 1, julie: 1, sawyer: 1, devin: 1 };
