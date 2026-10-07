@@ -74,7 +74,7 @@ requests: write, 90 days). The repository must be selected by hand: *Only select
 ## Editing
 Sign in, then click **EDIT** (bottom-right, only on pages you can edit; for players that means only
 their own article pages). Article text and dossier values become editable (for Devin, codex prose,
-journal text and Index text too). Devin can also edit the article hero **name** (`h1`) and **epithet**
+journal text and Index text too). On secret/sealed articles, Devin gets **Share** (Everyone / per-player toggles or Encrypt, same commits as the dashboard; requires unlocked secrets key) and **Owner** (assign which player may edit the page via `profiles.json`). Devin can also edit the article hero **name** (`h1`) and **epithet**
 (`.art-epithet`) in place; players cannot. Nav, other headings, links lists and structure don't. **Save** works like this:
 
 1. GET `/repos/195142095142091920/elorae/contents/<path>?ref=main` to read the current source and its `sha`.

@@ -2,7 +2,8 @@
    Loaded on demand by edit/edit.js (never for anonymous visitors). */
 (function () {
   "use strict";
-  var E = window.EloraeEdit, P = window.EloraeEditPerms, M = window.EloraeSrcMap, Media = window.EloraeMedia;
+  var E = window.EloraeEdit, P = window.EloraeEditPerms, M = window.EloraeSrcMap, Media = window.EloraeMedia,
+      K = window.EloraeCrypto, V = window.EloraeVis;
   if (!E || !P || !M || window.EloraeEditor) return;
 
   var X_SVG = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5L12.5 12.5M12.5 1.5L1.5 12.5" fill="none" stroke="#f3eee6" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
@@ -269,16 +270,295 @@
   }
   function editBar(msg, cls) {
     var mode = P.saveMode(state.profile) === "direct" ? "Saves to the live site" : "Saves as a pull request";
-    var artBtn = (P.isAdmin(state.profile) && document.querySelector(".art-hero img") && Media)
+    var admin = P.isAdmin(state.profile);
+    var artBtn = (admin && document.querySelector(".art-hero img") && Media)
       ? '<button type="button" class="ee-btn" id="ee-art">Art</button>' : '';
+    var shareBtn = (admin && V) ? '<button type="button" class="ee-btn" id="ee-share">Share</button>' : '';
+    var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
     bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
-      artBtn +
+      artBtn + shareBtn + ownerBtn +
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-save">Save</button>', cls);
     $("ee-save").onclick = save;
     $("ee-cancel").onclick = function () { cancelEdit(); closeBar(); };
     if ($("ee-art")) $("ee-art").onclick = openArtPanel;
+    if ($("ee-share")) $("ee-share").onclick = openSharePanel;
+    if ($("ee-owner")) $("ee-owner").onclick = openOwnerPanel;
   }
+
+  function jsonDoc(o) { var c = JSON.parse(JSON.stringify(o)); delete c.__sha; return JSON.stringify(c, null, 2) + "\n"; }
+  function commitMsg(files, message) {
+    return E.commitFiles(files, message + " [edit-mode]", E.BRANCH);
+  }
+  function nameOfPerson(man, p) { return (man.people[p] && man.people[p].name) || p; }
+
+  /* ---- Share (secret visibility) on sealed/secret articles ---- */
+  function secretIdForPath(man, path) {
+    var secrets = (man && man.secrets) || {}, id;
+    for (id in secrets) if (secrets[id] && secrets[id].path === path) return id;
+    return null;
+  }
+  function openSharePanel() {
+    if (!P.isAdmin(state.profile) || !V || !K) return;
+    openPanel();
+    var b = $("ee-body");
+    b.innerHTML = '<p class="ee-k">Share</p><p class="ee-note">Loading…</p>';
+    V.manifest(true).then(function (man) {
+      var id = secretIdForPath(man, PATH);
+      if (!id) {
+        b.innerHTML = '<p class="ee-k">Share</p><p class="ee-note">This page is not a secret in <code>visibility.json</code>. Sealed articles that are registered there get Everyone / per-player toggles here.</p>' +
+          '<div class="ee-row"><button type="button" class="ee-btn" id="ee-share-back">Back</button></div>';
+        $("ee-share-back").onclick = closePanel;
+        return;
+      }
+      renderSharePanel(man, id);
+    }).catch(function (e) {
+      b.innerHTML = '<p class="ee-k">Share</p><p class="ee-err">' + esc(e.message || "Could not load visibility.") + '</p>' +
+        '<div class="ee-row"><button type="button" class="ee-btn" id="ee-share-back">Back</button></div>';
+      $("ee-share-back").onclick = closePanel;
+    });
+  }
+  function renderSharePanel(man, id) {
+    var sec = man.secrets[id], enc = sec.status === "encrypted";
+    var unlocked = !!(V.myKey.get() && V.myKey.get().person === "devin");
+    var b = $("ee-body");
+    var people = Object.keys(man.people || {}).filter(function (p) { return p !== "devin"; });
+    var body;
+    if (!enc) {
+      body = '<p class="ee-note"><b>' + esc(sec.title) + '</b> is still plaintext (hidden only by CSS). Encrypt it to use real sharing toggles.</p>' +
+        (unlocked
+          ? '<div class="ee-row"><button type="button" class="ee-btn ee-primary" id="ee-share-encrypt">Encrypt</button></div>'
+          : '<p class="ee-note">Unlock your secrets key first (passphrase below), then Encrypt.</p>');
+    } else {
+      var allowed = V.allowedList(sec);
+      var boxes = '<label class="ee-tog"><input type="checkbox" id="ee-vis-everyone"' + (sec.everyone ? " checked" : "") + (!unlocked ? " disabled" : "") + '> Everyone</label>' +
+        people.map(function (p) {
+          var noKey = !(man.people[p] && man.people[p].key);
+          var on = allowed.indexOf(p) >= 0;
+          return '<label class="ee-tog' + (noKey ? " ee-nokey" : "") + '"><input type="checkbox" data-vis-who="' + esc(p) + '"' +
+            (on ? " checked" : "") + ((!unlocked || noKey || sec.everyone) ? " disabled" : "") + '> ' + esc(nameOfPerson(man, p)) +
+            (noKey ? ' <span class="ee-sub">no key</span>' : "") + '</label>';
+        }).join("");
+      body = '<p class="ee-note"><b>' + esc(sec.title) + '</b> · encrypted' + (unlocked ? "" : " · unlock your key to change sharing") + '</p>' +
+        '<div class="ee-togs ee-share-togs">' + boxes + '</div>';
+    }
+    var unlock = unlocked ? '' :
+      '<form id="ee-share-unlock" autocomplete="off" style="margin-top:14px">' +
+      '<input type="password" id="ee-share-pass" placeholder="Secrets passphrase" autocomplete="current-password">' +
+      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">Unlock</button></div></form>';
+    b.innerHTML = '<p class="ee-k">Share</p>' + body + unlock +
+      '<p class="ee-err" id="ee-share-err" hidden></p>' +
+      '<div class="ee-row"><button type="button" class="ee-btn" id="ee-share-back">Back</button></div>';
+    $("ee-share-back").onclick = closePanel;
+    if ($("ee-share-unlock")) {
+      $("ee-share-unlock").onsubmit = function (e) {
+        e.preventDefault();
+        var pass = $("ee-share-pass").value;
+        V.unlockAs(man, "devin", pass).then(function () {
+          renderSharePanel(man, id);
+        }).catch(function (err) {
+          var x = $("ee-share-err"); x.textContent = err.message || "Unlock failed."; x.hidden = false;
+        });
+      };
+    }
+    if ($("ee-share-encrypt")) $("ee-share-encrypt").onclick = function () { encryptSecretFromEditor(man, id); };
+    var ev = $("ee-vis-everyone");
+    if (ev) ev.onchange = function () { toggleSecretFromEditor(man, id, "everyone", ev.checked); };
+    Array.prototype.forEach.call(b.querySelectorAll("[data-vis-who]"), function (inp) {
+      inp.onchange = function () { toggleSecretFromEditor(man, id, inp.getAttribute("data-vis-who"), inp.checked); };
+    });
+  }
+  function shareBusy(msg) {
+    var x = $("ee-share-err"); if (x) { x.textContent = msg || ""; x.hidden = !msg; }
+  }
+  function ensureEditorUnlocked() {
+    var s = V.myKey.get();
+    if (!s || s.person !== "devin") throw new Error("Unlock your secrets key first.");
+    return V.myKey.privateKey().then(function (priv) {
+      if (!priv) throw new Error("Unlock your secrets key first.");
+      return priv;
+    });
+  }
+  function inlineImagesForEncrypt(html, path) {
+    var base = E.ROOT + path;
+    var re = /(<img\b[^>]*?\s(?:src|data-src)=")([^"]+)(")|(\sdata-src=")([^"]+\.(?:png|jpe?g|gif|webp|avif))(")/gi;
+    var urls = {};
+    html.replace(re, function (m, a, u1, c, d, u2) { var u = u1 || u2; if (!/^data:/.test(u)) urls[u] = 1; return m; });
+    return Promise.all(Object.keys(urls).map(function (u) {
+      return fetch(new URL(u.replace(/&amp;/g, "&"), base).href).then(function (r) {
+        if (!r.ok) throw new Error("Image missing: " + u);
+        return r.blob();
+      }).then(function (blob) {
+        return new Promise(function (res) { var fr = new FileReader(); fr.onload = function () { res(fr.result); }; fr.readAsDataURL(blob); });
+      }).then(function (d) { urls[u] = d; });
+    })).then(function () {
+      return html.replace(re, function (m, a, u1, c, d, u2, f) {
+        if (u1) return a + (urls[u1] || u1) + c;
+        return d + (urls[u2] || u2) + f;
+      });
+    });
+  }
+  function wrapAllKeys(man, sec, raw) {
+    var keys = {};
+    var list = V.allowedList(sec).filter(function (p) { return man.people[p] && man.people[p].key; });
+    return Promise.all(list.map(function (p) {
+      return K.wrapFor(man.people[p].key, raw).then(function (w) { keys[p] = w; });
+    })).then(function () { return keys; });
+  }
+  function rotateSecret(man, id, sec, payload) {
+    var raw = K.newContentKey();
+    sec.epoch = (sec.epoch || 0) + 1;
+    return K.encryptSecret(id, sec.epoch, raw, payload).then(function (file) {
+      return wrapAllKeys(man, sec, raw).then(function (keys) {
+        sec.keys = keys;
+        sec.openKey = sec.everyone ? K.b64(raw) : null;
+        return file;
+      });
+    });
+  }
+  function currentSecretPayload(man, id, sec) {
+    return ensureEditorUnlocked().then(function (priv) {
+      return V.contentKey(man, id, "devin", priv);
+    }).then(function (raw) {
+      if (!raw) throw new Error("Your key can't open " + sec.title + ".");
+      return V.secretFile(id, true).then(function (f) {
+        return K.decryptSecret(f, raw).then(function (p) { return { raw: raw, payload: p }; });
+      });
+    });
+  }
+  function toggleSecretFromEditor(man, id, who, on) {
+    shareBusy((on ? "Sharing…" : "Hiding…"));
+    var next = JSON.parse(JSON.stringify(man)), sec = next.secrets[id];
+    currentSecretPayload(man, id, sec).then(function (cur) {
+      // operate on next's sec but need content from current
+      sec = next.secrets[id];
+      var files = [];
+      if (who === "everyone") {
+        sec.everyone = on;
+        if (on) { sec.openKey = K.b64(cur.raw); return files; }
+        return rotateSecret(next, id, sec, cur.payload).then(function (f) {
+          files.push({ path: "edit/secrets/" + id + ".json", text: JSON.stringify(f) + "\n" }); return files;
+        });
+      }
+      var a = V.allowedList(sec);
+      if (on) {
+        if (a.indexOf(who) < 0) a.push(who);
+        sec.allowed = a;
+        if (!next.people[who] || !next.people[who].key) throw new Error(nameOfPerson(next, who) + " has no key yet.");
+        return K.wrapFor(next.people[who].key, cur.raw).then(function (w) { sec.keys[who] = w; return files; });
+      }
+      sec.allowed = a.filter(function (p) { return p !== who || p === "devin"; });
+      return rotateSecret(next, id, sec, cur.payload).then(function (f) {
+        files.push({ path: "edit/secrets/" + id + ".json", text: JSON.stringify(f) + "\n" }); return files;
+      });
+    }).then(function (files) {
+      files.unshift({ path: "edit/visibility.json", text: jsonDoc(next) });
+      return commitMsg(files, "Visibility: " + (on ? "show " : "hide ") + id + (who === "everyone" ? " for everyone" : " for " + who) + " via edit mode");
+    }).then(function () {
+      shareBusy("");
+      return V.manifest(true).then(function (m) { renderSharePanel(m, id); });
+    }).catch(function (e) {
+      shareBusy(e.message || "Failed.");
+      V.manifest(true).then(function (m) { renderSharePanel(m, id); }).catch(function () {});
+    });
+  }
+  function encryptSecretFromEditor(man, id) {
+    shareBusy("Encrypting…");
+    var next = JSON.parse(JSON.stringify(man)), sec = next.secrets[id];
+    ensureEditorUnlocked().then(function () {
+      return E.getFile(sec.path).then(function (f) { return inlineImagesForEncrypt(f.text, sec.path); });
+    }).then(function (html) {
+      sec.status = "encrypted"; sec.epoch = 0; sec.everyone = false;
+      return rotateSecret(next, id, sec, { v: 1, path: sec.path, title: sec.title, html: html }).then(function (file) {
+        return commitMsg([
+          { path: "edit/visibility.json", text: jsonDoc(next) },
+          { path: "edit/secrets/" + id + ".json", text: JSON.stringify(file) + "\n" }
+        ], "Visibility: encrypt " + id + " via edit mode");
+      });
+    }).then(function () {
+      shareBusy("");
+      return V.manifest(true).then(function (m) { renderSharePanel(m, id); });
+    }).catch(function (e) { shareBusy(e.message || "Encrypt failed."); });
+  }
+
+  /* ---- Owner (profiles.json permissions for this article) ---- */
+  function openOwnerPanel() {
+    if (!P.isAdmin(state.profile)) return;
+    openPanel();
+    var b = $("ee-body");
+    b.innerHTML = '<p class="ee-k">Owner</p><p class="ee-note">Loading…</p>';
+    E.getFile("edit/profiles.json").then(function (f) {
+      var doc = JSON.parse(f.text);
+      doc.__sha = f.sha;
+      renderOwnerPanel(doc);
+    }).catch(function (e) {
+      b.innerHTML = '<p class="ee-k">Owner</p><p class="ee-err">' + esc(e.message || "Could not load profiles.") + '</p>' +
+        '<div class="ee-row"><button type="button" class="ee-btn" id="ee-owner-back">Back</button></div>';
+      $("ee-owner-back").onclick = closePanel;
+    });
+  }
+  function playerEntries(doc) {
+    var out = [], profiles = doc.profiles || {};
+    Object.keys(profiles).forEach(function (login) {
+      if (login.charAt(0) === "_" || login.indexOf("//") === 0) return;
+      var pr = profiles[login];
+      if (!pr || pr.role === "admin") return;
+      out.push({ login: login, person: pr.person || "", name: pr.name || login, permissions: P.rawPermList ? P.rawPermList(pr) : [].concat(pr.permissions || []) });
+    });
+    return out;
+  }
+  function renderOwnerPanel(doc) {
+    var b = $("ee-body");
+    var players = playerEntries(doc);
+    var current = players.filter(function (p) {
+      return (p.permissions || []).indexOf(PATH) >= 0;
+    }).map(function (p) { return p.person || p.login; });
+    var opts = '<option value="">— none —</option>' + players.map(function (p) {
+      var label = (p.name || p.person) + (String(p.login).indexOf("<") === 0 ? " (login placeholder)" : " @" + p.login);
+      var sel = (p.permissions || []).indexOf(PATH) >= 0 ? " selected" : "";
+      return '<option value="' + esc(p.login) + '"' + sel + '>' + esc(label) + '</option>';
+    }).join("");
+    b.innerHTML = '<p class="ee-k">Owner</p>' +
+      '<p class="ee-note">Who may edit <code>' + esc(PATH) + '</code> (writes <code>edit/profiles.json</code>). Admin always can. Current: ' +
+      (current.length ? esc(current.join(", ")) : "no player") + '.</p>' +
+      '<label class="ee-note">Assign to</label>' +
+      '<select id="ee-owner-select" style="width:100%;margin-top:8px;background:#0b0b0b;color:#f3eee6;border:0;border-bottom:1px solid rgba(143,138,130,.28);padding:8px 0;font:14px Helvetica,Arial,sans-serif">' + opts + '</select>' +
+      '<div class="ee-row"><button type="button" class="ee-btn ee-primary" id="ee-owner-save">Save owner</button>' +
+      '<button type="button" class="ee-btn" id="ee-owner-back">Back</button></div>' +
+      '<p class="ee-err" id="ee-owner-err" hidden></p>';
+    $("ee-owner-back").onclick = closePanel;
+    $("ee-owner-save").onclick = function () { saveOwner(doc); };
+  }
+  function saveOwner(doc) {
+    var login = ($("ee-owner-select") || {}).value || "";
+    var err = $("ee-owner-err");
+    function fail(m) { err.textContent = m; err.hidden = false; }
+    err.hidden = true;
+    var next = JSON.parse(JSON.stringify(doc)); delete next.__sha;
+    var profiles = next.profiles || {};
+    Object.keys(profiles).forEach(function (k) {
+      if (k.charAt(0) === "_" || k.indexOf("//") === 0) return;
+      var pr = profiles[k];
+      if (!pr || pr.role === "admin") return;
+      var perms = Array.isArray(pr.permissions) ? pr.permissions.slice() : (typeof pr.permissions === "string" ? [pr.permissions] : []);
+      perms = perms.filter(function (g) { return g && g !== PATH; });
+      if (k === login) perms.push(PATH);
+      pr.permissions = perms;
+    });
+    if (login && !profiles[login]) return fail("Unknown profile.");
+    commitMsg([{ path: "edit/profiles.json", text: jsonDoc(next) }], "Profiles: set owner of " + PATH + (login ? " to " + login : " to none") + " via edit mode")
+      .then(function () {
+        closePanel();
+        editBar("Owner updated · live in about 1–2 minutes", "ee-done");
+        var b = $("ee-bar");
+        if (b && !b.querySelector("#ee-x")) {
+          b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
+          $("ee-x").onclick = closeBar;
+        }
+      })
+      .catch(function (e) { fail(e.message || "Save failed."); });
+  }
+
 
   function openArtPanel() {
     if (!P.isAdmin(state.profile)) return;

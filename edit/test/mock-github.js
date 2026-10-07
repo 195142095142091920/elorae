@@ -99,6 +99,21 @@ class MockGitHub {
       this.heads[b] = body.sha; entry.committed = { message: this.commits[body.sha].message, paths: Object.keys(this.commits[body.sha].files) };
       return json(200, { object: { sha: body.sha } });
     }
+    if ((m = p.match(new RegExp("^" + R + "/collaborators/([^/]+)$"))) && method === "PUT") {
+      const user = decodeURIComponent(m[1]);
+      this.collabs = this.collabs || {};
+      const prev = this.collabs[user];
+      this.collabs[user] = { permission: (body && body.permission) || "push", by: login };
+      // 201 = invitation created; 204 = already collaborator / updated
+      if (prev) return route.fulfill({ status: 204, headers });
+      return route.fulfill({ status: 201, headers, contentType: "application/json", body: JSON.stringify({ invitee: { login: user }, permissions: body && body.permission }) });
+    }
+    if ((m = p.match(new RegExp("^" + R + "/collaborators/([^/]+)$"))) && method === "GET") {
+      const user = decodeURIComponent(m[1]);
+      this.collabs = this.collabs || {};
+      if (!this.collabs[user]) return json(404, { message: "Not Found" });
+      return json(200, { permission: this.collabs[user].permission, role_name: "write" });
+    }
     if (p === R + "/pulls" && method === "POST") {
       const pr = { number: this.n++, html_url: `https://github.com/${this.repo}/pull/${this.n - 1}`, head: body.head, base: body.base, title: body.title, by: login };
       this.pulls.push(pr); return json(201, pr);

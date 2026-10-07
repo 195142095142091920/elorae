@@ -113,6 +113,7 @@
     profilesOf: profilesOf,
     profileFor: profileFor,
     isAdmin: isAdmin,
+    rawPermList: rawPermList,
     permList: permList,
     isProtected: isProtected,
     canEdit: canEdit,

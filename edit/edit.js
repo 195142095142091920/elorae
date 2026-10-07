@@ -35,7 +35,7 @@
     var css = document.createElement("link");
     css.rel = "stylesheet"; css.href = new URL("edit.css" + (V ? "?" + V : ""), base).href;
     document.head.appendChild(css);
-    ["core.js", "perms.js", "srcmap.js", "media.js", "editor.js"].reduce(function (p, f) {
+    ["core.js", "perms.js", "srcmap.js", "media.js", "crypto.js", "vis.js", "editor.js"].reduce(function (p, f) {
       return p.then(function () { return load(f); });
     }, Promise.resolve()).catch(function () {});
   }

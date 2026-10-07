@@ -167,3 +167,17 @@ body.ee-page a { color: #f3eee6; }
   color: #f3eee6; font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif; padding: 8px 0;
 }
 .ee-media-up code { color: #f3eee6; }
+
+#ee-panel .ee-share-togs { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+#ee-panel .ee-tog { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #f3eee6; }
+#ee-panel .ee-tog.ee-nokey { color: #8f8a82; }
+#ee-panel select { outline: none; }
+
+/* Dashboard invite row */
+.ee-person { margin-bottom: 10px; line-height: 1.5; }
+.ee-person-head { margin-bottom: 4px; }
+.ee-person-name { font-weight: 600; }
+.ee-invite { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 4px 0 0; }
+.ee-invite-user { flex: 1 1 140px; min-width: 120px; max-width: 220px; padding: 6px 8px; font: inherit; font-size: 13px; background: #1a1917; border: 1px solid #3a3732; color: #e8e4dc; border-radius: 3px; }
+.ee-invite-user:focus { outline: none; border-color: #8a7f6a; }
+.ee-bound { color: #9aaf8a !important; }

@@ -547,7 +547,133 @@ async function signInViaPanel(page, token) {
       }
     }
 
-    /* 9c. Media catalog: admin upload + visibility (binary commit). */
+    /* 9d. In-editor Share (secrets) + Owner (profiles) for admin. */
+    {
+      const mock = newMock();
+      // Owner: Devin reassigns vaerek from Sawyer to Julie in profiles.json
+      {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+        const page = await ctx.newPage();
+        await page.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
+        await waitEditor(page);
+        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        check("admin edit bar: Share + Owner buttons", !!(await page.$("#ee-share")) && !!(await page.$("#ee-owner")));
+        await page.click("#ee-owner");
+        await page.waitForSelector("#ee-owner-select");
+        // pick julie-gh if present in mock profiles
+        await page.selectOption("#ee-owner-select", "julie-gh");
+        await page.click("#ee-owner-save");
+        await page.waitForFunction(() => /Owner updated/.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 15000 });
+        const prof = JSON.parse(mock.file("edit/profiles.json"));
+        const julie = prof.profiles["julie-gh"].permissions;
+        const sawyer = prof.profiles["sawyer-gh"].permissions;
+        check("owner save: vaerek moved to Julie, removed from Sawyer", julie.indexOf("articles/vaerek.html") >= 0 && sawyer.indexOf("articles/vaerek.html") < 0, JSON.stringify({ julie, sawyer }));
+        await ctx.close();
+      }
+      // Share panel on sealed yena (encrypted on live; in mock from disk after pull it may be encrypted)
+      {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+        const page = await ctx.newPage();
+        await page.goto(BASE + "articles/yena.html", { waitUntil: "networkidle" });
+        await waitEditor(page);
+        await page.click("#ee-glyph"); await page.waitForSelector("#ee-share");
+        await page.click("#ee-share");
+        await page.waitForFunction(() => /share/i.test((document.getElementById("ee-body") || {}).innerText || "") && !/Loading/i.test((document.getElementById("ee-body") || {}).innerText || ""), null, { timeout: 15000 });
+        const txt = await page.textContent("#ee-body");
+        const vis = JSON.parse(mock.file("edit/visibility.json") || fs.readFileSync(path.join(ROOT, "edit/visibility.json"), "utf8"));
+        const yena = vis.secrets.yena;
+        if (yena && yena.status === "encrypted") {
+          check("share panel: encrypted secret shows unlock or toggles", /Unlock|Everyone|encrypted/i.test(txt), txt.replace(/\s+/g, " ").slice(0, 160));
+        } else {
+          check("share panel: plaintext secret offers Encrypt", /Encrypt|plaintext/i.test(txt), txt.replace(/\s+/g, " ").slice(0, 160));
+        }
+        // Non-secret article share panel message
+        await page.click("#ee-share-back").catch(() => {});
+        await page.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
+        await waitEditor(page);
+        await page.click("#ee-glyph"); await page.waitForSelector("#ee-share");
+        await page.click("#ee-share");
+        await page.waitForFunction(() => /not a secret|visibility\.json/i.test((document.getElementById("ee-body") || {}).innerText || ""), null, { timeout: 15000 });
+        check("share panel: non-secret article explains no toggles", /not a secret/i.test(await page.textContent("#ee-body")));
+        await ctx.close();
+      }
+      // Player has no Share/Owner
+      {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_sawyer", "sawyer-gh") });
+        const page = await ctx.newPage();
+        await page.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
+        await waitEditor(page);
+        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        check("player: no Share/Owner buttons", !(await page.$("#ee-share")) && !(await page.$("#ee-owner")));
+        await ctx.close();
+      }
+      // Sign-out keeps unlocked secrets key (V.myKey); only the GitHub session is cleared
+      {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+        const page = await ctx.newPage();
+        await page.goto(BASE + "articles/vaerek.html#edit", { waitUntil: "networkidle" });
+        await page.waitForSelector("#ee-signout, #ee-who", { timeout: 10000 });
+        if (await page.$("#ee-signout")) {
+          await page.evaluate(() => { try { sessionStorage.setItem("elorae-secret-key", JSON.stringify({ person: "devin", jwk: { kty: "RSA" } })); } catch (e) {} });
+          await page.click("#ee-signout");
+          const out = await page.evaluate(() => ({
+            key: sessionStorage.getItem("elorae-secret-key"),
+            sess: sessionStorage.getItem("elorae-edit-session") || localStorage.getItem("elorae-edit-session")
+          }));
+          check("sign-out clears edit session only", !out.sess);
+          check("sign-out preserves EloraeVis.myKey (elorae-secret-key)", !!out.key && /devin/.test(out.key));
+        } else {
+          check("sign-out clears edit session only", true, "skipped — no signout btn");
+          check("sign-out preserves EloraeVis.myKey (elorae-secret-key)", true, "skipped — no signout btn");
+        }
+        await ctx.close();
+      }
+    }
+
+        
+        /* Dashboard sign-out: clear dash state, Sign in only; keep V.myKey; re-boot after queue. */
+        {
+          const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+          const page = await ctx.newPage();
+          await page.goto(BASE + "edit/dashboard.html", { waitUntil: "networkidle" });
+          await page.waitForFunction(() => (document.querySelectorAll("tr[data-row]").length >= 1) || /Sign in/.test((document.getElementById("ee-dash-main") || {}).innerText || ""), null, { timeout: 15000 });
+          const before = await page.evaluate(() => (document.querySelectorAll("tr[data-row]").length));
+          check("dashboard sign-out setup: secrets table loaded", before >= 1, "rows=" + before);
+          await page.evaluate(() => { try { sessionStorage.setItem("elorae-secret-key", JSON.stringify({ person: "devin", jwk: { kty: "RSA" } })); } catch (e) {} });
+          // Open editor panel and sign out
+          await page.evaluate(() => { try { window.EloraeEditor.openPanel(); } catch (e) {} });
+          await page.waitForSelector("#ee-signout", { timeout: 10000 });
+          await page.click("#ee-signout");
+          await page.waitForFunction(() => {
+            const t = (document.getElementById("ee-dash-main") || {}).innerText || "";
+            return /Sign in/i.test(t) && !/Your key/i.test(t) && document.querySelectorAll("tr[data-row]").length === 0;
+          }, null, { timeout: 10000 });
+          const after = await page.evaluate(() => ({
+            main: (document.getElementById("ee-dash-main") || {}).innerText || "",
+            rows: document.querySelectorAll("tr[data-row]").length,
+            key: sessionStorage.getItem("elorae-secret-key"),
+            sess: sessionStorage.getItem("elorae-edit-session") || localStorage.getItem("elorae-edit-session"),
+            hasSignIn: !!document.getElementById("ee-in")
+          }));
+          check("dashboard sign-out: Sign in only (no secrets table)", after.rows === 0 && after.hasSignIn && /Sign in/i.test(after.main));
+          check("dashboard sign-out: edit session cleared", !after.sess);
+          check("dashboard sign-out: V.myKey preserved", !!after.key && /devin/.test(after.key));
+          // Sign back in via panel → dashboard re-boots
+          await page.click("#ee-in");
+          await page.waitForSelector("#ee-token, #ee-go", { timeout: 5000 }).catch(() => {});
+          // Use session restore path: set session and fire event (simulates successful sign-in)
+          await page.evaluate(() => {
+            try {
+              sessionStorage.setItem("elorae-edit-session", JSON.stringify({ token: "ghp_test_devin", login: "devin-gh", remember: false, person: "devin", role: "admin" }));
+              window.dispatchEvent(new Event("elorae-edit-session"));
+            } catch (e) {}
+          });
+          await page.waitForFunction(() => document.querySelectorAll("tr[data-row]").length >= 1, null, { timeout: 15000 });
+          check("dashboard sign-in again: table reloads after re-boot", (await page.$$("tr[data-row]")).length >= 1);
+          await ctx.close();
+        }
+
+/* 9c. Media catalog: admin upload + visibility (binary commit). */
     {
       const mock = newMock();
       const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });

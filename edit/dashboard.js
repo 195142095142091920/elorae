@@ -5,7 +5,7 @@
   "use strict";
   var E = window.EloraeEdit, P = window.EloraeEditPerms, K = window.EloraeCrypto, V = window.EloraeVis, Media = window.EloraeMedia;
   var main = document.getElementById("ee-dash-main");
-  var st = { man: null, profile: null, priv: null, busy: false, msg: "", catalog: null };
+  var st = { man: null, profile: null, priv: null, busy: false, msg: "", catalog: null, profilesDoc: null };
   var ME = "devin";
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -13,16 +13,39 @@
   function nameOf(p) { return (st.man.people[p] || {}).name || p; }
   function json(o) { var c = JSON.parse(JSON.stringify(o)); delete c.__sha; return JSON.stringify(c, null, 2) + "\n"; }
 
+  function clearDashState() {
+    // Drop session-bound dashboard data. Do NOT touch V.myKey (unlocked secrets key stays).
+    st.man = null;
+    st.profile = null;
+    st.priv = null;
+    st.catalog = null;
+    st.profilesDoc = null;
+    st.busy = false;
+    st.msg = "";
+  }
+
+  function showSignedOut() {
+    clearDashState();
+    main.innerHTML = '<p class="ee-note">Sign in with your GitHub token to use the dashboard.</p><div class="ee-row"><button class="ee-btn ee-primary" id="ee-in">Sign in</button></div>';
+    var btn = $("ee-in");
+    if (btn) btn.onclick = function () { window.EloraeEditor.openPanel(); };
+  }
+
   function gate() {
     var s = E.session.get();
     if (!s) {
-      main.innerHTML = '<p class="ee-note">Sign in with your GitHub token to use the dashboard.</p><div class="ee-row"><button class="ee-btn ee-primary" id="ee-in">Sign in</button></div>';
-      $("ee-in").onclick = function () { window.EloraeEditor.openPanel(); };
+      showSignedOut();
       return Promise.resolve(false);
     }
     return E.getFile("edit/profiles.json").then(function (f) {
       st.profile = P.profileFor(JSON.parse(f.text), s.login);
-      if (!P.isAdmin(st.profile)) { main.innerHTML = '<p class="ee-note">The dashboard is only for admins.</p>'; return false; }
+      if (!P.isAdmin(st.profile)) {
+        clearDashState();
+        main.innerHTML = '<p class="ee-note">The dashboard is only for admins.</p><div class="ee-row"><button class="ee-btn ee-primary" id="ee-in">Sign in</button></div>';
+        var btn = $("ee-in");
+        if (btn) btn.onclick = function () { window.EloraeEditor.openPanel(); };
+        return false;
+      }
       ME = st.profile.person || "devin";
       return true;
     });
@@ -30,29 +53,57 @@
 
   // Activate (or re-activate) without a full page reload so the sign-in success
   // panel stays up and the dashboard is live on this same page immediately.
-  var booting = false;
+  // If boot is requested while one is in flight, queue a follow-up (e.g. sign-out
+  // mid-load, then sign-in again).
+  var booting = false, bootQueued = false;
   function boot() {
-    if (booting) return;
-    booting = true;
+    if (booting) { bootQueued = true; return; }
+    booting = true; bootQueued = false;
     gate().then(function (ok) {
       if (!ok) return;
       return load().then(function () {
+        st.priv = null;
         var mine = V.myKey.get();
-        if (mine && mine.person === ME) return V.myKey.privateKey().then(function (k) { st.priv = k; });
+        if (mine && mine.person === ME) {
+          return V.myKey.privateKey().then(function (k) { st.priv = k; }, function () { st.priv = null; });
+        }
       }).then(render);
     }).catch(function (err) {
       main.innerHTML = '<p class="ee-err">' + esc(err.message || "Could not load the dashboard.") + '</p>';
-    }).then(function () { booting = false; });
+    }).then(function () {
+      booting = false;
+      if (bootQueued) { bootQueued = false; boot(); }
+    });
   }
 
   function load() {
     return V.manifest(true).then(function (m) { st.man = m; }).then(function () {
+      return E.getFile("edit/profiles.json").then(function (f) {
+        st.profilesDoc = JSON.parse(f.text); st.profilesDoc.__sha = f.sha;
+      });
+    }).then(function () {
       return E.getFile(Media.CATALOG).then(function (f) {
         st.catalog = JSON.parse(f.text); st.catalog.__sha = f.sha;
       }, function () {
         st.catalog = { version: 1, media: {} };
       });
     });
+  }
+
+  // Find profiles.json key + value for a person slug (sawyer/jon/…).
+  function profileEntry(person) {
+    var profiles = (st.profilesDoc && st.profilesDoc.profiles) || {};
+    var keys = Object.keys(profiles);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (k.charAt(0) === "_" || k.indexOf("//") === 0) continue;
+      var pr = profiles[k];
+      if (pr && pr.person === person) return { key: k, profile: pr };
+    }
+    return null;
+  }
+  function isPlaceholderLogin(k) {
+    return typeof k === "string" && k.charAt(0) === "<" && k.charAt(k.length - 1) === ">";
   }
 
   function commit(files, message) {
@@ -228,6 +279,12 @@
 
   /* ---- render ---- */
   function render() {
+    // After sign-out (or before first load) there is no session data — show gate UI, don't crash.
+    if (!E.session.get() || !st.man) {
+      if (!E.session.get()) showSignedOut();
+      else gate(); // session present but man not loaded yet / non-admin path
+      return;
+    }
     var man = st.man, rec = myRecord();
     var people = Object.keys(man.people);
     var keyBox = !rec
@@ -254,7 +311,20 @@
         (enc ? boxes : '<button class="ee-btn" data-encrypt="' + esc(id) + '"' + ((st.priv && !st.busy) ? "" : " disabled") + '>Encrypt</button>') + '</td></tr>';
     }).join("");
     var ppl = people.map(function (p) {
-      return '<li>' + esc(nameOf(p)) + ' <span class="ee-sub">' + (man.people[p].key ? "key set" : "no key yet") + '</span></li>';
+      var keyNote = man.people[p].key ? "key set" : "no key yet";
+      if (p === "devin") {
+        return '<li class="ee-person" data-person="devin"><span class="ee-person-name">' + esc(nameOf(p)) + '</span> <span class="ee-sub">admin · ' + keyNote + '</span></li>';
+      }
+      var ent = profileEntry(p);
+      var bound = ent && !isPlaceholderLogin(ent.key) ? ent.key : "";
+      var boundHtml = bound
+        ? '<span class="ee-sub ee-bound">@' + esc(bound) + '</span>'
+        : '<span class="ee-sub">not invited</span>';
+      return '<li class="ee-person" data-person="' + esc(p) + '">' +
+        '<div class="ee-person-head"><span class="ee-person-name">' + esc(nameOf(p)) + '</span> <span class="ee-sub">' + keyNote + '</span> ' + boundHtml + '</div>' +
+        '<form class="ee-invite" data-invite="' + esc(p) + '" autocomplete="off">' +
+        '<input type="text" class="ee-invite-user" name="username" placeholder="GitHub username" value="' + esc(bound) + '" spellcheck="false" autocomplete="off" aria-label="GitHub username for ' + esc(nameOf(p)) + '">' +
+        '<button type="submit" class="ee-btn ee-primary"' + (st.busy ? " disabled" : "") + '>Invite</button></form></li>';
     }).join("");
     main.innerHTML =
       '<section class="ee-sec"><h2>Your key</h2>' + keyBox + '</section>' +
@@ -262,7 +332,7 @@
       '<section class="ee-sec"><h2>Secrets</h2><div class="ee-scroll"><table class="ee-table"><thead><tr><th>Title</th><th>Owner</th><th>Can see</th><th>Share</th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
       mediaSection() +
       '<section class="ee-sec"><h2>People</h2><ul class="ee-people">' + ppl + '</ul>' +
-      '<p class="ee-note">Each person makes a key at <a href="secret.html?enroll">secret.html?enroll</a> and sends you the code. Paste it here.</p>' +
+      '<p class="ee-note">Invite each player with their GitHub username (Write access + bind <code>profiles.json</code>). Then they make a key at <a href="secret.html?enroll">secret.html?enroll</a> and send you the code. Paste it here.</p>' +
       '<form id="ee-add"><textarea class="ee-code" id="ee-addcode" placeholder="Enrollment code"></textarea><div class="ee-row"><button class="ee-btn ee-primary" type="submit"' + (st.busy ? " disabled" : "") + '>Add key</button></div></form></section>';
     bind();
   }
@@ -347,6 +417,60 @@
           });
         });
       };
+    });
+    Array.prototype.forEach.call(main.querySelectorAll("form.ee-invite"), function (form) {
+      form.onsubmit = function (e) {
+        e.preventDefault();
+        var person = form.getAttribute("data-invite");
+        var user = ((form.querySelector(".ee-invite-user") || {}).value || "").trim();
+        invitePlayer(person, user);
+      };
+    });
+  }
+
+  // Invite username as Write collaborator and bind profiles.json placeholder → real login.
+  function invitePlayer(person, username) {
+    username = String(username || "").trim().replace(/^@/, "");
+    if (!person || person === "devin") { st.msg = "Devin is the admin already."; return render(); }
+    if (!/^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(username)) {
+      st.msg = "Enter a valid GitHub username."; return render();
+    }
+    run("Inviting @" + username, function () {
+      return E.api(E.repoPath("/collaborators/" + encodeURIComponent(username)), {
+        method: "PUT",
+        body: { permission: "push" }
+      }).catch(function (err) {
+        if (err && err.status === 404) throw new Error("GitHub user @" + username + " was not found.");
+        if (err && err.status === 422) throw new Error("Could not invite @" + username + " (blocked or invalid).");
+        if (err && err.status === 403) throw new Error("Your token can't manage collaborators. Needs admin on this repo.");
+        throw err;
+      }).then(function () {
+        return E.getFile("edit/profiles.json").then(function (f) {
+          var doc = JSON.parse(f.text);
+          var profiles = doc.profiles || {};
+          var foundKey = null, foundVal = null;
+          Object.keys(profiles).forEach(function (k) {
+            if (k.charAt(0) === "_" || k.indexOf("//") === 0) return;
+            var pr = profiles[k];
+            if (pr && pr.person === person) { foundKey = k; foundVal = pr; }
+          });
+          if (!foundVal) throw new Error("No profile row for " + person + " in profiles.json.");
+          if (foundKey !== username) {
+            if (profiles[username] && profiles[username].person && profiles[username].person !== person) {
+              throw new Error("@" + username + " is already bound to " + profiles[username].person + ".");
+            }
+            delete profiles[foundKey];
+            profiles[username] = foundVal;
+            doc.profiles = profiles;
+            return commit([{ path: "edit/profiles.json", text: json(doc) }], "Profiles: bind " + person + " to @" + username + " via dashboard invite").then(function () {
+              st.profilesDoc = doc;
+              return "Invited @" + username + " (Write). Pending accept, or already a collaborator — profile updated";
+            });
+          }
+          st.profilesDoc = doc;
+          return "Invited @" + username + " (Write). Already bound in profiles — invite refreshed";
+        });
+      });
     });
   }
 
