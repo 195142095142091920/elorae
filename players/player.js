@@ -3,7 +3,7 @@
      the top of the page — no "Characters" / "The party" heading. Game Master
      (edit/visibility.json "admins") sees the party;
    - combined: one card row of editable (profiles.json) + secret (visibility.json) articles
-     below. Each card: image, title, and a type mark (edit / secret / both). No epithet.
+     below under a "My Articles" heading. Each card: image, title, and a type mark (edit / secret / both). No epithet.
      Subjects already in Characters are excluded. Secrets only when the viewer has unlocked
      them (this player or GM) and only those also open to the viewer — nothing sealed in
      static HTML.
@@ -31,6 +31,7 @@
   var css = document.createElement("style");
   css.id = "nt-player-css";
   css.textContent =
+    "#nt-player h2{margin:36px 0 18px;padding:0;border:0;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-weight:400;font-style:normal;font-size:11px;letter-spacing:.28em;text-transform:uppercase;text-align:left;color:#8f8a82}" +
     ".nt-pl-chars{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:22px;margin:0}" +
     ".nt-pl-chars+.nt-pl-chars{margin-top:36px;padding-top:36px;border-top:1px solid rgba(243,238,230,.09)}" +
     ".nt-pl-char{width:150px;text-align:left;box-sizing:border-box;background:#0b0b0b;border:1px solid rgba(243,238,230,.09);border-radius:4px;overflow:hidden;padding:0 0 12px}" +
@@ -42,7 +43,8 @@
     ".nt-pl-char .nt-pl-kind{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8f8a82;margin-top:6px;display:flex;align-items:center;gap:6px}" +
     ".nt-pl-char .nt-pl-kind .sy{font-size:13px;line-height:1;letter-spacing:0;text-transform:none}" +
     "@media (min-width:801px){.nt-pl-char .nm a:hover{color:#fff}}" +
-    "@media (max-width:800px){.nt-pl-chars{gap:12px;justify-content:space-between}" +
+    "@media (max-width:800px){#nt-player h2{margin-top:28px;margin-bottom:14px;font-size:10px;letter-spacing:.22em}" +
+    ".nt-pl-chars{gap:12px;justify-content:space-between}" +
     ".nt-pl-char{width:calc(50% - 6px)}.nt-pl-char img,.nt-pl-char .ph{height:calc((50vw - 22px) * 4 / 3)}" +
     ".nt-pl-chars+.nt-pl-chars{margin-top:28px;padding-top:28px}}";
   document.head.appendChild(css);
@@ -201,8 +203,9 @@
     var items = Object.keys(bag).map(function (k) { return bag[k]; });
     items.sort(function (a, b) { return (a.title || "").localeCompare(b.title || ""); });
     if (items.length) {
+      root.appendChild(el("h2", null, "My Articles"));
       var row = el("div", "nt-pl-chars");
-      row.setAttribute("aria-label", "Edit and secrets");
+      row.setAttribute("aria-label", "My Articles");
       root.appendChild(row);
       items.forEach(function (it) {
         var box = el("div", "nt-pl-char"); row.appendChild(box);
