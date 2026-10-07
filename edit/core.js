@@ -69,19 +69,52 @@
       return false;
     } catch (e) { return false; }
   }
+  function normalizeToken(t) {
+    t = String(t || "").replace(/^\uFEFF/, "").replace(/^Bearer\s+/i, "").replace(/\s+/g, "");
+    return t;
+  }
   function looksLikeToken(t) {
-    t = String(t || "");
+    t = normalizeToken(t);
     return /^(ghp_|github_pat_|gho_|ghu_|ghs_)/.test(t);
+  }
+  function readPhraseWho() {
+    try {
+      var m = document.cookie.match(/(?:^|;\s*)elorae-login=([a-z]+)/);
+      if (m) return m[1];
+    } catch (e) {}
+    try {
+      var m2 = document.cookie.match(/(?:^|;\s*)elorae-seal=([a-z]+)/);
+      if (m2) return m2[1];
+    } catch (e2) {}
+    try {
+      return localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || "";
+    } catch (e3) { return ""; }
   }
   /* Recover a Connect token even if JSON is partial or under a legacy shape. */
   function parseSessionRaw(raw) {
-    if (!raw) return null;
+    if (raw == null || raw === "") return null;
+    /* Bare token string stored by an older path. */
+    if (typeof raw === "string" && looksLikeToken(raw)) {
+      var bare = { token: normalizeToken(raw), login: "", remember: true };
+      var whoBare = String(readPhraseWho() || "").toLowerCase();
+      if (whoBare === "devin") bare.login = "195142095142091920";
+      if (!bare.login) return null;
+      bare.person = LOGIN_PERSON[bare.login] || whoBare || "";
+      return bare;
+    }
     var s;
     try { s = JSON.parse(raw); } catch (e) { return null; }
+    /* Double-encoded JSON string from older helpers. */
+    if (typeof s === "string") {
+      if (looksLikeToken(s)) {
+        return parseSessionRaw(JSON.stringify({ token: normalizeToken(s) }));
+      }
+      try { s = JSON.parse(s); } catch (e3) { return null; }
+    }
     if (!s || typeof s !== "object") return null;
-    var token = s.token || s.access_token || s.ghToken || s.githubToken || "";
+    var token = normalizeToken(s.token || s.access_token || s.ghToken || s.githubToken || s.pat || "");
     if (!looksLikeToken(token)) return null;
-    var login = s.login || s.user || s.username || "";
+    var login = s.login || s.user || s.username || s.ghLogin || "";
     if (!login) {
       var person = String(s.person || "").toLowerCase();
       Object.keys(LOGIN_PERSON).forEach(function (gh) {
@@ -89,15 +122,56 @@
       });
     }
     if (!login) {
-      try {
-        var who = localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || "";
-        if (String(who).toLowerCase() === "devin") login = "195142095142091920";
-      } catch (e2) {}
+      var who = String(readPhraseWho() || "").toLowerCase();
+      if (who === "devin") login = "195142095142091920";
     }
     if (!login) return null;
     s.token = token;
     s.login = login;
     if (!s.person) s.person = LOGIN_PERSON[String(login).toLowerCase()] || s.person || "";
+    return s;
+  }
+  /* Scan every LS/SS key for a leftover Connect token (pre-flag Connect, odd keys). */
+  function salvageFromStore(store) {
+    if (!store) return null;
+    var i, k, raw, s, found = null;
+    try {
+      for (i = 0; i < store.length; i++) {
+        k = store.key(i);
+        if (!k) continue;
+        try { raw = store.getItem(k); } catch (e) { continue; }
+        s = parseSessionRaw(raw);
+        if (s && s.token) {
+          /* Prefer keys that look edit/github related; otherwise keep first hit. */
+          if (/elorae|edit|github|gh|seal|token|session/i.test(k)) return s;
+          if (!found) found = s;
+        }
+        /* Nested JSON: { session: {...} } or arrays. */
+        try {
+          var obj = JSON.parse(raw);
+          if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+            var nest = parseSessionRaw(JSON.stringify(obj.session || obj.edit || obj.github || obj.data || obj));
+            if (nest && nest.token) {
+              if (/elorae|edit|github|gh|seal|token|session/i.test(k)) return nest;
+              if (!found) found = nest;
+            }
+          }
+        } catch (eNest) {}
+      }
+    } catch (eLoop) {}
+    return found;
+  }
+  function salvageAnyToken() {
+    var s = salvageFromStore(typeof localStorage !== "undefined" ? localStorage : null)
+      || salvageFromStore(typeof sessionStorage !== "undefined" ? sessionStorage : null);
+    if (!s) return null;
+    try {
+      s.remember = true;
+      var healed = JSON.stringify(s);
+      localStorage.setItem(KEY, healed);
+      sessionStorage.setItem(KEY, healed);
+      stampSessionLinked(s);
+    } catch (e) {}
     return s;
   }
   function stampSessionLinked(s) {
@@ -106,8 +180,12 @@
     markLinked(person, s.login);
     /* Also stamp the phrase identity currently signed in (login Connect → Edit reuse). */
     try {
-      var who = localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || "";
+      var who = readPhraseWho();
       if (who) markLinked(who, s.login);
+      if (String(who).toLowerCase() === "devin" || person === "devin") {
+        markLinked("devin", s.login);
+        markLinked("195142095142091920", s.login);
+      }
     } catch (e) {}
   }
   var session = {
@@ -121,6 +199,8 @@
       var sLs = parseSessionRaw(ls);
       var sSs = parseSessionRaw(ss);
       var s = sLs || sSs;
+      /* Named key empty/corrupt — scan the whole browser store for a leftover Connect. */
+      if (!s) s = salvageAnyToken();
       if (!s) return null;
       /* Both valid: prefer remembered localStorage over a tab-only copy. */
       if (sLs && sSs) s = sLs;
@@ -138,6 +218,7 @@
     set: function (s) {
       try {
         /* Connect is permanent on this device — always persist so Edit never re-prompts. */
+        if (s && s.token) s.token = normalizeToken(s.token);
         s.remember = true;
         var raw = JSON.stringify(s);
         sessionStorage.setItem(KEY, raw);
@@ -152,6 +233,7 @@
     wasLinked: wasLinked,
     markLinked: markLinked,
     personAliases: personAliases,
+    salvage: salvageAnyToken,
     dropTabSession: function () {
       try { sessionStorage.removeItem(KEY); } catch (e) {}
     }
@@ -299,6 +381,6 @@
     pagePath: pagePath, session: session, api: api, repoPath: repoPath,
     getFile: getFile, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,
     b64EncodeUtf8: b64EncodeUtf8, b64EncodeBytes: b64EncodeBytes, b64DecodeUtf8: b64DecodeUtf8,
-    loginWho: function () { try { return localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
+    loginWho: function () { return readPhraseWho(); }
   };
 })();

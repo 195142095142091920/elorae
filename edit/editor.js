@@ -48,6 +48,27 @@
     var t = $("ee-token");
     if (t) setTimeout(function () { t.focus(); }, 30);
   }
+  /* Owner/reconnect: paste existing token only — no first-time "Make my token" marketing. */
+  function openReconnectPanel(msg) {
+    var p = panel();
+    var b = $("ee-body"); if (!b) return;
+    b.innerHTML =
+      '<p class="ee-k">Edit</p>' +
+      '<p class="ee-note ee-info" id="ee-lead">' + esc(msg || "Your GitHub link is on this account, but this browser needs the token again to edit.") + '</p>' +
+      '<form id="ee-form" autocomplete="off">' +
+      '<label class="ee-note" for="ee-token">Paste your existing GitHub token</label>' +
+      '<input id="ee-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
+      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">Enter</button></div>' +
+      '<p class="ee-err" id="ee-err" hidden></p></form>' +
+      '<p class="ee-note">Same token you used when you connected. No new token needed unless GitHub revoked it. <a href="' + esc(E.TOKEN_LINKS.tokens) + '" target="_blank" rel="noopener">Your tokens</a></p>';
+    $("ee-form").onsubmit = function (e) {
+      e.preventDefault();
+      signIn($("ee-token").value.trim(), true);
+    };
+    p.hidden = false;
+    var t = $("ee-token");
+    if (t) setTimeout(function () { t.focus(); }, 30);
+  }
   function permSummary(pr) {
     if (!pr) return "";
     if (P.isAdmin(pr)) return (pr.title || "Admin") + " · whole site";
@@ -191,11 +212,18 @@
   function expired() {
     var prev = E.session.get();
     if (prev && E.session.markLinked) E.session.markLinked(prev.person, prev.login);
+    if (prev && prev.login && E.session.markLinked) {
+      E.session.markLinked("devin", prev.login);
+      E.session.markLinked("195142095142091920", prev.login);
+    }
     E.session.clear(); state.profile = null; notify(); glyph();
-    var b = bar('<span class="ee-msg">Your edit session has expired. Make a new token to keep editing.</span>' +
+    var b = bar('<span class="ee-msg">Edit needs your GitHub token in this browser again.</span>' +
       '<button type="button" class="ee-btn" id="ee-x">Not now</button><button type="button" class="ee-btn ee-primary" id="ee-resign">Enter again</button>', "ee-expired");
     $("ee-x").onclick = closeBar;
-    $("ee-resign").onclick = function () { closeBar(); openPanel("Your previous token expired or was deleted. Make a new one (step 1), then paste it (step 2).", "info"); };
+    $("ee-resign").onclick = function () {
+      closeBar();
+      openReconnectPanel("Paste the GitHub token you already made for Elorae — not a new first-time setup.");
+    };
   }
   function notify() { try { window.dispatchEvent(new Event("elorae-edit-session")); } catch (e) {} }
 
@@ -1360,18 +1388,49 @@
       }
     }
   }
+  function phraseWhoNow() {
+    try { return String((E.loginWho && E.loginWho()) || "").toLowerCase(); } catch (e) { return ""; }
+  }
+  /* Site owner signed in by phrase — Connect happened before Edit/nav existed. */
+  function isOwnerPhrase() {
+    var who = phraseWhoNow();
+    if (who === "devin") return true;
+    try {
+      if (document.body && document.body.classList.contains("login-devin")) return true;
+    } catch (e) {}
+    return false;
+  }
   function alreadyConnectedHere() {
     var s = E.session.get();
     if (s && s.token) return true;
+    /* Owner phrase login: never treat as first-time Make-token (Connect predated Edit). */
+    if (isOwnerPhrase()) return true;
     if (!E.session.wasLinked) return false;
-    var who = "";
-    try { who = String((E.loginWho && E.loginWho()) || "").toLowerCase(); } catch (e) {}
+    var who = phraseWhoNow();
     /* Phrase identity (Devin) or any alias left by login Connect. */
     if (who && E.session.wasLinked(who)) return true;
     /* Owner: always honor linked stamps under person or GitHub login, even if phrase who is empty. */
     if ((!who || who === "devin") && E.session.wasLinked("devin")) return true;
     if ((!who || who === "devin") && E.session.wasLinked("195142095142091920")) return true;
+    /* Any linked flag on this browser (pre-phrase identity). */
+    try { if (E.session.wasLinked("")) return true; } catch (e2) {}
     return false;
+  }
+  /* Soft reconnect — NOT the first-time Make-token onboarding panel. */
+  function softReconnect() {
+    try {
+      var who = phraseWhoNow() || "devin";
+      if (E.session.markLinked) {
+        E.session.markLinked(who, "195142095142091920");
+        E.session.markLinked("devin", "195142095142091920");
+      }
+    } catch (e) {}
+    clearEditHash();
+    bootExpired = true;
+    /* Paste-only reconnect — never the first-time Make-token onboarding panel. */
+    openReconnectPanel(isOwnerPhrase()
+      ? "You're signed in as Devin. Paste the GitHub token from when you connected — Edit will open right after."
+      : "Paste your existing GitHub token to keep editing.");
   }
   /* Nav Edit / #edit: enter edit mode when already connected — never bounce to Connect. */
   function tryEnterEdit() {
@@ -1404,39 +1463,34 @@
       /* Stale tab session may shadow a remembered Connect — drop tab copy and retry once. */
       if (E.session.dropTabSession) E.session.dropTabSession();
       s = E.session.get();
-      if (!s) { bootExpired = true; expired(); return null; }
+      if (!s) { bootExpired = true; softReconnect(); return null; }
       return E.getFile("edit/profiles.json").then(apply).catch(function (err2) {
-        if (err2.status === 401) { bootExpired = true; expired(); }
+        if (err2.status === 401) { bootExpired = true; softReconnect(); }
         return null;
       });
     });
   }
+  function enterWithSession() {
+    return loadProfile().then(function () {
+      if (tryEnterEdit()) return;
+      /* Token present: signed-in panel only — never first-time Make-token. */
+      if (E.session.get()) openPanel();
+      else if (alreadyConnectedHere()) softReconnect();
+    });
+  }
   function decideEditHash() {
     if (location.hash !== "#edit") return;
-    if (bootExpired) return; /* expired() already offered re-enter; do not dump Connect */
+    if (bootExpired) return; /* soft re-enter already offered; do not dump Make-token */
     if (tryEnterEdit()) return;
-    /* Live login/Edit Connect token: never show first-time Make-token. */
-    if (E.session.get()) {
-      /* Profile still loading or page not editable — signed-in panel, not Make-token. */
-      openPanel();
-      return;
-    }
-    /* Salvage: a bad tab copy may have blocked LS; drop SS and re-read once. */
+    /* Live login/Edit Connect token: enter edit or signed-in panel — never Make-token. */
+    if (E.session.get()) return enterWithSession();
+    /* Salvage: drop a bad tab copy, then scan every LS/SS key for a leftover Connect token. */
     if (E.session.dropTabSession) E.session.dropTabSession();
-    if (E.session.get()) {
-      return loadProfile().then(function () {
-        if (tryEnterEdit()) return;
-        openPanel();
-      });
-    }
-    if (alreadyConnectedHere()) {
-      /* Linked via login Connect but token missing/invalid — soft re-enter only. */
-      try {
-        var who = (E.loginWho && E.loginWho()) || "devin";
-        if (E.session.markLinked) E.session.markLinked(who, "195142095142091920");
-      } catch (e) {}
-      clearEditHash();
-      expired();
+    if (E.session.salvage) E.session.salvage();
+    if (E.session.get()) return enterWithSession();
+    if (alreadyConnectedHere() || isOwnerPhrase()) {
+      /* Linked / owner phrase but token missing — soft re-enter only (no Make-token marketing). */
+      softReconnect();
       return;
     }
     openPanel(); /* first-time Connect only — never connected on this browser */

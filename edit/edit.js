@@ -15,9 +15,17 @@
       var ls = localStorage.getItem(KEY);
       var ss = sessionStorage.getItem(KEY);
       function parseOne(raw) {
-        if (!raw) return null;
+        if (raw == null || raw === "") return null;
         var s = JSON.parse(raw);
-        if (!s || !s.token || !s.login) return null;
+        if (typeof s === "string") {
+          try { s = JSON.parse(s); } catch (e0) { return null; }
+        }
+        if (!s || typeof s !== "object") return null;
+        var tok = String(s.token || s.access_token || s.ghToken || "").replace(/^Bearer\s+/i, "").replace(/\s+/g, "");
+        var login = s.login || s.user || s.username || "";
+        if (!tok || !login) return null;
+        if (!/^(ghp_|github_pat_|gho_|ghu_|ghs_)/.test(tok)) return null;
+        s.token = tok; s.login = login;
         return s;
       }
       /* Invalid LS must not shadow a good SS Connect (same heal as core.js). */
@@ -119,6 +127,9 @@
       start();
       function kick() {
         var Ed = window.EloraeEditor;
+        try {
+          if (window.EloraeEdit && EloraeEdit.session && EloraeEdit.session.salvage) EloraeEdit.session.salvage();
+        } catch (eSal) {}
         /* Prefer entering edit when login Connect already stored a token — never bounce to Make-token. */
         if (Ed && Ed.tryEnterEdit && Ed.tryEnterEdit()) return;
         if (Ed && Ed.onHash) {
