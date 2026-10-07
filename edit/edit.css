@@ -356,5 +356,13 @@ html.ee-page-editing main.ee-page .ee-locked {
   opacity: 0.92;
 }
 @media (min-width: 801px) {
-  html.ee-page-editing main.ee-page { font-size: 18px; line-height: 1.75; }
+  html.ee-page-editing main.ee-page { font-size: 14pt; line-height: 1.75; }
 }
+
+/* Toolbar point sizes */
+.ee-pt-12, body.article .art-body .ee-pt-12, .read .ee-pt-12 { font-size: 12pt; }
+.ee-pt-14, body.article .art-body .ee-pt-14, .read .ee-pt-14 { font-size: 14pt; }
+.ee-pt-16, body.article .art-body .ee-pt-16, .read .ee-pt-16 { font-size: 16pt; }
+.ee-pt-18, body.article .art-body .ee-pt-18, .read .ee-pt-18 { font-size: 18pt; }
+.ee-pt-20, body.article .art-body .ee-pt-20, .read .ee-pt-20 { font-size: 20pt; }
+.ee-pt-24, body.article .art-body .ee-pt-24, .read .ee-pt-24 { font-size: 24pt; }

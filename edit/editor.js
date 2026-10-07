@@ -421,9 +421,12 @@
     { id: "sans", label: "Sans-serif \u2014 Helvetica Neue", cls: "ee-sans" }
   ];
   var STYLE_SIZES = [
-    { id: "sm", label: "Small", cls: "ee-size-sm" },
-    { id: "md", label: "Medium (default)", cls: "" },
-    { id: "lg", label: "Large", cls: "ee-size-lg" }
+    { id: "12", label: "12pt", cls: "ee-pt-12" },
+    { id: "14", label: "14pt (default)", cls: "ee-pt-14" },
+    { id: "16", label: "16pt", cls: "ee-pt-16" },
+    { id: "18", label: "18pt", cls: "ee-pt-18" },
+    { id: "20", label: "20pt", cls: "ee-pt-20" },
+    { id: "24", label: "24pt", cls: "ee-pt-24" }
   ];
   var STYLE_BLOCKS = [
     { id: "p", label: "P", cls: "" },
@@ -489,18 +492,21 @@
     }
     b.innerHTML =
       '<select id="ee-font" aria-label="Font" title="Font">' +
-        '<option value="">Font</option>' +
+        '<option value="" hidden selected>Font</option>' +
         '<option value="serif">Serif \u2014 Iowan Old Style</option>' +
         '<option value="sans">Sans-serif \u2014 Helvetica Neue</option>' +
       '</select>' +
       '<select id="ee-size" aria-label="Size" title="Size">' +
-        '<option value="">Size</option>' +
-        '<option value="sm">Small</option>' +
-        '<option value="md">Medium (default)</option>' +
-        '<option value="lg">Large</option>' +
+        '<option value="" hidden selected>Size</option>' +
+        '<option value="12">12pt</option>' +
+        '<option value="14">14pt (default)</option>' +
+        '<option value="16">16pt</option>' +
+        '<option value="18">18pt</option>' +
+        '<option value="20">20pt</option>' +
+        '<option value="24">24pt</option>' +
       '</select>' +
       '<select id="ee-block" aria-label="Block style" title="Block">' +
-        '<option value="">Block</option>' +
+        '<option value="" hidden selected>Block</option>' +
         '<option value="p">Paragraph</option>' +
         '<option value="h2">Heading</option>' +
         '<option value="h3">Subheading</option>' +
@@ -581,8 +587,14 @@
     if (range.collapsed) {
       var ed = selectionEditable();
       if (!ed) return;
+      if (state.page && ed === state.page.el) {
+        var blk = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentNode;
+        blk = blk && blk.closest ? blk.closest("p,li,h1,h2,h3,h4,blockquote,dd,figcaption,div") : null;
+        if (!blk || blk === ed || !ed.contains(blk) || blk.closest(".ee-locked")) return;
+        ed = blk;
+      }
       if (!className) {
-        Array.prototype.slice.call(ed.querySelectorAll("span.ee-serif,span.ee-sans,span.ee-size-sm,span.ee-size-md,span.ee-size-lg,span.ee-h2,span.ee-h3,span.ee-caption")).forEach(function (sp) {
+        Array.prototype.slice.call(ed.querySelectorAll("span.ee-serif,span.ee-sans,span.ee-size-sm,span.ee-size-md,span.ee-size-lg,span[class^=\"ee-pt-\"],span.ee-h2,span.ee-h3,span.ee-caption")).forEach(function (sp) {
           while (sp.firstChild) sp.parentNode.insertBefore(sp.firstChild, sp);
           sp.remove();
         });
@@ -596,7 +608,7 @@
     if (className) span.className = className;
     span.appendChild(frag);
     Array.prototype.slice.call(span.querySelectorAll("span")).forEach(function (inner) {
-      if (!inner.className || !/^ee-(serif|sans|size-sm|size-md|size-lg|h2|h3|caption)$/.test(inner.className)) return;
+      if (!inner.className || !/^ee-(serif|sans|size-sm|size-md|size-lg|pt-\d+|h2|h3|caption)$/.test(inner.className)) return;
     });
     range.insertNode(span);
     sel.removeAllRanges();
@@ -612,9 +624,8 @@
   }
   function applySize(id) {
     if (!id) return;
-    if (id === "md") { wrapSelection(""); return; }
-    var map = { sm: "ee-size-sm", lg: "ee-size-lg" };
-    wrapSelection(map[id] || "");
+    if (!/^(12|14|16|18|20|24)$/.test(id)) return;
+    wrapSelection("ee-pt-" + id);
   }
   function applyBlockStyle(id) {
     if (!id) return;
