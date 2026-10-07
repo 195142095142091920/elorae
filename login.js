@@ -692,11 +692,21 @@ if (document.body.classList.contains("login-page")) {
     return String(raw || "").trim().toLowerCase();
   }
 
+  function syncEnterVisibility() {
+    var actions = document.getElementById("login-enter-actions");
+    if (!actions) return;
+    var has = !!(phraseInput && String(phraseInput.value || "").trim());
+    if (has) actions.removeAttribute("hidden");
+    else actions.setAttribute("hidden", "");
+  }
+
   if (phraseInput) {
     var remembered = readRememberedPhrase();
     if (remembered && !phraseInput.value) phraseInput.value = remembered;
-    phraseInput.addEventListener("change", function () { rememberPhrase(readPhrase()); });
-    phraseInput.addEventListener("blur", function () { rememberPhrase(readPhrase()); });
+    syncEnterVisibility();
+    phraseInput.addEventListener("input", syncEnterVisibility);
+    phraseInput.addEventListener("change", function () { rememberPhrase(readPhrase()); syncEnterVisibility(); });
+    phraseInput.addEventListener("blur", function () { rememberPhrase(readPhrase()); syncEnterVisibility(); });
   }
 
   function signIn(e) {
