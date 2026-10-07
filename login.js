@@ -523,8 +523,7 @@ function renderLoginConnect() {
   box.innerHTML =
     '<p class="login-welcome">Connect</p>' +
     '<ol class="login-connect-steps">' +
-    '<li><a class="login-connect-btn" id="login-mint" href="' + escHtml(L.classic || "#") + '" target="_blank" rel="noopener">Make my token</a>' +
-    '<span>Opens GitHub with public_repo filled in. Generate, then copy.</span></li>' +
+    '<li><a class="login-connect-btn" id="login-mint" href="' + escHtml(L.classic || "#") + '" target="_blank" rel="noopener">Opens GitHub with public_repo filled in. Generate, then copy.</a></li>' +
     '<li><span>Paste it here</span>' +
     '<form id="login-connect-form" autocomplete="off">' +
     '<input id="login-connect-token" type="password" placeholder="ghp_…" spellcheck="false" autocomplete="off" aria-label="GitHub token">' +
@@ -579,12 +578,12 @@ function submitLoginConnect() {
       warn = "This token can write to all your repositories. A token with only public_repo is enough.";
     }
     if (kind === "classic" && scopes.indexOf("repo") < 0 && scopes.indexOf("public_repo") < 0) {
-      throw new Error("This token is missing the public_repo permission. Make a new one with Make my token.");
+      throw new Error("This token is missing the public_repo permission. Make a new one with public_repo.");
     }
     return E.api(E.repoPath(""), { token: token }).catch(function (err) {
       if (err.status === 404 || err.status === 403) {
         throw new Error(kind === "fine-grained"
-          ? "GitHub doesn't let fine-grained tokens edit a repository owned by another person. Use Make my token (classic public_repo)."
+          ? "GitHub doesn't let fine-grained tokens edit a repository owned by another person. Use a classic token with public_repo."
           : "This token can't reach " + E.REPO + ".");
       }
       throw err;
@@ -592,7 +591,7 @@ function submitLoginConnect() {
   }).then(function (repo) {
     if (!repo.permissions || !repo.permissions.push) {
       throw new Error(kind === "fine-grained"
-        ? "This fine-grained token can't write here. Use Make my token."
+        ? "This fine-grained token can't write here. Use a classic public_repo token."
         : "@" + login + " isn't a collaborator on the site yet. Accept the invitation, then enter again.");
     }
     return E.api(E.repoPath("/contents/edit/profiles.json?ref=" + E.BRANCH), { token: token });
