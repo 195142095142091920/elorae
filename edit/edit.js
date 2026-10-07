@@ -1,7 +1,7 @@
 /* Elorae edit mode bootstrap (the only file referenced from site pages).
    For anonymous visitors this does nothing: no DOM, no styles, no network requests.
    It wakes up only when the URL hash is #edit or an editor session already exists in this
-   browser, and (for Devin) adds a bare DASHBOARD link to the top nav. */
+   browser, and (for an admin edit session) adds a bare DASHBOARD link to the top nav. */
 (function () {
   "use strict";
   var KEY = "elorae-edit-session";
@@ -17,7 +17,6 @@
       return s && s.token && s.login ? s : null;
     } catch (e) { return null; }
   }
-  function seal() { try { return localStorage.getItem("elorae-seal") || ""; } catch (e) { return ""; } }
   function wanted() { return location.hash === "#edit" || !!readSession(); }
 
   function load(file) {
@@ -40,14 +39,14 @@
     }, Promise.resolve()).catch(function () {});
   }
 
-  // Devin's DASHBOARD link: always on every content page while Devin is signed in
-  // (or seal "devin"), including immediately on the sign-in success view — not only
-  // after navigating away. Prepend so the phone friends row shows it without swiping.
+  // DASHBOARD link: only while a GitHub admin edit session is active (role/person
+  // stamped at sign-in after profiles.json check). Friend seal alone never grants it.
+  // Prepend so the phone friends row shows it without swiping.
   function dash() {
     var s = readSession();
-    var isDevin = seal() === "devin" || (s && (s.person === "devin" || s.role === "admin"));
+    var isAdmin = !!(s && (s.role === "admin" || s.person === "devin"));
     var existing = document.getElementById("ee-dash");
-    if (!isDevin) { if (existing) existing.remove(); return; }
+    if (!isAdmin) { if (existing) existing.remove(); return; }
     if (existing) return;
     var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
     if (!mark) return;

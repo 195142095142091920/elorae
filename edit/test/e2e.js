@@ -481,26 +481,29 @@ async function signInViaPanel(page, token) {
     {
       const mock = newMock();
       const cases = [
-        ["anonymous", ""], ["seal jack", sealInit("jack")], ["arts editor", sessionInit("ghp_test_arts", "arts-gh", { role: "editor" })],
-        ["devin (edit session)", sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" })], ["devin (seal)", sealInit("devin")]
+        ["anonymous", "", false],
+        ["seal jack", sealInit("jack"), false],
+        ["seal devin only", sealInit("devin"), false],
+        ["arts editor", sessionInit("ghp_test_arts", "arts-gh", { role: "editor" }), false],
+        ["admin edit session", sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }), true],
+        ["admin session + seal jack", sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) + sealInit("jack"), true]
       ];
-      for (const [name, init] of cases) {
+      for (const [name, init, want] of cases) {
         const ctx = await ctxFor(browser, mock, { init });
         const page = await ctx.newPage();
         await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
         await page.waitForTimeout(400);
         const d = await page.evaluate(() => { const a = document.getElementById("ee-dash"); if (!a) return null; const r = a.getBoundingClientRect(); return { text: getComputedStyle(a).textTransform === "uppercase" ? a.textContent.toUpperCase() : a.textContent, x: Math.round(r.left), y: Math.round(r.top), vis: r.width > 0 }; });
-        const want = name.startsWith("devin");
         check(`DASHBOARD link ${want ? "shown" : "absent"} for ${name}`, want ? d && d.text === "DASHBOARD" && d.vis : !d, JSON.stringify(d));
-        if (name === "devin (seal)") await page.screenshot({ path: `${SHOTS}/devin-nav-desktop.png`, clip: { x: 0, y: 0, width: 1440, height: 120 } });
+        if (name === "admin edit session") await page.screenshot({ path: `${SHOTS}/devin-nav-desktop.png`, clip: { x: 0, y: 0, width: 1440, height: 120 } });
         await ctx.close();
       }
-      const ctx = await ctxFor(browser, mock, { viewport: { width: 390, height: 844 }, init: sealInit("devin") });
+      const ctx = await ctxFor(browser, mock, { viewport: { width: 390, height: 844 }, init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
       const page = await ctx.newPage();
       await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
       await page.waitForTimeout(400);
       const d = await page.evaluate(() => { const a = document.getElementById("ee-dash"); const r = a && a.getBoundingClientRect(); return r && { l: r.left, r: r.right, w: innerWidth, vis: r.width > 0 && r.height > 0 }; });
-      check("DASHBOARD link visible on phone for Devin", d && d.vis && d.l >= 0 && d.r <= d.w, JSON.stringify(d));
+      check("DASHBOARD link visible on phone for admin session", d && d.vis && d.l >= 0 && d.r <= d.w, JSON.stringify(d));
       await page.screenshot({ path: `${SHOTS}/devin-nav-phone.png`, clip: { x: 0, y: 0, width: 390, height: 120 } });
       await ctx.close();
     }
