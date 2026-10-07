@@ -4870,3 +4870,19 @@ body.player-page #nt-player {
     padding-bottom: 14px;
   }
 }
+
+
+/* Merged sign-in: enrollment code + dual actions on seal.html */
+.seal-actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;margin-top:18px}
+.seal-actions button,.seal-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;cursor:pointer}
+.seal-enroll{margin-top:12px;max-width:42ch}
+.seal-code-box{margin-top:18px;width:min(420px,90vw)}
+.seal-enroll-code{display:block;width:100%;box-sizing:border-box;min-height:8em;margin:10px 0;padding:10px 12px;background:#0b0b0b;border:1px solid rgba(243,238,230,.14);color:#cfc6b8;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;resize:vertical}
+.seal-who{margin:10px 0 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8f8a82}
+@media (min-width:801px){
+  .seal-actions button:hover,.seal-copy:hover{color:#fff}
+}
+@media (max-width:800px){
+  .seal-actions button,.seal-copy{min-height:44px;min-width:88px;padding:12px 20px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
+  .seal-enroll-code{font-size:11px;min-height:10em}
+}

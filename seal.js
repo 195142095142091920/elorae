@@ -20,6 +20,13 @@ function hashPhrase(text) {
   return crypto.subtle.digest("SHA-256", data).then(hexDigest);
 }
 
+function clearMyKey() {
+  try {
+    if (window.EloraeVis && EloraeVis.myKey) EloraeVis.myKey.clear();
+    else sessionStorage.removeItem("elorae-secret-key");
+  } catch (e) {}
+}
+
 function ensureLogout() {
   var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
   if (!mark) return null;
@@ -33,12 +40,15 @@ function ensureLogout() {
     mark.appendChild(btn);
     btn.addEventListener("click", function () {
       try { localStorage.removeItem("elorae-seal"); } catch (e) {}
+      clearMyKey();
       applySeal();
-      if (!document.body.classList.contains("seal-page")) location.reload();
+      if (document.body.classList.contains("seal-page")) showSignedOutUI();
+      else location.reload();
     });
   }
   return btn;
 }
+
 function applySeal() {
   var who = "";
   try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
@@ -64,23 +74,250 @@ function applySeal() {
   if (logout) logout.hidden = who !== "devin";
   return who;
 }
-applySeal();
-var form = document.getElementById("seal-form");
-if (form) form.addEventListener("submit", function (e) {
-  e.preventDefault();
-  var key = (new FormData(form).get("phrase") || "").trim().toLowerCase();
+
+function sealErr(msg) {
   var err = document.getElementById("seal-err");
-  /* Old plaintext lookup: var who = PHRASE[key]; if (!who) { if (err) err.hidden = false; return; } ... */
-  hashPhrase(key).then(function (digest) {
-    var who = PHRASE_HASH[digest];
-    if (!who) { if (err) err.hidden = false; return; }
-    try { localStorage.setItem("elorae-seal", who); } catch (err2) {}
-    if (err) err.hidden = true;
-    applySeal();
-  }).catch(function () {
-    if (err) err.hidden = false;
+  if (!err) return;
+  err.textContent = msg || "Try again.";
+  err.hidden = false;
+}
+function sealClearErr() {
+  var err = document.getElementById("seal-err");
+  if (err) { err.hidden = true; err.textContent = "Try again."; }
+}
+
+function showSignedOutUI() {
+  var form = document.getElementById("seal-form");
+  var welcome = document.getElementById("seal-welcome");
+  var name = document.getElementById("seal-name");
+  var note = document.getElementById("seal-note");
+  var enrollBox = document.getElementById("seal-enroll");
+  var codeBox = document.getElementById("seal-code-box");
+  if (form) form.hidden = false;
+  if (welcome) welcome.hidden = true;
+  if (name) name.hidden = true;
+  if (note) note.hidden = true;
+  if (enrollBox) enrollBox.hidden = true;
+  if (codeBox) { codeBox.hidden = true; codeBox.innerHTML = ""; }
+  updateSealButtons();
+}
+
+function personHasKey(man, who) {
+  return !!(man && man.people && man.people[who] && man.people[who].key);
+}
+
+function updateSealButtons() {
+  var submit = document.getElementById("seal-submit");
+  var create = document.getElementById("seal-create");
+  if (!submit && !create) return;
+  var wantEnroll = /(?:\?|&)enroll(?:&|=|$)/.test(location.search) || location.search.indexOf("enroll") >= 0;
+  try { wantEnroll = new URLSearchParams(location.search).has("enroll"); } catch (e) {}
+  var who = "";
+  try { who = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
+  /* Default: one Sign in button. Create key shown when ?enroll or after identity with no key. */
+  if (submit) submit.hidden = false;
+  if (create) create.hidden = !wantEnroll;
+}
+
+function setWelcomeNote(text) {
+  var note = document.getElementById("seal-note");
+  if (!note) return;
+  note.textContent = text;
+  note.hidden = false;
+}
+
+function showEnrollmentCode(rec) {
+  var code = JSON.stringify(rec);
+  var box = document.getElementById("seal-code-box");
+  if (!box) return;
+  box.hidden = false;
+  box.innerHTML =
+    '<p class="seal-welcome">Your enrollment code</p>' +
+    '<textarea class="seal-enroll-code" readonly id="seal-enroll-code" rows="6"></textarea>' +
+    '<div class="seal-actions"><button type="button" id="seal-copy" class="seal-copy">Copy</button></div>' +
+    '<p class="seal-note">Send this code to Devin. It holds only your public key and a passphrase-locked private key, so it is safe to send. Never send the phrase itself. Until Devin adds your key, your identity still works; encrypted pages wait.</p>';
+  var ta = document.getElementById("seal-enroll-code");
+  if (ta) ta.value = code;
+  var copy = document.getElementById("seal-copy");
+  if (copy) copy.onclick = function () {
+    if (ta) ta.select();
+    try { navigator.clipboard.writeText(code); } catch (x) { try { document.execCommand("copy"); } catch (y) {} }
+    copy.textContent = "Copied";
+  };
+  var form = document.getElementById("seal-form");
+  var enrollBox = document.getElementById("seal-enroll");
+  if (form) form.hidden = true;
+  if (enrollBox) enrollBox.hidden = true;
+}
+
+function afterIdentity(who, phrase, man) {
+  var K = window.EloraeCrypto, V = window.EloraeVis;
+  var hasKey = personHasKey(man, who);
+  var enrollBox = document.getElementById("seal-enroll");
+  var create = document.getElementById("seal-create");
+  var wantEnroll = false;
+  try { wantEnroll = new URLSearchParams(location.search).has("enroll"); } catch (e) {}
+
+  applySeal();
+
+  if (!K || !V) {
+    setWelcomeNote("You may now view your private material.");
+    return Promise.resolve();
+  }
+
+  if (hasKey) {
+    return V.unlockAs(man, who, phrase).then(function () {
+      setWelcomeNote("You may now view your private material.");
+      if (enrollBox) enrollBox.hidden = true;
+    }, function (x) {
+      /* Identity still sticks; key unlock failed (wrong wrap or not yet the merged phrase). */
+      setWelcomeNote("Signed in. Your secrets key did not unlock — try again, or finish key setup if this is a new key.");
+      sealErr(x.message || "Could not unlock your key.");
+    });
+  }
+
+  /* No key published yet: identity works; offer Create key / enroll. Keep phrase form visible. */
+  setWelcomeNote("Signed in. Create your secrets key with the same phrase, then send the code to Devin. Encrypted pages wait until your key is added.");
+  var form = document.getElementById("seal-form");
+  if (form) form.hidden = false;
+  if (enrollBox) enrollBox.hidden = false;
+  if (create) create.hidden = false;
+  if (wantEnroll) {
+    return runEnroll(who, phrase);
+  }
+  return Promise.resolve();
+}
+
+function runEnroll(who, phrase) {
+  var K = window.EloraeCrypto, V = window.EloraeVis;
+  if (!K) return Promise.reject(new Error("Crypto is not loaded."));
+  sealClearErr();
+  sealErr("Creating…");
+  return K.enroll(who, phrase).then(function (rec) {
+    sealClearErr();
+    /* Unlock locally so this session can use the key once Devin publishes it;
+       until then encrypted bodies still wait (no wrapped content keys yet). */
+    return K.unlock(rec, phrase).then(function (priv) {
+      return K.exportPrivate(priv).then(function (jwk) {
+        if (V && V.myKey) V.myKey.set(who, jwk);
+        showEnrollmentCode(rec);
+        applySeal();
+        setWelcomeNote("Send the enrollment code to Devin. Until your key is added, identity works; encrypted pages wait.");
+      });
+    });
+  }, function (x) {
+    sealErr(x.message || "Could not create key.");
   });
-});
+}
+
+function loadManifest() {
+  var V = window.EloraeVis;
+  if (!V) return Promise.resolve(null);
+  return V.manifest(false).catch(function () { return null; });
+}
+
+applySeal();
+
+/* Seal page only: merged identity + secrets unlock / enroll. Other pages keep applySeal only. */
+if (document.body.classList.contains("seal-page")) {
+  var form = document.getElementById("seal-form");
+  var phraseInput = document.getElementById("seal-code");
+  var pendingPhrase = "";
+
+  function readPhrase() {
+    var raw = phraseInput ? phraseInput.value : "";
+    if (form) {
+      try { raw = new FormData(form).get("phrase") || raw; } catch (e) {}
+    }
+    return String(raw || "").trim().toLowerCase();
+  }
+
+  function signIn(e) {
+    if (e) e.preventDefault();
+    sealClearErr();
+    var key = readPhrase();
+    if (!key) { sealErr("Enter your phrase."); return; }
+    pendingPhrase = key;
+    hashPhrase(key).then(function (digest) {
+      var who = PHRASE_HASH[digest];
+      if (!who) { sealErr("Try again."); return; }
+      try { localStorage.setItem("elorae-seal", who); } catch (err2) {}
+      return loadManifest().then(function (man) {
+        return afterIdentity(who, key, man);
+      });
+    }).catch(function () {
+      sealErr("Try again.");
+    });
+  }
+
+  if (form) form.addEventListener("submit", signIn);
+
+  var createBtn = document.getElementById("seal-create");
+  if (createBtn) createBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    sealClearErr();
+    var key = pendingPhrase || readPhrase();
+    var who = "";
+    try { who = localStorage.getItem("elorae-seal") || ""; } catch (err) {}
+    if (!who) {
+      /* Identify first, then enroll. */
+      if (!key) { sealErr("Enter your phrase."); return; }
+      pendingPhrase = key;
+      hashPhrase(key).then(function (digest) {
+        who = PHRASE_HASH[digest];
+        if (!who) { sealErr("Try again."); return; }
+        try { localStorage.setItem("elorae-seal", who); } catch (err2) {}
+        applySeal();
+        return runEnroll(who, key);
+      }).catch(function () { sealErr("Try again."); });
+      return;
+    }
+    if (!key) { sealErr("Enter the same phrase you signed in with."); return; }
+    runEnroll(who, key);
+  });
+
+  updateSealButtons();
+
+  /* Returning visit already sealed: refresh welcome; try unlock if deps + key exist (needs phrase again). */
+  var whoNow = "";
+  try { whoNow = localStorage.getItem("elorae-seal") || ""; } catch (e) {}
+  if (whoNow) {
+    loadManifest().then(function (man) {
+      if (!man) return;
+      var hasKey = personHasKey(man, whoNow);
+      var mine = window.EloraeVis && EloraeVis.myKey && EloraeVis.myKey.get();
+      var enrollBox = document.getElementById("seal-enroll");
+      var create = document.getElementById("seal-create");
+      var wantEnroll = false;
+      try { wantEnroll = new URLSearchParams(location.search).has("enroll"); } catch (e) {}
+      if (mine && mine.person === whoNow) {
+        setWelcomeNote("You may now view your private material.");
+      } else if (hasKey) {
+        setWelcomeNote("Signed in. Enter your phrase again to unlock your secrets key.");
+        var f = document.getElementById("seal-form");
+        if (f) f.hidden = false;
+      } else {
+        setWelcomeNote("Signed in. Create your secrets key with your phrase, then send the code to Devin.");
+        if (enrollBox) enrollBox.hidden = false;
+        if (create) create.hidden = false;
+      }
+      if (wantEnroll && !hasKey) {
+        if (enrollBox) enrollBox.hidden = false;
+        if (create) create.hidden = false;
+      }
+    });
+  } else {
+    var wantEnroll0 = false;
+    try { wantEnroll0 = new URLSearchParams(location.search).has("enroll"); } catch (e) {}
+    if (wantEnroll0) {
+      setWelcomeNote("Enter your phrase to create your secrets key. The same phrase signs you in.");
+      var note0 = document.getElementById("seal-note");
+      if (note0) note0.hidden = false;
+      var create0 = document.getElementById("seal-create");
+      if (create0) create0.hidden = false;
+    }
+  }
+}
 
 var back = document.getElementById("seal-back");
 if (back) back.addEventListener("click", function (e) {

@@ -30,12 +30,12 @@ search_v = tok(TPL, "search.js", "nt28-eras")
 glow_v = tok(TPL, "glow.js", "nt32-ambient")
 scripts = (
     f'<script src="../search.js?v={search_v}"></script>'
-    f'<script src="../seal.js?v=seal6"></script>'
+    f'<script src="../seal.js?v=merged-signin"></script>'
     f'<script src="../player-mark.js?v=nt33-players"></script>\n'
     f'<canvas id="friend-glow"></canvas>\n'
     f'<script src="../glow.js?v={glow_v}"></script>\n'
     f'<script src="../back-to-top.js?v=nt5-top"></script>\n'
-    f'<script src="player.js?v=nt33-players"></script>\n'
+    f'<script src="player.js?v=merged-signin"></script>\n'
 )
 
 def page(slug, name):

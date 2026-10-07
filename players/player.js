@@ -1,4 +1,4 @@
-/* players/player.js (nt36). Player pages, built at runtime from the site's own files:
+/* players/player.js (merged-signin). Player pages, built at runtime from the site's own files:
    - characters: mast marks (span.friend[data-owner]) as cards (hero art, name, epithet) at
      the top of the page — no "Characters" / "The party" heading. Game Master
      (edit/visibility.json "admins") sees the party;
@@ -43,7 +43,7 @@
     ".nt-pl-char .nt-pl-kind{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8f8a82;margin-top:6px;display:flex;align-items:center;gap:6px}" +
     ".nt-pl-char .nt-pl-kind .sy{font-size:13px;line-height:1;letter-spacing:0;text-transform:none}" +
     "@media (min-width:801px){.nt-pl-char .nm a:hover{color:#fff}}" +
-    "@media (max-width:800px){#nt-player h2{margin-top:28px;margin-bottom:14px;font-size:10px;letter-spacing:.22em}" +
+    ".nt-pl-keytip{margin:28px 0 0;max-width:42ch;font-size:13px;line-height:1.5;color:#8f8a82}.nt-pl-keytip a{color:#cfc6b8;text-decoration:underline}@media (min-width:801px){.nt-pl-keytip a:hover{color:#fff}}@media (max-width:800px){#nt-player h2{margin-top:28px;margin-bottom:14px;font-size:10px;letter-spacing:.22em}" +
     ".nt-pl-chars{gap:12px;justify-content:space-between}" +
     ".nt-pl-char{width:calc(50% - 6px)}.nt-pl-char img,.nt-pl-char .ph{height:calc((50vw - 22px) * 4 / 3)}" +
     ".nt-pl-chars+.nt-pl-chars{margin-top:28px;padding-top:28px}}";
@@ -94,45 +94,51 @@
     if (edit) return { sy: "✎", label: "Edit" };
     return { sy: "⚑", label: "Secret" };
   }
-  /* Card: image + title + type mark only (no epithet). */
-  function fillComboCard(box, path, fallbackName, doLink, kind) {
+  /* Card: image + title + type mark only (no epithet).
+     path = article for thumbnail; href overrides the click target (e.g. secret viewer). */
+  function fillComboCard(box, path, fallbackName, doLink, kind, href) {
     var k = kindLabel(kind.edit, kind.secret);
+    var go = href || path;
     function addKind() {
       var row = el("div", "nt-pl-kind");
       row.appendChild(el("span", "sy", k.sy));
       row.appendChild(el("span", null, k.label));
       box.appendChild(row);
     }
-    if (!path) {
+    if (!path && !go) {
       box.appendChild(el("div", "ph"));
       box.appendChild(el("div", "nm", fallbackName));
       addKind();
       return;
     }
-    doc(path).then(function (d) {
-      var hero = d.querySelector(".art-hero img");
-      if (hero) {
-        var img = document.createElement("img");
-        img.src = new URL(hero.getAttribute("src"), url(path)).href;
-        img.alt = ""; img.loading = "lazy";
-        if (doLink) {
-          var ln = link(path, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
-          ln.appendChild(img); box.appendChild(ln);
-        } else box.appendChild(img);
-      } else box.appendChild(el("div", "ph"));
-      var title = text(d.querySelector(".art-title h1")) || text(d.querySelector("h1")) || fallbackName;
+    var fetchPath = path && path.indexOf("edit/secret.html") !== 0 ? path : "";
+    function finish(title) {
       var nm = el("div", "nm");
-      if (doLink) nm.appendChild(link(path, title));
+      if (doLink && go) nm.appendChild(link(go, title));
       else nm.textContent = title;
       box.appendChild(nm);
       addKind();
+    }
+    if (!fetchPath) {
+      box.appendChild(el("div", "ph"));
+      finish(fallbackName);
+      return;
+    }
+    doc(fetchPath).then(function (d) {
+      var hero = d.querySelector(".art-hero img");
+      if (hero) {
+        var img = document.createElement("img");
+        img.src = new URL(hero.getAttribute("src"), url(fetchPath)).href;
+        img.alt = ""; img.loading = "lazy";
+        if (doLink && go) {
+          var ln = link(go, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
+          ln.appendChild(img); box.appendChild(ln);
+        } else box.appendChild(img);
+      } else box.appendChild(el("div", "ph"));
+      finish(text(d.querySelector(".art-title h1")) || text(d.querySelector("h1")) || fallbackName);
     }).catch(function () {
       box.appendChild(el("div", "ph"));
-      var nm = el("div", "nm");
-      if (doLink) nm.appendChild(link(path, fallbackName));
-      else nm.textContent = fallbackName;
-      box.appendChild(nm);
-      addKind();
+      finish(fallbackName);
     });
   }
   function fillCharCard(box, path, fallbackName) {
@@ -182,6 +188,15 @@
       bag[path] = { path: path, title: prettyPath(path), edit: true, secret: false, link: true };
     });
     var v = viewer(), vGM = (vis.admins || []).indexOf(v) >= 0;
+    var vRec = v && vis.people && vis.people[v];
+    var vEnrolled = !!(vRec && vRec.key);
+    var myKey = null;
+    try {
+      var raw = sessionStorage.getItem("elorae-secret-key");
+      myKey = raw ? JSON.parse(raw) : null;
+      if (!(myKey && myKey.person && myKey.jwk)) myKey = null;
+    } catch (e) { myKey = null; }
+
     if (v && (v === slug || vGM)) {
       var mine = secretsFor(vis, slug), theirs = {};
       secretsFor(vis, v).forEach(function (s) { theirs[s.id] = 1; });
@@ -190,13 +205,17 @@
         var path = s.path || "";
         if (path && inCharacters[path]) return;
         var key = path || ("secret:" + s.id);
-        var canLink = !!(path && (vGM || s.owner === v));
+        var enc = s.status === "encrypted";
+        /* Encrypted: open via secret viewer (uses unlocked myKey from merged sign-in). */
+        var href = enc ? ("edit/secret.html?id=" + encodeURIComponent(s.id)) : "";
+        var canLink = enc ? true : !!(path && (vGM || s.owner === v));
         if (bag[key]) {
           bag[key].secret = true;
           bag[key].title = s.title || bag[key].title;
-          if (!canLink) bag[key].link = false;
+          if (enc) { bag[key].href = href; bag[key].link = true; }
+          else if (!canLink) bag[key].link = false;
         } else {
-          bag[key] = { path: path, title: s.title, edit: false, secret: true, link: canLink };
+          bag[key] = { path: path, href: href || "", title: s.title, edit: false, secret: true, link: canLink };
         }
       });
     }
@@ -209,8 +228,20 @@
       root.appendChild(row);
       items.forEach(function (it) {
         var box = el("div", "nt-pl-char"); row.appendChild(box);
-        fillComboCard(box, it.path, it.title, it.link, { edit: it.edit, secret: it.secret });
+        fillComboCard(box, it.path, it.title, it.link, { edit: it.edit, secret: it.secret }, it.href);
       });
+    }
+    /* Soft nudge: signed in as this player (or viewing own page) but no published key yet. */
+    if (v && v === slug && !vEnrolled) {
+      var tip = el("p", "nt-pl-keytip");
+      tip.appendChild(document.createTextNode("Finish key setup to open encrypted pages. "));
+      tip.appendChild(link("seal.html?enroll", "Finish key setup"));
+      root.appendChild(tip);
+    } else if (v && v === slug && vEnrolled && !myKey) {
+      var tip2 = el("p", "nt-pl-keytip");
+      tip2.appendChild(document.createTextNode("Sign in with your phrase to unlock secrets. "));
+      tip2.appendChild(link("seal.html", "Sign in"));
+      root.appendChild(tip2);
     }
   }).catch(function () {});
 })();
