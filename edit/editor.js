@@ -242,6 +242,32 @@
       return !n.closest("#ee-panel,#ee-bar");
     });
   }
+  // Legend Keeper-style page surface: one continuous contenteditable main.
+  function findLiveMain() {
+    var mains = document.querySelectorAll("main.art-body, main.read");
+    for (var i = 0; i < mains.length; i++) {
+      if (!mains[i].closest("#ee-panel,#ee-bar")) return mains[i];
+    }
+    return null;
+  }
+  function sourceMainRange(src) {
+    var root = M.parse(src);
+    function walk(n) {
+      var kids = n.children || [];
+      for (var i = 0; i < kids.length; i++) {
+        var c = kids[i];
+        var cls = c.classes || [];
+        if (c.tag === "main" && (cls.indexOf("art-body") >= 0 || cls.indexOf("read") >= 0)) {
+          return { start: c.openEnd, end: c.closeStart, tagStart: c.start, tagEnd: c.end, classes: cls.slice(), attrs: c.attrs || {} };
+        }
+        var d = walk(c);
+        if (d) return d;
+      }
+      return null;
+    }
+    return walk(root);
+  }
+  var PAGE_LOCK_SEL = ".art-hero, #related, .art-swap, script, style, nav, aside, .toc, #section-bar, canvas, iframe, form, button";
   function isIndexOrganizePage() {
     var Org = window.EloraeIndexOrg;
     return !!(Org && Org.isIndexPage && Org.isIndexPage() && state.profile && P.isAdmin(state.profile) && P.canEdit(state.profile, PATH));
@@ -250,7 +276,7 @@
     var g = $("ee-glyph");
     var Org = window.EloraeIndexOrg;
     if (Org && state.profile) Org.setProfile(state.profile);
-    var textOk = !!(E.session.get() && state.profile && P.canEdit(state.profile, PATH) && liveBlocks().length);
+    var textOk = !!(E.session.get() && state.profile && P.canEdit(state.profile, PATH) && (findLiveMain() || liveBlocks().length));
     var indexOk = !!(E.session.get() && isIndexOrganizePage());
     var ok = textOk || indexOk;
     if (!ok) { if (g) g.remove(); return; }
@@ -285,12 +311,45 @@
     state.busy = true;
     bar('<span class="ee-msg">Loading the page source…</span>');
     E.getFile(PATH).then(function (f) {
+      var mainEl = findLiveMain();
+      if (mainEl) {
+        var range = sourceMainRange(f.text);
+        if (!range) throw new Error("Could not find the page body in the source.");
+        state.base = { sha: f.sha, text: f.text, blocks: null };
+        state.records = [];
+        state.page = {
+          el: mainEl,
+          original: mainEl.innerHTML,
+          range: range,
+          locks: []
+        };
+        mainEl.setAttribute("contenteditable", "true");
+        mainEl.setAttribute("spellcheck", "true");
+        mainEl.classList.add("ee-editable", "ee-page");
+        Array.prototype.forEach.call(mainEl.querySelectorAll(PAGE_LOCK_SEL), function (n, i) {
+          n.setAttribute("contenteditable", "false");
+          n.classList.add("ee-locked");
+          n.setAttribute("data-ee-lock", String(i));
+          state.page.locks[i] = n.outerHTML;
+        });
+        document.documentElement.classList.add("ee-editing", "ee-page-editing");
+        document.addEventListener("keydown", onKey, true);
+        document.addEventListener("paste", onPaste, true);
+        document.addEventListener("click", onClick, true);
+        document.addEventListener("selectionchange", onSelChange);
+        window.addEventListener("resize", positionStyleBar);
+        state.editing = true;
+        editBar();
+        ensureStyleBar();
+        return;
+      }
+      // Fallback: older per-block edit for pages without a main body.
       var src = M.sourceBlocks(f.text, titleOpts()), live = liveBlocks();
       var recs = [];
       for (var i = 0; i < src.length && i < live.length; i++) {
         var n = live[i], s = src[i];
         if (n.tagName.toLowerCase() !== s.tag) continue;
-        if (textOf(s.inner) !== norm(n.textContent)) continue; // page scripts changed it; don't touch
+        if (textOf(s.inner) !== norm(n.textContent)) continue;
         var orig = n.innerHTML, c = canon(s.inner);
         if (orig !== c) n.innerHTML = c;
         recs.push({ el: n, idx: i, src: s, original: orig, start: n.innerHTML });
@@ -298,6 +357,7 @@
       if (!recs.length) throw new Error("Nothing on this page could be matched to its source safely.");
       state.base = { sha: f.sha, text: f.text, blocks: src };
       state.records = recs;
+      state.page = null;
       recs.forEach(function (r) {
         r.el.setAttribute("contenteditable", "true");
         r.el.setAttribute("spellcheck", "true");
@@ -324,8 +384,9 @@
       ? '<button type="button" class="ee-btn" id="ee-art">Art</button>' : '';
     var shareBtn = (admin && V) ? '<button type="button" class="ee-btn" id="ee-share">Share</button>' : '';
     var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
+    var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart">New article</button>' : '';
     bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
-      artBtn + shareBtn + ownerBtn +
+      artBtn + shareBtn + ownerBtn + newBtn +
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-save">Save</button>', cls);
     $("ee-save").onclick = save;
@@ -333,6 +394,7 @@
     if ($("ee-art")) $("ee-art").onclick = openArtPanel;
     if ($("ee-share")) $("ee-share").onclick = openSharePanel;
     if ($("ee-owner")) $("ee-owner").onclick = openOwnerPanel;
+    if ($("ee-newart")) $("ee-newart").onclick = openNewArticle;
     ensureStyleBar();
   }
 
@@ -483,6 +545,13 @@
   }
   function applyBlockStyle(id) {
     if (!id) return;
+    if (state.page) {
+      if (id === "p") { document.execCommand("formatBlock", false, "p"); return; }
+      if (id === "h2") { document.execCommand("formatBlock", false, "h2"); return; }
+      if (id === "h3") { document.execCommand("formatBlock", false, "h3"); return; }
+      if (id === "cap") { wrapSelection("ee-caption"); return; }
+      return;
+    }
     if (id === "p") { wrapSelection(""); return; }
     var map = { h2: "ee-h2", h3: "ee-h3", cap: "ee-caption" };
     wrapSelection(map[id] || "");
@@ -1184,10 +1253,21 @@
     if (a) e.preventDefault(); // editing a link's text shouldn't navigate
   }
   function stopEditing() {
+    if (state.page && state.page.el) {
+      var mainEl = state.page.el;
+      mainEl.removeAttribute("contenteditable");
+      mainEl.removeAttribute("spellcheck");
+      mainEl.classList.remove("ee-editable", "ee-page");
+      Array.prototype.forEach.call(mainEl.querySelectorAll(".ee-locked"), function (n) {
+        n.removeAttribute("contenteditable");
+        n.classList.remove("ee-locked");
+        n.removeAttribute("data-ee-lock");
+      });
+    }
     state.records.forEach(function (r) {
       r.el.removeAttribute("contenteditable"); r.el.removeAttribute("spellcheck"); r.el.classList.remove("ee-editable");
     });
-    document.documentElement.classList.remove("ee-editing");
+    document.documentElement.classList.remove("ee-editing", "ee-page-editing");
     document.removeEventListener("keydown", onKey, true);
     document.removeEventListener("paste", onPaste, true);
     document.removeEventListener("click", onClick, true);
@@ -1198,9 +1278,148 @@
   }
   function cancelEdit() {
     if (!state.editing) return;
+    if (state.page && state.page.el) state.page.el.innerHTML = state.page.original;
     state.records.forEach(function (r) { r.el.innerHTML = r.original; });
     stopEditing();
     state.records = [];
+    state.page = null;
+  }
+
+  /* ---------------- Full-page serialize ---------------- */
+  var PAGE_BLOCK = { p: 1, h1: 1, h2: 1, h3: 1, h4: 1, h5: 1, h6: 1, section: 1, header: 1, blockquote: 1, ul: 1, ol: 1, li: 1, dl: 1, dt: 1, dd: 1, figure: 1, figcaption: 1, hr: 1, div: 1, br: 1, img: 1 };
+  var PAGE_INLINE = { a: 1, em: 1, strong: 1, i: 1, b: 1, u: 1, s: 1, sub: 1, sup: 1, small: 1, span: 1, code: 1, cite: 1, q: 1, abbr: 1 };
+  function sanitizePageHtml(root) {
+    var out = document.createElement("div");
+    function copyAttrs(from, to, tag) {
+      var c = from.getAttribute("class");
+      if (c && /^[\w\- ]+$/.test(c)) to.setAttribute("class", c);
+      var id = from.getAttribute("id");
+      if (id && /^[\w\-]+$/.test(id)) to.setAttribute("id", id);
+      if (tag === "a") {
+        var h = safeHref(from.getAttribute("href"));
+        if (h != null) to.setAttribute("href", h);
+        if (from.getAttribute("target") === "_blank") { to.setAttribute("target", "_blank"); to.setAttribute("rel", "noopener"); }
+      }
+      if (tag === "img") {
+        var src = safeSrc(from.getAttribute("src"));
+        if (src == null) return false;
+        to.setAttribute("src", src);
+        var alt = from.getAttribute("alt");
+        if (alt != null) to.setAttribute("alt", alt);
+        return true;
+      }
+      if ((tag === "a" || tag === "abbr") && from.getAttribute("title")) to.setAttribute("title", from.getAttribute("title"));
+      return true;
+    }
+    function walk(src, dst) {
+      Array.prototype.forEach.call(src.childNodes, function (ch) {
+        if (ch.nodeType === 3) { dst.appendChild(document.createTextNode(ch.nodeValue)); return; }
+        if (ch.nodeType !== 1) return;
+        var tag = ch.tagName.toLowerCase();
+        if (ch.getAttribute && ch.getAttribute("data-ee-lock-ph") != null) {
+          var ph = document.createElement("div");
+          ph.setAttribute("data-ee-lock-ph", ch.getAttribute("data-ee-lock-ph"));
+          dst.appendChild(ph);
+          return;
+        }
+        if (DROP[tag]) return;
+        if (tag === "br") { dst.appendChild(document.createElement("br")); return; }
+        if (tag === "img") {
+          var im = document.createElement("img");
+          if (!copyAttrs(ch, im, "img")) return;
+          dst.appendChild(im);
+          return;
+        }
+        if (PAGE_INLINE[tag]) {
+          var n = document.createElement(tag);
+          copyAttrs(ch, n, tag);
+          walk(ch, n);
+          dst.appendChild(n);
+          return;
+        }
+        if (PAGE_BLOCK[tag]) {
+          var b = document.createElement(tag === "div" ? "p" : tag);
+          if (tag !== "div") copyAttrs(ch, b, tag);
+          else {
+            var dc = ch.getAttribute("class");
+            if (dc && /^[\w\- ]+$/.test(dc)) b.setAttribute("class", dc);
+          }
+          walk(ch, b);
+          dst.appendChild(b);
+          return;
+        }
+        walk(ch, dst);
+      });
+    }
+    walk(root, out);
+    return out.innerHTML;
+  }
+  function serializePageMain() {
+    var mainEl = state.page.el;
+    var clone = mainEl.cloneNode(true);
+    Array.prototype.forEach.call(clone.querySelectorAll("[data-ee-lock]"), function (n) {
+      var i = n.getAttribute("data-ee-lock");
+      var ph = document.createElement("div");
+      ph.setAttribute("data-ee-lock-ph", i);
+      n.parentNode.replaceChild(ph, n);
+    });
+    var html = sanitizePageHtml(clone);
+    html = html.replace(/<div[^>]*data-ee-lock-ph="(\d+)"[^>]*>\s*<\/div>/gi, function (_, i) {
+      return state.page.locks[Number(i)] || "";
+    });
+    // Prefer compact section/paragraph spacing like the rest of the site.
+    return html.replace(/\n{3,}/g, "\n\n");
+  }
+  function openNewArticle() {
+    if (!P.isAdmin(state.profile)) return;
+    var title = window.prompt("New article title", "");
+    if (title == null) return;
+    title = String(title).trim();
+    if (!title) return;
+    var artSlug = (Media && Media.slugify) ? Media.slugify(title) : String(title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+    if (!artSlug) { editBar("Need a usable title.", "ee-bad-bar"); return; }
+    var path = "articles/" + artSlug + ".html";
+    var pretty = "articles/" + artSlug + "/index.html";
+    editBar("Creating article…", "ee-busy");
+    E.getFile(path).then(function () {
+      editBar("That article already exists: " + path, "ee-bad-bar");
+    }, function () {
+      var escTitle = title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+      var body =
+        "<!doctype html>\n<html lang=\"en\">\n<head>\n" +
+        "<script src=\"/session-gate.js?v=guest-browse\"></script>\n\n" +
+        "<meta charset=\"utf-8\">\n" +
+        "<script src=\"/cats-rail-boot.js?v=art74\"></script>\n" +
+        "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">\n" +
+        "<title>" + escTitle + " - Elorae</title>\n" +
+        "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
+        "<link rel=\"stylesheet\" href=\"/styles.css?v=art96\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=edit-no-connect\">\n" +
+        "<script src=\"/rail-toggle.js?v=nt26-veil\"></script>\n" +
+        "<script src=\"/skip-link.js?v=nt11-skip\"></script>\n" +
+        "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
+        "<div class=\"mast\"><header class=\"topbar\"><span class=\"mark\"></span>" +
+        "<form action=\"/search/\"><input id=\"seek\" name=\"q\" type=\"search\" placeholder=\"Search\" aria-label=\"Search\"></form>" +
+        "<nav class=\"filters\"><a href=\"/atlas/\">Atlas</a><a href=\"/codex/lore/\">Codex</a><a class=\"active\" href=\"/index/ancients/\">Index</a><a href=\"/journal/\">Journal</a></nav></header></div>\n" +
+        "<main class=\"art-body\">\n" +
+        "<header class=\"art-title\"><h1>" + escTitle + "</h1><p class=\"art-epithet\"></p></header>\n" +
+        "<section class=\"art-sec\" id=\"lore\"><h2>Lore</h2><p class=\"art-life\"></p></section>\n" +
+        "</main>\n" +
+        "<script src=\"/search.js?v=pretty-urls\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
+        "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
+        "<script src=\"/edit/edit.js?v=fullpage-edit\" defer></script>\n" +
+        "</body>\n</html>\n";
+      var files = [
+        { path: path, text: body },
+        { path: pretty, text: body }
+      ];
+      return E.commitFiles(files, "Edit: new article " + artSlug + " [edit-mode]", E.BRANCH).then(function () {
+        editBar("Created /articles/" + artSlug + "/ — opening…", "ee-done");
+        setTimeout(function () { location.href = "/articles/" + artSlug + "/#edit"; }, 800);
+      });
+    }).catch(function (e) {
+      editBar(e.message || "Could not create article.", "ee-bad-bar");
+    });
   }
 
   /* ---------------- Sanitizer ---------------- */
@@ -1303,6 +1522,14 @@
   function stamp() { var d = new Date(); return d.toISOString().replace(/[-:T]/g, "").slice(0, 14); }
 
   function buildOutput(latest) {
+    if (state.page) {
+      if (state.page.el.innerHTML === state.page.original) return { none: true };
+      var html = serializePageMain();
+      var range = sourceMainRange(latest.text);
+      if (!range) return { conflict: true };
+      var out = latest.text.slice(0, range.start) + html + latest.text.slice(range.end);
+      return { out: out, edits: [{ start: range.start, end: range.end, html: html }], changed: [state.page], page: true };
+    }
     var changed = state.records.filter(function (r) { return r.el.innerHTML !== r.start; });
     if (!changed.length) return { none: true };
     var blocks = state.base.blocks;
@@ -1363,10 +1590,19 @@
       if (!done) return;
       var commitUrl = done.res && done.res.commit && done.res.commit.html_url;
       if (mode === "direct") {
-        state.base = { sha: done.res.content.sha, text: done.r.out, blocks: M.sourceBlocks(done.r.out, titleOpts()) };
+        state.base = {
+          sha: done.res.content.sha,
+          text: done.r.out,
+          blocks: done.r.page ? null : M.sourceBlocks(done.r.out, titleOpts())
+        };
+        if (state.page) {
+          state.page.original = state.page.el.innerHTML;
+          state.page.range = sourceMainRange(done.r.out) || state.page.range;
+        }
       }
       state.records.forEach(function (rec) { rec.original = rec.el.innerHTML; });
       stopEditing();
+      state.page = null;
       var html;
       if (mode === "direct") {
         html = '<span class="ee-msg ee-good">Saved. Live in about 1–2 minutes while GitHub Pages rebuilds.' + (commitUrl ? ' <a href="' + esc(commitUrl) + '" target="_blank" rel="noopener">Commit</a>' : '') + '</span>';

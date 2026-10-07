@@ -267,3 +267,22 @@ html.ee-index-org .ee-index-heading {
 html.ee-index-org .ee-index-heading:focus {
   outline: 1px solid rgba(243,238,230,.55);
 }
+
+/* Full-page (Legend Keeper) continuous surface */
+html.ee-page-editing main.ee-page {
+  outline: 1px dashed rgba(243,238,230,.22);
+  outline-offset: 8px;
+  min-height: 40vh;
+  cursor: text;
+}
+html.ee-page-editing main.ee-page:focus {
+  outline: 1px solid rgba(243,238,230,.5);
+}
+html.ee-page-editing .ee-locked {
+  outline: none !important;
+  cursor: default;
+  user-select: none;
+}
+html.ee-page-editing main.ee-page .ee-locked {
+  opacity: 0.92;
+}
