@@ -38,22 +38,77 @@
       localStorage.setItem(LINKED_KEY, JSON.stringify(o));
     } catch (e) {}
   }
+  /* Owner GitHub login → person (and reverse) for Connect / Edit identity. */
+  var LOGIN_PERSON = { "195142095142091920": "devin" };
+  function personAliases(who) {
+    var out = [], seen = {};
+    function add(x) {
+      x = String(x || "").toLowerCase();
+      if (!x || seen[x]) return;
+      seen[x] = 1; out.push(x);
+    }
+    add(who);
+    var w = String(who || "").toLowerCase();
+    if (LOGIN_PERSON[w]) add(LOGIN_PERSON[w]);
+    Object.keys(LOGIN_PERSON).forEach(function (login) {
+      if (LOGIN_PERSON[login] === w) add(login);
+    });
+    return out;
+  }
   function wasLinked(who) {
     try {
       var raw = localStorage.getItem(LINKED_KEY);
       var o = raw ? JSON.parse(raw) : null;
       if (!o || typeof o !== "object") return false;
       if (!who) return Object.keys(o).length > 0;
-      var w = String(who).toLowerCase();
-      return !!(o[w] || o["@" + w]);
+      var aliases = personAliases(who), i, a;
+      for (i = 0; i < aliases.length; i++) {
+        a = aliases[i];
+        if (o[a] || o["@" + a]) return true;
+      }
+      return false;
     } catch (e) { return false; }
   }
-  /* Owner GitHub login → person (pre-flag Connect migration). */
-  var LOGIN_PERSON = { "195142095142091920": "devin" };
+  function looksLikeToken(t) {
+    t = String(t || "");
+    return /^(ghp_|github_pat_|gho_|ghu_|ghs_)/.test(t);
+  }
+  /* Recover a Connect token even if JSON is partial or under a legacy shape. */
+  function parseSessionRaw(raw) {
+    if (!raw) return null;
+    var s;
+    try { s = JSON.parse(raw); } catch (e) { return null; }
+    if (!s || typeof s !== "object") return null;
+    var token = s.token || s.access_token || s.ghToken || s.githubToken || "";
+    if (!looksLikeToken(token)) return null;
+    var login = s.login || s.user || s.username || "";
+    if (!login) {
+      var person = String(s.person || "").toLowerCase();
+      Object.keys(LOGIN_PERSON).forEach(function (gh) {
+        if (!login && LOGIN_PERSON[gh] === person) login = gh;
+      });
+    }
+    if (!login) {
+      try {
+        var who = localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || "";
+        if (String(who).toLowerCase() === "devin") login = "195142095142091920";
+      } catch (e2) {}
+    }
+    if (!login) return null;
+    s.token = token;
+    s.login = login;
+    if (!s.person) s.person = LOGIN_PERSON[String(login).toLowerCase()] || s.person || "";
+    return s;
+  }
   function stampSessionLinked(s) {
     if (!s) return;
     var person = s.person || LOGIN_PERSON[String(s.login || "").toLowerCase()] || "";
     markLinked(person, s.login);
+    /* Also stamp the phrase identity currently signed in (login Connect → Edit reuse). */
+    try {
+      var who = localStorage.getItem("elorae-login") || localStorage.getItem("elorae-seal") || "";
+      if (who) markLinked(who, s.login);
+    } catch (e) {}
   }
   var session = {
     get: function () {
@@ -63,18 +118,15 @@
       try { ls = localStorage.getItem(KEY); } catch (e) {}
       try { ss = sessionStorage.getItem(KEY); } catch (e) {}
       var raw = ls || ss;
-      if (!raw) return null;
-      var s;
-      try { s = JSON.parse(raw); } catch (e) { return null; }
-      if (!s || !s.token || !s.login) return null;
+      var s = parseSessionRaw(raw);
+      if (!s) return null;
       /* Heal storage: promote remember to LS; keep SS in sync with the winner. */
       try {
+        s.remember = true;
+        var healed = JSON.stringify(s);
         if (ls && ss && ls !== ss) sessionStorage.setItem(KEY, ls);
-        if (!ls && s.remember) {
-          localStorage.setItem(KEY, raw);
-          ls = raw;
-        }
-        if (ls && !ss) sessionStorage.setItem(KEY, ls);
+        localStorage.setItem(KEY, healed);
+        sessionStorage.setItem(KEY, healed);
       } catch (e) {}
       /* Every successful read re-stamps linked (migrates Connect from before elorae-gh-linked). */
       stampSessionLinked(s);
@@ -96,6 +148,7 @@
     },
     wasLinked: wasLinked,
     markLinked: markLinked,
+    personAliases: personAliases,
     dropTabSession: function () {
       try { sessionStorage.removeItem(KEY); } catch (e) {}
     }

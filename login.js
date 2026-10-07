@@ -120,6 +120,8 @@ function githubLinkedFlag(who) {
   try {
     if (window.EloraeEdit && EloraeEdit.session && EloraeEdit.session.wasLinked) {
       if (EloraeEdit.session.wasLinked(who)) return true;
+      /* Owner aliases: phrase "devin" ↔ GitHub login. */
+      if (who === "devin" && EloraeEdit.session.wasLinked("195142095142091920")) return true;
     }
   } catch (e) {}
   try {
@@ -128,7 +130,9 @@ function githubLinkedFlag(who) {
     if (!o || typeof o !== "object") return false;
     if (!who) return Object.keys(o).length > 0;
     var w = String(who).toLowerCase();
-    return !!(o[w] || o["@" + w]);
+    if (o[w] || o["@" + w]) return true;
+    if (w === "devin" && (o["195142095142091920"] || o["@195142095142091920"])) return true;
+    return false;
   } catch (e) { return false; }
 }
 
@@ -721,11 +725,22 @@ function submitLoginConnect() {
     var doc = JSON.parse(raw);
     var pr = profileForGh(doc, login);
     if (!pr) throw new Error("Connected to GitHub as @" + login + ", but there's no edit profile for you yet. Ask Devin to add @" + login + ".");
+    var phraseWho = readLoginWho() || pr.person || "";
     E.session.set({
       token: token, login: login, remember: remember,
-      person: pr.person || "", role: pr.role || "", kind: kind, warn: warn,
+      person: pr.person || phraseWho || "", role: pr.role || "", kind: kind, warn: warn,
       since: new Date().toISOString()
     });
+    /* Stamp phrase identity + GitHub login so Edit reuses this Connect (no second Make-token). */
+    try {
+      if (E.session.markLinked) {
+        E.session.markLinked(phraseWho || pr.person || "", login);
+        if (phraseWho === "devin" || pr.person === "devin") {
+          E.session.markLinked("devin", login);
+          E.session.markLinked("195142095142091920", login);
+        }
+      }
+    } catch (eMark) {}
     try { window.dispatchEvent(new Event("elorae-edit-session")); } catch (e) {}
   }).catch(function (err) {
     setConnectErr(err.status === 401

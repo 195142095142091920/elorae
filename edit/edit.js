@@ -107,10 +107,14 @@
       start();
       function kick() {
         var Ed = window.EloraeEditor;
+        /* Prefer entering edit when login Connect already stored a token — never bounce to Make-token. */
         if (Ed && Ed.tryEnterEdit && Ed.tryEnterEdit()) return;
-        if (Ed && Ed.onHash && location.hash === "#edit") { Ed.onHash(); return; }
+        if (Ed && Ed.onHash) {
+          if (location.hash !== "#edit") location.hash = "#edit";
+          Ed.onHash();
+          return;
+        }
         if (location.hash !== "#edit") location.hash = "#edit";
-        else if (Ed && Ed.onHash) Ed.onHash();
       }
       /* If editor already booted and hash is already #edit, hashchange will not fire — kick directly. */
       if (window.EloraeEditor) kick();

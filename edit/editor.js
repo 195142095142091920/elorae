@@ -1363,12 +1363,14 @@
   function alreadyConnectedHere() {
     var s = E.session.get();
     if (s && s.token) return true;
+    if (!E.session.wasLinked) return false;
     var who = "";
     try { who = (E.loginWho && E.loginWho()) || ""; } catch (e) {}
-    if (!who || !E.session.wasLinked) return false;
-    if (E.session.wasLinked(who)) return true;
-    /* Owner connected before person was stamped: GitHub login only in linked map. */
-    if (who === "devin" && E.session.wasLinked("195142095142091920")) return true;
+    /* Phrase identity (Devin) or any alias left by login Connect. */
+    if (who && E.session.wasLinked(who)) return true;
+    /* No phrase who yet — still honor a linked flag stamped under GitHub login / person. */
+    if (!who && E.session.wasLinked("devin")) return true;
+    if (!who && E.session.wasLinked("195142095142091920")) return true;
     return false;
   }
   /* Nav Edit / #edit: enter edit mode when already connected — never bounce to Connect. */
@@ -1413,17 +1415,23 @@
     if (location.hash !== "#edit") return;
     if (bootExpired) return; /* expired() already offered re-enter; do not dump Connect */
     if (tryEnterEdit()) return;
-    /* Live session: never show first-time Make-token Connect (signed-in panel only). */
+    /* Live login/Edit Connect token: never show first-time Make-token. */
     if (E.session.get()) {
+      /* Profile still loading or page not editable — signed-in panel, not Make-token. */
       openPanel();
       return;
     }
     if (alreadyConnectedHere()) {
+      /* Linked via login Connect but token missing/invalid — soft re-enter only. */
+      try {
+        var who = (E.loginWho && E.loginWho()) || "devin";
+        if (E.session.markLinked) E.session.markLinked(who, "195142095142091920");
+      } catch (e) {}
       clearEditHash();
-      expired(); /* soft re-enter bar only; linked flag already set */
+      expired();
       return;
     }
-    openPanel(); /* first-time Connect only */
+    openPanel(); /* first-time Connect only — never connected on this browser */
   }
   var profileReady = loadProfile().then(function () { glyph(); });
   function onHash() {
