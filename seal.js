@@ -47,6 +47,18 @@ function clearSealSession() {
 })();
 
 var PENDING_ENROLL_KEY = "elorae-enroll-pending";
+var PHRASE_MEMORY_KEY = "elorae-seal-phrase";
+
+function readRememberedPhrase() {
+  try { return String(localStorage.getItem(PHRASE_MEMORY_KEY) || ""); } catch (e) { return ""; }
+}
+function rememberPhrase(phrase) {
+  var p = String(phrase || "").trim().toLowerCase();
+  try {
+    if (p) localStorage.setItem(PHRASE_MEMORY_KEY, p);
+  } catch (e) {}
+}
+
 var GH_CONNECTING = false;
 var GH_STATUS_TIMER = null;
 
@@ -296,6 +308,14 @@ if (document.body.classList.contains("seal-page")) {
     return String(raw || "").trim().toLowerCase();
   }
 
+  /* Browser-local phrase memory (localStorage only — not the session cookie). */
+  if (phraseInput) {
+    var remembered = readRememberedPhrase();
+    if (remembered && !phraseInput.value) phraseInput.value = remembered;
+    phraseInput.addEventListener("change", function () { rememberPhrase(readPhrase()); });
+    phraseInput.addEventListener("blur", function () { rememberPhrase(readPhrase()); });
+  }
+
   function signIn(e) {
     if (e) e.preventDefault();
     sealClearErr();
@@ -303,6 +323,7 @@ if (document.body.classList.contains("seal-page")) {
     var key = readPhrase();
     if (!key) { sealErr("Enter your phrase."); return; }
     pendingPhrase = key;
+    rememberPhrase(key);
     hashPhrase(key).then(function (digest) {
       var who = PHRASE_HASH[digest];
       if (!who) { sealErr("Try again."); return; }
