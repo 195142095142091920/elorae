@@ -38,7 +38,12 @@
   }
   function closePanel() {
     var p = $("ee-panel");
-    if (p) p.hidden = true;
+    if (p) {
+      p.hidden = true;
+      p.classList.remove("ee-gal-mode");
+      var box = p.querySelector(".ee-box");
+      if (box) box.classList.remove("ee-wide");
+    }
     if (location.hash === "#edit") history.replaceState(null, "", location.pathname + location.search);
   }
   function openPanel(msg, kind) {
@@ -414,6 +419,48 @@
     { id: "h3", label: "H3", cls: "ee-h3" },
     { id: "cap", label: "Cap", cls: "ee-caption" }
   ];
+  var savedStyleRange = null;
+  function captureStyleRange() {
+    var sel = window.getSelection && window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    var n = sel.anchorNode;
+    var node = n && (n.nodeType === 1 ? n : n.parentElement);
+    if (!node || !node.closest) return;
+    var ed = node.closest(".ee-editable");
+    if (!ed || isTitleField(ed)) return;
+    try { savedStyleRange = sel.getRangeAt(0).cloneRange(); } catch (e) {}
+  }
+  function restoreStyleRange() {
+    var ed = null;
+    if (savedStyleRange) {
+      try {
+        var sc = savedStyleRange.startContainer;
+        var node = sc && (sc.nodeType === 1 ? sc : sc.parentElement);
+        ed = node && node.closest && node.closest(".ee-editable");
+      } catch (e) { ed = null; }
+    }
+    if (!ed) ed = selectionEditable();
+    if (!ed && state.page && state.page.el) ed = state.page.el;
+    if (!ed) {
+      ed = document.querySelector("main.ee-editable, .ee-editable:not(.art-title .ee-editable)");
+    }
+    if (ed && ed.focus) {
+      try { ed.focus({ preventScroll: true }); } catch (e2) { try { ed.focus(); } catch (e3) {} }
+    }
+    if (savedStyleRange) {
+      try {
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedStyleRange);
+      } catch (e4) {}
+    }
+    return !!selectionEditable() || !!(ed && ed.isContentEditable);
+  }
+  function runStyleCommand(fn) {
+    restoreStyleRange();
+    try { fn(); } catch (e) {}
+    captureStyleRange();
+  }
   function ensureStyleBar() {
     if (!state.editing) { removeStyleBar(); return; }
     var b = $("ee-stylebar");
@@ -421,9 +468,12 @@
       b = el("div", { id: "ee-stylebar", role: "toolbar", "aria-label": "Text style" });
       document.body.appendChild(b);
       b.addEventListener("mousedown", function (e) {
-        // Keep selection in the editable when clicking toolbar.
-        if (e.target.closest && e.target.closest("button,select")) e.preventDefault();
+        captureStyleRange();
+        // Buttons: preventDefault keeps the caret. Native <select> must NOT
+        // get preventDefault or the dropdown never opens (looked like a dead toolbar).
+        if (e.target.closest && e.target.closest("button")) e.preventDefault();
       });
+      b.addEventListener("focusin", function () { captureStyleRange(); });
     }
     b.innerHTML =
       '<select id="ee-font" aria-label="Font" title="Font">' +
@@ -447,32 +497,48 @@
       '<button type="button" class="ee-glyph-btn" id="ee-bold" title="Bold" aria-label="Bold"><b>B</b></button>' +
       '<button type="button" class="ee-glyph-btn" id="ee-italic" title="Italic" aria-label="Italic"><i>I</i></button>' +
       '<button type="button" class="ee-glyph-btn" id="ee-link" title="Link" aria-label="Link">↗</button>';
-    $("ee-font").onchange = function () { applyFont(this.value); this.selectedIndex = 0; };
-    $("ee-size").onchange = function () { applySize(this.value); this.selectedIndex = 0; };
-    $("ee-block").onchange = function () { applyBlockStyle(this.value); this.selectedIndex = 0; };
-    $("ee-bold").onclick = function () { document.execCommand("bold", false, null); };
-    $("ee-italic").onclick = function () { document.execCommand("italic", false, null); };
+    $("ee-font").onchange = function () {
+      var v = this.value; this.selectedIndex = 0;
+      runStyleCommand(function () { applyFont(v); });
+    };
+    $("ee-size").onchange = function () {
+      var v = this.value; this.selectedIndex = 0;
+      runStyleCommand(function () { applySize(v); });
+    };
+    $("ee-block").onchange = function () {
+      var v = this.value; this.selectedIndex = 0;
+      runStyleCommand(function () { applyBlockStyle(v); });
+    };
+    $("ee-bold").onclick = function () {
+      runStyleCommand(function () { document.execCommand("bold", false, null); });
+    };
+    $("ee-italic").onclick = function () {
+      runStyleCommand(function () { document.execCommand("italic", false, null); });
+    };
     $("ee-link").onclick = function () {
-      var cur = "";
-      try {
-        var n = window.getSelection() && window.getSelection().anchorNode;
-        var a = n && (n.nodeType === 1 ? n : n.parentElement);
-        a = a && a.closest && a.closest("a");
-        if (a) cur = a.getAttribute("href") || "";
-      } catch (e) {}
-      var url = window.prompt("Link URL", cur || "https://");
-      if (url == null) return;
-      url = String(url).trim();
-      if (!url) { document.execCommand("unlink", false, null); return; }
-      var safe = safeHref(url);
-      if (safe == null) { editBar("That link is not allowed.", "ee-bad-bar"); return; }
-      document.execCommand("createLink", false, safe);
+      runStyleCommand(function () {
+        var cur = "";
+        try {
+          var n = window.getSelection() && window.getSelection().anchorNode;
+          var a = n && (n.nodeType === 1 ? n : n.parentElement);
+          a = a && a.closest && a.closest("a");
+          if (a) cur = a.getAttribute("href") || "";
+        } catch (e) {}
+        var url = window.prompt("Link URL", cur || "https://");
+        if (url == null) return;
+        url = String(url).trim();
+        if (!url) { document.execCommand("unlink", false, null); return; }
+        var safe = safeHref(url);
+        if (safe == null) { editBar("That link is not allowed.", "ee-bad-bar"); return; }
+        document.execCommand("createLink", false, safe);
+      });
     };
     positionStyleBar();
   }
   function removeStyleBar() {
     var b = $("ee-stylebar");
     if (b) b.remove();
+    savedStyleRange = null;
   }
   function positionStyleBar() {
     var b = $("ee-stylebar"), barEl = $("ee-bar");
@@ -496,16 +562,14 @@
     return ed;
   }
   function wrapSelection(className) {
-    if (!selectionEditable()) return;
+    if (!restoreStyleRange() && !selectionEditable()) return;
     var sel = window.getSelection();
-    if (!sel.rangeCount) return;
+    if (!sel || !sel.rangeCount) return;
     var range = sel.getRangeAt(0);
     if (range.collapsed) {
-      // Apply to whole editable when nothing selected: wrap contents.
       var ed = selectionEditable();
       if (!ed) return;
       if (!className) {
-        // Strip known style classes from descendants' wrappers where possible.
         Array.prototype.slice.call(ed.querySelectorAll("span.ee-serif,span.ee-sans,span.ee-size-sm,span.ee-size-md,span.ee-size-lg,span.ee-h2,span.ee-h3,span.ee-caption")).forEach(function (sp) {
           while (sp.firstChild) sp.parentNode.insertBefore(sp.firstChild, sp);
           sp.remove();
@@ -519,18 +583,15 @@
     var span = document.createElement("span");
     if (className) span.className = className;
     span.appendChild(frag);
-    // Unwrap nested same-family spans to avoid deep stacks.
     Array.prototype.slice.call(span.querySelectorAll("span")).forEach(function (inner) {
       if (!inner.className || !/^ee-(serif|sans|size-sm|size-md|size-lg|h2|h3|caption)$/.test(inner.className)) return;
-      if (className && inner.className.split(/\s+/).indexOf(className) >= 0 || true) {
-        /* leave content; outer carries the new class */
-      }
     });
     range.insertNode(span);
     sel.removeAllRanges();
     var next = document.createRange();
     next.selectNodeContents(span);
     sel.addRange(next);
+    captureStyleRange();
   }
   function applyFont(id) {
     if (!id) return;
@@ -560,7 +621,14 @@
     if (!state.editing) return;
     var b = $("ee-stylebar");
     if (!b) return;
-    b.hidden = !selectionEditable();
+    var ae = document.activeElement;
+    var onBar = !!(ae && ae.closest && ae.closest("#ee-stylebar"));
+    if (selectionEditable()) {
+      captureStyleRange();
+      b.hidden = false;
+    } else if (!onBar) {
+      b.hidden = true;
+    }
     positionStyleBar();
   }
 
@@ -841,6 +909,15 @@
   function openArtPanel() {
     if (!P.isAdmin(state.profile) || !Media) return;
     openPanel();
+    var p = $("ee-panel");
+    if (p) {
+      p.classList.add("ee-gal-mode");
+      var box = p.querySelector(".ee-box");
+      if (box) {
+        box.classList.add("ee-wide");
+        box.setAttribute("aria-label", "Art gallery");
+      }
+    }
     var b = $("ee-body");
     b.innerHTML = '<p class="ee-k">Art</p><p class="ee-note">Loading gallery…</p>';
     var catP = E.getFile(Media.CATALOG).then(function (f) {
@@ -869,28 +946,51 @@
   function renderGallery(catalog) {
     var b = $("ee-body");
     if (!b) return;
-    var items = Media.listVisible(catalog, "devin", true);
+    var allItems = Media.listVisible(catalog, "devin", true);
     var hasHero = !!document.querySelector(".art-hero img");
-    var grid = items.length
-      ? '<div class="ee-gallery">' + items.map(function (m) {
-          var src = gallerySrc(m);
-          return '<button type="button" class="ee-gal-item" data-gal-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' +
-            '<img src="' + esc(src) + '" alt="">' +
-            '<span>' + esc(m.title || m.id) + '</span></button>';
-        }).join("") + '</div>'
-      : '<p class="ee-note">Catalog is empty. Upload below, or add images from the dashboard.</p>';
     var applyHint = hasHero
       ? "Click a thumbnail to set this page's hero. Or upload a new file."
       : "Click a thumbnail to insert it at the caret (while editing), or upload a new file. This page has no art-hero — use Insert.";
+    function matchItem(m, q) {
+      if (!q) return true;
+      var hay = [m.id, m.title, m.path].concat(Array.isArray(m.tags) ? m.tags : []).join(" ").toLowerCase();
+      return hay.indexOf(q) >= 0;
+    }
+    function gridHtml(items) {
+      if (!items.length) {
+        return allItems.length
+          ? '<p class="ee-note" id="ee-gal-empty">No matches.</p>'
+          : '<p class="ee-note" id="ee-gal-empty">Catalog is empty. Upload below, or add images from the dashboard.</p>';
+      }
+      return '<div class="ee-gallery" id="ee-gal-grid">' + items.map(function (m) {
+        var src = gallerySrc(m);
+        return '<button type="button" class="ee-gal-item" data-gal-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' +
+          '<img src="' + esc(src) + '" alt="">' +
+          '<span>' + esc(m.title || m.id) + '</span></button>';
+      }).join("") + '</div>';
+    }
+    function bindThumbs(root) {
+      Array.prototype.forEach.call(root.querySelectorAll("[data-gal-id]"), function (btn) {
+        btn.onclick = function () {
+          var id = btn.getAttribute("data-gal-id");
+          var entry = catalog.media[id];
+          if (!entry) return;
+          if (hasHero) applyCatalogToHero(entry);
+          else insertCatalogImage(entry);
+        };
+      });
+    }
     b.innerHTML =
       '<p class="ee-k">Art</p>' +
       '<p class="ee-note">' + applyHint + ' Visibility only gates the editor gallery — <code>assets/</code> URLs stay public on Pages.</p>' +
-      grid +
+      '<label class="ee-gal-search-label" for="ee-gal-search">Search</label>' +
+      '<input type="search" id="ee-gal-search" class="ee-field" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
+      '<div id="ee-gal-wrap">' + gridHtml(allItems) + '</div>' +
       '<form id="ee-art-form" class="ee-gal-up">' +
       '<p class="ee-sub">Upload new</p>' +
-      '<input type="file" id="ee-art-file" accept="image/png,image/jpeg,image/webp,image/gif">' +
-      '<input type="text" id="ee-art-title" placeholder="Title (optional)" autocomplete="off">' +
-      '<input type="text" id="ee-art-tags" placeholder="Tags (comma-separated)" autocomplete="off">' +
+      '<input type="file" id="ee-art-file" class="ee-field" accept="image/png,image/jpeg,image/webp,image/gif">' +
+      '<input type="text" id="ee-art-title" class="ee-field" placeholder="Title (optional)" autocomplete="off">' +
+      '<input type="text" id="ee-art-tags" class="ee-field" placeholder="Tags (comma-separated)" autocomplete="off">' +
       '<label class="ee-check"><input type="checkbox" id="ee-art-everyone" checked> Everyone can use in the editor</label>' +
       '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">' + (hasHero ? "Upload &amp; replace hero" : "Upload &amp; insert") + '</button>' +
       '<button type="button" class="ee-btn" id="ee-art-back">Back</button></div>' +
@@ -900,15 +1000,19 @@
       e.preventDefault();
       replaceHeroImage(hasHero ? "hero" : "insert");
     };
-    Array.prototype.forEach.call(b.querySelectorAll("[data-gal-id]"), function (btn) {
-      btn.onclick = function () {
-        var id = btn.getAttribute("data-gal-id");
-        var entry = catalog.media[id];
-        if (!entry) return;
-        if (hasHero) applyCatalogToHero(entry);
-        else insertCatalogImage(entry);
+    bindThumbs(b);
+    var search = $("ee-gal-search");
+    if (search) {
+      search.oninput = function () {
+        var q = String(search.value || "").trim().toLowerCase();
+        var filtered = allItems.filter(function (m) { return matchItem(m, q); });
+        var wrap = $("ee-gal-wrap");
+        if (!wrap) return;
+        wrap.innerHTML = gridHtml(filtered);
+        bindThumbs(wrap);
       };
-    });
+      setTimeout(function () { try { search.focus(); } catch (e) {} }, 30);
+    }
   }
 
   function applyCatalogToHero(entry) {
@@ -1370,16 +1474,14 @@
     // Prefer compact section/paragraph spacing like the rest of the site.
     return html.replace(/\n{3,}/g, "\n\n");
   }
-  function openNewArticle() {
-    if (!P.isAdmin(state.profile)) return;
-    var title = window.prompt("New article title", "");
-    if (title == null) return;
-    title = String(title).trim();
+  function createArticleFromTitle(title) {
+    title = String(title || "").trim();
     if (!title) return;
     var artSlug = (Media && Media.slugify) ? Media.slugify(title) : String(title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
     if (!artSlug) { editBar("Need a usable title.", "ee-bad-bar"); return; }
     var path = "articles/" + artSlug + ".html";
     var pretty = "articles/" + artSlug + "/index.html";
+    closePanel();
     editBar("Creating article…", "ee-busy");
     E.getFile(path).then(function () {
       editBar("That article already exists: " + path, "ee-bad-bar");
@@ -1407,7 +1509,7 @@
         "</main>\n" +
         "<script src=\"/search.js?v=pretty-urls\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=fullpage-edit\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=edit-polish\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -1420,6 +1522,48 @@
     }).catch(function (e) {
       editBar(e.message || "Could not create article.", "ee-bad-bar");
     });
+  }
+  function openNewArticle() {
+    if (!P.isAdmin(state.profile)) return;
+    openPanel();
+    var p = $("ee-panel");
+    if (p) {
+      p.classList.remove("ee-gal-mode");
+      var box = p.querySelector(".ee-box");
+      if (box) {
+        box.classList.remove("ee-wide");
+        box.setAttribute("aria-label", "New article");
+      }
+    }
+    var b = $("ee-body");
+    if (!b) return;
+    b.innerHTML =
+      '<p class="ee-k">New article</p>' +
+      '<p class="ee-note">Title only — a blank page opens for editing.</p>' +
+      '<form id="ee-newart-form">' +
+      '<input type="text" id="ee-newart-title" class="ee-field" placeholder="Article title" autocomplete="off" spellcheck="true">' +
+      '<div class="ee-row">' +
+      '<button type="submit" class="ee-btn ee-primary">Create</button>' +
+      '<button type="button" class="ee-btn" id="ee-newart-cancel">Cancel</button>' +
+      '</div>' +
+      '<p class="ee-err" id="ee-newart-err" hidden></p>' +
+      '</form>';
+    var input = $("ee-newart-title");
+    var err = $("ee-newart-err");
+    function fail(msg) {
+      if (!err) return;
+      err.hidden = !msg;
+      err.textContent = msg || "";
+    }
+    $("ee-newart-cancel").onclick = function () { closePanel(); };
+    $("ee-newart-form").onsubmit = function (e) {
+      e.preventDefault();
+      var title = String((input && input.value) || "").trim();
+      if (!title) { fail("Enter a title."); if (input) input.focus(); return; }
+      fail("");
+      createArticleFromTitle(title);
+    };
+    setTimeout(function () { if (input) try { input.focus(); } catch (e) {} }, 30);
   }
 
   /* ---------------- Sanitizer ---------------- */

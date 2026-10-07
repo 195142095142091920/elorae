@@ -182,14 +182,82 @@ body.ee-page a { color: #f3eee6; }
 .ee-invite-user:focus { outline: none; border-color: #8a7f6a; }
 .ee-bound { color: #9aaf8a !important; }
 
+/* Dark text fields (login phrase style) inside edit panels */
+#ee-panel .ee-field,
+#ee-panel input.ee-field[type=text],
+#ee-panel input.ee-field[type=search],
+#ee-panel input.ee-field[type=file],
+#ee-panel .ee-gal-up input[type=text],
+#ee-panel .ee-gal-up input[type=file],
+#ee-panel .ee-gal-up input[type=search] {
+  box-sizing: border-box; width: 100%; margin: 0 0 12px;
+  background: transparent; border: 0; border-bottom: 1px solid rgba(143,138,130,.28);
+  color: #f3eee6; font-family: "Iowan Old Style", Palatino, serif; letter-spacing: .04em;
+  padding: 10px 0; outline: none; border-radius: 0;
+  -webkit-appearance: none; appearance: none; font-size: 18px;
+}
+#ee-panel .ee-field::placeholder,
+#ee-panel input.ee-field::placeholder { color: #8f8a82; }
+#ee-panel .ee-field:focus,
+#ee-panel input.ee-field:focus { border-bottom-color: rgba(243,238,230,.55); }
+#ee-panel input.ee-field[type=file] {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px;
+  letter-spacing: .06em; color: #8f8a82; cursor: pointer;
+}
+#ee-panel input.ee-field[type=file]::file-selector-button,
+#ee-panel input.ee-field[type=file]::-webkit-file-upload-button {
+  appearance: none; -webkit-appearance: none;
+  background: transparent; border: 0; border-bottom: 1px solid rgba(143,138,130,.35);
+  color: #8f8a82; font: 11px/1.2 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+  padding: 8px 0; margin: 0 14px 0 0; cursor: pointer;
+}
+#ee-panel input.ee-field[type=file]:hover::file-selector-button,
+#ee-panel input.ee-field[type=file]:hover::-webkit-file-upload-button { color: #f3eee6; }
+
+/* Near-fullscreen art gallery */
+#ee-panel.ee-gal-mode { align-items: stretch; justify-content: stretch; padding: 2vh 2vw; }
+#ee-panel.ee-gal-mode .ee-box.ee-wide {
+  width: min(96vw, 1400px); height: min(96vh, 100%); max-height: 96vh;
+  padding: 22px 24px 20px; display: flex; flex-direction: column; overflow: hidden;
+}
+#ee-panel.ee-gal-mode #ee-body {
+  flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+}
+#ee-panel.ee-gal-mode .ee-gal-search-label {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+#ee-panel.ee-gal-mode #ee-gal-wrap {
+  flex: 1 1 auto; min-height: 0; overflow: auto; margin: 4px 0 10px;
+}
+#ee-panel.ee-gal-mode .ee-gal-up { flex: 0 0 auto; margin-top: 4px; }
+
 /* Art gallery picker */
-.ee-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin: 10px 0 14px; max-height: 240px; overflow: auto; }
-.ee-gal-item { display: flex; flex-direction: column; gap: 4px; padding: 0; border: 1px solid #3a3732; background: #141311; color: #e8e4dc; cursor: pointer; border-radius: 3px; overflow: hidden; text-align: left; font: 10px/1.3 Helvetica, Arial, sans-serif; }
+.ee-gallery {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px; margin: 0; max-height: none; overflow: visible;
+}
+.ee-gal-item {
+  display: flex; flex-direction: column; gap: 4px; padding: 0;
+  border: 1px solid #3a3732; background: #141311; color: #e8e4dc; cursor: pointer;
+  border-radius: 3px; overflow: hidden; text-align: left;
+  font: 10px/1.3 Helvetica, Arial, sans-serif;
+}
 .ee-gal-item:hover, .ee-gal-item:focus { border-color: #8a7f6a; outline: none; }
-.ee-gal-item img { display: block; width: 100%; height: 72px; object-fit: cover; background: #0b0b0b; }
+.ee-gal-item img { display: block; width: 100%; height: 96px; object-fit: cover; background: #0b0b0b; }
 .ee-gal-item span { padding: 0 6px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ee-gal-up { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2a2824; }
 .ee-gal-up .ee-sub { margin-bottom: 6px; }
+@media (max-width: 800px) {
+  #ee-panel.ee-gal-mode { padding: 0; align-items: stretch; }
+  #ee-panel.ee-gal-mode .ee-box.ee-wide {
+    width: 100%; height: 100%; max-height: none; border-radius: 0;
+    padding: 18px 16px calc(16px + env(safe-area-inset-bottom));
+  }
+  .ee-gallery { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .ee-gal-item img { height: 72px; }
+}
 
 /* Rich body: inline images + paste/toolbar spans */
 .ee-editable img,
