@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-<script src="session-gate.js?v=phrase-remember"></script>
+<script src="session-gate.js?v=guest-browse"></script>
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Elorae</title>
 <link rel="stylesheet" href="styles.css?v=art96">
-<link rel="stylesheet" href="html.css?v=phrase-is-key-route">
+<link rel="stylesheet" href="html.css?v=guest-browse">
 <script src="rail-toggle.js?v=nt26-veil"></script>
 <script src="skip-link.js?v=nt11-skip"></script>
 <link rel="icon" href="favicon.svg">
@@ -20,21 +20,17 @@
 <input id="seal-code" name="phrase" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">
 <div class="seal-actions">
 <button type="submit" id="seal-submit">Sign in</button>
+<button type="button" id="seal-guest" class="seal-guest">Guest</button>
 </div>
 </form>
 <p class="seal-err" id="seal-err" hidden>Try again.</p>
-<p class="seal-welcome" id="seal-welcome" hidden></p>
-<div class="seal-actions" id="seal-gh-actions" hidden>
-<button type="button" id="seal-github">Connect to GitHub</button>
-</div>
-<p class="seal-gh-status" id="seal-gh-status" hidden></p>
 </div>
 </main>
-<!-- Phrase-is-key: identity + secrets derive from one phrase. GitHub connect uses existing #edit token flow. -->
-<script src="edit/core.js?v=phrase-is-key-route"></script>
-<script src="edit/crypto.js?v=phrase-is-key-route"></script>
+<!-- Phrase sign-in + optional guest browse. -->
+<script src="edit/core.js?v=guest-browse"></script>
+<script src="edit/crypto.js?v=guest-browse"></script>
 <script src="edit/vis.js?v=e11"></script>
-<script src="seal.js?v=phrase-remember"></script>
+<script src="seal.js?v=guest-browse"></script>
 <canvas id="friend-glow"></canvas>
 <script src="glow.js?v=glow5"></script>
 <script src="edit/edit.js?v=e11" defer></script>

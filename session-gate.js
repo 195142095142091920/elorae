@@ -1,5 +1,6 @@
-/* Session gate: no valid elorae-seal cookie/localStorage → redirect to phrase sign-in.
-   Valid session → free navigation (no forced profile redirect). Seal page is exempt.
+/* Session gate: no valid elorae-seal → redirect to phrase sign-in, unless guest browse
+   (localStorage elorae-guest=1). Valid session or guest → free navigation (no forced profile).
+   Seal page is exempt. Guest never opens edit/secret or edit/dashboard (no hint).
    Profile redirect remains only after Connect to GitHub success (seal.js). */
 (function () {
   "use strict";
@@ -18,7 +19,14 @@
     } catch (e) {}
     return "";
   }
+  function isGuest() {
+    try { return localStorage.getItem("elorae-guest") === "1"; } catch (e) { return false; }
+  }
+  /* Restricted: guests and unsigned must not see these at all. */
+  var restricted = /(^|\/)edit\/(secret|dashboard)\.html$/i.test(path);
+
   if (readWho()) return;
+  if (isGuest() && !restricted) return;
 
   var script = document.currentScript;
   var seal = script ? new URL("seal.html", script.src).href : "seal.html";
