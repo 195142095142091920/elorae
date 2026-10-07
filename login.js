@@ -196,6 +196,8 @@ function applyLogin() {
   var connect = document.getElementById("login-connect");
   var welcomeStage = document.getElementById("login-welcome-stage");
   if (form) form.hidden = !!who;
+  var enterActs = document.getElementById("login-enter-actions");
+  if (enterActs && who) enterActs.setAttribute("hidden", "");
   if (guestBtn) guestBtn.hidden = !!who;
   if (connect && !GH_CONNECTING) {
     connect.hidden = true;
@@ -722,7 +724,9 @@ if (document.body.classList.contains("login-page")) {
   function syncEnterVisibility() {
     var actions = document.getElementById("login-enter-actions");
     if (!actions) return;
-    var has = !!(phraseInput && String(phraseInput.value || "").trim());
+    var formEl = document.getElementById("login-form");
+    var formOpen = !(formEl && formEl.hidden);
+    var has = formOpen && !!(phraseInput && String(phraseInput.value || "").trim());
     if (has) actions.removeAttribute("hidden");
     else actions.setAttribute("hidden", "");
   }

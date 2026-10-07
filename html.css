@@ -5159,13 +5159,48 @@ body.login-guest .login-guest-exit:focus-visible {
   text-shadow: 0 0 8px rgba(255,255,255,.22), 0 0 18px rgba(243,238,230,.12);
 }
 
-/* Login: try-again sits above the login box (not inside it). */
-body.login-page .login-card > #login-err {
+/* Login panel: box stays fixed; Enter spawns under the box without shifting it. */
+body.login-page .login-panel {
   position: relative;
-  z-index: 2;
-  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+body.login-page .login-panel > #login-enter-actions {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  margin: 16px 0 0;
+  z-index: 3;
+}
+body.login-page .login-panel > #login-enter-actions[hidden] {
+  display: none !important;
+}
+body.login-page .login-panel > #login-enter-actions .login-actions,
+body.login-page .login-panel > #login-enter-actions {
+  margin-top: 16px;
+}
+/* Try-again floats just above the phrase field; does not reflow the input. */
+body.login-page #login-form > #login-err {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  margin: 0 0 12px;
+  width: max-content;
+  max-width: 90%;
   text-align: center;
   letter-spacing: .22em;
   font-size: 11px;
   color: #cfc6b8;
+  z-index: 2;
+  pointer-events: none;
+}
+body.login-page #login-form {
+  /* keep phrase input as the sole in-flow child so absolute center stays put */
+}
+body.login-page #login-form > #login-code {
+  position: relative;
+  z-index: 1;
 }
