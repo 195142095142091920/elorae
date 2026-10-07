@@ -250,3 +250,20 @@ main.read .ee-editable img { max-width: 100%; height: auto; vertical-align: midd
     justify-content: flex-start; gap: 8px 12px; padding: 8px 14px;
   }
 }
+
+/* Index organizer (admin edit mode) */
+html.ee-index-org a.index-card { cursor: grab; }
+html.ee-index-org a.index-card.ee-index-dragging { opacity: 0.55; cursor: grabbing; }
+html.ee-index-org a.index-card.ee-index-selected {
+  outline: 1px solid rgba(243,238,230,.55); outline-offset: 4px;
+}
+html.ee-index-org .index-cards.ee-index-drop.ee-index-dragover,
+html.ee-index-org a.index-card.ee-index-dragover {
+  outline: 1px dashed rgba(243,238,230,.4); outline-offset: 6px;
+}
+html.ee-index-org .ee-index-heading {
+  outline: 1px dashed rgba(243,238,230,.2); outline-offset: 4px; cursor: text;
+}
+html.ee-index-org .ee-index-heading:focus {
+  outline: 1px solid rgba(243,238,230,.55);
+}

@@ -210,13 +210,27 @@
       return !n.closest("#ee-panel,#ee-bar");
     });
   }
+  function isIndexOrganizePage() {
+    var Org = window.EloraeIndexOrg;
+    return !!(Org && Org.isIndexPage && Org.isIndexPage() && state.profile && P.isAdmin(state.profile) && P.canEdit(state.profile, PATH));
+  }
   function glyph() {
     var g = $("ee-glyph");
-    var ok = !!(E.session.get() && state.profile && P.canEdit(state.profile, PATH) && liveBlocks().length);
+    var Org = window.EloraeIndexOrg;
+    if (Org && state.profile) Org.setProfile(state.profile);
+    var textOk = !!(E.session.get() && state.profile && P.canEdit(state.profile, PATH) && liveBlocks().length);
+    var indexOk = !!(E.session.get() && isIndexOrganizePage());
+    var ok = textOk || indexOk;
     if (!ok) { if (g) g.remove(); return; }
     if (g) return;
     g = el("button", { id: "ee-glyph", type: "button", "aria-label": "Edit this page" }, "Edit");
-    g.onclick = function () { if (!state.editing) startEdit(); };
+    g.onclick = function () {
+      if (state.editing) return;
+      var O = window.EloraeIndexOrg;
+      if (O && O.active && O.active()) return;
+      if (isIndexOrganizePage() && O && O.start) { O.start(); return; }
+      startEdit();
+    };
     document.body.appendChild(g);
   }
 
@@ -1353,5 +1367,5 @@
     onHash();
   });
 
-  window.EloraeEditor = { sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel };
+  window.EloraeEditor = { sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph };
 })();

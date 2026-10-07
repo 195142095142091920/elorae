@@ -34,6 +34,7 @@
      independently - any number can be open; nothing else (other cards, Escape, outside
      clicks) closes them. */
   document.addEventListener("click", function (e) {
+    if (document.documentElement.classList.contains("ee-index-org")) return; /* edit-mode Index organizer */
     var t = e.target;
     if (t.closest && t.closest("a.card-lore-link")) return; /* inner link: default navigation */
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; /* new tab etc. */
