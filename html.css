@@ -5010,7 +5010,6 @@ body.login-page .login-connect-hint{
   color:#8f8a82;text-align:center;text-transform:none;
 }
 body.login-page .login-connect-form{width:100%;max-width:280px;margin:0 auto;}
-body.login-page .login-connect-check{justify-content:center;}
 body.login-page #login-connect .login-actions[hidden]{display:none!important;}
 body.login-page .login-connect-btn,
 body.login-page .login-connect-submit,
@@ -5028,11 +5027,6 @@ body.login-page #login-connect-token{
   padding:10px 0;outline:none;text-align:center;margin-top:8px;
 }
 body.login-page #login-connect-token:focus{border-bottom-color:rgba(243,238,230,.55)}
-body.login-page .login-connect-check{
-  display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:#8f8a82;cursor:pointer;
-  letter-spacing:.02em;text-transform:none;font-weight:400;
-}
-body.login-page .login-connect-check input{accent-color:#8f8a82;margin:0}
 body.login-page #login-connect .login-actions{margin-top:14px;justify-content:center}
 body.login-page #login-connect #login-connect-err{margin-top:10px}
 
