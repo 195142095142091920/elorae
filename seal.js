@@ -540,7 +540,3 @@ if (document.body.classList.contains("seal-page")) {
   });
 }
 
-var back = document.getElementById("seal-back");
-if (back) back.addEventListener("click", function (e) {
-  if (history.length > 1) { e.preventDefault(); history.back(); }
-});

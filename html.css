@@ -2532,7 +2532,7 @@ body.seek-panel-open { overflow: hidden; }
   body.seal-page .seal-card {
     padding-top: 28px;
   }
-  body.seal-page .seal-card button {
+  body.seal-page .seal-card button:not(.seal-guest) {
     min-height: 44px;
     min-width: 88px;
     padding: 12px 20px;
@@ -4880,10 +4880,23 @@ body.seal-page .seal-gh-status[data-kind=ok]{color:#c8e0c0}
 body.seal-page .seal-gh-status[data-kind=err]{color:#e0a8a0}
 body.seal-page #seal-welcome{text-align:center;letter-spacing:.12em}
 
+/* Seal login: Guest sits center-bottom of the square box (not beside Sign in). */
+body.seal-page .seal-box #seal-guest{
+  position:absolute;
+  left:50%;
+  bottom:28px;
+  transform:translateX(-50%);
+  margin:0;
+  z-index:2;
+}
+@media (max-width:800px){
+  body.seal-page .seal-box #seal-guest{bottom:22px}
+}
+
 /* Seal actions: Sign in (primary) + Guest (secondary). */
 .seal-actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;align-items:center;margin-top:18px}
 .seal-actions button,.seal-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:11px;cursor:pointer}
-.seal-actions button.seal-guest{
+.seal-actions button.seal-guest,button.seal-guest{
   color:#8f8a82;
   font-size:10px;
   letter-spacing:.2em;
@@ -4893,6 +4906,7 @@ body.seal-page #seal-welcome{text-align:center;letter-spacing:.12em}
   padding:4px 8px;
   min-height:0;
   min-width:0;
+  background:none;border:0;text-transform:uppercase;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;cursor:pointer;
 }
 .seal-who{margin:10px 0 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8f8a82}
 .profile-gh-actions{justify-content:flex-start;margin:0 0 18px}
@@ -4901,9 +4915,9 @@ body.seal-guest .seal-guest-exit{display:inline-flex;align-items:center;min-heig
 body.seal-guest .seal-guest-exit:hover,body.seal-guest .seal-guest-exit:focus-visible{color:#f3eee6}
 @media (min-width:801px){
   .seal-actions button:hover,.seal-copy:hover{color:#fff}
-  .seal-actions button.seal-guest:hover{color:#cfc6b8;opacity:1}
+  .seal-actions button.seal-guest:hover,button.seal-guest:hover{color:#cfc6b8;opacity:1}
 }
 @media (max-width:800px){
   .seal-actions button:not(.seal-guest),.seal-copy{min-height:44px;min-width:88px;padding:12px 20px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
-  .seal-actions button.seal-guest{min-height:36px;padding:8px 12px}
+  .seal-actions button.seal-guest,button.seal-guest{min-height:36px;padding:8px 12px}
 }

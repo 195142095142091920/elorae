@@ -7,30 +7,30 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Elorae</title>
 <link rel="stylesheet" href="styles.css?v=art96">
-<link rel="stylesheet" href="html.css?v=guest-browse">
+<link rel="stylesheet" href="html.css?v=seal-no-back">
 <script src="rail-toggle.js?v=nt26-veil"></script>
 <script src="skip-link.js?v=nt11-skip"></script>
 <link rel="icon" href="favicon.svg">
 </head>
 <body class="seal-page">
-<div class="mast"><header class="topbar seal-top"><a href="index/ancients.html" id="seal-back">Back</a><span class="mark"></span></header></div>
+<div class="mast"><header class="topbar seal-top"><span class="mark"></span></header></div>
 <main class="seal-card">
 <div class="seal-box">
 <form id="seal-form" autocomplete="off">
 <input id="seal-code" name="phrase" type="password" autocomplete="off" spellcheck="false" placeholder="Phrase">
 <div class="seal-actions">
 <button type="submit" id="seal-submit">Sign in</button>
-<button type="button" id="seal-guest" class="seal-guest">Guest</button>
 </div>
 </form>
 <p class="seal-err" id="seal-err" hidden>Try again.</p>
+<button type="button" id="seal-guest" class="seal-guest">Guest</button>
 </div>
 </main>
 <!-- Phrase sign-in + optional guest browse. -->
 <script src="edit/core.js?v=guest-browse"></script>
 <script src="edit/crypto.js?v=guest-browse"></script>
 <script src="edit/vis.js?v=e11"></script>
-<script src="seal.js?v=guest-browse"></script>
+<script src="seal.js?v=seal-no-back"></script>
 <canvas id="friend-glow"></canvas>
 <script src="glow.js?v=glow5"></script>
 <script src="edit/edit.js?v=e11" defer></script>
