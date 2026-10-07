@@ -1,11 +1,13 @@
-/* players/player.js (nt33). Player pages, built at runtime from the site's own files:
-   - characters: this page's own mast marks (span.friend[data-owner]), each with its article's
-     hero art, name and epithet; the Game Master (edit/visibility.json "admins") sees the party;
-   - secrets: titles from edit/visibility.json that this player can see — rendered ONLY when the
-     viewer has unlocked them (signed in as this player, or as the GM) and only those also opened
-     to the viewer. Nothing sealed is in the static HTML (titles come from the manifest at runtime);
-   - articles: paths this player may edit, from edit/profiles.json permissions (public list).
-   Chapters are not listed. Everything renders inside an <aside>, which edit mode's srcmap skips. */
+/* players/player.js (nt34). Player pages, built at runtime from the site's own files:
+   - characters: mast marks (span.friend[data-owner]) as cards (hero art, name, epithet);
+     Game Master (edit/visibility.json "admins") sees the party;
+   - combined: one card row of editable (profiles.json) + secret (visibility.json) articles.
+     Each card: image, title, and a type mark (edit / secret / both). No epithet.
+     Subjects already in Characters are excluded. Secrets only when the viewer has unlocked
+     them (this player or GM) and only those also open to the viewer — nothing sealed in
+     static HTML.
+   No "Plays …" subtitle. No Articles / separate Editor / Secrets sections.
+   Renders inside <aside> (edit mode srcmap skips). */
 (function () {
   "use strict";
   var root = document.getElementById("nt-player"); if (!root) return;
@@ -28,20 +30,18 @@
   css.id = "nt-player-css";
   css.textContent =
     "#nt-player h2{margin-top:48px}" +
-    "#nt-player .nt-pl-sub{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8f8a82;text-align:center;margin:-8px 0 0}" +
     ".nt-pl-chars{display:flex;flex-wrap:wrap;justify-content:center;gap:26px;margin:18px 0 0}" +
+    ".nt-pl-chars+.nt-pl-chars{margin-top:48px}" +
     ".nt-pl-char{width:150px;text-align:left}" +
     ".nt-pl-char img,.nt-pl-char .ph{width:150px;height:200px;object-fit:cover;display:block;margin:0 0 8px}" +
     ".nt-pl-char .nm{font-size:12px;letter-spacing:.14em;text-transform:uppercase}" +
     ".nt-pl-char .nm a{color:#f3eee6;text-decoration:none}" +
     ".nt-pl-char .ep{font-size:13px;line-height:1.45;color:#8f8a82;font-style:italic;margin-top:2px}" +
-    ".nt-pl-list{list-style:none;padding:0;margin:14px 0 0}" +
-    ".nt-pl-list li{display:flex;gap:14px;align-items:baseline;padding:5px 0;font-size:16px}" +
-    ".nt-pl-list a{color:#cfc6b8}" +
-    ".nt-pl-list .m{margin-left:auto;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8f8a82}" +
-    "@media (min-width:801px){.nt-pl-list a:hover,.nt-pl-char .nm a:hover{color:#fff}}" +
+    ".nt-pl-char .nt-pl-kind{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8f8a82;margin-top:4px;display:flex;align-items:center;gap:6px}" +
+    ".nt-pl-char .nt-pl-kind .sy{font-size:13px;line-height:1;letter-spacing:0;text-transform:none}" +
+    "@media (min-width:801px){.nt-pl-char .nm a:hover{color:#fff}}" +
     "@media (max-width:800px){.nt-pl-chars{gap:16px}.nt-pl-char,.nt-pl-char img{width:calc(50vw - 30px)}" +
-    ".nt-pl-char .ph{width:calc(50vw - 30px)}.nt-pl-char img,.nt-pl-char .ph{height:calc((50vw - 30px) * 4 / 3)}.nt-pl-list li{flex-wrap:wrap;gap:2px 10px}.nt-pl-list .m{margin-left:0}}";
+    ".nt-pl-char .ph{width:calc(50vw - 30px)}.nt-pl-char img,.nt-pl-char .ph{height:calc((50vw - 30px) * 4 / 3)}}";
   document.head.appendChild(css);
 
   function characters(who) {
@@ -56,13 +56,18 @@
     });
     return out;
   }
+  function charPathSet(chars) {
+    var set = {};
+    chars.forEach(function (c) { if (c.article) set[c.article] = 1; });
+    return set;
+  }
   function secretsFor(vis, who) {
     return Object.keys(vis.secrets || {}).map(function (id) { var s = vis.secrets[id]; s.id = id; return s; }).filter(function (s) {
       return (vis.admins || []).indexOf(who) >= 0 || s.everyone || (s.allowed || []).indexOf(who) >= 0;
     });
   }
   function articlesFor(profiles, who) {
-    var out = [], seen = {}, all = false, full = false;
+    var out = [], seen = {};
     var bag = (profiles && profiles.profiles) || {};
     Object.keys(bag).forEach(function (k) {
       if (k.charAt(0) === "_") return;
@@ -72,13 +77,79 @@
       if (perms === "view" || !perms) return;
       if (!Array.isArray(perms)) return;
       perms.forEach(function (path) {
-        if (path === "**") { full = true; return; }
-        if (path === "articles/*.html") { all = true; return; }
+        if (path === "**" || path === "articles/*.html") return;
         if (/^articles\/[^\/]+\.html$/.test(path) && !seen[path]) { seen[path] = 1; out.push(path); }
       });
     });
     out.sort();
-    return { paths: out, allArticles: all, fullSite: full };
+    return out;
+  }
+  function kindLabel(edit, secret) {
+    if (edit && secret) return { sy: "✎⚑", label: "Edit · Secret" };
+    if (edit) return { sy: "✎", label: "Edit" };
+    return { sy: "⚑", label: "Secret" };
+  }
+  /* Card: image + title + type mark only (no epithet). */
+  function fillComboCard(box, path, fallbackName, doLink, kind) {
+    var k = kindLabel(kind.edit, kind.secret);
+    function addKind() {
+      var row = el("div", "nt-pl-kind");
+      row.appendChild(el("span", "sy", k.sy));
+      row.appendChild(el("span", null, k.label));
+      box.appendChild(row);
+    }
+    if (!path) {
+      box.appendChild(el("div", "ph"));
+      box.appendChild(el("div", "nm", fallbackName));
+      addKind();
+      return;
+    }
+    doc(path).then(function (d) {
+      var hero = d.querySelector(".art-hero img");
+      if (hero) {
+        var img = document.createElement("img");
+        img.src = new URL(hero.getAttribute("src"), url(path)).href;
+        img.alt = ""; img.loading = "lazy";
+        if (doLink) {
+          var ln = link(path, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
+          ln.appendChild(img); box.appendChild(ln);
+        } else box.appendChild(img);
+      } else box.appendChild(el("div", "ph"));
+      var title = text(d.querySelector(".art-title h1")) || text(d.querySelector("h1")) || fallbackName;
+      var nm = el("div", "nm");
+      if (doLink) nm.appendChild(link(path, title));
+      else nm.textContent = title;
+      box.appendChild(nm);
+      addKind();
+    }).catch(function () {
+      box.appendChild(el("div", "ph"));
+      var nm = el("div", "nm");
+      if (doLink) nm.appendChild(link(path, fallbackName));
+      else nm.textContent = fallbackName;
+      box.appendChild(nm);
+      addKind();
+    });
+  }
+  function fillCharCard(box, path, fallbackName) {
+    doc(path).then(function (d) {
+      var main = d.querySelector("main.art-body");
+      if (main && main.classList.contains("sealed")) { box.remove(); return; }
+      var hero = d.querySelector(".art-hero img");
+      if (hero) {
+        var ln = link(path, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
+        var img = document.createElement("img");
+        img.src = new URL(hero.getAttribute("src"), url(path)).href;
+        img.alt = ""; img.loading = "lazy";
+        ln.appendChild(img); box.appendChild(ln);
+      } else box.appendChild(el("div", "ph"));
+      var nm = el("div", "nm");
+      nm.appendChild(link(path, text(d.querySelector(".art-title h1")) || fallbackName));
+      box.appendChild(nm);
+      var ep = text(d.querySelector(".art-title .art-epithet"));
+      if (ep) box.appendChild(el("div", "ep", ep));
+    }).catch(function () {
+      var nm = el("div", "nm"); nm.appendChild(link(path, fallbackName)); box.appendChild(nm);
+    });
   }
 
   Promise.all([
@@ -87,66 +158,52 @@
   ]).then(function (r) {
     var vis = r[0], profiles = r[1], isGM = (vis.admins || []).indexOf(slug) >= 0;
     var chars = characters(isGM ? "" : slug);
+    var inCharacters = charPathSet(chars);
     root.textContent = "";
-    if (isGM) root.appendChild(el("div", "nt-pl-sub", "Game Master"));
-    else if (chars.length) root.appendChild(el("div", "nt-pl-sub", "Plays " + chars.map(function (c) { return c.short; }).join(" and ")));
 
+    /* Characters — unchanged (cards with epithet). No "Plays …" line. */
     root.appendChild(el("h2", null, isGM ? "The party" : "Characters"));
-    var row = el("div", "nt-pl-chars"); root.appendChild(row);
+    var crow = el("div", "nt-pl-chars"); root.appendChild(crow);
     chars.forEach(function (c) {
-      var box = el("div", "nt-pl-char"); row.appendChild(box);
-      doc(c.article).then(function (d) {
-        var main = d.querySelector("main.art-body");
-        if (main && main.classList.contains("sealed")) { box.remove(); return; }
-        var hero = d.querySelector(".art-hero img");
-        if (hero) { var ln = link(c.article, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
-          var img = document.createElement("img"); img.src = new URL(hero.getAttribute("src"), url(c.article)).href; img.alt = ""; img.loading = "lazy";
-          ln.appendChild(img); box.appendChild(ln); }
-        else box.appendChild(el("div", "ph"));
-        var nm = el("div", "nm"); nm.appendChild(link(c.article, text(d.querySelector(".art-title h1")) || c.short)); box.appendChild(nm);
-        var ep = text(d.querySelector(".art-title .art-epithet")); if (ep) box.appendChild(el("div", "ep", ep));
-      }).catch(function () { var nm = el("div", "nm"); nm.appendChild(link(c.article, c.short)); box.appendChild(nm); });
+      var box = el("div", "nt-pl-char"); crow.appendChild(box);
+      fillCharCard(box, c.article, c.short);
     });
 
-    /* Articles this player owns/edits (profiles.json) — public, not seal-gated. */
-    var arts = articlesFor(profiles, slug);
-    if (arts.fullSite || arts.allArticles || arts.paths.length) {
-      root.appendChild(el("h2", null, "Articles"));
-      var au = el("ul", "nt-pl-list"); root.appendChild(au);
-      if (arts.fullSite) {
-        var li = el("li"); li.appendChild(el("span", null, "Full site")); au.appendChild(li);
-      } else if (arts.allArticles) {
-        var li2 = el("li"); li2.appendChild(link("index/ancients.html", "All articles")); au.appendChild(li2);
-      } else {
-        arts.paths.forEach(function (path) {
-          var li = el("li");
-          var a = link(path, prettyPath(path));
-          li.appendChild(a);
-          au.appendChild(li);
-          doc(path).then(function (d) {
-            var t = text(d.querySelector(".art-title h1")) || text(d.querySelector("h1"));
-            if (t) a.textContent = t;
-          }).catch(function () {});
-        });
-      }
-    }
-
-    /* Secrets: only for a viewer who has unlocked this player's seal (the player, or the GM).
-       Titles from visibility.json at runtime — never static plaintext of sealed content. */
+    /* Combined edit + secret cards (one section, no separate Editor/Secrets). */
+    var bag = {}; /* path -> { path, title, edit, secret, link } */
+    articlesFor(profiles, slug).forEach(function (path) {
+      if (inCharacters[path]) return;
+      bag[path] = { path: path, title: prettyPath(path), edit: true, secret: false, link: true };
+    });
     var v = viewer(), vGM = (vis.admins || []).indexOf(v) >= 0;
     if (v && (v === slug || vGM)) {
       var mine = secretsFor(vis, slug), theirs = {};
       secretsFor(vis, v).forEach(function (s) { theirs[s.id] = 1; });
-      mine = mine.filter(function (s) { return theirs[s.id] && s.title; });
-      if (mine.length) {
-        root.appendChild(el("h2", null, "Secrets"));
-        var su = el("ul", "nt-pl-list"); root.appendChild(su);
-        mine.forEach(function (s) {
-          var li = el("li");
-          li.appendChild((vGM || s.owner === v) && s.path ? link(s.path, s.title) : el("span", null, s.title));
-          su.appendChild(li);
-        });
-      }
+      mine.forEach(function (s) {
+        if (!theirs[s.id] || !s.title) return;
+        var path = s.path || "";
+        if (path && inCharacters[path]) return;
+        var key = path || ("secret:" + s.id);
+        var canLink = !!(path && (vGM || s.owner === v));
+        if (bag[key]) {
+          bag[key].secret = true;
+          bag[key].title = s.title || bag[key].title;
+          if (!canLink) bag[key].link = false;
+        } else {
+          bag[key] = { path: path, title: s.title, edit: false, secret: true, link: canLink };
+        }
+      });
+    }
+    var items = Object.keys(bag).map(function (k) { return bag[k]; });
+    items.sort(function (a, b) { return (a.title || "").localeCompare(b.title || ""); });
+    if (items.length) {
+      var row = el("div", "nt-pl-chars");
+      row.setAttribute("aria-label", "Edit and secrets");
+      root.appendChild(row);
+      items.forEach(function (it) {
+        var box = el("div", "nt-pl-char"); row.appendChild(box);
+        fillComboCard(box, it.path, it.title, it.link, { edit: it.edit, secret: it.secret });
+      });
     }
   }).catch(function () {});
 })();
