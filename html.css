@@ -5084,26 +5084,37 @@ body.login-page #login-elorae {
 @media (max-width: 800px) {
   body.login-page #login-elorae { top: 22px; } /* match Guest bottom inset (phone) */
 }
-/* Quiet rule under ELORAE on every login step.
-   Use a real .login-elorae-rule span (not only ::after): 1px background
-   hairlines can vanish on some displays; border-top is reliable.
-   Scoped to body.login-page only. */
-body.login-page #login-elorae .login-elorae-rule,
-body.login-page #login-elorae::after {
-  content: "";
+/* Quiet rule under ELORAE on every login step (phrase / welcome / Connect).
+   Sibling of #login-elorae (not nested) so the Welcome stage cannot cover it;
+   absolute + high z-index keeps it above .login-swap. Shorter than content column. */
+body.login-page #login-elorae {
+  z-index: 5;
+}
+body.login-page .login-box > .login-elorae-rule {
+  position: absolute;
+  left: 50%;
+  top: calc(28px + 1.2em + 8px); /* under ELORAE text; matches desktop top inset */
+  transform: translateX(-50%);
+  z-index: 5;
   display: block;
   box-sizing: border-box;
-  width: min(280px, 72%);
+  width: min(140px, 42%);
   height: 0;
-  margin: 14px auto 0;
+  margin: 0;
   border: 0;
-  border-top: 1px solid rgba(243, 238, 230, 0.22);
+  border-top: 1px solid rgba(243, 238, 230, 0.2);
   background: none;
   pointer-events: none;
 }
-body.login-page #login-elorae:has(.login-elorae-rule)::after {
-  content: none;
-  display: none;
+@media (max-width: 800px) {
+  body.login-page .login-box > .login-elorae-rule {
+    top: calc(22px + 1.2em + 8px);
+    width: min(120px, 40%);
+  }
+}
+body.login-page .login-swap {
+  z-index: 1;
+  padding-top: 4px; /* title+rule stay in the absolute layer above */
 }
 body.login-page #login-form {
   position: absolute;
