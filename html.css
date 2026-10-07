@@ -5098,7 +5098,9 @@ body.login-page .login-box > .login-elorae-rule {
   z-index: 5;
   display: block;
   box-sizing: border-box;
-  width: min(140px, 42%);
+  /* Phrase/token inputs are max 280px — keep the rule ~half that, never full field width */
+  width: 154px; /* ≈55% of 280px */
+  max-width: 55%;
   height: 0;
   margin: 0;
   border: 0;
@@ -5109,7 +5111,8 @@ body.login-page .login-box > .login-elorae-rule {
 @media (max-width: 800px) {
   body.login-page .login-box > .login-elorae-rule {
     top: calc(22px + 1.2em + 8px);
-    width: min(120px, 40%);
+    width: 132px; /* ≈55% of phone input max */
+    max-width: 50%;
   }
 }
 body.login-page .login-swap {
