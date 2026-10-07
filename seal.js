@@ -228,7 +228,9 @@ function sealClearErr() {
 function hideGithubUI() {
   var actions = document.getElementById("seal-gh-actions");
   var status = document.getElementById("seal-gh-status");
+  var btn = document.getElementById("seal-github");
   if (actions) actions.hidden = true;
+  if (btn) btn.hidden = true;
   if (status) { status.hidden = true; status.textContent = ""; status.removeAttribute("data-kind"); }
   var prof = document.getElementById("profile-gh-actions");
   if (prof) prof.hidden = true;
@@ -298,15 +300,19 @@ function ensureProfileGithub(who) {
 function syncGithubUI(who) {
   if (!who || isGuest()) { hideGithubUI(); return; }
 
-  /* Seal page: Connect lives under Welcome when GitHub is not yet linked. */
+  /* Seal page: Connect only under Welcome after phrase sign-in (never on phrase/guest). */
   if (document.body.classList.contains("seal-page")) {
     var sealActions = document.getElementById("seal-gh-actions");
     var sealBtn = document.getElementById("seal-github");
+    var welcome = document.getElementById("seal-welcome");
+    var form = document.getElementById("seal-form");
     var prof = document.getElementById("profile-gh-actions");
     if (prof) prof.hidden = true;
     if (!sealActions) return;
-    if (githubConnected()) {
+    var onWelcome = !!(who && welcome && !welcome.hidden && form && form.hidden);
+    if (!onWelcome || githubConnected()) {
       sealActions.hidden = true;
+      if (sealBtn) sealBtn.hidden = true;
     } else {
       sealActions.hidden = false;
       if (sealBtn) sealBtn.hidden = false;

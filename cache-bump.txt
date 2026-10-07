@@ -1,1 +1,1 @@
-seal-welcome
+connect-welcome-only

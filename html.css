@@ -4872,6 +4872,17 @@ body.player-page #nt-player {
 }
 
 
+/* Phrase-page: .seal-actions {display:flex} must not override HTML [hidden]
+   (same specificity as UA [hidden]; author rule wins and leaked Connect on login prompt). */
+body.seal-page #seal-gh-actions[hidden],
+body.seal-page #seal-welcome[hidden],
+body.seal-page #seal-gh-status[hidden],
+body.seal-page #seal-guest[hidden],
+body.seal-page #seal-err[hidden],
+body.seal-page .seal-actions[hidden] {
+  display: none !important;
+}
+
 /* Seal login chrome: phrase + sign-in only — no friend/player names in the mast. */
 body.seal-page .mast .friend{display:none!important}
 body.seal-page .mast .nt-pmark{display:none!important}
