@@ -281,8 +281,8 @@ async function signInViaPanel(page, token) {
       const nb = S.sourceBlocks(put2)[blocks.findIndex((x) => x === blocks.filter((y) => y.tag === "p")[0]) >= 0 ? 0 : 0];
       const p4 = S.sourceBlocks(put2).filter((x) => x.tag === "p")[5].inner; // description p, lore? computed below
       const all = S.sourceBlocks(put2).map((x) => x.inner).join("\n");
-      const ok = !/<script|<style|onerror|onclick|onmouseover|javascript:|<iframe|<img|style=/i.test(all) && /<b>bold<\/b>/.test(all) && /<a href="\.\.\/articles\/saoirse\.html">ok<\/a>/.test(all) && /<a>bad<\/a>/.test(all) && /<br>line/.test(all);
-      check("sanitizer: strips script/style/img/iframe/event handlers/javascript: and keeps b, a[href], br", ok, (all.match(/X<b>.*?line/) || [""])[0]);
+      const ok = !/<script|<style|onerror|onclick|onmouseover|javascript:|<iframe|style=/i.test(all) && /<b>bold<\/b>/.test(all) && /<a href="\.\.\/articles\/saoirse\.html">ok<\/a>/.test(all) && /<a>bad<\/a>/.test(all) && /<br>line/.test(all) && /<img src="x"/.test(all) && !/<img[^>]*onerror/i.test(all);
+      check("sanitizer: strips script/style/iframe/handlers/javascript:; keeps b, a[href], br, safe img", ok, (all.match(/X[\s\S]*?line/) || [""])[0]);
       await ctx.close();
     }
 

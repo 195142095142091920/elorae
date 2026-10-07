@@ -5053,3 +5053,26 @@ body.login-page .login-swap {
   min-height: 0;
   width: 100%;
 }
+
+/* Rich edit spans (paste/toolbar); safe in articles + journal */
+body.article .art-body .ee-h2, body.book .read .ee-h2, body.journal-page .read .ee-h2, body.lore-page .read .ee-h2 {
+  display: block; margin: 0.85em 0 0.35em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: #8f8a82;
+}
+body.article .art-body .ee-h3, body.book .read .ee-h3, body.journal-page .read .ee-h3, body.lore-page .read .ee-h3 {
+  display: block; margin: 0.7em 0 0.3em;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-size: 1.05em; font-style: italic; font-weight: 400; color: #f3eee6;
+}
+body.article .art-body .ee-caption, body.book .read .ee-caption, body.journal-page .read .ee-caption, body.lore-page .read .ee-caption {
+  display: block; margin: 0.35em 0 0.6em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px; letter-spacing: 0.08em; color: #8f8a82;
+}
+body.article .art-body .ee-quote, .read .ee-quote { display: block; margin: 0.5em 0; font-style: italic; color: #e4ddd2; }
+body.article .art-body .ee-serif, .read .ee-serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; }
+body.article .art-body .ee-sans, .read .ee-sans { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+body.article .art-body .ee-size-sm, .read .ee-size-sm { font-size: 0.85em; }
+body.article .art-body .ee-size-lg, .read .ee-size-lg { font-size: 1.2em; }
+body.article .art-body img, body.book .read img, body.journal-page .read img { max-width: 100%; height: auto; }

@@ -743,10 +743,219 @@
     }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") { e.preventDefault(); save(); }
   }
+  function isTitleField(el) {
+    return !!(el && el.closest && el.closest(".art-title"));
+  }
+  function clipboardImageFiles(cd) {
+    var out = [], i, f, items;
+    if (!cd) return out;
+    if (cd.files && cd.files.length) {
+      for (i = 0; i < cd.files.length; i++) {
+        f = cd.files[i];
+        if (f && /^image\//.test(f.type)) out.push(f);
+      }
+    }
+    if (!out.length && cd.items) {
+      items = cd.items;
+      for (i = 0; i < items.length; i++) {
+        if (items[i].kind === "file" && /^image\//.test(items[i].type || "")) {
+          f = items[i].getAsFile();
+          if (f) out.push(f);
+        }
+      }
+    }
+    return out;
+  }
+  // Turn pasted Word/web HTML into leaf-block-safe markup (inline + br + img).
+  function sanitizePasteHtml(html) {
+    var wrap = document.createElement("div");
+    wrap.innerHTML = String(html || "");
+    // Drop Word cruft.
+    Array.prototype.slice.call(wrap.querySelectorAll("style,meta,link")).forEach(function (n) { n.remove(); });
+    function flatten(node) {
+      var out = document.createElement("div");
+      function walk(src, dst) {
+        Array.prototype.forEach.call(src.childNodes, function (ch) {
+          if (ch.nodeType === 3) { dst.appendChild(document.createTextNode(ch.nodeValue)); return; }
+          if (ch.nodeType !== 1) return;
+          var tag = ch.tagName.toLowerCase();
+          if (DROP[tag] && tag !== "img") return;
+          if (tag === "br") { dst.appendChild(document.createElement("br")); return; }
+          if (tag === "img") {
+            var srcAttr = safeSrc(ch.getAttribute("src") || ch.getAttribute("data-src"));
+            if (!srcAttr) return;
+            var im = document.createElement("img");
+            im.setAttribute("src", srcAttr);
+            var alt = ch.getAttribute("alt");
+            if (alt) im.setAttribute("alt", alt);
+            dst.appendChild(im);
+            return;
+          }
+          if (INLINE[tag] || tag === "span") {
+            var n = document.createElement(tag === "b" ? "strong" : tag === "i" ? "em" : tag);
+            if (tag === "a") {
+              var h = safeHref(ch.getAttribute("href"));
+              if (h != null) n.setAttribute("href", h);
+            }
+            var cls = ch.getAttribute("class");
+            if (cls && /^[\w\- ]+$/.test(cls)) n.setAttribute("class", cls);
+            walk(ch, n);
+            dst.appendChild(n);
+            return;
+          }
+          if (tag === "h2" || tag === "h3") {
+            var hs = document.createElement("span");
+            hs.className = tag === "h2" ? "ee-h2" : "ee-h3";
+            walk(ch, hs);
+            if (dst.childNodes.length) dst.appendChild(document.createElement("br"));
+            dst.appendChild(hs);
+            dst.appendChild(document.createElement("br"));
+            return;
+          }
+          if (tag === "blockquote") {
+            var qs = document.createElement("span");
+            qs.className = "ee-quote";
+            walk(ch, qs);
+            if (dst.childNodes.length) dst.appendChild(document.createElement("br"));
+            dst.appendChild(qs);
+            dst.appendChild(document.createElement("br"));
+            return;
+          }
+          if (tag === "li") {
+            if (dst.childNodes.length) dst.appendChild(document.createElement("br"));
+            dst.appendChild(document.createTextNode("• "));
+            walk(ch, dst);
+            return;
+          }
+          if (tag === "p" || tag === "div" || tag === "ul" || tag === "ol" || tag === "figure" || tag === "figcaption" || /^h[1-6]$/.test(tag)) {
+            if (dst.childNodes.length) dst.appendChild(document.createElement("br"));
+            if (tag === "figcaption") {
+              var cap = document.createElement("span");
+              cap.className = "ee-caption";
+              walk(ch, cap);
+              dst.appendChild(cap);
+            } else walk(ch, dst);
+            return;
+          }
+          walk(ch, dst);
+        });
+      }
+      walk(node, out);
+      return out.innerHTML;
+    }
+    // Run through save sanitizer for final attribute safety.
+    var flat = flatten(wrap);
+    var tmp = document.createElement("div");
+    tmp.innerHTML = flat;
+    return sanitize(tmp, "p", flat);
+  }
+  function insertAtCaret(html) {
+    var sel = window.getSelection && window.getSelection();
+    if (sel && sel.rangeCount && state.editing) {
+      var node = sel.anchorNode;
+      var el = node && (node.nodeType === 1 ? node : node.parentElement);
+      if (el && el.closest && el.closest(".ee-editable") && !isTitleField(el)) {
+        document.execCommand("insertHTML", false, html);
+        return true;
+      }
+    }
+    var first = document.querySelector(".ee-editable:not(.art-title .ee-editable)");
+    if (!first) first = document.querySelector("main.art-body .ee-editable, main.read .ee-editable");
+    if (first) { first.insertAdjacentHTML("beforeend", html); return true; }
+    return false;
+  }
+  function uploadPasteFile(file) {
+    if (!Media) return Promise.reject(new Error("Media helpers not loaded."));
+    editBar("Uploading pasted image…", "ee-busy");
+    return Media.validateFile(file).then(function (info) {
+      return E.getFile(Media.CATALOG).then(function (f) {
+        return { info: info, catalog: JSON.parse(f.text) };
+      }, function () { return { info: info, catalog: { version: 1, media: {} } }; });
+    }).then(function (ctx) {
+      var who = (state.profile && state.profile.person) || "devin";
+      var prep = Media.prepareUpload(ctx.catalog, ctx.info, {
+        title: ctx.info.name, tags: ["paste"], owner: who, uploadedBy: who,
+        everyone: true, allowed: Media.PEOPLE.slice()
+      });
+      return E.commitFiles(prep.files, "Media: paste-upload " + prep.id + " [edit-mode]", E.BRANCH).then(function () {
+        return prep.entry;
+      });
+    });
+  }
+  function dataUrlToFile(dataUrl, name) {
+    var m = /^data:(image\/[a-z0-9.+-]+);base64,(.+)$/i.exec(dataUrl || "");
+    if (!m) return null;
+    var bin = atob(m[2]), u8 = new Uint8Array(bin.length), i;
+    for (i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    var mime = m[1].toLowerCase();
+    try { return new File([u8], name || "paste.png", { type: mime }); }
+    catch (e) { return new Blob([u8], { type: mime }); }
+  }
+  function rewriteDataImages(html) {
+    if (!Media || !P.isAdmin(state.profile)) return Promise.resolve(html);
+    var wrap = document.createElement("div");
+    wrap.innerHTML = html;
+    var imgs = Array.prototype.slice.call(wrap.querySelectorAll("img"));
+    var chain = Promise.resolve();
+    imgs.forEach(function (im, idx) {
+      var src = im.getAttribute("src") || "";
+      if (!/^data:image\//i.test(src)) return;
+      chain = chain.then(function () {
+        var file = dataUrlToFile(src, "paste-" + (idx + 1) + ".png");
+        if (!file) return;
+        // Blob may lack .name — wrap for validateFile
+        if (!file.name) {
+          try { file = new File([file], "paste-" + (idx + 1) + ".png", { type: file.type }); }
+          catch (e) { return; }
+        }
+        return uploadPasteFile(file).then(function (entry) {
+          im.setAttribute("src", gallerySrc(entry));
+          if (entry.title && !im.getAttribute("alt")) im.setAttribute("alt", entry.title);
+        });
+      });
+    });
+    return chain.then(function () { return wrap.innerHTML; });
+  }
   function onPaste(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;
     e.preventDefault();
-    var t = (e.clipboardData || window.clipboardData).getData("text/plain");
+    var cd = e.clipboardData || window.clipboardData;
+    if (isTitleField(e.target)) {
+      var plain = cd ? cd.getData("text/plain") : "";
+      document.execCommand("insertText", false, plain.replace(/\s+/g, " ").trim());
+      return;
+    }
+    var files = clipboardImageFiles(cd);
+    if (files.length && Media && P.isAdmin(state.profile)) {
+      var seq = Promise.resolve();
+      files.forEach(function (file) {
+        seq = seq.then(function () {
+          return uploadPasteFile(file).then(function (entry) {
+            var rel = gallerySrc(entry);
+            var imgHtml = '<img src="' + rel.replace(/"/g, "") + '" alt="' + String(entry.title || "").replace(/"/g, "") + '">';
+            insertAtCaret(imgHtml);
+          });
+        });
+      });
+      seq.then(function () { editBar("Pasted image uploaded — Save to commit body"); },
+        function (err) { editBar(err.message || "Paste upload failed.", "ee-bad-bar"); });
+      return;
+    }
+    var html = cd ? cd.getData("text/html") : "";
+    if (html && /<[a-z]/i.test(html)) {
+      var cleaned = sanitizePasteHtml(html);
+      rewriteDataImages(cleaned).then(function (finalHtml) {
+        if (!finalHtml) {
+          var t = cd.getData("text/plain");
+          document.execCommand("insertText", false, t);
+          return;
+        }
+        insertAtCaret(finalHtml);
+        editBar("Rich paste inserted — Save to commit");
+      }, function () { insertAtCaret(cleaned); });
+      return;
+    }
+    var t = cd ? cd.getData("text/plain") : "";
     document.execCommand("insertText", false, t);
   }
   function onClick(e) {
@@ -772,12 +981,23 @@
 
   /* ---------------- Sanitizer ---------------- */
   var INLINE = { a: 1, em: 1, strong: 1, i: 1, b: 1, u: 1, s: 1, sub: 1, sup: 1, small: 1, span: 1, code: 1, cite: 1, q: 1, abbr: 1 };
-  var DROP = { script: 1, style: 1, iframe: 1, object: 1, embed: 1, svg: 1, math: 1, template: 1, noscript: 1, link: 1, meta: 1, img: 1, video: 1, audio: 1, canvas: 1, form: 1, input: 1, button: 1, select: 1, textarea: 1, frame: 1, frameset: 1, base: 1 };
+  var DROP = { script: 1, style: 1, iframe: 1, object: 1, embed: 1, svg: 1, math: 1, template: 1, noscript: 1, link: 1, meta: 1, video: 1, audio: 1, canvas: 1, form: 1, input: 1, button: 1, select: 1, textarea: 1, frame: 1, frameset: 1, base: 1 };
   var NESTS = { blockquote: 1, li: 1, dd: 1, td: 1, th: 1 };
   function safeHref(h) {
     var v = String(h || "").replace(/[\u0000-\u001F\u007F\s]+/g, "");
     if (/^[a-z][a-z0-9+.-]*:/i.test(v) && !/^(https?|mailto):/i.test(v)) return null;
     return String(h).trim();
+  }
+  function safeSrc(s) {
+    var raw = String(s == null ? "" : s).trim();
+    if (!raw) return null;
+    var v = raw.replace(/[\u0000-\u001F\u007F\s]+/g, "");
+    if (/^(javascript|vbscript|file):/i.test(v)) return null;
+    if (/^data:/i.test(v)) {
+      return /^data:image\/(png|jpe?g|gif|webp|avif)/i.test(v) ? raw : null;
+    }
+    if (/^[a-z][a-z0-9+.-]*:/i.test(v) && !/^https?:/i.test(v)) return null;
+    return raw;
   }
   function sanitize(node, blockTag, originalCanon) {
     var out = document.createElement("div");
@@ -789,7 +1009,16 @@
         if (h != null) to.setAttribute("href", h);
         if (from.getAttribute("target") === "_blank") { to.setAttribute("target", "_blank"); to.setAttribute("rel", "noopener"); }
       }
+      if (tag === "img") {
+        var src = safeSrc(from.getAttribute("src"));
+        if (src == null) return false;
+        to.setAttribute("src", src);
+        var alt = from.getAttribute("alt");
+        if (alt != null) to.setAttribute("alt", alt);
+        return true;
+      }
       if ((tag === "a" || tag === "abbr") && from.getAttribute("title")) to.setAttribute("title", from.getAttribute("title"));
+      return true;
     }
     function walk(src, dst) {
       Array.prototype.forEach.call(src.childNodes, function (ch) {
@@ -798,6 +1027,12 @@
         var tag = ch.tagName.toLowerCase();
         if (DROP[tag]) return;
         if (tag === "br") { dst.appendChild(document.createElement("br")); return; }
+        if (tag === "img") {
+          var im = document.createElement("img");
+          if (!copyAttrs(ch, im, "img")) return;
+          dst.appendChild(im);
+          return;
+        }
         if (INLINE[tag]) { var n = document.createElement(tag); copyAttrs(ch, n, tag); walk(ch, n); dst.appendChild(n); return; }
         if ((tag === "p" || tag === "blockquote") && NESTS[blockTag]) { var b = document.createElement(tag); copyAttrs(ch, b, tag); walk(ch, b); dst.appendChild(b); return; }
         // any other block (div from Enter, p inside p, etc.): unwrap onto a new line

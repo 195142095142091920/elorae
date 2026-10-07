@@ -190,3 +190,29 @@ body.ee-page a { color: #f3eee6; }
 .ee-gal-item span { padding: 0 6px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ee-gal-up { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2a2824; }
 .ee-gal-up .ee-sub { margin-bottom: 6px; }
+
+/* Rich body: inline images + paste/toolbar spans */
+.ee-editable img,
+.art-body img.ee-inline,
+main.read .ee-editable img { max-width: 100%; height: auto; vertical-align: middle; }
+.ee-h2 {
+  display: block; margin: 0.85em 0 0.35em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: #8f8a82;
+}
+.ee-h3 {
+  display: block; margin: 0.7em 0 0.3em;
+  font-family: "Iowan Old Style", Palatino, serif;
+  font-size: 1.05em; font-style: italic; font-weight: 400; color: #f3eee6;
+}
+.ee-caption {
+  display: block; margin: 0.35em 0 0.6em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px; letter-spacing: 0.08em; color: #8f8a82;
+}
+.ee-quote { display: block; margin: 0.5em 0; font-style: italic; color: #e4ddd2; }
+.ee-serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; }
+.ee-sans { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.ee-size-sm { font-size: 0.85em; }
+.ee-size-md { font-size: 1em; }
+.ee-size-lg { font-size: 1.2em; }
