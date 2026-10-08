@@ -344,6 +344,9 @@
           n.classList.add("ee-locked");
           n.setAttribute("data-ee-lock", String(i));
         });
+        setupTitles(mainEl);
+        state.pending = {}; state.hero = null;
+        state.railRestore = E.closePhoneRail ? E.closePhoneRail() : null;
         document.documentElement.classList.add("ee-editing", "ee-page-editing");
         // New lines become real paragraphs (body size), not bare divs.
         try { document.execCommand("defaultParagraphSeparator", false, "p"); } catch (e0) {}
@@ -388,6 +391,7 @@
         r.el.setAttribute("spellcheck", "true");
         r.el.classList.add("ee-editable");
       });
+      state.pending = {}; state.hero = null; state.titles = [];
       document.documentElement.classList.add("ee-editing");
       document.addEventListener("keydown", onKey, true);
       document.addEventListener("paste", onPaste, true);
@@ -403,6 +407,34 @@
       $("ee-x").onclick = closeBar;
     }).then(function () { state.busy = false; });
   }
+  /* Hero name + epithet: admins, and players on their own page. Inside main they are
+     saved with the body; in the hero (most articles) they are their own small regions. */
+  function titlesAllowed() { return !!(state.profile && P.ownsPage && P.ownsPage(state.profile, PATH)); }
+  function setupTitles(mainEl) {
+    state.titles = [];
+    var ok = titlesAllowed();
+    Array.prototype.forEach.call(document.querySelectorAll(".art-title"), function (t) {
+      if (t.closest("#ee-panel,#ee-bar")) return;
+      if (mainEl.contains(t)) {
+        if (!ok) { t.setAttribute("contenteditable", "false"); t.classList.add("ee-locked"); }
+        return;
+      }
+      if (!ok) return;
+      [["h1", t.querySelector("h1")], ["epithet", t.querySelector(".art-epithet")]].forEach(function (pair) {
+        var n = pair[1];
+        if (!n) return;
+        n.setAttribute("contenteditable", "true");
+        n.setAttribute("spellcheck", "true");
+        n.classList.add("ee-editable", "ee-title-edit");
+        state.titles.push({ kind: pair[0], el: n, original: n.innerHTML, text: norm(n.textContent) });
+      });
+    });
+  }
+  function noEndPeriod(el) {
+    var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), t, last = null;
+    while ((t = w.nextNode())) if (/\S/.test(t.nodeValue)) last = t;
+    if (last && /\.\s*$/.test(last.nodeValue)) last.nodeValue = last.nodeValue.replace(/\.\s*$/, "");
+  }
   function editBar(msg, cls) {
     var mode = P.saveMode(state.profile) === "direct" ? "Saves to the live site" : "Saves as a pull request";
     var admin = P.isAdmin(state.profile);
@@ -410,7 +442,7 @@
       ? '<button type="button" class="ee-btn" id="ee-art">Art</button>' : '';
     var shareBtn = (admin && V) ? '<button type="button" class="ee-btn" id="ee-share">Share</button>' : '';
     var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
-    var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart">New article</button>' : '';
+    var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart" aria-label="New article">New<span class="ee-wide-only"> article</span></button>' : '';
     bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
       artBtn + shareBtn + ownerBtn + newBtn +
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
@@ -456,6 +488,10 @@
     try { savedStyleRange = sel.getRangeAt(0).cloneRange(); } catch (e) {}
   }
   function restoreStyleRange() {
+    // The live selection wins when it is still in the text (the saved copy can lag a
+    // selectionchange behind); the saved one is for when a control took the selection.
+    var cur = selectionEditable();
+    if (cur && (!state.page || cur === state.page.el)) { captureStyleRange(); return true; }
     var ed = null;
     if (savedStyleRange) {
       try {
@@ -823,10 +859,23 @@
   function applyBlockStyle(id) {
     if (!id) return;
     if (state.page) {
-      if (id === "p") { document.execCommand("formatBlock", false, "p"); markDirty(); return; }
-      if (id === "h2") { document.execCommand("formatBlock", false, "h2"); markDirty(); return; }
-      if (id === "h3") { document.execCommand("formatBlock", false, "h3"); markDirty(); return; }
       if (id === "cap") { applyFamily("cap", "cap"); return; }
+      // Heading = the page's own section heading (h2), Subheading = h3; both take the
+      // page's real heading styles. formatBlock keeps native undo but drops classes, so
+      // paragraphs get their body class (art-life …) back and headings carry none.
+      var tag = { p: "p", h2: "h2", h3: "h3" }[id];
+      if (!tag) return;
+      var sel = window.getSelection(), root = state.page.el;
+      if (!sel || !sel.rangeCount || !root.contains(sel.getRangeAt(0).commonAncestorContainer)) return;
+      var r0 = sel.getRangeAt(0);
+      var blocks = targetBlocks(r0, root).filter(function (b) { return /^(P|H[1-6]|DIV)$/.test(b.tagName); });
+      if (!blocks.length) return;
+      document.execCommand("formatBlock", false, tag);
+      var r1 = sel.rangeCount ? sel.getRangeAt(0) : null;
+      if (r1) targetBlocks(r1, root).forEach(fixBlockClass);
+      var lf = leafOf(selNode(), root);
+      if (lf) fixBlockClass(lf);
+      markDirty();
       return;
     }
     applyFamily("head", id === "p" ? "" : id);
@@ -1150,7 +1199,8 @@
   }
 
   function gallerySrc(entry) {
-    return Media.srcFromArticle(PATH, entry.path);
+    // Root-absolute (like the site's own /assets/ URLs), so both copies of a page agree.
+    return new URL(E.ROOT).pathname + entry.path;
   }
 
   function renderGallery(catalog) {
@@ -1158,9 +1208,7 @@
     if (!b) return;
     var allItems = Media.listVisible(catalog, "devin", true);
     var hasHero = !!document.querySelector(".art-hero img");
-    var applyHint = hasHero
-      ? "Click a thumbnail to set this page's hero. Or upload a new file."
-      : "Click a thumbnail to insert it at the caret (while editing), or upload a new file. This page has no art-hero — use Insert.";
+    var act = hasHero ? (state.galAct || "hero") : "insert";
     function matchItem(m, q) {
       if (!q) return true;
       var hay = [m.id, m.title, m.path].concat(Array.isArray(m.tags) ? m.tags : []).join(" ").toLowerCase();
@@ -1189,14 +1237,19 @@
           var id = btn.getAttribute("data-gal-id");
           var entry = catalog.media[id];
           if (!entry) return;
-          if (hasHero) applyCatalogToHero(entry);
+          if (act === "hero") applyCatalogToHero(entry);
           else insertCatalogImage(entry);
         };
       });
     }
     b.innerHTML =
       '<p class="ee-k">Art</p>' +
-      '<p class="ee-note">' + applyHint + ' Visibility only gates the editor gallery — <code>assets/</code> URLs stay public on Pages.</p>' +
+      (hasHero
+        ? '<p class="ee-gal-act" role="radiogroup" aria-label="Click a picture to">' +
+          '<label><input type="radio" name="ee-gal-act" value="hero"' + (act === "hero" ? " checked" : "") + '> Hero</label>' +
+          '<label><input type="radio" name="ee-gal-act" value="insert"' + (act === "insert" ? " checked" : "") + '> Insert at caret</label></p>'
+        : '') +
+      '<p class="ee-note">Nothing is published until you press Save.</p>' +
       '<label class="ee-gal-search-label" for="ee-gal-search">Search</label>' +
       '<input type="search" id="ee-gal-search" class="ee-field" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
       '<div id="ee-gal-wrap">' + gridHtml(allItems) + '</div>' +
@@ -1206,13 +1259,19 @@
       '<input type="text" id="ee-art-title" class="ee-field" placeholder="Title (optional)" autocomplete="off">' +
       '<input type="text" id="ee-art-tags" class="ee-field" placeholder="Tags (comma-separated)" autocomplete="off">' +
       '<label class="ee-check"><input type="checkbox" id="ee-art-everyone" checked> Everyone can use in the editor</label>' +
-      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary">' + (hasHero ? "Upload &amp; replace hero" : "Upload &amp; insert") + '</button>' +
+      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary" id="ee-art-up">' + (act === "hero" ? "Use as hero" : "Insert") + '</button>' +
       '<button type="button" class="ee-btn" id="ee-art-back">Back</button></div>' +
       '<p class="ee-err" id="ee-art-err" hidden></p></form>';
     $("ee-art-back").onclick = function () { closePanel(); };
+    Array.prototype.forEach.call(b.querySelectorAll('input[name="ee-gal-act"]'), function (r) {
+      r.onchange = function () {
+        act = state.galAct = r.value;
+        $("ee-art-up").textContent = act === "hero" ? "Use as hero" : "Insert";
+      };
+    });
     $("ee-art-form").onsubmit = function (e) {
       e.preventDefault();
-      replaceHeroImage(hasHero ? "hero" : "insert");
+      replaceHeroImage(act);
     };
     bindThumbs(b);
     var search = $("ee-gal-search");
@@ -1229,69 +1288,134 @@
     }
   }
 
-  function applyCatalogToHero(entry) {
-    var hero = document.querySelector(".art-hero img");
-    if (!hero) return;
-    var rel = gallerySrc(entry);
-    bar('<span class="ee-msg">Setting hero…</span>');
-    E.getFile(PATH).then(function (page) {
-      var html = page.text;
-      var re = /(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\ssrc=")([^"]+)(")/i;
-      if (!re.test(html)) throw new Error("Could not find the hero image in the page source.");
-      var nextHtml = html.replace(re, function (m, a, _old, c) { return a + rel + c; });
-      if (entry.title) {
-        nextHtml = nextHtml.replace(/(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\salt=")([^"]*)(")/i, function (m, a, _o, c) {
-          return a + String(entry.title).replace(/"/g, "") + c;
-        });
-      }
-      return E.commitFiles([{ path: PATH, text: nextHtml }], "Media: set hero on " + PATH + " to " + entry.path + " [edit-mode]", E.BRANCH).then(function () {
-        hero.src = rel;
-        if (entry.title) hero.alt = entry.title;
-        closePanel();
-        // Back to the normal edit bar (Save/Cancel); no bare Close that strands edit mode.
-        if (state.editing) editBar("Hero set from gallery · live in about 1–2 minutes", "ee-done");
-        else doneBar("Hero set from gallery · live in about 1–2 minutes");
-      });
-    }).catch(function (e) {
-      editBar();
-      openArtPanel();
-      setTimeout(function () {
-        var err = $("ee-art-err");
-        if (err) { err.textContent = e.message || "Failed."; err.hidden = false; }
-      }, 0);
+  /* Hero art: a gallery pick (or a new upload) only previews on the page; it is written
+     with the rest of the page when you press Save, and Cancel puts the old art back. */
+  function heroImg() { return document.querySelector(".art-hero img"); }
+  function setHeroPreview(src, alt, pending) {
+    var hero = heroImg();
+    if (!hero) return false;
+    if (!state.hero) {
+      state.hero = { el: hero, orig: {} };
+      ["src", "srcset", "sizes", "alt"].forEach(function (a) { state.hero.orig[a] = hero.getAttribute(a); });
+    }
+    state.hero.src = src; state.hero.alt = alt || null; state.hero.pending = pending || null;
+    hero.removeAttribute("srcset"); hero.removeAttribute("sizes");
+    hero.setAttribute("src", pending ? pending.url : src);
+    if (alt) hero.setAttribute("alt", alt);
+    markDirty();
+    return true;
+  }
+  function restoreHero() {
+    var h = state.hero;
+    if (!h) return;
+    ["src", "srcset", "sizes", "alt"].forEach(function (a) {
+      if (h.orig[a] == null) h.el.removeAttribute(a); else h.el.setAttribute(a, h.orig[a]);
     });
+    state.hero = null;
+  }
+  function applyCatalogToHero(entry) {
+    if (!setHeroPreview(gallerySrc(entry), entry.title || "")) return;
+    closePanel();
+    editBar("Hero preview \u00b7 Save to publish it, Cancel to keep the old art");
   }
 
+  // Insert at the caret where it was before the gallery opened (not at the page end).
+  function insertImageHtml(imgHtml) {
+    if (!state.editing) return false;
+    restoreStyleRange();
+    var n = selNode();
+    if (n && n.closest && n.closest(".ee-editable") && !isTitleField(n) && !n.closest(".ee-locked")) {
+      document.execCommand("insertHTML", false, imgHtml);
+      captureStyleRange();
+      return true;
+    }
+    var first = (state.page && state.page.el) || document.querySelector(".ee-editable:not(.art-title .ee-editable)");
+    if (first) { first.insertAdjacentHTML("beforeend", imgHtml); return true; }
+    return false;
+  }
   function insertCatalogImage(entry) {
     var rel = gallerySrc(entry);
-    var imgHtml = '<img src="' + rel.replace(/"/g, "") + '" alt="' + String(entry.title || "").replace(/"/g, "") + '">';
-    // Prefer caret inside an editable block; else append to first editable.
-    var sel = window.getSelection && window.getSelection();
-    var ok = false;
-    if (sel && sel.rangeCount && state.editing) {
-      var node = sel.anchorNode;
-      var el = node && (node.nodeType === 1 ? node : node.parentElement);
-      if (el && el.closest && el.closest(".ee-editable")) {
-        document.execCommand("insertHTML", false, imgHtml);
-        ok = true;
-      }
-    }
-    if (!ok && state.editing) {
-      var first = document.querySelector(".ee-editable");
-      if (first) { first.insertAdjacentHTML("beforeend", imgHtml); ok = true; }
-    }
-    if (!ok) {
+    var imgHtml = '<img src="' + esc(rel) + '" alt="' + esc(entry.title || "") + '">';
+    if (!insertImageHtml(imgHtml)) {
       var err = $("ee-art-err");
       if (err) { err.textContent = "Enter edit mode and place the caret where the image should go."; err.hidden = false; }
       return;
     }
     closePanel();
     markDirty();
-    editBar("Image inserted — Save to commit");
+    editBar("Image inserted \u00b7 Save to publish");
+  }
+
+  /* Pending uploads: pasted / uploaded pictures show from memory (blob: URL) and are only
+     committed, together with the page, when you press Save. */
+  function addPending(file, meta) {
+    if (!Media) return Promise.reject(new Error("Media helpers not loaded."));
+    return Media.validateFile(file).then(function () {
+      state.pendingSeq = (state.pendingSeq || 0) + 1;
+      var key = "p" + state.pendingSeq;
+      var url = URL.createObjectURL(file);
+      state.pending = state.pending || {};
+      state.pending[key] = { key: key, file: file, url: url, meta: meta || {} };
+      return state.pending[key];
+    });
+  }
+  function pendingImgHtml(pd) {
+    return '<img src="' + esc(pd.url) + '" alt="' + esc(pd.meta.alt || "") + '" data-ee-pending="' + esc(pd.key) + '">';
+  }
+  function dropPending() {
+    Object.keys(state.pending || {}).forEach(function (k) { try { URL.revokeObjectURL(state.pending[k].url); } catch (e) {} });
+    state.pending = {};
+  }
+  // On Save: give every pending picture still on the page a real /assets/ path and
+  // return the files to commit (images + one catalog update).
+  function preparePending() {
+    var used = [];
+    var root = (state.page && state.page.el) || document;
+    Array.prototype.forEach.call(root.querySelectorAll("img[data-ee-pending]"), function (im) {
+      var pd = state.pending && state.pending[im.getAttribute("data-ee-pending")];
+      if (pd) used.push({ pd: pd, img: im });
+      else im.removeAttribute("data-ee-pending");
+    });
+    if (state.hero && state.hero.pending) used.push({ pd: state.hero.pending, hero: true });
+    if (!used.length) return Promise.resolve([]);
+    var who = (state.profile && state.profile.person) || "devin";
+    return E.getFile(Media.CATALOG).then(function (f) { return JSON.parse(f.text); }, function () { return { version: 1, media: {} }; }).then(function (catalog) {
+      var bins = [], seq = Promise.resolve();
+      used.forEach(function (u) {
+        seq = seq.then(function () { return Media.validateFile(u.pd.file); }).then(function (info) {
+          var m = u.pd.meta || {};
+          var prep = Media.prepareUpload(catalog, info, {
+            title: m.title || info.name, tags: m.tags || ["paste"], owner: who, uploadedBy: who,
+            everyone: m.everyone !== false, allowed: m.everyone === false ? [who] : Media.PEOPLE.slice()
+          });
+          catalog = prep.catalog;
+          bins.push(prep.files[1]);
+          u.rel = gallerySrc(prep.entry);
+          u.entry = prep.entry;
+        });
+      });
+      return seq.then(function () {
+        return { files: [{ path: Media.CATALOG, text: JSON.stringify(catalog, null, 2) + "\n" }].concat(bins), used: used };
+      });
+    });
+  }
+  // Real paths for the save; returns an undo that puts the in-memory previews back
+  // (the new files are not on the live site until Pages rebuilds).
+  function applyPending(prep) {
+    var back = [];
+    (prep.used || []).forEach(function (u) {
+      if (u.hero) { state.hero.src = u.rel; return; }
+      back.push([u.img, u.img.getAttribute("src"), u.img.getAttribute("data-ee-pending")]);
+      u.img.setAttribute("src", u.rel);
+      u.img.removeAttribute("data-ee-pending");
+    });
+    return function () {
+      back.forEach(function (b) { b[0].setAttribute("src", b[1]); b[0].setAttribute("data-ee-pending", b[2]); });
+    };
   }
 
   function replaceHeroImage(mode) {
-    mode = mode || (document.querySelector(".art-hero img") ? "hero" : "insert");
+    mode = mode || (heroImg() ? "hero" : "insert");
     var file = $("ee-art-file").files[0];
     var err = $("ee-art-err");
     function fail(m) { err.textContent = m; err.hidden = false; }
@@ -1299,52 +1423,90 @@
     var title = ($("ee-art-title").value || "").trim();
     var tags = ($("ee-art-tags").value || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
     var everyone = $("ee-art-everyone").checked;
-    var hero = document.querySelector(".art-hero img");
-    if (mode === "hero" && !hero) return fail("No hero image on this page.");
-    bar('<span class="ee-msg">Uploading art…</span>');
-    Media.validateFile(file).then(function (info) {
-      return E.getFile(Media.CATALOG).then(function (f) {
-        return { info: info, catalog: JSON.parse(f.text) };
-      }, function () { return { info: info, catalog: { version: 1, media: {} } }; });
-    }).then(function (ctx) {
-      var prep = Media.prepareUpload(ctx.catalog, ctx.info, {
-        title: title || ctx.info.name, tags: tags, owner: "devin", uploadedBy: "devin",
-        everyone: everyone, allowed: everyone ? Media.PEOPLE.slice() : ["devin"]
-      });
-      var rel = Media.srcFromArticle(PATH, prep.entry.path);
-      if (mode === "insert") {
-        return E.commitFiles(prep.files, "Media: upload " + prep.id + " via edit gallery [edit-mode]", E.BRANCH).then(function () {
-          insertCatalogImage(prep.entry);
-        });
+    if (mode === "hero" && !heroImg()) return fail("No hero image on this page.");
+    if (!file) return fail("No file chosen.");
+    addPending(file, { title: title || file.name, alt: title, tags: tags, everyone: everyone }).then(function (pd) {
+      if (mode === "hero") {
+        setHeroPreview(null, title || null, pd);
+        closePanel();
+        editBar("Hero preview \u00b7 uploaded and published when you press Save");
+        return;
       }
-      return E.getFile(PATH).then(function (page) {
-        var html = page.text;
-        var re = /(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\ssrc=")([^"]+)(")/i;
-        if (!re.test(html)) throw new Error("Could not find the hero image in the page source.");
-        var nextHtml = html.replace(re, function (m, a, _old, c) { return a + rel + c; });
-        if (title) nextHtml = nextHtml.replace(/(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\salt=")([^"]*)(")/i, function (m, a, _o, c) { return a + title.replace(/"/g, "") + c; });
-        prep.files.push({ path: PATH, text: nextHtml });
-        return E.commitFiles(prep.files, "Media: replace hero on " + PATH + " with " + prep.id + " [edit-mode]", E.BRANCH).then(function () {
-          hero.src = rel;
-          if (title) hero.alt = title;
-          closePanel();
-          if (state.editing) editBar("Hero image replaced · live in about 1–2 minutes", "ee-done");
-          else doneBar("Hero image replaced · live in about 1–2 minutes");
-        });
-      });
-    }).catch(function (e) { fail(e.message || "Upload failed."); editBar(); });
+      if (!insertImageHtml(pendingImgHtml(pd))) throw new Error("Enter edit mode and place the caret where the image should go.");
+      closePanel(); markDirty();
+      editBar("Image inserted \u00b7 uploaded when you press Save");
+    }).catch(function (e) { fail(e.message || "Upload failed."); });
   }
 
   function onKey(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;
     if (styleUndoKey(e)) return;
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.isComposing) {
       e.preventDefault();
       // Name/epithet stay single-line (site header).
-      if (e.target.closest(".art-title")) return;
+      if (isTitleField(e.target) || isTitleField(selNode())) return;
+      if (!e.shiftKey && state.page && enterParagraph()) return;
       document.execCommand("insertLineBreak");
     }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") { e.preventDefault(); save(); }
+  }
+  function selNode() {
+    var sel = window.getSelection && window.getSelection();
+    var n = sel && sel.rangeCount ? sel.anchorNode : null;
+    return n && (n.nodeType === 1 ? n : n.parentElement);
+  }
+  // Body class a paragraph should carry here (e.g. art-life), from its neighbours.
+  var PARA_SKIP = /^(ee-|art-epithet$)/;
+  function paraClassFor(block) {
+    var parent = block && block.parentElement;
+    if (!parent) return "";
+    function clsOf(n) {
+      return Array.prototype.filter.call(n.classList, function (c) { return !PARA_SKIP.test(c) && !RUNTIME_CLASS.test(c); }).join(" ");
+    }
+    var sib, c;
+    for (sib = block.previousElementSibling; sib; sib = sib.previousElementSibling) if (sib.tagName === "P" && (c = clsOf(sib))) return c;
+    for (sib = block.nextElementSibling; sib; sib = sib.nextElementSibling) if (sib.tagName === "P" && (c = clsOf(sib))) return c;
+    if (document.body.classList.contains("article") && block.closest(".art-sec")) return "art-life";
+    return "";
+  }
+  // A new/converted paragraph: body class like its neighbours; headings carry none.
+  function fixBlockClass(b) {
+    if (!b || !b.isConnected) return;
+    if (b.tagName === "P") {
+      var keep = Array.prototype.filter.call(b.classList, function (c) { return /^ee-(pt-|serif|sans|caption)/.test(c); });
+      var body = b.classList.length && Array.prototype.some.call(b.classList, function (c) { return !/^ee-/.test(c); });
+      if (!body) {
+        var pc = paraClassFor(b);
+        var all = (pc ? pc.split(" ") : []).concat(keep);
+        if (all.length) b.setAttribute("class", all.join(" ")); else b.removeAttribute("class");
+      }
+    } else if (/^H[1-6]$/.test(b.tagName)) {
+      if (b.classList.contains("art-life")) b.classList.remove("art-life");
+      if (!b.classList.length) b.removeAttribute("class");
+    }
+  }
+  function dropDuplicateIds(root) {
+    var seen = {};
+    Array.prototype.forEach.call(root.querySelectorAll("[id]"), function (n) {
+      if (seen[n.id]) n.removeAttribute("id"); else seen[n.id] = 1;
+    });
+  }
+  // Enter in a paragraph, list item or heading: a real new block (native undo).
+  // Chrome copies the class (good: p.art-life stays p.art-life) and the id (dropped here);
+  // Enter at the end of a heading gives a plain paragraph, which gets the body class.
+  function enterParagraph() {
+    var root = state.page && state.page.el, n = selNode();
+    if (!root || !n || !root.contains(n) || n.closest(".ee-locked,[contenteditable=\"false\"]")) return false;
+    var leaf = leafOf(n, root);
+    if (!leaf || !/^(P|LI|H[1-6])$/.test(leaf.tagName)) return false;
+    if (!document.execCommand("insertParagraph")) return false;
+    var nb = leafOf(selNode(), root);
+    if (nb && nb !== leaf) {
+      if (nb.id && nb.id === leaf.id) nb.removeAttribute("id");
+      fixBlockClass(nb);
+    }
+    markDirty();
+    return true;
   }
   function isTitleField(el) {
     return !!(el && el.closest && el.closest(".art-title"));
@@ -1369,120 +1531,147 @@
     }
     return out;
   }
-  // Turn pasted Word/web HTML into leaf-block-safe markup (inline + br + img).
-  function sanitizePasteHtml(html) {
-    var wrap = document.createElement("div");
-    wrap.innerHTML = String(html || "");
-    // Drop Word cruft.
-    Array.prototype.slice.call(wrap.querySelectorAll("style,meta,link")).forEach(function (n) { n.remove(); });
-    function flatten(node) {
-      var out = document.createElement("div");
-      function walk(src, dst) {
-        Array.prototype.forEach.call(src.childNodes, function (ch) {
-          if (ch.nodeType === 3) { dst.appendChild(document.createTextNode(ch.nodeValue)); return; }
-          if (ch.nodeType !== 1) return;
-          var tag = ch.tagName.toLowerCase();
-          if (DROP[tag] && tag !== "img") return;
-          if (tag === "br") { dst.appendChild(document.createElement("br")); return; }
-          if (tag === "img") {
-            var srcAttr = safeSrc(ch.getAttribute("src") || ch.getAttribute("data-src"));
-            if (!srcAttr) return;
-            var im = document.createElement("img");
-            im.setAttribute("src", srcAttr);
-            var alt = ch.getAttribute("alt");
-            if (alt) im.setAttribute("alt", alt);
-            dst.appendChild(im);
-            return;
-          }
-          if (INLINE[tag] || tag === "span") {
-            var n = document.createElement(tag === "b" ? "strong" : tag === "i" ? "em" : tag);
-            if (tag === "a") {
-              var h = safeHref(ch.getAttribute("href"));
-              if (h != null) n.setAttribute("href", h);
-            }
-            var cls = ch.getAttribute("class");
-            if (cls && /^[\w\- ]+$/.test(cls)) n.setAttribute("class", cls);
-            walk(ch, n);
-            dst.appendChild(n);
-            return;
-          }
-          if (tag === "h2" || tag === "h3") {
-            var hs = document.createElement("span");
-            hs.className = tag === "h2" ? "ee-h2" : "ee-h3";
-            walk(ch, hs);
-            if (dst.childNodes.length) dst.appendChild(document.createElement("br"));
-            dst.appendChild(hs);
-            dst.appendChild(document.createElement("br"));
-            return;
-          }
-          if (tag === "blockquote") {
-            var qs = document.createElement("span");
-            qs.className = "ee-quote";
-            walk(ch, qs);
-            if (dst.childNodes.length) dst.appendChild(document.createElement("br"));
-            dst.appendChild(qs);
-            dst.appendChild(document.createElement("br"));
-            return;
-          }
-          if (tag === "li") {
-            if (dst.childNodes.length) dst.appendChild(document.createElement("br"));
-            dst.appendChild(document.createTextNode("• "));
-            walk(ch, dst);
-            return;
-          }
-          if (tag === "p" || tag === "div" || tag === "ul" || tag === "ol" || tag === "figure" || tag === "figcaption" || /^h[1-6]$/.test(tag)) {
-            if (dst.childNodes.length) dst.appendChild(document.createElement("br"));
-            if (tag === "figcaption") {
-              var cap = document.createElement("span");
-              cap.className = "ee-caption";
-              walk(ch, cap);
-              dst.appendChild(cap);
-            } else walk(ch, dst);
-            return;
-          }
-          walk(ch, dst);
-        });
+  /* Rich paste (Word, Google Docs, web pages): keep only the structure — paragraphs,
+     headings, lists, bold, italic, links, pictures. Foreign classes, styles, fonts and
+     spans are dropped, so pasted text takes the page's own look and never nests fonts. */
+  function styleOf(n, prop) {
+    var m = new RegExp("(?:^|;)\\s*" + prop + "\\s*:\\s*([^;]+)", "i").exec(n.getAttribute("style") || "");
+    return m ? m[1].trim().toLowerCase() : "";
+  }
+  function pasteInline(src, dst, inB, inI) {
+    Array.prototype.forEach.call(src.childNodes, function (ch) {
+      if (ch.nodeType === 3) { dst.appendChild(document.createTextNode(ch.nodeValue.replace(/[\r\n]+/g, " "))); return; }
+      if (ch.nodeType !== 1) return;
+      var tag = ch.tagName.toLowerCase();
+      if (DROP[tag] || tag === "title" || tag === "xml" || /:/.test(tag)) return;
+      if (tag === "br") { dst.appendChild(document.createElement("br")); return; }
+      if (tag === "img") {
+        var srcAttr = safeSrc(ch.getAttribute("src") || ch.getAttribute("data-src"));
+        if (!srcAttr) return;
+        var im = document.createElement("img");
+        im.setAttribute("src", srcAttr);
+        if (ch.getAttribute("alt")) im.setAttribute("alt", ch.getAttribute("alt"));
+        dst.appendChild(im);
+        return;
       }
-      walk(node, out);
-      return out.innerHTML;
+      var fw = styleOf(ch, "font-weight"), fs = styleOf(ch, "font-style");
+      var bold = !inB && ((tag === "b" || tag === "strong") ? !/^(normal|[1-5]00|lighter)$/.test(fw) : /^(bold|bolder|[6-9]00)$/.test(fw));
+      var ital = !inI && ((tag === "i" || tag === "em") ? fs !== "normal" : fs === "italic" || fs === "oblique");
+      var into = dst;
+      if (tag === "a") {
+        var h = safeHref(ch.getAttribute("href"));
+        if (h != null && !/^#/.test(h)) { var a = document.createElement("a"); a.setAttribute("href", h); into.appendChild(a); into = a; }
+      } else if (tag === "sub" || tag === "sup") {
+        var ss = document.createElement(tag); into.appendChild(ss); into = ss;
+      }
+      if (bold) { var st = document.createElement("strong"); into.appendChild(st); into = st; }
+      if (ital) { var em = document.createElement("em"); into.appendChild(em); into = em; }
+      pasteInline(ch, into, inB || bold, inI || ital);
+    });
+  }
+  var PASTE_BLOCK = /^(p|div|section|article|header|footer|main|aside|blockquote|figure|figcaption|pre|table|thead|tbody|tfoot|tr|td|th|dl|dt|dd|center|address|nav|form|fieldset)$/;
+  // Pasted HTML -> clean blocks: <p class=…>, <h2>/<h3>, <ul>/<ol><li>.
+  function sanitizePasteBlocks(html, paraCls) {
+    var wrap = document.createElement("div");
+    wrap.innerHTML = String(html || "").replace(/<!--[\s\S]*?-->/g, "");
+    var out = document.createElement("div"), cur = null;
+    function para() {
+      if (!cur) { cur = document.createElement("p"); if (paraCls) cur.className = paraCls; out.appendChild(cur); }
+      return cur;
     }
-    // Run through save sanitizer for final attribute safety.
-    var flat = flatten(wrap);
-    var tmp = document.createElement("div");
-    tmp.innerHTML = flat;
-    return sanitize(tmp, "p", flat);
+    function end() { cur = null; }
+    function walk(src) {
+      Array.prototype.forEach.call(src.childNodes, function (ch) {
+        if (ch.nodeType === 3) { if (/\S/.test(ch.nodeValue) || cur) pasteInline({ childNodes: [ch] }, para()); return; }
+        if (ch.nodeType !== 1) return;
+        var tag = ch.tagName.toLowerCase();
+        if (DROP[tag] || tag === "title" || tag === "xml" || tag === "head" || /:/.test(tag)) return;
+        if (/^h[1-6]$/.test(tag)) {
+          end();
+          var h = document.createElement(/^h[12]$/.test(tag) ? "h2" : "h3");
+          pasteInline(ch, h);
+          if (/\S/.test(h.textContent)) out.appendChild(h);
+          return;
+        }
+        if (tag === "ul" || tag === "ol") {
+          end();
+          var list = document.createElement(tag);
+          (function items(l) {
+            Array.prototype.forEach.call(l.childNodes, function (li) {
+              if (li.nodeType === 1 && /^(ul|ol)$/.test(li.tagName.toLowerCase())) { items(li); return; }
+              if (li.nodeType !== 1 && !(li.nodeType === 3 && /\S/.test(li.nodeValue))) return;
+              var item = document.createElement("li");
+              if (li.nodeType === 3) item.textContent = li.nodeValue.trim();
+              else {
+                var sub = Array.prototype.filter.call(li.childNodes, function (k) { return k.nodeType === 1 && /^(UL|OL)$/.test(k.tagName); });
+                sub.forEach(function (k) { li.removeChild(k); });
+                pasteInline(li, item);
+                if (/\S/.test(item.textContent) || item.querySelector("img")) list.appendChild(item);
+                sub.forEach(items);
+                return;
+              }
+              if (/\S/.test(item.textContent)) list.appendChild(item);
+            });
+          })(ch);
+          if (list.children.length) out.appendChild(list);
+          return;
+        }
+        if (tag === "li") { end(); walk(ch); end(); return; }
+        if (tag === "hr") { end(); return; }
+        if (PASTE_BLOCK.test(tag)) { end(); walk(ch); end(); return; }
+        if (tag === "br") {
+          // Two line breaks in a row = a paragraph break; one stays a line break.
+          if (cur && cur.lastChild && cur.lastChild.nodeName === "BR") { cur.removeChild(cur.lastChild); end(); }
+          else if (cur) cur.appendChild(document.createElement("br"));
+          return;
+        }
+        pasteInline({ childNodes: [ch] }, para());
+      });
+    }
+    walk(wrap);
+    Array.prototype.slice.call(out.querySelectorAll("p,li,h2,h3")).forEach(function (b) {
+      while (b.lastChild && (b.lastChild.nodeName === "BR" || (b.lastChild.nodeType === 3 && !/\S/.test(b.lastChild.nodeValue)))) b.removeChild(b.lastChild);
+      if (b.firstChild && b.firstChild.nodeType === 3) b.firstChild.nodeValue = b.firstChild.nodeValue.replace(/^\s+/, "");
+      if (!/\S/.test(b.textContent) && !b.querySelector("img")) b.remove();
+    });
+    Array.prototype.slice.call(out.querySelectorAll("strong,em,a")).forEach(function (n) { if (!n.textContent && !n.querySelector("img")) n.remove(); });
+    return out;
+  }
+  // Inline-only version for a single block (per-block pages, lists, headings, titles).
+  function sanitizePasteHtml(html) {
+    var out = sanitizePasteBlocks(html, "");
+    var parts = [];
+    Array.prototype.forEach.call(out.children, function (b) {
+      if (b.tagName === "UL" || b.tagName === "OL") Array.prototype.forEach.call(b.children, function (li) { parts.push("\u2022 " + li.innerHTML); });
+      else parts.push(b.innerHTML);
+    });
+    return parts.join("<br>");
   }
   function insertAtCaret(html) {
-    var sel = window.getSelection && window.getSelection();
-    if (sel && sel.rangeCount && state.editing) {
-      var node = sel.anchorNode;
-      var el = node && (node.nodeType === 1 ? node : node.parentElement);
-      if (el && el.closest && el.closest(".ee-editable") && !isTitleField(el)) {
-        document.execCommand("insertHTML", false, html);
-        return true;
-      }
+    var n = selNode();
+    if (n && state.editing && n.closest && n.closest(".ee-editable") && !isTitleField(n)) {
+      document.execCommand("insertHTML", false, html);
+      return true;
     }
-    var first = document.querySelector(".ee-editable:not(.art-title .ee-editable)");
-    if (!first) first = document.querySelector("main.art-body .ee-editable, main.read .ee-editable");
-    if (first) { first.insertAdjacentHTML("beforeend", html); return true; }
-    return false;
+    return insertImageHtml(html);
   }
-  function uploadPasteFile(file) {
-    if (!Media) return Promise.reject(new Error("Media helpers not loaded."));
-    editBar("Uploading pasted image…", "ee-busy");
-    return Media.validateFile(file).then(function (info) {
-      return E.getFile(Media.CATALOG).then(function (f) {
-        return { info: info, catalog: JSON.parse(f.text) };
-      }, function () { return { info: info, catalog: { version: 1, media: {} } }; });
-    }).then(function (ctx) {
-      var who = (state.profile && state.profile.person) || "devin";
-      var prep = Media.prepareUpload(ctx.catalog, ctx.info, {
-        title: ctx.info.name, tags: ["paste"], owner: who, uploadedBy: who,
-        everyone: true, allowed: Media.PEOPLE.slice()
+  // After a block paste: tidy what Chrome produced around it (no style spans, no
+  // duplicate ids, body class on new paragraphs).
+  function tidyPasted(root, from, to) {
+    if (!root) return;
+    dropDuplicateIds(root);
+    var all = Array.prototype.slice.call(root.querySelectorAll("p,li,h1,h2,h3,h4,h5,h6"));
+    var i0 = from ? all.indexOf(from) : 0, i1 = to ? all.indexOf(to) : all.length - 1;
+    if (i0 < 0) i0 = 0;
+    if (i1 < 0) i1 = all.length - 1;
+    all.slice(i0, i1 + 1).forEach(function (b) {
+      if (b.closest(".ee-locked,[contenteditable=\"false\"]")) return;
+      [b].concat(Array.prototype.slice.call(b.querySelectorAll("[style]"))).forEach(function (x) { x.removeAttribute("style"); });
+      Array.prototype.slice.call(b.querySelectorAll("span:not([class]),font")).forEach(function (sp) {
+        while (sp.firstChild) sp.parentNode.insertBefore(sp.firstChild, sp);
+        sp.remove();
       });
-      return E.commitFiles(prep.files, "Media: paste-upload " + prep.id + " [edit-mode]", E.BRANCH).then(function () {
-        return prep.entry;
-      });
+      fixBlockClass(b);
     });
   }
   function dataUrlToFile(dataUrl, name) {
@@ -1492,38 +1681,32 @@
     for (i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
     var mime = m[1].toLowerCase();
     try { return new File([u8], name || "paste.png", { type: mime }); }
-    catch (e) { return new Blob([u8], { type: mime }); }
+    catch (e) { return null; }
   }
-  function rewriteDataImages(html) {
-    if (!Media || !P.isAdmin(state.profile)) return Promise.resolve(html);
-    var wrap = document.createElement("div");
-    wrap.innerHTML = html;
-    var imgs = Array.prototype.slice.call(wrap.querySelectorAll("img"));
-    var chain = Promise.resolve();
+  // Pasted HTML with embedded (data:) pictures: hold them as pending uploads too.
+  function pendDataImages(container) {
+    var imgs = Array.prototype.slice.call(container.querySelectorAll("img"));
+    var seq = Promise.resolve();
     imgs.forEach(function (im, idx) {
       var src = im.getAttribute("src") || "";
       if (!/^data:image\//i.test(src)) return;
-      chain = chain.then(function () {
-        var file = dataUrlToFile(src, "paste-" + (idx + 1) + ".png");
-        if (!file) return;
-        // Blob may lack .name — wrap for validateFile
-        if (!file.name) {
-          try { file = new File([file], "paste-" + (idx + 1) + ".png", { type: file.type }); }
-          catch (e) { return; }
-        }
-        return uploadPasteFile(file).then(function (entry) {
-          im.setAttribute("src", gallerySrc(entry));
-          if (entry.title && !im.getAttribute("alt")) im.setAttribute("alt", entry.title);
-        });
+      if (!Media || !P.isAdmin(state.profile)) { im.remove(); return; }
+      seq = seq.then(function () {
+        var file = dataUrlToFile(src, "paste-" + (idx + 1) + "." + ((/^data:image\/(\w+)/i.exec(src) || [0, "png"])[1].replace("jpeg", "jpg")));
+        if (!file) { im.remove(); return; }
+        return addPending(file, { title: im.getAttribute("alt") || file.name, alt: im.getAttribute("alt") || "", tags: ["paste"] }).then(function (pd) {
+          im.setAttribute("src", pd.url);
+          im.setAttribute("data-ee-pending", pd.key);
+        }, function () { im.remove(); });
       });
     });
-    return chain.then(function () { return wrap.innerHTML; });
+    return seq.then(function () { return container; });
   }
   function onPaste(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;
     e.preventDefault();
     var cd = e.clipboardData || window.clipboardData;
-    if (isTitleField(e.target)) {
+    if (isTitleField(e.target) || isTitleField(selNode())) {
       var plain = cd ? cd.getData("text/plain") : "";
       document.execCommand("insertText", false, plain.replace(/\s+/g, " ").trim());
       return;
@@ -1533,33 +1716,33 @@
       var seq = Promise.resolve();
       files.forEach(function (file) {
         seq = seq.then(function () {
-          return uploadPasteFile(file).then(function (entry) {
-            var rel = gallerySrc(entry);
-            var imgHtml = '<img src="' + rel.replace(/"/g, "") + '" alt="' + String(entry.title || "").replace(/"/g, "") + '">';
-            insertAtCaret(imgHtml);
-          });
+          return addPending(file, { title: file.name, tags: ["paste"] }).then(function (pd) { insertAtCaret(pendingImgHtml(pd)); markDirty(); });
         });
       });
-      seq.then(function () { editBar("Pasted image uploaded — Save to commit body"); },
-        function (err) { editBar(err.message || "Paste upload failed.", "ee-bad-bar"); });
+      seq.then(function () { editBar("Picture pasted \u00b7 uploaded when you press Save"); },
+        function (err) { editBar(err.message || "Paste failed.", "ee-bad-bar"); });
       return;
     }
     var html = cd ? cd.getData("text/html") : "";
-    if (html && /<[a-z]/i.test(html)) {
-      var cleaned = sanitizePasteHtml(html);
-      rewriteDataImages(cleaned).then(function (finalHtml) {
-        if (!finalHtml) {
-          var t = cd.getData("text/plain");
-          document.execCommand("insertText", false, t);
-          return;
-        }
-        insertAtCaret(finalHtml);
-        editBar("Rich paste inserted — Save to commit");
-      }, function () { insertAtCaret(cleaned); });
-      return;
-    }
     var t = cd ? cd.getData("text/plain") : "";
-    document.execCommand("insertText", false, t);
+    if (!(html && /<[a-z]/i.test(html))) { document.execCommand("insertText", false, t); return; }
+    var root = state.page && state.page.el, n = selNode();
+    var leaf = root && n ? leafOf(n, root) : null;
+    // Full-page editing in a paragraph: keep the pasted paragraphs/headings/lists.
+    var blockMode = !!(leaf && leaf.tagName === "P");
+    var cls = blockMode ? Array.prototype.filter.call(leaf.classList, function (c) { return !/^ee-/.test(c); }).join(" ") || paraClassFor(leaf) : "";
+    var out = blockMode ? sanitizePasteBlocks(html, cls) : null;
+    var holder = out || (function () { var d = document.createElement("div"); d.innerHTML = sanitizePasteHtml(html); return d; })();
+    var range0 = window.getSelection().rangeCount ? window.getSelection().getRangeAt(0).cloneRange() : null;
+    pendDataImages(holder).then(function (h) {
+      if (range0) { try { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range0); } catch (e1) {} }
+      if (!/\S/.test(h.textContent) && !h.querySelector("img")) { document.execCommand("insertText", false, t); return; }
+      var single = blockMode && h.children.length === 1 && h.firstElementChild.tagName === "P";
+      var ins = (blockMode && !single) ? h.innerHTML : (single ? h.firstElementChild.innerHTML : h.innerHTML);
+      document.execCommand("insertHTML", false, ins);
+      if (blockMode) tidyPasted(root, leaf.isConnected ? leaf : null, leafOf(selNode(), root));
+      markDirty();
+    });
   }
   function onClick(e) {
     var a = e.target.closest && e.target.closest(".ee-editable a");
@@ -1620,6 +1803,11 @@
     state.records.forEach(function (r) {
       r.el.removeAttribute("contenteditable"); r.el.removeAttribute("spellcheck"); r.el.classList.remove("ee-editable");
     });
+    (state.titles || []).forEach(function (t) {
+      t.el.removeAttribute("contenteditable"); t.el.removeAttribute("spellcheck"); t.el.classList.remove("ee-editable", "ee-title-edit");
+    });
+    state.titles = [];
+    if (state.railRestore) { try { state.railRestore(); } catch (e) {} state.railRestore = null; }
     document.documentElement.classList.remove("ee-editing", "ee-page-editing");
     document.removeEventListener("keydown", onKey, true);
     document.removeEventListener("paste", onPaste, true);
@@ -1638,7 +1826,10 @@
     if (state.dirty) {
       if (state.page && state.page.el) state.page.el.innerHTML = state.page.original;
       state.records.forEach(function (r) { r.el.innerHTML = r.original; });
+      (state.titles || []).forEach(function (t) { if (t.el.innerHTML !== t.original) t.el.innerHTML = t.original; });
     }
+    restoreHero();
+    dropPending();
     stopEditing();
     state.records = [];
     state.page = null;
@@ -1880,7 +2071,8 @@
   function emitNew(n) {
     var w = document.createElement("div");
     w.appendChild(cleanRuntime(n.cloneNode(true), "emit"));
-    return fillLocks(sanitizePageHtml(w));
+    // A block split by Enter starts with Chrome's &nbsp; (kept visible while editing); drop it.
+    return fillLocks(sanitizePageHtml(w)).replace(/^(<(?:p|li|h[1-6])\b[^>]*>)(?:&nbsp;)+/, "$1").replace(/(?:&nbsp;)+(<\/(?:p|li|h[1-6])>)$/, "$1");
   }
   var LEAF_TAGS = { p: 1, h1: 1, h2: 1, h3: 1, h4: 1, h5: 1, h6: 1, li: 1, dd: 1, dt: 1, figcaption: 1, td: 1, th: 1 };
   // Blocks pasted/typed inside a paragraph become line breaks (no <p> inside <p>).
@@ -1969,7 +2161,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=art96\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=editor-critical\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=editor-batch2\">\n" +
         "<script src=\"/rail-toggle.js?v=nt26-veil\"></script>\n" +
         "<script src=\"/skip-link.js?v=nt11-skip\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
@@ -1980,9 +2172,9 @@
         "<header class=\"art-title\"><h1>" + escTitle + "</h1><p class=\"art-epithet\"></p></header>\n" +
         "<section class=\"art-sec\" id=\"lore\"><h2>Lore</h2><p class=\"art-life\"></p></section>\n" +
         "</main>\n" +
-        "<script src=\"/search.js?v=editor-critical\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
+        "<script src=\"/search.js?v=editor-batch2\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=editor-critical\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=editor-batch2\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -2204,21 +2396,95 @@
   function slug(s) { return String(s).toLowerCase().replace(/\.html$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40); }
   function stamp() { var d = new Date(); return d.toISOString().replace(/[-:T]/g, "").slice(0, 14); }
 
-  function buildOutput(latest) {
+  /* Saved regions. Every change is a small region of the page source (the body, the hero
+     name, the epithet, the hero picture), located again in the latest copy of the file and
+     only written when that region is still exactly as it was when editing started. */
+  function escText(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function titleRange(T, kind) {
+    var root = M.parse(T), title = null, hit = null;
+    (function walk(n) {
+      (n.children || []).forEach(function (c) {
+        if (title) return;
+        if ((c.classes || []).indexOf("art-title") >= 0 && c.tag !== "main") title = c; else walk(c);
+      });
+    })(root);
+    if (!title) return null;
+    (function walk(n) {
+      (n.children || []).forEach(function (c) {
+        if (hit) return;
+        if (kind === "h1" ? c.tag === "h1" : (c.classes || []).indexOf("art-epithet") >= 0) hit = c; else walk(c);
+      });
+    })(title);
+    return hit && hit.closeStart >= hit.openEnd ? { start: hit.openEnd, end: hit.closeStart } : null;
+  }
+  function heroRange(T, attr) {
+    var re = attr === "alt"
+      ? /(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\salt=")([^"]*)(")/i
+      : /(<section\s+class="art-hero\b[^"]*"[\s\S]*?<img\b[^>]*\ssrc=")([^"]+)(")/i;
+    var m = re.exec(T);
+    if (!m) return null;
+    var st = m.index + m[1].length;
+    return { start: st, end: st + m[2].length };
+  }
+  function regionOf(locate, baseText, html) {
+    var r = locate(baseText);
+    if (!r) return null;
+    return { locate: locate, base: baseText.slice(r.start, r.end), html: html };
+  }
+  // Apply regions to a copy of the page; null if any region moved or changed there.
+  function applyRegions(T, regions) {
+    var hits = [];
+    for (var i = 0; i < regions.length; i++) {
+      var g = regions[i], r = g.locate(T);
+      if (!r || T.slice(r.start, r.end) !== g.base) return null;
+      hits.push({ start: r.start, end: r.end, html: g.html });
+    }
+    hits.sort(function (x, y) { return y.start - x.start; });
+    for (var k = 1; k < hits.length; k++) if (hits[k].end > hits[k - 1].start) return null;
+    hits.forEach(function (h) { T = T.slice(0, h.start) + h.html + T.slice(h.end); });
+    return T;
+  }
+  function pageRegions() {
+    var base = state.base.text, regions = [], g;
     if (state.page) {
       var PS = pageSrc();
+      var mainEl = state.page.el;
+      Array.prototype.forEach.call(mainEl.querySelectorAll(".art-title .art-epithet"), noEndPeriod);
       var baseInner = PS.text.slice(PS.node.openEnd, PS.node.closeStart);
       var html = serializePageMain();
-      if (html === baseInner) return { none: true };
-      var range = sourceMainRange(latest.text);
-      if (!range) return { conflict: true };
-      // Someone changed the page body upstream since edit started: never overwrite it.
-      if (latest.sha !== state.base.sha && latest.text.slice(range.start, range.end) !== baseInner) return { conflict: true };
-      var out = latest.text.slice(0, range.start) + html + latest.text.slice(range.end);
-      return { out: out, edits: [{ start: range.start, end: range.end, html: html }], changed: [state.page], page: true };
+      if (html !== baseInner) regions.push({ locate: function (T) { var r = sourceMainRange(T); return r && { start: r.start, end: r.end }; }, base: baseInner, html: html });
+    }
+    (state.titles || []).forEach(function (t) {
+      if (t.kind === "epithet") noEndPeriod(t.el);
+      var txt = norm(t.el.textContent);
+      if (txt === t.text) return;
+      if (t.kind === "h1" && !txt) return; // a page always keeps its name
+      g = regionOf(function (T) { return titleRange(T, t.kind); }, base, escText(txt));
+      if (g) { g.html = preserveEntities(g.html, g.base); regions.push(g); }
+    });
+    if (state.hero && state.hero.src) {
+      g = regionOf(function (T) { return heroRange(T, "src"); }, base, state.hero.src.replace(/"/g, "%22"));
+      if (g && g.base !== g.html) regions.push(g);
+      if (state.hero.alt) {
+        g = regionOf(function (T) { return heroRange(T, "alt"); }, base, String(state.hero.alt).replace(/"/g, ""));
+        if (g && g.base !== g.html) regions.push(g);
+      }
+    }
+    return regions;
+  }
+
+  function buildOutput(latest) {
+    if (state.page || !state.records.length) {
+      var regions = pageRegions();
+      if (!regions.length) return { none: true };
+      var out = applyRegions(latest.text, regions);
+      // Someone changed one of these regions upstream since editing started: never overwrite.
+      if (out == null) return { conflict: true };
+      return { out: out, regions: regions, page: !!state.page };
     }
     var changed = state.records.filter(function (r) { return r.el.innerHTML !== r.start; });
-    if (!changed.length) return { none: true };
+    var extra = pageRegions();
+    if (!changed.length && !extra.length) return { none: true };
     var blocks = state.base.blocks;
     if (latest.sha !== state.base.sha) {
       var nb = M.sourceBlocks(latest.text, titleOpts());
@@ -2233,16 +2499,31 @@
       if (r.el.classList && r.el.classList.contains("art-epithet")) html = html.replace(/\.\s*$/, "");
       return { start: b.start, end: b.end, html: html, idx: r.idx };
     });
-    var out = M.splice(latest.text, edits);
+    var out2 = M.splice(latest.text, edits);
     // Self-check: same block structure, untouched blocks byte-identical.
-    var after = M.sourceBlocks(out, titleOpts());
+    var after = M.sourceBlocks(out2, titleOpts());
     if (after.length !== blocks.length) throw new Error("Safety check failed (the edit would change the page structure). Nothing was saved.");
     var touched = {}; edits.forEach(function (e) { touched[e.idx] = e.html; });
     for (var k = 0; k < after.length; k++) {
       if (k in touched) { if (after[k].inner !== touched[k]) throw new Error("Safety check failed. Nothing was saved."); }
       else if (after[k].inner !== blocks[k].inner) throw new Error("Safety check failed. Nothing was saved.");
     }
-    return { out: out, edits: edits, changed: changed };
+    if (extra.length) {
+      out2 = applyRegions(out2, extra);
+      if (out2 == null) return { conflict: true };
+    }
+    return { out: out2, edits: edits, changed: changed, regions: extra };
+  }
+
+  // The other copy of this article (pretty URL <-> .html) gets the same regions, when
+  // they are identical there; otherwise it is left alone and the bar says so.
+  function mirrorFor(ref, regions) {
+    var mp = P.mirrorPath ? P.mirrorPath(PATH) : null;
+    if (!mp || !regions || !P.canEdit(state.profile, mp)) return Promise.resolve(null);
+    return E.getFile(mp, ref).then(function (f) {
+      var out = applyRegions(f.text, regions);
+      return out == null ? { path: mp, skipped: true } : (out === f.text ? null : { path: mp, text: out, sha: f.sha });
+    }, function () { return null; });
   }
 
   function save() {
@@ -2251,34 +2532,46 @@
     var pr = state.profile, mode = P.saveMode(pr);
     var msg = "Edit " + PATH + " via edit mode [edit-mode]";
     var s = E.session.get();
-    editBar("Saving…", "ee-busy");
-    var latestRef, branch;
-    var p = mode === "direct"
-      ? E.getFile(PATH, E.BRANCH)
-      : E.headSha(E.BRANCH).then(function (sha) { latestRef = sha; return E.getFile(PATH, sha); });
+    editBar("Saving\u2026", "ee-busy");
+    var latestRef, branch, prep = { files: [], used: [] }, undoPending = null, mirror = null;
+    var p = preparePending().then(function (pp) {
+      if (pp && pp.files) prep = pp;
+      return E.headSha(E.BRANCH);
+    }).then(function (sha) { latestRef = sha; return E.getFile(PATH, sha); });
     p.then(function (latest) {
-      var r = buildOutput(latest);
+      var r;
+      if (prep.used.length) undoPending = applyPending(prep);
+      try { r = buildOutput(latest); } finally { if (undoPending) undoPending(); }
       if (r.none) { editBar("No changes to save."); return null; }
       if (r.conflict) { var e = new Error(conflictMsg()); e.conflict = true; throw e; }
-      if (mode === "direct") {
-        return E.putFile(PATH, r.out, latest.sha, msg, E.BRANCH).then(function (res) { return { res: res, r: r }; });
-      }
-      branch = "edit/" + slug(s.login) + "/" + slug(PATH) + "-" + stamp();
-      return E.api(E.repoPath("/git/refs"), { method: "POST", body: { ref: "refs/heads/" + branch, sha: latestRef } })
-        .then(function () { return E.putFile(PATH, r.out, latest.sha, msg, branch); })
-        .then(function (res) {
-          return E.api(E.repoPath("/pulls"), { method: "POST", body: {
-            title: "Edit " + PATH + " via edit mode",
-            head: branch, base: E.BRANCH,
-            body: "Proposed in edit mode by @" + s.login + ".\n\nOnly the edited text regions of `" + PATH + "` changed. The edit-guard check verifies the author is allowed to edit this path.\n\n[edit-mode]"
-          } }).then(function (pull) { return { res: res, r: r, pull: pull }; }, function (err) { return { res: res, r: r, pullErr: err }; });
-        });
+      return mirrorFor(latestRef, r.edits ? null : r.regions).then(function (m) {
+        mirror = m;
+        var files = [{ path: PATH, text: r.out }];
+        if (m && !m.skipped) files.push({ path: m.path, text: m.text });
+        files = files.concat(prep.files);
+        if (prep.used.length) msg = "Edit " + PATH + " via edit mode (+" + prep.used.length + " image" + (prep.used.length > 1 ? "s" : "") + ") [edit-mode]";
+        var one = files.length === 1;
+        if (mode === "direct") {
+          return (one ? E.putFile(PATH, r.out, latest.sha, msg, E.BRANCH) : E.commitFiles(files, msg, E.BRANCH, latestRef))
+            .then(function (res) { return { res: res, r: r, multi: !one }; });
+        }
+        branch = "edit/" + slug(s.login) + "/" + slug(PATH) + "-" + stamp();
+        return E.api(E.repoPath("/git/refs"), { method: "POST", body: { ref: "refs/heads/" + branch, sha: latestRef } })
+          .then(function () { return one ? E.putFile(PATH, r.out, latest.sha, msg, branch) : E.commitFiles(files, msg, branch, latestRef); })
+          .then(function (res) {
+            return E.api(E.repoPath("/pulls"), { method: "POST", body: {
+              title: "Edit " + PATH + " via edit mode",
+              head: branch, base: E.BRANCH,
+              body: "Proposed in edit mode by @" + s.login + ".\n\nOnly the edited regions of `" + PATH + "`" + (files.length > 1 ? " (and its copies/images)" : "") + " changed. The edit-guard check verifies the author is allowed to edit this path.\n\n[edit-mode]"
+            } }).then(function (pull) { return { res: res, r: r, pull: pull, multi: !one }; }, function (err) { return { res: res, r: r, pullErr: err, multi: !one }; });
+          });
+      });
     }).then(function (done) {
       if (!done) return;
-      var commitUrl = done.res && done.res.commit && done.res.commit.html_url;
+      var commitUrl = done.multi ? (done.res && done.res.html_url) : (done.res && done.res.commit && done.res.commit.html_url);
       if (mode === "direct") {
         state.base = {
-          sha: done.res.content.sha,
+          sha: done.multi ? null : done.res.content.sha,
           text: done.r.out,
           blocks: done.r.page ? null : M.sourceBlocks(done.r.out, titleOpts())
         };
@@ -2288,21 +2581,24 @@
         }
       }
       state.records.forEach(function (rec) { rec.original = rec.el.innerHTML; });
+      (prep.used || []).forEach(function (u) { if (u.img) u.img.removeAttribute("data-ee-pending"); });
+      state.hero = null; state.pending = {};
       stopEditing();
       state.page = null;
+      var note = mirror && mirror.skipped ? " The other copy (" + esc(mirror.path) + ") differs here and was left unchanged." : "";
       var html;
       if (mode === "direct") {
-        html = '<span class="ee-msg ee-good">Saved. Live in about 1–2 minutes while GitHub Pages rebuilds.' + (commitUrl ? ' <a href="' + esc(commitUrl) + '" target="_blank" rel="noopener">Commit</a>' : '') + '</span>';
+        html = '<span class="ee-msg ee-good">Saved. Live in about 1\u20132 minutes while GitHub Pages rebuilds.' + note + (commitUrl ? ' <a href="' + esc(commitUrl) + '" target="_blank" rel="noopener">Commit</a>' : '') + '</span>';
       } else if (done.pull) {
-        html = '<span class="ee-msg ee-good">Proposed as pull request #' + esc(done.pull.number) + '. Live about 1–2 minutes after it is merged. <a href="' + esc(done.pull.html_url) + '" target="_blank" rel="noopener">Open</a></span>';
+        html = '<span class="ee-msg ee-good">Proposed as pull request #' + esc(done.pull.number) + '. Live about 1\u20132 minutes after it is merged.' + note + ' <a href="' + esc(done.pull.html_url) + '" target="_blank" rel="noopener">Open</a></span>';
       } else {
-        html = '<span class="ee-msg ee-good">Saved to branch ' + esc(branch) + '. Opening the pull request failed (' + esc(done.pullErr && done.pullErr.message) + '). <a href="https://github.com/' + E.REPO + '/compare/' + E.BRANCH + '...' + encodeURIComponent(branch) + '" target="_blank" rel="noopener">Open one</a></span>';
+        html = '<span class="ee-msg ee-good">Saved to branch ' + esc(branch) + '. Opening the pull request failed (' + esc(done.pullErr && done.pullErr.message) + ').' + note + ' <a href="https://github.com/' + E.REPO + '/compare/' + E.BRANCH + '...' + encodeURIComponent(branch) + '" target="_blank" rel="noopener">Open one</a></span>';
       }
       bar(html + '<button type="button" class="ee-btn" id="ee-x">Close</button>', "ee-done");
       $("ee-x").onclick = closeBar;
     }).catch(function (err) {
       var m;
-      if (err.conflict || err.status === 409 || (err.status === 422 && /sha|match/i.test(err.message))) m = conflictMsg();
+      if (err.conflict || err.status === 409 || (err.status === 422 && /sha|match|fast.forward/i.test(err.message))) m = conflictMsg();
       else if (err.status === 401) m = "Your session expired, so nothing was saved. Keep this tab open, enter again (Edit, then Enter), then press Save again.";
       else if (err.status === 403 || err.status === 404) m = "GitHub refused the save (" + err.status + "): the token may lack Contents write access" + (mode === "pr" ? " or Pull requests access" : "") + ". Nothing was saved.";
       else m = err.message || "Save failed. Nothing was saved.";
@@ -2405,7 +2701,9 @@
       s = E.session.get();
       if (!s) { bootExpired = true; softReconnect(); return null; }
       return E.getFile("edit/profiles.json").then(apply).catch(function (err2) {
-        if (err2.status === 401) { bootExpired = true; softReconnect(); }
+        // GitHub rejected the remembered token too: forget it (the linked flag stays, so
+        // this browser still gets the paste-only reconnect, not first-time onboarding).
+        if (err2.status === 401) { E.session.clear(); notify(); bootExpired = true; softReconnect(); }
         return null;
       });
     });

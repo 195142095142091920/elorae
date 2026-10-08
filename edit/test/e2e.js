@@ -202,8 +202,7 @@ async function signInViaPanel(page, token) {
       const exp = await page2.textContent("#ee-body");
       const gone = await page2.evaluate(() => !localStorage.getItem("elorae-edit-session") && !sessionStorage.getItem("elorae-edit-session"));
       const glyphLeft = !!(await page2.$("#ee-glyph"));
-      // NOTE: the current reconnect flow leaves the rejected token stored (gone=false); follow-up.
-      check("expired token: paste-only reconnect prompt, no EDIT", /existing GitHub token|expired/i.test(exp) && !glyphLeft, exp.replace(/\s+/g, " ").trim().slice(0, 90) + ` gone=${gone} glyph=${glyphLeft}`);
+      check("expired token: paste-only reconnect prompt, no EDIT, rejected token forgotten", /existing GitHub token|expired/i.test(exp) && !glyphLeft && gone, exp.replace(/\s+/g, " ").trim().slice(0, 90) + ` gone=${gone} glyph=${glyphLeft}`);
       await page2.screenshot({ path: `${SHOTS}/expired-desktop.png` });
       mock.tokens["ghp_test_sawyer"] = "sawyer-gh";
       // broad classic token warning + sign out
@@ -276,8 +275,9 @@ async function signInViaPanel(page, token) {
       await page.screenshot({ path: `${SHOTS}/editing-desktop.png` });
       await page.click("#ee-save");
       await page.waitForSelector("#ee-bar.ee-done", { timeout: 10000 });
-      const put = mock.log.find((e) => e.written);
-      const out = put.written.text;
+      // Both copies of the article (articles/x.html + articles/x/index.html) go in one commit.
+      const put = mock.log.find((e) => e.committed);
+      const out = String(mock.file(vaerekPath));
       // Diff: everything outside the edited block must be byte-identical.
       let a = 0; while (a < out.length && out[a] === vaerekSrc[a]) a++;
       let b = 0; while (b < out.length - a && out[out.length - 1 - b] === vaerekSrc[vaerekSrc.length - 1 - b]) b++;
@@ -285,7 +285,7 @@ async function signInViaPanel(page, token) {
       const blk = blocks.find((x) => x.start <= a && vaerekSrc.length - b <= x.end);
       const changedOld = vaerekSrc.slice(a, vaerekSrc.length - b), changedNew = out.slice(a, out.length - b);
       fs.writeFileSync(`${SHOTS}/splice-diff.txt`, `changed byte range ${a}..${vaerekSrc.length - b} of ${vaerekSrc.length}\n-${changedOld}\n+${changedNew}\n`);
-      check("save: PUT with sha + exact message", put.body.sha === blobSha(vaerekSrc) && put.body.message === "Edit articles/vaerek.html via edit mode [edit-mode]" && put.body.branch === "main", put.body.message);
+      check("save: one commit to main with the exact message; the pretty-URL copy is identical", put && put.committed.message === "Edit articles/vaerek.html via edit mode [edit-mode]" && /\/heads\/main$/.test(put.path) && String(mock.file("articles/vaerek/index.html")) === out, put && put.committed.message);
       const hb = blocks.find((x) => x.inner.startsWith("He chose to travel"));
       const expected = S.splice(vaerekSrc, [{ start: hb.start, end: hb.end, html: hb.inner + " An added sentence." }]);
       check("save: splice changed only the edited block (rest byte-identical)", out === expected && out.slice(0, hb.start) === vaerekSrc.slice(0, hb.start) && out.slice(hb.end + 19) === vaerekSrc.slice(hb.end), `block bytes ${hb.start}..${hb.end} of ${vaerekSrc.length}; +${out.length - vaerekSrc.length} bytes, inserted ${JSON.stringify(changedNew)} (diff: ${SHOTS}/splice-diff.txt)`);
@@ -299,7 +299,7 @@ async function signInViaPanel(page, token) {
       await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
       await caretEnd(page, 'main.art-body #lore p.art-life:nth-of-type(2)'); await page.keyboard.type(" X.");
       await page.click("#ee-save"); await page.waitForSelector("#ee-bar.ee-done", { timeout: 10000 });
-      const prevOut = out, out3 = mock.log.find((e) => e.written).written.text;
+      const prevOut = out, out3 = String(mock.file(vaerekPath));
       let a3 = 0; while (out3[a3] === prevOut[a3]) a3++;
       check("editing a block with &#x27; entities: only the typed text differs", out3.length === prevOut.length + 3 && out3.slice(a3, a3 + 3) === " X." && out3.slice(0, a3) + out3.slice(a3 + 3) === prevOut && /didn&#x27;t last/.test(out3), `inserted at ${a3}`);
 
@@ -314,7 +314,7 @@ async function signInViaPanel(page, token) {
       });
       await page.click("#ee-save");
       await page.waitForSelector("#ee-bar.ee-done", { timeout: 10000 });
-      const put2 = mock.log.find((e) => e.written).written.text;
+      const put2 = String(mock.file(vaerekPath));
       const nb = S.sourceBlocks(put2)[blocks.findIndex((x) => x === blocks.filter((y) => y.tag === "p")[0]) >= 0 ? 0 : 0];
       const p4 = S.sourceBlocks(put2).filter((x) => x.tag === "p")[5].inner; // description p, lore? computed below
       const all = S.sourceBlocks(put2).map((x) => x.inner).join("\n");
@@ -328,25 +328,35 @@ async function signInViaPanel(page, token) {
     /* 5b. Admin: hero name (h1) + epithet editable; players still cannot. */
     {
       const mock = newMock();
-      // Sawyer (player): titles stay locked.
-      {
-        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_sawyer", "sawyer-gh") });
+      // A player on his OWN page (listed by exact path) may edit name/epithet; a player who
+      // can edit every article only via a glob may not.
+      for (const [tok, login, want, label] of [["ghp_test_sawyer", "sawyer-gh", true, "player on his own page (Sawyer): hero name/epithet editable"], ["ghp_test_arts", "arts-gh", false, "glob-only editor (articles/*.html): hero name/epithet stay locked"]]) {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit(tok, login) });
         const page = await ctx.newPage();
         await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
         await waitEditor(page);
         await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
         const t = await page.evaluate(() => ({
-          n: document.querySelectorAll(".ee-editable").length,
-          title: document.querySelectorAll(".art-title [contenteditable]").length,
-          h1: !!(document.querySelector(".art-title h1[contenteditable]")),
-          ep: !!(document.querySelector(".art-title .art-epithet[contenteditable]"))
+          h1: !!(document.querySelector(".art-title h1[contenteditable=true]")),
+          ep: !!(document.querySelector(".art-title .art-epithet[contenteditable=true]"))
         }));
-        check("player (Sawyer): hero name/epithet not editable (full-page body only)", t.title === 0 && !t.h1 && !t.ep && t.n === 1, JSON.stringify(t));
+        check(label, t.h1 === want && t.ep === want, JSON.stringify(t));
         await ctx.close();
       }
-      // Admin hero name/epithet editing is not part of the full-page surface yet (the hero
-      // title sits outside main). Tracked as an Important follow-up; reported, not counted.
-      skip("admin (Devin): hero name + epithet editable; epithet/name saves splice only the title", "not in the full-page editor yet (Important follow-up)");
+      // Admin name/epithet edit + save: covered end-to-end in e2e-editor.js (batch2 stage).
+      {
+        const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
+        const page = await ctx.newPage();
+        await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
+        await waitEditor(page);
+        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        await page.evaluate(() => { const h = document.querySelector(".art-title .art-epithet"); h.focus(); const r = document.createRange(); r.selectNodeContents(h); r.collapse(false); getSelection().removeAllRanges(); getSelection().addRange(r); });
+        await page.keyboard.type(" Zq.");
+        await page.click("#ee-save"); await page.waitForTimeout(1500);
+        const out = String(mock.file(vaerekPath));
+        check("admin (Devin): epithet edit saves in place without the ending period", out.includes('<p class="art-epithet">Wreathbound Ranger Zq</p>'), (out.match(/<p class="art-epithet">[^<]*<\/p>/) || [""])[0]);
+        await ctx.close();
+      }
       {
         const ctx = await ctxFor(browser, mock, { init: sessionInit("ghp_test_devin", "devin-gh", { person: "devin", role: "admin" }) });
         const page = await ctx.newPage();
@@ -378,15 +388,16 @@ async function signInViaPanel(page, token) {
       await page.click("#ee-save");
       await page.waitForSelector("#ee-bar.ee-bad-bar", { timeout: 10000 });
       const t1 = await page.textContent("#ee-bar");
-      check("conflict (same region changed upstream): clear message, nothing written", /changed this part of the page/.test(t1) && !mock.log.some((e) => e.written), t1.trim().slice(0, 100));
+      check("conflict (same region changed upstream): clear message, nothing written", /changed this part of the page/.test(t1) && !mock.log.some((e) => e.written || e.committed), t1.trim().slice(0, 100));
       // (b) PUT returns 409
       mock.heads.main = mock._newCommit("main", null); // reset upstream to original
-      mock.hooks.before = (e) => (e.method === "PUT" ? { status: 409, data: { message: "articles/vaerek.html does not match abc" } } : null);
+      // Single file: PUT 409; with both article copies: the commit's ref update is refused (422).
+      mock.hooks.before = (e) => (e.method === "PUT" ? { status: 409, data: { message: "articles/vaerek.html does not match abc" } } : e.method === "PATCH" ? { status: 422, data: { message: "Update is not a fast forward" } } : null);
       await page.click("#ee-save");
       await page.waitForSelector("#ee-bar.ee-bad-bar", { timeout: 10000 });
       await page.waitForTimeout(300);
       const t2 = await page.textContent("#ee-bar");
-      check("conflict (409 from GitHub): clear message", /changed this part of the page/.test(t2), t2.trim().slice(0, 100));
+      check("conflict (409/422 from GitHub): clear message", /changed this part of the page/.test(t2), t2.trim().slice(0, 100));
       mock.hooks.before = null;
       // (c) Full-page model: ANY upstream change inside the page body is a conflict (never
       //     overwritten); a change outside main (head/title) is merged — see e2e-editor.js.
@@ -397,7 +408,7 @@ async function signInViaPanel(page, token) {
       await page.click("#ee-save");
       await page.waitForSelector("#ee-bar.ee-bad-bar", { timeout: 10000 });
       const t3 = await page.textContent("#ee-bar");
-      check("upstream change elsewhere in the body: conflict, upstream kept, nothing written", /changed this part of the page/.test(t3) && !mock.log.some((e) => e.written) && mock.file(vaerekPath) === upstream, t3.trim().slice(0, 100));
+      check("upstream change elsewhere in the body: conflict, upstream kept, nothing written", /changed this part of the page/.test(t3) && !mock.log.some((e) => e.written || e.committed) && mock.file(vaerekPath) === upstream, t3.trim().slice(0, 100));
       await ctx.close();
     }
 
@@ -417,9 +428,10 @@ async function signInViaPanel(page, token) {
       await page.click("main.art-body .art-dossier dd:nth-of-type(2)"); await page.keyboard.press("End"); await page.keyboard.type(" (test)");
       await page.click("#ee-save");
       await page.waitForSelector("#ee-bar.ee-done", { timeout: 10000 });
-      const put = mock.log.find((e) => e.written);
+      const put = mock.log.find((e) => e.committed);
       const pr = mock.pulls[0];
-      check("sawyer (pr mode): branch + PUT on branch + pull request, main untouched", put && put.written.branch.startsWith("edit/sawyer-gh/") && pr && pr.base === "main" && mock.heads.main && !mock.commits[mock.heads.main].files[vaerekPath], put && put.written.branch);
+      const br = put && decodeURIComponent(put.path.replace(/^.*\/git\/refs\/heads\//, ""));
+      check("sawyer (pr mode): branch + one commit (both article copies) + pull request, main untouched", put && br.startsWith("edit/sawyer-gh/") && pr && pr.base === "main" && pr.head === br && String(mock.file(vaerekPath, br)) === String(mock.file("articles/vaerek/index.html", br)) && mock.heads.main && !mock.commits[mock.heads.main].files[vaerekPath], br);
       const t = await page.textContent("#ee-bar");
       check("pr mode: success message links the PR", /pull request #1/.test(t), t.trim().slice(0, 100));
       await ctx.close();

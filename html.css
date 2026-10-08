@@ -5231,3 +5231,13 @@ body.article .art-life:empty { min-height: 1.65em; }
 .ee-pt-24, html body .ee-pt-24.ee-pt-24.ee-pt-24 { font-size: 24pt; }
 html body .ee-serif.ee-serif.ee-serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; }
 html body .ee-sans.ee-sans.ee-sans { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+/* Editor Block menu: a Heading added inside a section reads like the section's own heading
+   (spaced from the text above); a Subheading is a quiet serif line in the body face. */
+body.article .art-sec > * + h2 { margin-top: 2.6em; }
+body.article .art-sec h3 {
+  margin: 1.6em 0 0.5em;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 1.2em; font-weight: 400; line-height: 1.35; letter-spacing: 0.01em; color: #f3eee6;
+}
+body.article .art-sec > h3:first-child { margin-top: 0; }

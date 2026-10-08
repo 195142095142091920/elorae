@@ -16,14 +16,16 @@ const REPO = "195142095142091920/elorae";
 const OUT = process.env.SHOTS || "/tmp/ee-editor";
 fs.mkdirSync(OUT, { recursive: true });
 const PROFILES = { repo: REPO, profiles: {
-  "devin-gh": { name: "Devin", person: "devin", role: "admin", title: "GM", permissions: ["**"], save: "direct" } } };
+  "devin-gh": { name: "Devin", person: "devin", role: "admin", title: "GM", permissions: ["**"], save: "direct" },
+  "sawyer-gh": { name: "Sawyer", person: "sawyer", role: "editor", permissions: ["articles/vaerek.html"], save: "pr" } } };
 const results = [];
 function check(name, ok, detail) { results.push({ name, ok: !!ok, detail }); console.log((ok ? "PASS " : "FAIL ") + name + (detail ? "  — " + detail : "")); }
-function newMock() { return new MockGitHub({ repo: REPO, root: ROOT, tokens: { "ghp_test_devin": "devin-gh" }, overrides: { "edit/profiles.json": JSON.stringify(PROFILES, null, 2) } }); }
+function newMock() { return new MockGitHub({ repo: REPO, root: ROOT, tokens: { "ghp_test_devin": "devin-gh", "ghp_test_sawyer": "sawyer-gh" }, overrides: { "edit/profiles.json": JSON.stringify(PROFILES, null, 2) } }); }
 const VPS = { desktop: { width: 1366, height: 860 }, phone: { width: 390, height: 844 } };
 let BASE;
 
-async function ctxFor(browser, mock, vp) {
+async function ctxFor(browser, mock, vp, who) {
+  who = who || "devin";
   const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1, reducedMotion: "reduce" });
   await ctx.route("https://api.github.com/**", (r) => mock.handle(r));
   await ctx.route((u) => u.href.startsWith(BASE) && /\/edit\/(visibility\.json|secrets\/[^/?]+\.json)$/.test(u.pathname), (r) => {
@@ -32,8 +34,8 @@ async function ctxFor(browser, mock, vp) {
   });
   await ctx.route((u) => !u.href.startsWith(BASE) && !u.href.startsWith("data:") && !u.href.startsWith("https://api.github.com"), (r) => r.abort());
   // Signed-in site owner (passes the login gate) with a remembered edit session.
-  const sess = JSON.stringify({ token: "ghp_test_devin", login: "devin-gh", person: "devin", role: "admin", remember: true });
-  await ctx.addInitScript(`try{localStorage.setItem("elorae-edit-session",${JSON.stringify(sess)});localStorage.setItem("elorae-login","devin");document.cookie="elorae-login=devin;path=/";}catch(e){}`);
+  const sess = JSON.stringify({ token: "ghp_test_" + who, login: who + "-gh", person: who, role: who === "devin" ? "admin" : "editor", remember: true });
+  await ctx.addInitScript(`try{localStorage.setItem("elorae-edit-session",${JSON.stringify(sess)});localStorage.setItem("elorae-login",${JSON.stringify(who)});document.cookie="elorae-login=${who};path=/";}catch(e){}`);
   return ctx;
 }
 function watch(page) {
@@ -192,8 +194,14 @@ async function diffTests(browser, vpName, counts) {
     await page.click("#ee-save");
     await page.waitForFunction(() => /Saved|No changes|refused|failed|changed this part/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 15000 }).catch(() => {});
     const orig = fs.readFileSync(path.join(ROOT, file), "utf8");
-    const saved = mock.file(file);
+    const saved = mock.file(file) == null ? null : String(mock.file(file));
     const n = saved === orig ? 0 : diffLines(orig, saved, vpName + "-" + file.replace(/\W+/g, "_"));
+    // Article pages have two identical copies (pretty URL + .html): both get the same edit.
+    const mirror = /^articles\/([^/]+)\/index\.html$/.test(file) ? file.replace(/\/index\.html$/, ".html") : null;
+    if (mirror && fs.existsSync(path.join(ROOT, mirror))) {
+      const mo = fs.readFileSync(path.join(ROOT, mirror), "utf8"), ms = String(mock.file(mirror));
+      if (mo === orig) check(`[${vpName}] ${url}: the .html copy gets the same edit (copies stay identical)`, ms === saved, `mirror +${ms.length - mo.length} bytes`);
+    }
     counts[url] = n;
     const art = saved ? (saved.match(ARTIFACTS) || [""])[0] : "";
     check(`[${vpName}] ${url}: one-word edit saves as a 1-line diff, no live-DOM artifacts`, saved && saved !== orig && n <= 2 && !art && saved.includes("Zq") && saved.length - orig.length === 3, `diff lines ${n}, +${saved ? saved.length - orig.length : "?"} bytes${art ? ", artifact " + art : ""}`);
@@ -227,21 +235,42 @@ async function flowTests(browser, vpName) {
     check(`[${vpName}] upstream change outside the body: both kept`, now.includes("<title>Up ") && now.includes(" Mine</p>"), (await page.textContent("#ee-bar")).trim().slice(0, 60));
     await ctx.close();
   }
-  // Hero set from gallery: back to the normal edit bar; lost bar recovers via Edit.
+  // Hero from the gallery: preview only (nothing written), normal edit bar; Save writes it
+  // with the page (both copies); Cancel puts the old art back. Lost bar recovers via Edit.
   {
     const mock = newMock(); const ctx = await ctxFor(browser, mock, VPS[vpName]); const page = await ctx.newPage(); watch(page);
+    const file = "articles/aghor/index.html";
     await openEdit(page, "articles/aghor/");
+    const src0 = await page.getAttribute(".art-hero img", "src");
     await page.click("#ee-art"); await page.waitForSelector(".ee-gal-item", { timeout: 10000 }).catch(() => {});
     const n0 = mock.log.length;
-    const item = await page.$(".ee-gal-item");
-    if (item) { await item.click(); await page.waitForTimeout(1500); }
-    const after = await page.evaluate(() => ({ save: !!document.getElementById("ee-save"), cancel: !!document.getElementById("ee-cancel"), x: !!document.getElementById("ee-x"), editing: window.EloraeEditor.state.editing, bar: (document.getElementById("ee-bar") || {}).textContent }));
-    const committed = mock.log.slice(n0).some((e) => e.method !== "GET");
-    check(`[${vpName}] hero set: normal edit bar (Save/Cancel), no stranding Close`, item && committed && after.save && after.cancel && !after.x && after.editing, JSON.stringify(after).slice(0, 160));
+    const item = await page.$('.ee-gal-item:not([data-gal-id="aghor"])');
+    const pickId = item && await item.getAttribute("data-gal-id");
+    if (item) { await item.click(); await page.waitForTimeout(600); }
+    const after = await page.evaluate(() => ({ save: !!document.getElementById("ee-save"), cancel: !!document.getElementById("ee-cancel"), x: !!document.getElementById("ee-x"), editing: window.EloraeEditor.state.editing, src: document.querySelector(".art-hero img").getAttribute("src"), bar: (document.getElementById("ee-bar") || {}).textContent }));
+    const wrote = mock.log.slice(n0).some((e) => e.method !== "GET");
+    check(`[${vpName}] hero pick from gallery: preview only, nothing written until Save; Save/Cancel bar`, item && !wrote && after.src !== src0 && after.save && after.cancel && !after.x && after.editing, JSON.stringify(after).slice(0, 160));
     await page.evaluate(() => document.getElementById("ee-bar").remove());
     await page.evaluate(() => window.EloraeEditor.tryEnterEdit());
     await page.waitForTimeout(200);
     check(`[${vpName}] edit mode without a bar recovers via Edit`, !!(await page.$("#ee-save")) && !!(await page.$("#ee-cancel")));
+    await page.click("#ee-save"); await page.waitForTimeout(1500);
+    const saved = String(mock.file(file)), orig = fs.readFileSync(path.join(ROOT, file), "utf8");
+    const heroSrc = (saved.match(/<section class="art-hero[^"]*"><img src="([^"]+)"/) || [])[1];
+    const n = diffLines(orig, saved, vpName + "-hero");
+    check(`[${vpName}] hero Save: one commit writes the new hero src (both copies), nothing else`, heroSrc && heroSrc !== src0 && heroSrc.indexOf("/assets/") === 0 && n <= 2 && String(mock.file("articles/aghor.html")) === saved, `hero ${heroSrc}, diff lines ${n}`);
+    await ctx.close();
+  }
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, VPS[vpName]); const page = await ctx.newPage(); watch(page);
+    await openEdit(page, "articles/aghor/");
+    const src0 = await page.getAttribute(".art-hero img", "src");
+    await page.click("#ee-art"); await page.waitForSelector(".ee-gal-item", { timeout: 10000 }).catch(() => {});
+    await page.click('.ee-gal-item:not([data-gal-id="aghor"])').catch(() => {}); await page.waitForTimeout(300);
+    page._answer = true;
+    await page.click("#ee-cancel"); await page.waitForTimeout(300);
+    const src1 = await page.getAttribute(".art-hero img", "src");
+    check(`[${vpName}] hero preview + Cancel: old art back, nothing written`, src1 === src0 && !mock.log.some((e) => e.method !== "GET"), `${src0} → ${src1}`);
     await ctx.close();
   }
   // Unsaved changes: Cancel / in-site link / New article / unload prompt.
@@ -292,6 +321,7 @@ async function flowTests(browser, vpName) {
     const art = (saved.match(/nav-fade|--nf|data-eimg|ee-index|aria-expanded="false" href|draggable|contenteditable|is-lore-flipped|class="" style/) || [""])[0];
     const srcsets = [(orig.match(/srcset=/g) || []).length, (saved.match(/srcset=/g) || []).length];
     check(`[${vpName}] index organizer: heading rename saves without runtime artifacts; untouched cards byte-identical`, saved.includes("Divines Zq") && !art && srcsets[0] === srcsets[1] && saved.length - orig.length <= 3 * 4 + 6, `diff lines ${n}, +${saved.length - orig.length} bytes, srcset ${srcsets}, ${art}`);
+    check(`[${vpName}] index organizer: the index/ancients.html copy gets the same save`, String(mock.file("index/ancients.html")) === saved);
     // Move a card (select + Categories) → card bytes kept (srcset etc.), only its id changes.
     await page.evaluate(() => document.querySelector("#ancients a.index-card").click());
     await page.waitForTimeout(150);
@@ -309,6 +339,194 @@ async function flowTests(browser, vpName) {
   }
 }
 
+const PNG1 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+// Paste into the element under the caret (clipboard HTML / text / a PNG file).
+async function pasteInto(page, data) {
+  await page.evaluate(({ html, text, png }) => {
+    const dt = new DataTransfer();
+    if (html) dt.setData("text/html", html);
+    dt.setData("text/plain", text || "");
+    if (png) { const b = Uint8Array.from(atob(png), (c) => c.charCodeAt(0)); dt.items.add(new File([b], "pasted picture.png", { type: "image/png" })); }
+    const n = getSelection().anchorNode; const el = n.nodeType === 1 ? n : n.parentElement;
+    el.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
+  }, data);
+  await page.waitForTimeout(400);
+}
+const writes = (mock, from) => mock.log.slice(from || 0).filter((e) => e.method !== "GET");
+
+async function batch2Tests(browser, vpName) {
+  const vp = VPS[vpName], LORE = "main.art-body p.art-life";
+  // 1. Enter = new paragraph (same body class), Shift+Enter = line break, Enter after a heading = body paragraph.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    const file = "articles/aghor/index.html", orig = fs.readFileSync(path.join(ROOT, file), "utf8");
+    await openEdit(page, "articles/aghor/");
+    const text0 = await caretIn(page, LORE, 0.5);
+    const n0 = await page.evaluate(() => document.querySelectorAll("main p.art-life").length);
+    await page.keyboard.press("Enter");
+    const e1 = await page.evaluate(() => { const ps = [...document.querySelectorAll("main p.art-life")]; const i = ps.indexOf(window.__el); const nx = ps[i + 1]; return { n: ps.length, cls: nx && nx.getAttribute("class"), id: nx && nx.id, joined: window.__el.textContent + "|" + (nx && nx.textContent), caretIn: nx && nx.contains(getSelection().anchorNode) }; });
+    check(`[${vpName}] Enter splits into a new p.art-life (caret in it, no copied id)`, e1.n === n0 + 1 && e1.cls === "art-life" && !e1.id && e1.caretIn, JSON.stringify(e1).slice(0, 140));
+    await page.keyboard.type("Zq");
+    await page.keyboard.press("Shift+Enter"); await page.keyboard.type("Zr");
+    const e2 = await page.evaluate(() => { const ps = [...document.querySelectorAll("main p.art-life")]; const nx = ps[ps.indexOf(window.__el) + 1]; return { n: ps.length, br: nx.querySelectorAll("br").length, html: nx.innerHTML.slice(0, 40) }; });
+    check(`[${vpName}] Shift+Enter is a line break inside the same paragraph`, e2.n === n0 + 1 && e2.br === 1, JSON.stringify(e2));
+    // Heading, then Enter at its end → a body paragraph.
+    await caretIn(page, LORE, 1.0); await page.keyboard.press("Enter");
+    await page.keyboard.type("Head Zh"); await pick(page, "#ee-block", "h2");
+    await page.evaluate(() => { const h = [...document.querySelectorAll("main h2")].find((x) => x.textContent === "Head Zh"); const r = document.createRange(); r.selectNodeContents(h); r.collapse(false); h.closest(".ee-editable").focus(); getSelection().removeAllRanges(); getSelection().addRange(r); });
+    await page.keyboard.press("Enter"); await page.keyboard.type("After Zp");
+    const e3 = await page.evaluate(() => { const p = [...document.querySelectorAll("main p")].find((x) => x.textContent === "After Zp"); const h = [...document.querySelectorAll("main h2")].find((x) => x.textContent === "Head Zh"); return { p: p && p.getAttribute("class"), h: h && (h.getAttribute("class") || "") }; });
+    check(`[${vpName}] Enter at the end of a heading gives a body paragraph (p.art-life)`, e3.p === "art-life" && e3.h === "", JSON.stringify(e3));
+    await page.click("#ee-save"); await page.waitForTimeout(1500);
+    const saved = String(mock.file(file));
+    const n = diffLines(orig, saved, vpName + "-enter");
+    check(`[${vpName}] Enter/heading edits save as clean source (new p.art-life, plain h2, no &nbsp;/ids/artifacts)`, saved.includes('<p class="art-life">Zq<br>Zr') && saved.includes("<h2>Head Zh</h2>") && saved.includes('<p class="art-life">After Zp</p>') && !/&nbsp;Zq|<p class="art-life">&nbsp;/.test(saved) && !ARTIFACTS.test(saved), `diff lines ${n}`);
+    check(`[${vpName}] Enter tests: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // 2. Block menu: Heading = the page's section heading, Subheading = serif h3, Paragraph = p.art-life again.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); watch(page);
+    await openEdit(page, "articles/aghor/");
+    const t0 = await caretIn(page, LORE, 0.4);
+    const real = await page.evaluate(() => { const h = document.querySelector("main .art-sec > h2"); const cs = getComputedStyle(h); return { fs: cs.fontSize, ff: cs.fontFamily, tt: cs.textTransform }; });
+    const p0 = await page.evaluate(() => parseFloat(getComputedStyle(window.__el).fontSize));
+    await pick(page, "#ee-block", "h2");
+    const h2 = await page.evaluate(() => { const n = getSelection().anchorNode; const b = (n.nodeType === 1 ? n : n.parentElement).closest("h2,h3,p"); const cs = getComputedStyle(b); window.__b = b; return { tag: b.tagName, cls: b.getAttribute("class"), fs: cs.fontSize, ff: cs.fontFamily, tt: cs.textTransform }; });
+    check(`[${vpName}] Block → Heading: an h2 styled exactly like the page's section headings`, h2.tag === "H2" && !h2.cls && h2.fs === real.fs && h2.ff === real.ff && h2.tt === real.tt, JSON.stringify(h2));
+    await pick(page, "#ee-block", "h3");
+    const h3 = await page.evaluate(() => { const n = getSelection().anchorNode; const b = (n.nodeType === 1 ? n : n.parentElement).closest("h2,h3,p"); const cs = getComputedStyle(b); return { tag: b.tagName, cls: b.getAttribute("class"), fs: parseFloat(cs.fontSize), ff: cs.fontFamily, tt: cs.textTransform, fw: cs.fontWeight }; });
+    check(`[${vpName}] Block → Subheading: a serif h3 in the body face (not an 11px label, not bold)`, h3.tag === "H3" && !h3.cls && /Iowan|Palatino/.test(h3.ff) && h3.tt === "none" && h3.fs > p0 && h3.fw === "400", JSON.stringify(h3));
+    await pick(page, "#ee-block", "p");
+    const pp = await page.evaluate(() => { const n = getSelection().anchorNode; const b = (n.nodeType === 1 ? n : n.parentElement).closest("h2,h3,p"); return { tag: b.tagName, cls: b.getAttribute("class"), fs: parseFloat(getComputedStyle(b).fontSize), text: b.textContent }; });
+    check(`[${vpName}] Block → Paragraph: back to p.art-life at body size, text intact`, pp.tag === "P" && pp.cls === "art-life" && pp.fs === p0 && pp.text === t0, JSON.stringify(pp).slice(0, 120));
+    await ctx.close();
+  }
+  // 3. Hero name + epithet: admin edits both (epithet loses its ending period); both copies saved.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    const file = "articles/vaerek/index.html", orig = fs.readFileSync(path.join(ROOT, file), "utf8");
+    await openEdit(page, "articles/vaerek/");
+    const ed = await page.evaluate(() => ({ h1: document.querySelector(".art-title h1").isContentEditable, ep: document.querySelector(".art-title .art-epithet").isContentEditable }));
+    await caretIn(page, ".art-title h1", 1.0); await page.keyboard.type(" Zq");
+    await page.keyboard.press("Enter");
+    await caretIn(page, ".art-title .art-epithet", 1.0); await page.keyboard.type(" of Zq.");
+    await page.click("#ee-save"); await page.waitForTimeout(1500);
+    const saved = String(mock.file(file)), n = diffLines(orig, saved, vpName + "-titles");
+    check(`[${vpName}] admin: hero name + epithet editable, saved in place (no ending period, single line)`, ed.h1 && ed.ep && saved.includes("<h1>Vaerek Rathkin Zq</h1>") && saved.includes('<p class="art-epithet">Wreathbound Ranger of Zq</p>') && n <= 2 && String(mock.file("articles/vaerek.html")) === saved, `diff lines ${n}`);
+    check(`[${vpName}] titles: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // 3b/8. Player on his own page's pretty URL: can edit (incl. name/epithet); one PR updates both copies.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp, "sawyer"); const page = await ctx.newPage(); const W = watch(page);
+    const file = "articles/vaerek/index.html", orig = fs.readFileSync(path.join(ROOT, file), "utf8");
+    let ok = true;
+    try { await openEdit(page, "articles/vaerek/"); } catch (e) { ok = false; }
+    check(`[${vpName}] player: edits his own article at its pretty URL (articles/x/index.html)`, ok);
+    if (ok) {
+      const ed = await page.evaluate(() => document.querySelector(".art-title .art-epithet").isContentEditable);
+      await caretIn(page, ".art-title .art-epithet", 1.0); await page.keyboard.type(" Zs");
+      await caretIn(page, LORE, 1.0); await page.keyboard.type(" Zb");
+      await page.click("#ee-save"); await page.waitForTimeout(1800);
+      const pr = mock.pulls[0];
+      const br = pr && pr.head;
+      const a = br ? String(mock.file(file, br)) : "", b = br ? String(mock.file("articles/vaerek.html", br)) : "";
+      check(`[${vpName}] player: name/epithet editable; one PR updates both copies identically`, ed && pr && a.includes("Wreathbound Ranger Zs</p>") && a.includes(" Zb") && a === b && String(mock.file(file)) === orig && writes(mock).filter((e) => /\/git\/refs\/heads\//.test(e.path)).length === 1, `pr ${pr && pr.number} branch ${br}`);
+    }
+    const page2 = await ctx.newPage(); watch(page2);
+    await page2.goto(BASE + "articles/aghor/", { waitUntil: "load" });
+    await page2.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 }).catch(() => {});
+    await page2.waitForTimeout(300);
+    check(`[${vpName}] player: no Edit on someone else's article`, !(await page2.$("#ee-glyph")) && !(await page2.evaluate(() => window.EloraeEditor.tryEnterEdit())));
+    check(`[${vpName}] player tests: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // 4/5. Gallery Insert goes at the caret; pasted pictures wait for Save and go in one commit.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    const file = "articles/aghor/index.html";
+    await openEdit(page, "articles/aghor/");
+    const t0 = await caretIn(page, LORE, 0.5);
+    await page.click("#ee-art"); await page.waitForSelector(".ee-gal-item", { timeout: 10000 }).catch(() => {});
+    await page.check('input[name="ee-gal-act"][value="insert"]');
+    await page.click(".ee-gal-item"); await page.waitForTimeout(400);
+    const g = await page.evaluate(() => { const im = window.__el.querySelector("img"); if (!im) return null; const r = document.createRange(); r.setStart(window.__el, 0); r.setEndBefore(im); return { before: r.toString().length, total: window.__el.textContent.length, src: im.getAttribute("src") }; });
+    check(`[${vpName}] gallery Insert: picture goes at the caret (mid-paragraph), not the page end`, g && Math.abs(g.before - Math.round(t0.length * 0.5)) <= 1 && /^\/assets\//.test(g.src), JSON.stringify(g));
+    const n0 = mock.log.length;
+    await caretIn(page, LORE, 1.0);
+    await pasteInto(page, { png: PNG1 });
+    const pend = await page.evaluate(() => [...document.querySelectorAll("main img[data-ee-pending]")].map((i) => i.getAttribute("src").slice(0, 5)));
+    check(`[${vpName}] pasted picture: shown at once, nothing uploaded before Save`, pend.length === 1 && pend[0] === "blob:" && writes(mock, n0).length === 0, JSON.stringify(pend));
+    await page.click("#ee-save"); await page.waitForTimeout(2000);
+    const commits = writes(mock, n0).filter((e) => e.committed);
+    const c = commits[0] && commits[0].committed;
+    const saved = String(mock.file(file));
+    const asset = (saved.match(/<img src="(\/assets\/pasted-picture[^"]*\.png)"/) || [])[1];
+    const cat = JSON.parse(String(mock.file("edit/media/catalog.json")));
+    check(`[${vpName}] Save: one commit with the page (both copies), the picture and the catalog`, commits.length === 1 && asset && mock.file(asset.slice(1)) && Object.values(cat.media).some((m) => "/" + m.path === asset) && String(mock.file("articles/aghor.html")) === saved && !/blob:|data-ee-pending/.test(saved), `commits ${commits.length}, asset ${asset}`);
+    check(`[${vpName}] gallery/paste: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // 6/7. Rich paste cleanup; Font on overlapping partial selections never nests.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    await openEdit(page, "articles/aghor/");
+    await caretIn(page, LORE, 0.5);
+    await pasteInto(page, { html: '<meta charset="utf-8"><b style="font-weight:normal;" id="docs-internal-guid-1"><span style="font-size:11pt;font-family:Arial;font-weight:700">Docs</span><span style="font-size:11pt;font-family:Arial"> plain</span></b>', text: "Docs plain" });
+    const d = await page.evaluate(() => window.__el.innerHTML.match(/.{0,20}Docs plain.{0,4}|.{0,30}Docs<\/strong>.{0,10}/)?.[0] || window.__el.innerHTML.slice(0, 80));
+    const dn = await page.evaluate(() => ({ strong: window.__el.querySelectorAll("strong").length, junk: window.__el.querySelectorAll("b, span, font, [style]").length, ps: document.querySelectorAll("main p.art-life").length }));
+    check(`[${vpName}] Google Docs paste inline: only the bold run is bold, merged into the paragraph`, dn.strong === 1 && dn.junk === 0 && /<strong>Docs<\/strong> plain/.test(d), d + " " + JSON.stringify(dn));
+    await caretIn(page, LORE, 1.0);
+    const word = '<html><head><style>p.MsoNormal{font-family:Calibri}</style></head><body><!--StartFragment--><p class="MsoNormal" style="font-family:Calibri;font-size:14pt"><span style="font-size:14pt"><font face="Arial" color="red">Pasted <b>bold</b> <span style="font-weight:700">heavy</span> <i>it</i> <a href="https://example.com" class="x" style="color:blue">link</a></font></span></p><h1 style="color:red">Pasted Head</h1><ul><li><span style="font-family:Arial">one</span></li><li>two</li></ul><p class="MsoNormal"><span>Last line</span></p><!--EndFragment--></body></html>';
+    await pasteInto(page, { html: word, text: "Pasted bold heavy it link" });
+    const r = await page.evaluate(() => {
+      const m = document.querySelector("main");
+      const p = [...m.querySelectorAll("p")].find((x) => x.textContent.includes("Pasted bold"));
+      window.__el = [...m.querySelectorAll("p.art-life")].find((x) => x.textContent.length > 3 && !x.textContent.includes("Pasted"));
+      const last = [...m.querySelectorAll("p")].find((x) => x.textContent === "Last line");
+      return { p: p && p.outerHTML, h: !![...m.querySelectorAll("h2")].find((x) => x.textContent === "Pasted Head" && !x.getAttribute("class")),
+        li: [...m.querySelectorAll("ul > li")].map((x) => x.textContent).join(","), last: last && last.getAttribute("class"),
+        junk: m.querySelectorAll("font, .MsoNormal, span:not([class]), :is(p,h2,h3,li,ul) [style], :is(p,h2,h3,li,ul)[style]").length };
+    });
+    check(`[${vpName}] rich paste: p.art-life / h2 / ul li / strong / em / a only; no fonts, styles, spans or foreign classes`, r.p && /^<p class="art-life">.*tripartite\.Pasted /.test(r.p) && /<strong>bold<\/strong> <strong>heavy<\/strong> <em>it<\/em> <a href="https:\/\/example.com">link<\/a>/.test(r.p) && r.h && r.li === "one,two" && r.last === "art-life" && r.junk === 0, JSON.stringify(r).slice(-420));
+    await page.click("#ee-save"); await page.waitForTimeout(1500);
+    const ps = String(mock.file("articles/aghor/index.html"));
+    check(`[${vpName}] rich paste saves as clean source (h2, ul/li, strong/em/a; no fonts/styles/spans/Mso)`, ps.includes("\n<h2>Pasted Head</h2>") && ps.includes("<ul><li>one</li><li>two</li></ul>") && ps.includes('<p class="art-life">Last line</p>') && ps.includes("<strong>Docs</strong> plain") && !/MsoNormal|<font|<span>|style="font|docs-internal/.test(ps) && !ARTIFACTS.test(ps), (ps.match(/tripartite\.[\s\S]{0,200}/) || [""])[0]);
+    await page.evaluate(() => window.EloraeEditor.tryEnterEdit()); await page.waitForSelector("#ee-save");
+    await caretIn(page, LORE, 0.10, 0.40); await pick(page, "#ee-font", "serif");
+    await caretIn(page, LORE, 0.25, 0.60); await pick(page, "#ee-font", "sans");
+    const f = await page.evaluate(() => ({ nested: window.__el.querySelectorAll(".ee-serif .ee-sans, .ee-sans .ee-serif, .ee-serif .ee-serif, .ee-sans .ee-sans").length, serif: window.__el.querySelectorAll(".ee-serif").length, sans: window.__el.querySelectorAll(".ee-sans").length }));
+    check(`[${vpName}] Font on an overlapping partial selection: split, never nested`, f.nested === 0 && f.serif >= 1 && f.sans === 1, JSON.stringify(f));
+    check(`[${vpName}] paste/font: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // 10. Phone bars compact (one row of style controls); 9. Categories closed while editing on phone.
+  if (vpName === "phone") {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); watch(page);
+    await openEdit(page, "articles/aghor/");
+    await caretIn(page, LORE, 0.3); await page.waitForTimeout(200);
+    const b = await page.evaluate(() => { const bar = document.getElementById("ee-bar").getBoundingClientRect(), sb = document.getElementById("ee-stylebar"); const tops = [...sb.children].map((c) => { const q = c.getBoundingClientRect(); return Math.round((q.top + q.bottom) / 20); }); return { bar: Math.round(bar.height), sb: Math.round(sb.getBoundingClientRect().height), rows: new Set(tops).size, overflow: sb.scrollWidth > sb.clientWidth + 1, rail: document.documentElement.classList.contains("cats-rail-phone-open") }; });
+    check(`[phone] edit bar + style bar compact: style controls on one row`, b.bar <= 72 && b.sb <= 44 && b.rows === 1 && !b.overflow, JSON.stringify(b));
+    check(`[phone] article editing: Categories panel closed (not over the text)`, !b.rail, JSON.stringify(b));
+    await page.screenshot({ path: path.join(OUT, "phone-bars.png") });
+    await ctx.close();
+    const mock2 = newMock(); const ctx2 = await ctxFor(browser, mock2, vp); const pg = await ctx2.newPage(); const W2 = watch(pg);
+    await pg.goto(BASE + "index/ancients/", { waitUntil: "load" });
+    await pg.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    const before = await pg.evaluate(() => ({ open: document.querySelector("aside.index-toc").classList.contains("open"), ls: localStorage.getItem("elorae-cats-rail") }));
+    await pg.evaluate(() => window.EloraeEditor.tryEnterEdit()); await pg.waitForSelector("#ee-idx-save"); await pg.waitForTimeout(300);
+    const org = await pg.evaluate(() => { const c = document.querySelector("main a.index-card"); return { open: document.querySelector("aside.index-toc").classList.contains("open"), cardTop: Math.round(c.getBoundingClientRect().top) }; });
+    await pg.click("#ee-idx-cancel").catch(async () => { await pg.evaluate(() => window.EloraeIndexOrg && window.EloraeIndexOrg.cancel && window.EloraeIndexOrg.cancel()); });
+    await pg.waitForTimeout(300);
+    const ls2 = await pg.evaluate(() => localStorage.getItem("elorae-cats-rail"));
+    check(`[phone] index organizer: Categories closed by default, cards visible; the visitor's setting is kept`, before.open && !org.open && org.cardTop < 400 && ls2 === before.ls, JSON.stringify({ before, org, ls2 }));
+    await pg.screenshot({ path: path.join(OUT, "phone-index-org.png") });
+    check(`[phone] index organizer phone: no page errors`, W2.errs.length === 0, W2.errs.join(" | "));
+    await ctx2.close();
+  }
+}
+
 (async () => {
   const srv = await serverForTests();
   BASE = srv.base;
@@ -318,7 +536,7 @@ async function flowTests(browser, vpName) {
   const only = process.env.ONLY || "";
   try {
     for (const vpName of ["desktop", "phone"]) {
-      for (const [name, fn] of [["size", sizeTests], ["diff", (b, v) => diffTests(b, v, counts[v] = {})], ["flow", flowTests]]) {
+      for (const [name, fn] of [["size", sizeTests], ["diff", (b, v) => diffTests(b, v, counts[v] = {})], ["flow", flowTests], ["batch2", batch2Tests]]) {
         if (only && only.split(",").indexOf(name) < 0) continue;
         try { await fn(browser, vpName); } catch (e) { check(`[${vpName}] ${name} stage ran without exceptions`, false, e.stack.split("\n").slice(0, 3).join(" ")); }
       }

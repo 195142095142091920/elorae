@@ -77,9 +77,11 @@ html.ee-editing #ee-glyph { display: none; }
   #ee-panel .ee-box { width: 100%; padding: 22px 20px 20px; }
   #ee-panel input[type=password] { font-size: 18px; }
   #ee-glyph { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); padding: 12px 8px; font-size: 12px; letter-spacing: .24em; }
-  #ee-bar { left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-width: 1px 0 0; flex-wrap: wrap; gap: 10px 22px; }
-  #ee-bar .ee-msg { flex-basis: 100%; }
-  #ee-bar .ee-btn { padding: 8px 0; }
+  #ee-bar { left: 0; right: 0; bottom: 0; padding: 8px 14px calc(6px + env(safe-area-inset-bottom)); border-width: 1px 0 0; flex-wrap: wrap; gap: 2px 15px; }
+  #ee-bar .ee-msg { flex-basis: 100%; font-size: 11px; line-height: 1.35; }
+  #ee-bar .ee-btn { padding: 7px 0; letter-spacing: .15em; }
+  #ee-bar #ee-cancel { margin-left: auto; }
+  #ee-bar .ee-wide-only { display: none; }
 }
 
 /* Standalone edit pages (dashboard, secret viewer). */
@@ -309,14 +311,22 @@ main.read .ee-editable img { max-width: 100%; height: auto; vertical-align: midd
 }
 #ee-stylebar .ee-glyph-btn:hover, #ee-stylebar .ee-glyph-btn:focus-visible { color: #f3eee6; outline: none; }
 #ee-stylebar .ee-glyph-btn b, #ee-stylebar .ee-glyph-btn i { font-size: 13px; }
+/* Gallery: what a click on a picture does (pages with hero art). */
+#ee-panel .ee-gal-act { display: flex; gap: 18px; margin: 0 0 10px; font-size: 12px; letter-spacing: .04em; color: #8f8a82; }
+#ee-panel .ee-gal-act label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+/* Empty epithet while editing: a faint placeholder so there is something to click. */
+html.ee-editing .art-title .art-epithet.ee-title-edit:empty::before,
+html.ee-page-editing main .art-title:not(.ee-locked) .art-epithet:empty::before { content: "Epithet"; opacity: .35; }
 @media (min-width: 801px) {
   #ee-stylebar { width: min(640px, calc(100% - 48px)); justify-content: center; }
 }
 @media (max-width: 800px) {
   #ee-stylebar {
     left: 0; right: 0; transform: none; width: auto; border-radius: 0; border-width: 1px 0 0;
-    justify-content: flex-start; gap: 8px 12px; padding: 8px 14px;
+    justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; gap: 14px; padding: 4px 14px;
   }
+  #ee-stylebar select { width: auto; max-width: 4.6em; padding: 5px 2px; }
+  #ee-stylebar .ee-glyph-btn { padding: 6px 4px; flex: none; }
 }
 
 /* Index organizer (admin edit mode) */

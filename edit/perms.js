@@ -12,7 +12,20 @@
   // A non-admin rule that isn't inside articles/ is ignored (UI) and rejected (guard).
   var NON_ADMIN_CEILING = "articles/*.html";
 
-  function withinCeiling(path) { return matches(NON_ADMIN_CEILING, path); }
+  // An article's pretty URL copy (articles/x/index.html) is the same page as articles/x.html:
+  // rules and the ceiling are checked against the .html name, so players can edit either copy.
+  function canonicalPath(path) {
+    var p = normPath(path), m = /^articles\/([^/]+)\/index\.html$/.exec(p);
+    return m ? "articles/" + m[1] + ".html" : p;
+  }
+  // The other copy of a page (pretty URL x/index.html <-> x.html), or null.
+  function mirrorPath(path) {
+    var p = normPath(path), m;
+    if ((m = /^(.+)\/index\.html$/.exec(p))) return m[1] + ".html";
+    if ((m = /^(.+)\.html$/.exec(p)) && !/(^|\/)index$/.test(m[1])) return m[1] + "/index.html";
+    return null;
+  }
+  function withinCeiling(path) { return matches(NON_ADMIN_CEILING, canonicalPath(path)); }
   // A rule (glob) is acceptable for a non-admin only if it can't reach outside articles/.
   function ruleAllowed(glob) {
     var g = normPath(glob);
@@ -92,7 +105,16 @@
     if (isProtected(path)) return isAdmin(profile);
     if (isAdmin(profile)) return true;
     if (!withinCeiling(path)) return false;
-    return permList(profile).some(function (g) { return matches(g, path); });
+    var c = canonicalPath(path);
+    return permList(profile).some(function (g) { return matches(g, c); });
+  }
+  // A player who owns this page (listed by exact path, not via a glob) may also edit its
+  // hero name and epithet; admins always may.
+  function ownsPage(profile, path) {
+    if (!profile) return false;
+    if (isAdmin(profile)) return true;
+    var c = canonicalPath(path);
+    return permList(profile).some(function (g) { return !/[*?]/.test(g) && canonicalPath(g) === c; });
   }
 
   function saveMode(profile) {
@@ -117,6 +139,9 @@
     permList: permList,
     isProtected: isProtected,
     canEdit: canEdit,
+    ownsPage: ownsPage,
+    canonicalPath: canonicalPath,
+    mirrorPath: mirrorPath,
     saveMode: saveMode
   };
 });

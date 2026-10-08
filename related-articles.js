@@ -17,6 +17,8 @@
   }
   var main = document.querySelector("main.art-body"), sec = document.getElementById("related");
   if (!main || !sec || main.classList.contains("private") || editing()) return;
+  // A curated Related section stays exactly as written (no extra generated lists).
+  if (sec.querySelector("a[href]")) return;
   var PLACES = ["Winterlands", "Syr Sable", "Corranth", "Ilium Aghor", "Uma Sura", "Essen Revir", "Tumunz", "Jatar", "Elen Asva",
     "Far Nybei", "Kaiden", "Kanta Masa", "Gem Waste", "Celestial Sands", "Heartroot", "Shasir", "Nathalor"];
   function text(n) { return n ? n.textContent.replace(/\s+/g, " ").trim() : ""; }

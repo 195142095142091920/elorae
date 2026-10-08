@@ -342,7 +342,7 @@
 
   function articleTemplate(name, slug, catId) {
     var title = name;
-    var vEdit = "editor-critical";
+    var vEdit = "editor-batch2";
     // Minimal article; art-index stub — Category rail still works for chrome.
     return '<!doctype html>\n<html lang="en">\n<head>\n' +
       '<script src="../session-gate.js?v=guest-browse"><\/script>\n\n' +
@@ -352,7 +352,7 @@
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n' +
       '<title>' + esc(title) + ' - Elorae</title>\n' +
       '<link rel="stylesheet" href="/styles.css?v=art96">\n' +
-      '<link rel="stylesheet" href="/html.css?v=editor-critical">\n' +
+      '<link rel="stylesheet" href="/html.css?v=editor-batch2">\n' +
       '<script src="../rail-toggle.js?v=nt26-veil"><\/script>\n' +
       '<script src="../skip-link.js?v=nt11-skip"><\/script>\n' +
       '<link rel="icon" href="/favicon.svg">\n' +
@@ -367,12 +367,12 @@
       '<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier"><dt>Name</dt><dd>' + esc(title) + '</dd></dl></section>\n' +
       '<section class="art-sec" id="description"><h2>Description</h2><p class="art-line"></p></section>\n' +
       '</main>\n' +
-      '<script src="../search.js?v=editor-critical"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
+      '<script src="../search.js?v=editor-batch2"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n' +
       '<script src="../glow.js?v=nt32-ambient"><\/script>\n' +
       '<script src="../art-index.js?v=art87"><\/script>\n' +
       '<script src="../article-siblings.js?v=nt10-sib"><\/script>\n' +
-      '<script src="../related-articles.js?v=editor-critical"><\/script>\n' +
+      '<script src="../related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="../edit/edit.js?v=' + vEdit + '" defer><\/script>\n' +
       '</body>\n</html>\n';
   }
@@ -563,7 +563,12 @@
     barMsg("Saving Index…", "ee-busy");
     serializeIndex().then(function (r) {
       if (r.html === r.text) return "none";
-      return E.commitFiles([{ path: PATH, text: r.html }], "Index: reorganize cards [edit-mode]", E.BRANCH);
+      // The page's other copy (x.html <-> x/index.html) gets the same result when identical.
+      var mp = P.mirrorPath ? P.mirrorPath(PATH) : null;
+      var mirror = mp ? E.getFile(mp).then(function (m) { return m.text === r.text ? { path: mp, text: r.html } : null; }, function () { return null; }) : Promise.resolve(null);
+      return mirror.then(function (m) {
+        return E.commitFiles([{ path: PATH, text: r.html }].concat(m ? [m] : []), "Index: reorganize cards [edit-mode]", E.BRANCH);
+      });
     }).then(function (res) {
       state.busy = false;
       if (res === "none") { state.dirty = false; barMsg("No changes to save."); return; }
@@ -591,6 +596,8 @@
     state.active = true;
     state.dirty = false;
     rememberStart();
+    // Phone: Categories starts closed (it covers the cards); open it from the bar to move a card.
+    state.railRestore = E.closePhoneRail ? E.closePhoneRail() : null;
     document.documentElement.classList.add("ee-editing", "ee-index-org");
     enableDrag();
     enableHeaderEdit();
@@ -624,6 +631,7 @@
     disableDrag();
     setSelected(null);
     document.documentElement.classList.remove("ee-editing", "ee-index-org");
+    if (state.railRestore) { try { state.railRestore(); } catch (e) {} state.railRestore = null; }
     state.active = false;
     var b = $("ee-bar");
     if (b) b.remove();

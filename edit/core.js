@@ -320,11 +320,12 @@
   }
 
   // One atomic commit with several files (non-forced ref update => detects concurrent pushes).
-  // files: [{ path, text }]
-  function commitFiles(files, message, branch) {
+  // files: [{ path, text }]. parentSha (optional): the commit the edit was based on; if the
+  // branch moved since, GitHub refuses the ref update (422) instead of overwriting.
+  function commitFiles(files, message, branch, parentSha) {
     branch = branch || BRANCH;
     var parent, baseTree;
-    return headSha(branch).then(function (sha) {
+    return (parentSha ? Promise.resolve(parentSha) : headSha(branch)).then(function (sha) {
       parent = sha;
       return api(repoPath("/git/commits/" + sha));
     }).then(function (c) {
@@ -386,7 +387,22 @@
     tokens: "https://github.com/settings/tokens"
   };
 
+  // Phone: the Categories panel (Index / article rail) opens over the page by default.
+  // While editing it starts closed; the visitor's saved preference is put back afterwards.
+  function closePhoneRail() {
+    if (!window.matchMedia || !window.matchMedia("(max-width: 800px)").matches) return null;
+    var t = document.querySelector('#section-bar .sec-toggle[aria-expanded="true"]');
+    if (!t) return null;
+    var KEY = "elorae-cats-rail", raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (e) {}
+    try { t.click(); } catch (e2) { return null; }
+    return function () {
+      try { if (raw == null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, raw); } catch (e3) {}
+    };
+  }
+
   window.EloraeEdit = {
+    closePhoneRail: closePhoneRail,
     tokenKind: tokenKind, TOKEN_LINKS: TOKEN_LINKS, OWNER: owner,
     REPO: REPO, BRANCH: BRANCH, API: API, ROOT: ROOT,
     pagePath: pagePath, session: session, api: api, repoPath: repoPath,

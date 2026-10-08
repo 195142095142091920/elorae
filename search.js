@@ -619,16 +619,8 @@
   }, true);
 })();
 
-/* art67: phone page-name mark */
-(function () {
-  var body = document.body;
-  if (!body || !body.classList.contains("article")) return;
-  var h1 = document.querySelector(".art-title h1");
-  var loginGate = document.querySelector(".mast .topbar > .mark > a[href*=\"login\"], .mast .mark > a[href*=\"login\"]");
-  if (!h1 || !loginGate) return;
-  var name = (h1.textContent || "").trim().split(/\s+/)[0];
-  if (name) loginGate.textContent = name;
-})();
+/* art67 (phone page-name mark) retired: it never ran (undefined reference), so the header
+   always kept its login link text; kept that look, without the error. */
 
 /* art72: lock phone safe-area once (no scroll/resize chrome rewrite) */
 (function lockPhoneSafeArea() {
