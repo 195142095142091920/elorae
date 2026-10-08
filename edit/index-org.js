@@ -102,7 +102,10 @@
       '<button type="button" class="ee-btn" id="ee-idx-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-idx-save">Save</button>';
     $("ee-idx-save").onclick = saveIndex;
-    $("ee-idx-cancel").onclick = cancelOrg;
+    $("ee-idx-cancel").onclick = function () {
+      if (state.dirty && !window.confirm("Discard your unsaved changes to the Index?")) return;
+      cancelOrg();
+    };
     $("ee-idx-add").onclick = addCardPrompt;
   }
 
@@ -136,7 +139,7 @@
     // Update id prefix
     var slug = (card.id || "").replace(/^.*?-/, "") || slugify((card.querySelector("span") || {}).textContent || "card");
     // Better: derive slug from href
-    var hm = /\/articles\/([^\/?#]+)\.html/.exec(card.getAttribute("href") || "");
+    var hm = /\/articles\/([^\/?#]+?)(?:\.html|\/)?(?:[?#]|$)/.exec(card.getAttribute("href") || "");
     if (hm) slug = hm[1];
     var oldId = card.id;
     card.id = catId + "-" + slug;
@@ -208,6 +211,7 @@
       }
     });
     panel.innerHTML = html;
+    state.tocRebuilt = true;
     // Mark current hash category as .on
     var hash = (location.hash || "").replace(/^#/, "");
     var on = panel.querySelector('a[href="#' + hash + '"]') || panel.querySelector(".toc-row > a");
@@ -219,6 +223,7 @@
       h.setAttribute("contenteditable", "true");
       h.setAttribute("spellcheck", "true");
       h.classList.add("ee-index-heading");
+      h.setAttribute("data-ee-was", (h.textContent || "").replace(/\s+/g, " ").trim());
       h.addEventListener("keydown", onHeadingKey);
       h.addEventListener("blur", onHeadingBlur);
     });
@@ -228,6 +233,7 @@
       h.removeAttribute("contenteditable");
       h.removeAttribute("spellcheck");
       h.classList.remove("ee-index-heading");
+      h.removeAttribute("data-ee-was");
       h.removeEventListener("keydown", onHeadingKey);
       h.removeEventListener("blur", onHeadingBlur);
     });
@@ -238,8 +244,10 @@
   function onHeadingBlur(e) {
     var h = e.target;
     var text = (h.textContent || "").replace(/\s+/g, " ").trim();
-    if (!text) { h.textContent = h.id || "Category"; return; }
+    if (!text) { h.textContent = h.getAttribute("data-ee-was") || h.id || "Category"; return; }
+    if (text === h.getAttribute("data-ee-was")) return; // focus/blur without a change
     h.textContent = text;
+    h.setAttribute("data-ee-was", text);
     rebuildTocFromDom();
     markDirty();
   }
@@ -334,7 +342,7 @@
 
   function articleTemplate(name, slug, catId) {
     var title = name;
-    var vEdit = "img-resize";
+    var vEdit = "editor-critical";
     // Minimal article; art-index stub — Category rail still works for chrome.
     return '<!doctype html>\n<html lang="en">\n<head>\n' +
       '<script src="../session-gate.js?v=guest-browse"><\/script>\n\n' +
@@ -344,7 +352,7 @@
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n' +
       '<title>' + esc(title) + ' - Elorae</title>\n' +
       '<link rel="stylesheet" href="/styles.css?v=art96">\n' +
-      '<link rel="stylesheet" href="/html.css?v=rich-paste">\n' +
+      '<link rel="stylesheet" href="/html.css?v=editor-critical">\n' +
       '<script src="../rail-toggle.js?v=nt26-veil"><\/script>\n' +
       '<script src="../skip-link.js?v=nt11-skip"><\/script>\n' +
       '<link rel="icon" href="/favicon.svg">\n' +
@@ -359,12 +367,12 @@
       '<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier"><dt>Name</dt><dd>' + esc(title) + '</dd></dl></section>\n' +
       '<section class="art-sec" id="description"><h2>Description</h2><p class="art-line"></p></section>\n' +
       '</main>\n' +
-      '<script src="../search.js?v=img-resize"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
+      '<script src="../search.js?v=editor-critical"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n' +
       '<script src="../glow.js?v=nt32-ambient"><\/script>\n' +
       '<script src="../art-index.js?v=art87"><\/script>\n' +
       '<script src="../article-siblings.js?v=nt10-sib"><\/script>\n' +
-      '<script src="../related-articles.js?v=nt16-rel"><\/script>\n' +
+      '<script src="../related-articles.js?v=editor-critical"><\/script>\n' +
       '<script src="../edit/edit.js?v=' + vEdit + '" defer><\/script>\n' +
       '</body>\n</html>\n';
   }
@@ -415,8 +423,8 @@
         { path: artPath, text: articleTemplate(name, slug, catId) }
       ];
       // Also persist index in same commit
-      return serializeIndex().then(function (indexHtml) {
-        files.push({ path: PATH, text: indexHtml });
+      return serializeIndex().then(function (r) {
+        files.push({ path: PATH, text: r.html });
         return E.commitFiles(files, "Index: add card “" + name + "” + scaffold " + artPath + " [edit-mode]", E.BRANCH);
       }).then(function () {
         state.busy = false;
@@ -434,46 +442,131 @@
     });
   }
 
-  function cleanCloneForSave(node) {
-    var c = node.cloneNode(true);
-    Array.prototype.forEach.call(c.querySelectorAll(".card-lore-back"), function (n) { n.remove(); });
-    Array.prototype.forEach.call(c.querySelectorAll(".is-lore-flipped"), function (n) {
-      n.classList.remove("is-lore-flipped");
-      n.setAttribute("aria-expanded", "false");
+  /* Save hygiene: untouched sections/cards are copied byte-for-byte from the source;
+     runtime state (nav-fade, inline styles, flipped cards, image fallbacks, TOC
+     highlight/pin state, editing classes) never reaches the file. */
+  var M = window.EloraeSrcMap;
+  var RUNTIME_CLASS = /^(nav-fade[\w-]*|ee-index-[\w-]+|is-lore-flipped)$/;
+  function imgKey(src) {
+    var s = String(src || "").trim().replace(/^https?:\/\/[^\/]+/i, "").replace(/^\/cdn-cgi\/image\/[^\/]+/i, "");
+    try { s = decodeURI(s); } catch (e) {}
+    return s;
+  }
+  function stripRuntime(root, mode) {
+    Array.prototype.forEach.call(root.querySelectorAll(".card-lore-back"), function (n) { n.remove(); });
+    [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))).forEach(function (n) {
+      if (n.hasAttribute("class")) {
+        var kc = Array.prototype.filter.call(n.classList, function (c) { return !RUNTIME_CLASS.test(c); });
+        if (kc.length) n.setAttribute("class", kc.join(" ")); else if (!n.matches("a")) n.removeAttribute("class"); else n.setAttribute("class", "");
+      }
+      if (n.matches("a.index-card")) n.removeAttribute("aria-expanded");
+      if (n.tagName === "IMG" && mode === "canon") {
+        n.setAttribute("src", imgKey(n.getAttribute("data-eimg-orig") || n.getAttribute("src")));
+        n.removeAttribute("srcset"); n.removeAttribute("sizes");
+      }
+      Array.prototype.slice.call(n.attributes).forEach(function (a) {
+        if (a.name === "style" || a.name === "draggable" || a.name === "contenteditable" || a.name === "spellcheck" || /^data-(ee|eimg)-/.test(a.name)) n.removeAttribute(a.name);
+      });
     });
-    Array.prototype.forEach.call(c.querySelectorAll(".ee-index-selected,.ee-index-dragging,.ee-index-dragover,.ee-index-draggable,.ee-index-drop,.ee-index-heading"), function (n) {
-      n.classList.remove("ee-index-selected", "ee-index-dragging", "ee-index-dragover", "ee-index-draggable", "ee-index-drop", "ee-index-heading");
+    return root;
+  }
+  function canonSection(sec) { return stripRuntime(sec.cloneNode(true), "canon").outerHTML.replace(/\s+/g, " "); }
+  function fixSvg(html) {
+    return html.replace(/<(polyline|path|line|circle|rect|polygon)(\b[^>]*?)><\/\1>/g, "<$1$2/>");
+  }
+  function findSrc(n, test) {
+    if (test(n)) return n;
+    var k = n.children || [];
+    for (var i = 0; i < k.length; i++) { var d = findSrc(k[i], test); if (d) return d; }
+    return null;
+  }
+  function eachSrc(n, fn) { fn(n); (n.children || []).forEach(function (c) { eachSrc(c, fn); }); }
+  function cls(n, c) { return (n.classes || []).indexOf(c) >= 0; }
+  function setRawId(raw, id) {
+    return raw.replace(/^(<a\b[^>]*?\sid\s*=\s*")([^"]*)(")/i, function (m, a, _o, c) { return a + id + c; });
+  }
+  var sectionCanon0 = {};
+  function rememberStart() {
+    sectionCanon0 = {};
+    catSections().forEach(function (sec) { if (sec.id) sectionCanon0[sec.id] = canonSection(sec); });
+    state.tocRebuilt = false;
+  }
+  function buildIndexHtml(text) {
+    var root = M.parse(text);
+    var sMain = findSrc(root, function (n) { return n.tag === "main" && cls(n, "index-flow"); });
+    var sToc = findSrc(root, function (n) { return n.tag === "nav" && n.id === "index-toc-panel"; });
+    var liveMain = document.querySelector("main.index-flow"), liveToc = document.querySelector("#index-toc-panel");
+    if (!sMain || !liveMain) throw new Error("Index main landmark missing in source.");
+    if (!sToc || !liveToc) throw new Error("Index TOC missing in source.");
+    var raw = function (n) { return text.slice(n.start, n.end); };
+    var srcSecs = {}, srcCards = {}, srcImgs = {};
+    eachSrc(sMain, function (n) {
+      if (n.tag === "section" && cls(n, "index-cat") && n.id) srcSecs[n.id] = n;
+      if (n.tag === "a" && cls(n, "index-card") && n.attrs && n.attrs.href) srcCards[n.attrs.href] = n;
+      if (n.tag === "img" && n.attrs && n.attrs.src) srcImgs[imgKey(n.attrs.src)] = n.attrs;
     });
-    Array.prototype.forEach.call(c.querySelectorAll("[draggable],[contenteditable],[spellcheck]"), function (n) {
-      n.removeAttribute("draggable");
-      n.removeAttribute("contenteditable");
-      n.removeAttribute("spellcheck");
+    var subs = [];
+    function ph(str) { subs.push(str); return '<i data-ee-raw="' + (subs.length - 1) + '"></i>'; }
+    var clone = stripRuntime(liveMain.cloneNode(true), "emit");
+    var liveSecs = catSections();
+    Array.prototype.slice.call(clone.querySelectorAll("section.index-cat")).forEach(function (sec, i) {
+      var live = liveSecs[i], s = sec.id && srcSecs[sec.id];
+      if (s && live && sectionCanon0[sec.id] && canonSection(live) === sectionCanon0[sec.id]) {
+        sec.outerHTML = ph(raw(s));
+        return;
+      }
+      Array.prototype.slice.call(sec.querySelectorAll("a.index-card")).forEach(function (card) {
+        var sc = srcCards[card.getAttribute("href")];
+        if (sc) { card.outerHTML = ph(setRawId(raw(sc), card.id)); return; }
+        Array.prototype.forEach.call(card.querySelectorAll("img"), function (im) {
+          var sa = srcImgs[imgKey(im.getAttribute("src"))];
+          if (sa) ["src", "srcset", "sizes", "decoding", "loading"].forEach(function (a) { if (sa[a] != null) im.setAttribute(a, sa[a]); });
+        });
+      });
     });
-    return c;
+    var inner = fixSvg(clone.innerHTML).replace(/<i data-ee-raw="(\d+)"><\/i>/g, function (_, k) { return subs[Number(k)]; });
+    var mainOut = text.slice(sMain.start, sMain.openEnd) + inner + text.slice(sMain.closeStart, sMain.end);
+    var tocOut = raw(sToc);
+    if (state.tocRebuilt) {
+      var tc = stripRuntime(liveToc.cloneNode(true), "emit");
+      var sOn = findSrc(sToc, function (n) { return n.tag === "a" && cls(n, "on"); });
+      Array.prototype.forEach.call(tc.querySelectorAll("a.on"), function (a) { a.classList.remove("on"); });
+      if (sOn && sOn.attrs.href) {
+        var want = tc.querySelector('a[href="' + sOn.attrs.href.replace(/"/g, "") + '"]');
+        if (want) want.classList.add("on");
+      }
+      var sHead = findSrc(sToc, function (n) { return cls(n, "index-toc-head"); });
+      var head = tc.querySelector(".index-toc-head");
+      subs = [];
+      if (sHead && head) head.outerHTML = ph(raw(sHead));
+      tocOut = text.slice(sToc.start, sToc.openEnd) +
+        fixSvg(tc.innerHTML).replace(/<i data-ee-raw="(\d+)"><\/i>/g, function (_, k) { return subs[Number(k)]; }) +
+        text.slice(sToc.closeStart, sToc.end);
+    }
+    var edits = [{ start: sMain.start, end: sMain.end, html: mainOut }, { start: sToc.start, end: sToc.end, html: tocOut }]
+      .sort(function (a, b) { return b.start - a.start; });
+    var out = text;
+    edits.forEach(function (e) { out = out.slice(0, e.start) + e.html + out.slice(e.end); });
+    return out;
   }
 
   function serializeIndex() {
     return E.getFile(PATH).then(function (f) {
-      var html = f.text;
-      var main = cleanCloneForSave(document.querySelector("main.index-flow"));
-      var toc = cleanCloneForSave(document.querySelector("#index-toc-panel"));
-      if (!main || !toc) throw new Error("Could not find Index markup to save.");
-      if (!/<main class="with-toc index-flow">[\s\S]*?<\/main>/.test(html)) throw new Error("Index main landmark missing in source.");
-      if (!/<nav class="index-toc-panel"[^>]*>[\s\S]*?<\/nav>/.test(html)) throw new Error("Index TOC missing in source.");
-      html = html.replace(/<main class="with-toc index-flow">[\s\S]*?<\/main>/, main.outerHTML);
-      html = html.replace(/<nav class="index-toc-panel"[^>]*>[\s\S]*?<\/nav>/, toc.outerHTML);
-      return html;
+      return { text: f.text, html: buildIndexHtml(f.text) };
     });
   }
 
   function saveIndex() {
     if (state.busy) return;
     state.busy = true;
+    if (!state.dirty) { state.busy = false; barMsg("No changes to save."); return; }
     barMsg("Saving Index…", "ee-busy");
-    serializeIndex().then(function (html) {
-      return E.commitFiles([{ path: PATH, text: html }], "Index: reorganize cards [edit-mode]", E.BRANCH);
-    }).then(function () {
+    serializeIndex().then(function (r) {
+      if (r.html === r.text) return "none";
+      return E.commitFiles([{ path: PATH, text: r.html }], "Index: reorganize cards [edit-mode]", E.BRANCH);
+    }).then(function (res) {
       state.busy = false;
+      if (res === "none") { state.dirty = false; barMsg("No changes to save."); return; }
       state.dirty = false;
       barMsg("Index saved · live in about 1–2 minutes", "ee-done");
       var b = $("ee-bar");
@@ -497,6 +590,7 @@
     };
     state.active = true;
     state.dirty = false;
+    rememberStart();
     document.documentElement.classList.add("ee-editing", "ee-index-org");
     enableDrag();
     enableHeaderEdit();
@@ -506,12 +600,17 @@
     document.addEventListener("drop", onDrop, true);
     document.addEventListener("click", onCardClick, true);
     document.addEventListener("click", onTocClick, true);
+    window.addEventListener("beforeunload", onUnload);
     barMsg("Index organizer · drag cards between categories, or select + Categories");
     var g = $("ee-glyph");
     if (g) g.style.display = "none";
     return true;
   }
 
+  function onUnload(e) {
+    if (!state.active || !state.dirty) return;
+    e.preventDefault(); e.returnValue = ""; return "";
+  }
   function stop() {
     if (!state.active) return;
     document.removeEventListener("dragstart", onDragStart, true);
@@ -520,6 +619,7 @@
     document.removeEventListener("drop", onDrop, true);
     document.removeEventListener("click", onCardClick, true);
     document.removeEventListener("click", onTocClick, true);
+    window.removeEventListener("beforeunload", onUnload);
     disableHeaderEdit();
     disableDrag();
     setSelected(null);

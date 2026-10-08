@@ -30,12 +30,12 @@
   ]).then(function (res) {
     if (editing()) return;
     var t = res[0], all = JSON.parse(t.slice(t.indexOf("["), t.lastIndexOf("]") + 1));
-    var private = {};
-    all.forEach(function (e) { if (e.private) private[e.href] = 1; });
+    var hidden = {};
+    all.forEach(function (e) { if (e.private) hidden[e.href] = 1; });
     Array.prototype.forEach.call(document.querySelectorAll(".private a[href], a.private[href], .private-group a[href], a[data-owner]"), function (a) {
-      var m = /articles\/[^\/?#]+\.html/.exec(a.getAttribute("href") || ""); if (m) private[m[0]] = 1;
+      var m = /articles\/[^\/?#]+\.html/.exec(a.getAttribute("href") || ""); if (m) hidden[m[0]] = 1;
     });
-    var others = all.filter(function (e) { return e.kind === "article" && !e.private && !private[e.href] && e.href !== "articles/" + here + ".html"; });
+    var others = all.filter(function (e) { return e.kind === "article" && !e.private && !hidden[e.href] && e.href !== "articles/" + here + ".html"; });
     var shown = {};
     Array.prototype.forEach.call(document.querySelectorAll("#related a[href], .nt-siblings a[href]"), function (a) { shown[new URL(a.getAttribute("href"), location.href).pathname] = 1; });
     function add(head, items) {

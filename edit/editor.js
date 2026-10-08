@@ -288,7 +288,7 @@
     if (g) return;
     g = el("button", { id: "ee-glyph", type: "button", "aria-label": "Edit this page" }, "Edit");
     g.onclick = function () {
-      if (state.editing) return;
+      if (state.editing) { if (!state.busy && !$("ee-bar")) editBar(); return; }
       var O = window.EloraeIndexOrg;
       if (O && O.active && O.active()) return;
       if (isIndexOrganizePage() && O && O.start) { O.start(); return; }
@@ -306,6 +306,10 @@
     return b;
   }
   function closeBar() { var b = $("ee-bar"); if (b) b.remove(); }
+  function doneBar(msg) {
+    bar('<span class="ee-msg ee-good">' + esc(msg) + '</span><button type="button" class="ee-btn" id="ee-x">Close</button>', "ee-done");
+    $("ee-x").onclick = closeBar;
+  }
   function canon(html) { var t = document.createElement("template"); t.innerHTML = html; return t.innerHTML; }
   function textOf(html) { var t = document.createElement("template"); t.innerHTML = html; return norm(t.content.textContent); }
   function norm(s) { return String(s || "").replace(/\s+/g, " ").trim(); }
@@ -325,17 +329,20 @@
         state.page = {
           el: mainEl,
           original: mainEl.innerHTML,
-          range: range,
-          locks: []
+          range: range
         };
+        // Match live elements to the source BEFORE any edit-mode marking.
+        var PS = initPageSource(mainEl, f.text);
+        if (!PS) throw new Error("Could not find the page body in the source.");
         mainEl.setAttribute("contenteditable", "true");
         mainEl.setAttribute("spellcheck", "true");
         mainEl.classList.add("ee-editable", "ee-page");
         Array.prototype.forEach.call(mainEl.querySelectorAll(PAGE_LOCK_SEL), function (n, i) {
+          var sn = PS.map.get(n);
+          PS.lockHTML[i] = sn ? PS.text.slice(sn.start, sn.end) : cleanRuntime(n.cloneNode(true), "raw").outerHTML;
           n.setAttribute("contenteditable", "false");
           n.classList.add("ee-locked");
           n.setAttribute("data-ee-lock", String(i));
-          state.page.locks[i] = n.outerHTML;
         });
         document.documentElement.classList.add("ee-editing", "ee-page-editing");
         // New lines become real paragraphs (body size), not bare divs.
@@ -355,6 +362,7 @@
         document.addEventListener("click", onClick, true);
         document.addEventListener("selectionchange", onSelChange);
         window.addEventListener("resize", positionStyleBar);
+        addDirtyListeners();
         state.editing = true;
         editBar();
         ensureStyleBar();
@@ -386,6 +394,7 @@
       document.addEventListener("click", onClick, true);
       document.addEventListener("selectionchange", onSelChange);
       window.addEventListener("resize", positionStyleBar);
+      addDirtyListeners();
       state.editing = true;
       editBar();
       ensureStyleBar();
@@ -407,11 +416,17 @@
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-save">Save</button>', cls);
     $("ee-save").onclick = save;
-    $("ee-cancel").onclick = function () { cancelEdit(); closeBar(); };
+    $("ee-cancel").onclick = function () {
+      if (state.dirty && !window.confirm("Discard your unsaved changes to this page?")) return;
+      cancelEdit(); closeBar();
+    };
     if ($("ee-art")) $("ee-art").onclick = openArtPanel;
     if ($("ee-share")) $("ee-share").onclick = openSharePanel;
     if ($("ee-owner")) $("ee-owner").onclick = openOwnerPanel;
-    if ($("ee-newart")) $("ee-newart").onclick = openNewArticle;
+    if ($("ee-newart")) $("ee-newart").onclick = function () {
+      if (state.dirty && !window.confirm("You have unsaved changes on this page. Discard them and start a new article?")) return;
+      openNewArticle();
+    };
     ensureStyleBar();
   }
 
@@ -420,14 +435,9 @@
     { id: "serif", label: "Serif \u2014 Iowan Old Style", cls: "ee-serif" },
     { id: "sans", label: "Sans-serif \u2014 Helvetica Neue", cls: "ee-sans" }
   ];
-  var STYLE_SIZES = [
-    { id: "12", label: "12pt", cls: "ee-pt-12" },
-    { id: "14", label: "14pt (default)", cls: "ee-pt-14" },
-    { id: "16", label: "16pt", cls: "ee-pt-16" },
-    { id: "18", label: "18pt", cls: "ee-pt-18" },
-    { id: "20", label: "20pt", cls: "ee-pt-20" },
-    { id: "24", label: "24pt", cls: "ee-pt-24" }
-  ];
+  var STYLE_SIZES = ["10", "11", "12", "14", "16", "18", "20", "24"].map(function (n) {
+    return { id: n, label: n + "pt", cls: "ee-pt-" + n };
+  });
   var STYLE_BLOCKS = [
     { id: "p", label: "P", cls: "" },
     { id: "h2", label: "H2", cls: "ee-h2" },
@@ -493,17 +503,14 @@
     b.innerHTML =
       '<select id="ee-font" aria-label="Font" title="Font">' +
         '<option value="" hidden selected>Font</option>' +
+        '<option value="default">Default font</option>' +
         '<option value="serif">Serif \u2014 Iowan Old Style</option>' +
         '<option value="sans">Sans-serif \u2014 Helvetica Neue</option>' +
       '</select>' +
       '<select id="ee-size" aria-label="Size" title="Size">' +
         '<option value="" hidden selected>Size</option>' +
-        '<option value="12">12pt</option>' +
-        '<option value="14">14pt (default)</option>' +
-        '<option value="16">16pt</option>' +
-        '<option value="18">18pt</option>' +
-        '<option value="20">20pt</option>' +
-        '<option value="24">24pt</option>' +
+        '<option value="default">Default (match paragraph)</option>' +
+        STYLE_SIZES.map(function (z) { return '<option value="' + z.id + '">' + z.label + '</option>'; }).join("") +
       '</select>' +
       '<select id="ee-block" aria-label="Block style" title="Block">' +
         '<option value="" hidden selected>Block</option>' +
@@ -579,66 +586,250 @@
     if (!ed || isTitleField(ed)) return null;
     return ed;
   }
-  function wrapSelection(className) {
-    if (!restoreStyleRange() && !selectionEditable()) return;
-    var sel = window.getSelection();
+  /* Style families. A family is a set of mutually exclusive classes (sizes, fonts,
+     caption). Applying one first removes every class/span of the same family inside
+     the target, so sizes never stack. Whole paragraphs (caret, whole-block or
+     multi-block selections) get the class on the block itself, so the line box
+     (line-height strut) shrinks with the text. */
+  var FAMILIES = {
+    size: { re: /^ee-(pt-\d+|size-(sm|md|lg))$/, valid: /^(10|11|12|14|16|18|20|24)$/, cls: function (v) { return "ee-pt-" + v; } },
+    font: { re: /^ee-(serif|sans)$/, valid: /^(serif|sans)$/, cls: function (v) { return "ee-" + v; } },
+    cap: { re: /^ee-caption$/, valid: /^cap$/, cls: function () { return "ee-caption"; }, toggle: true },
+    head: { re: /^ee-(h2|h3|caption)$/, valid: /^(h2|h3|cap)$/, cls: function (v) { return v === "cap" ? "ee-caption" : "ee-" + v; } }
+  };
+  var LEAF_SEL = "p,li,h1,h2,h3,h4,h5,h6,dd,dt,figcaption,blockquote,div";
+  var BLOCKISH_SEL = LEAF_SEL + ",section,ul,ol,dl,figure,table,header,article";
+  function isLeafBlock(n) { return n && n.nodeType === 1 && n.matches(LEAF_SEL) && !n.querySelector(BLOCKISH_SEL); }
+  function leafOf(node, root) {
+    var n = node && (node.nodeType === 1 ? node : node.parentNode);
+    while (n && n !== root && root.contains(n)) {
+      if (isLeafBlock(n)) return n;
+      n = n.parentNode;
+    }
+    return null;
+  }
+  function blockUsable(b) { return b && !b.closest(".ee-locked,[contenteditable=\"false\"]") && !isTitleField(b); }
+  function hasContent(r) {
+    if (/\S/.test(r.toString())) return true;
+    var f = r.cloneContents();
+    return !!(f.querySelector && f.querySelector("img,br"));
+  }
+  function targetBlocks(range, root) {
+    if (!state.page) return root ? [root] : [];
+    if (range.collapsed) { var one = leafOf(range.startContainer, root); return blockUsable(one) ? [one] : []; }
+    var out = [];
+    var all = root.querySelectorAll(LEAF_SEL);
+    for (var i = 0; i < all.length; i++) {
+      var b = all[i];
+      if (!isLeafBlock(b) || !blockUsable(b) || !range.intersectsNode(b)) continue;
+      var r = document.createRange(); r.selectNodeContents(b);
+      if (range.compareBoundaryPoints(Range.START_TO_START, r) > 0) r.setStart(range.startContainer, range.startOffset);
+      if (range.compareBoundaryPoints(Range.END_TO_END, r) < 0) r.setEnd(range.endContainer, range.endOffset);
+      if (hasContent(r)) out.push(b);
+    }
+    if (!out.length) { var s1 = leafOf(range.startContainer, root); if (blockUsable(s1)) out.push(s1); }
+    return out;
+  }
+  function coversBlock(range, b) {
+    var before = document.createRange(), after = document.createRange();
+    try {
+      before.setStart(b, 0); before.setEnd(range.startContainer, range.startOffset);
+      after.setStart(range.endContainer, range.endOffset); after.setEnd(b, b.childNodes.length);
+    } catch (e) { return false; }
+    return !/\S/.test(before.toString()) && !/\S/.test(after.toString());
+  }
+  function textOffset(block, node, off) {
+    var r = document.createRange();
+    try { r.setStart(block, 0); r.setEnd(node, off); } catch (e) { return 0; }
+    return r.toString().length;
+  }
+  function pointAt(block, n) {
+    var w = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, null), t, last = null;
+    while ((t = w.nextNode())) {
+      if (n <= t.nodeValue.length) return { node: t, off: n };
+      n -= t.nodeValue.length; last = t;
+    }
+    return last ? { node: last, off: last.nodeValue.length } : { node: block, off: block.childNodes.length };
+  }
+  function stripFamily(n, re) {
+    var cl = (n.getAttribute("class") || "").split(/\s+/).filter(Boolean);
+    var keep = cl.filter(function (c) { return !re.test(c); });
+    if (keep.length === cl.length) return false;
+    if (keep.length) n.setAttribute("class", keep.join(" ")); else n.removeAttribute("class");
+    return true;
+  }
+  function unwrapIfBare(sp) {
+    if (sp.tagName !== "SPAN" || sp.attributes.length) return;
+    while (sp.firstChild) sp.parentNode.insertBefore(sp.firstChild, sp);
+    sp.remove();
+  }
+  function clearFamilyIn(container, re) {
+    Array.prototype.slice.call(container.querySelectorAll("[class]")).forEach(function (n) {
+      if (stripFamily(n, re)) unwrapIfBare(n);
+    });
+  }
+  function famAncestors(node, block, re) {
+    var out = [], n = node.parentNode;
+    while (n && n !== block) {
+      if (n.nodeType === 1 && (n.getAttribute("class") || "").split(/\s+/).some(function (c) { return re.test(c); })) out.push(n);
+      n = n.parentNode;
+    }
+    return out;
+  }
+  function splitOut(anc, marker, side) {
+    var r = document.createRange();
+    if (side === "before") { r.setStart(anc, 0); r.setEndBefore(marker); }
+    else { r.setStartAfter(marker); r.setEnd(anc, anc.childNodes.length); }
+    if (r.collapsed) return;
+    var frag = r.extractContents();
+    if (!frag.textContent && !(frag.querySelector && frag.querySelector("img,br"))) return;
+    var clone = anc.cloneNode(false);
+    clone.appendChild(frag);
+    anc.parentNode.insertBefore(clone, side === "before" ? anc : anc.nextSibling);
+  }
+  function dropEmptyFamilySpans(block, re) {
+    Array.prototype.slice.call(block.querySelectorAll("span")).forEach(function (sp) {
+      if (sp.textContent || sp.querySelector("img,br")) return;
+      if (!sp.hasAttribute("class") || (sp.getAttribute("class") || "").split(/\s+/).some(function (c) { return re.test(c); })) sp.remove();
+    });
+  }
+  function selectBetween(a, b) {
+    var sel = window.getSelection(), r = document.createRange();
+    r.setStartAfter(a); r.setEndBefore(b);
+    sel.removeAllRanges(); sel.addRange(r);
+  }
+  // Partial selection inside one block: split same-family spans at the selection
+  // edges, clear the family inside, then wrap (or leave bare for Default).
+  function wrapPartial(range, block, re, cls) {
+    var sm = document.createElement("span"), em = document.createElement("span");
+    sm.setAttribute("data-ee-mark", "s"); em.setAttribute("data-ee-mark", "e");
+    var re2 = range.cloneRange(); re2.collapse(false); re2.insertNode(em);
+    var rs = range.cloneRange(); rs.collapse(true); rs.insertNode(sm);
+    var anc = famAncestors(sm, block, re).concat(famAncestors(em, block, re)).filter(function (n, i, a) { return a.indexOf(n) === i; });
+    famAncestors(sm, block, re).forEach(function (A) { splitOut(A, sm, "before"); });
+    famAncestors(em, block, re).forEach(function (A) { splitOut(A, em, "after"); });
+    anc.forEach(function (A) { if (stripFamily(A, re)) unwrapIfBare(A); });
+    var mid = document.createRange();
+    mid.setStartAfter(sm); mid.setEndBefore(em);
+    var frag = mid.extractContents();
+    var holder = document.createElement("div"); holder.appendChild(frag);
+    clearFamilyIn(holder, re);
+    var wrap;
+    if (cls) {
+      wrap = document.createElement("span"); wrap.className = cls;
+      while (holder.firstChild) wrap.appendChild(holder.firstChild);
+      mid.insertNode(wrap);
+    } else {
+      var f2 = document.createDocumentFragment();
+      while (holder.firstChild) f2.appendChild(holder.firstChild);
+      mid.insertNode(f2);
+    }
+    // Reselect what was styled, then drop the markers.
+    var startOff = textOffset(block, sm, 0), endOff = textOffset(block, em, 0);
+    sm.remove(); em.remove();
+    dropEmptyFamilySpans(block, re);
+    block.normalize();
+    var p1 = pointAt(block, startOff), p2 = pointAt(block, endOff);
+    try {
+      var r = document.createRange(); r.setStart(p1.node, p1.off); r.setEnd(p2.node, p2.off);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    } catch (e) {}
+  }
+  var styleUndo = [], styleRedo = [];
+  function snapBlock(b) { return { el: b, html: b.innerHTML, cls: b.getAttribute("class") }; }
+  function blockMatches(b, html, cls) { return b.isConnected && b.innerHTML === html && b.getAttribute("class") === cls; }
+  function setBlock(b, html, cls) { b.innerHTML = html; if (cls == null) b.removeAttribute("class"); else b.setAttribute("class", cls); }
+  function applyFamily(fam, value) {
+    var F = FAMILIES[fam];
+    if (!F) return;
+    if (value && !F.valid.test(value)) return;
+    var cls = value ? F.cls(value) : "";
+    var sel = window.getSelection && window.getSelection();
     if (!sel || !sel.rangeCount) return;
     var range = sel.getRangeAt(0);
-    if (range.collapsed) {
-      var ed = selectionEditable();
-      if (!ed) return;
-      if (state.page && ed === state.page.el) {
-        var blk = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentNode;
-        blk = blk && blk.closest ? blk.closest("p,li,h1,h2,h3,h4,blockquote,dd,figcaption,div") : null;
-        if (!blk || blk === ed || !ed.contains(blk) || blk.closest(".ee-locked")) return;
-        ed = blk;
-      }
-      if (!className) {
-        Array.prototype.slice.call(ed.querySelectorAll("span.ee-serif,span.ee-sans,span.ee-size-sm,span.ee-size-md,span.ee-size-lg,span[class^=\"ee-pt-\"],span.ee-h2,span.ee-h3,span.ee-caption")).forEach(function (sp) {
-          while (sp.firstChild) sp.parentNode.insertBefore(sp.firstChild, sp);
-          sp.remove();
-        });
-        return;
-      }
-      document.execCommand("insertHTML", false, '<span class="' + className + '">' + ed.innerHTML + "</span>");
-      return;
+    var root = state.page ? state.page.el : selectionEditable();
+    if (!root || !root.contains(range.commonAncestorContainer)) return;
+    var blocks = targetBlocks(range, root);
+    if (!blocks.length) return;
+    var before = blocks.map(snapBlock);
+    var whole = range.collapsed || blocks.length > 1 || coversBlock(range, blocks[0]);
+    if (whole) {
+      if (F.toggle && blocks.every(function (b) { return b.classList.contains(cls); })) cls = "";
+      var first = blocks[0], last = blocks[blocks.length - 1];
+      var so = textOffset(first, range.startContainer, range.startOffset);
+      var eo = textOffset(last, range.endContainer, range.endOffset);
+      blocks.forEach(function (b) {
+        if (state.page) stripFamily(b, F.re);
+        clearFamilyIn(b, F.re);
+        if (cls) {
+          if (state.page) b.classList.add(cls);
+          else {
+            var sp = document.createElement("span"); sp.className = cls;
+            while (b.firstChild) sp.appendChild(b.firstChild);
+            b.appendChild(sp);
+          }
+        }
+        b.normalize();
+      });
+      try {
+        var p1 = pointAt(first, so), p2 = pointAt(last, eo);
+        var r = document.createRange(); r.setStart(p1.node, p1.off); r.setEnd(p2.node, p2.off);
+        sel.removeAllRanges(); sel.addRange(r);
+      } catch (e) {}
+    } else {
+      wrapPartial(range, blocks[0], F.re, cls);
     }
-    var frag = range.extractContents();
-    var span = document.createElement("span");
-    if (className) span.className = className;
-    span.appendChild(frag);
-    Array.prototype.slice.call(span.querySelectorAll("span")).forEach(function (inner) {
-      if (!inner.className || !/^ee-(serif|sans|size-sm|size-md|size-lg|pt-\d+|h2|h3|caption)$/.test(inner.className)) return;
-    });
-    range.insertNode(span);
-    sel.removeAllRanges();
-    var next = document.createRange();
-    next.selectNodeContents(span);
-    sel.addRange(next);
+    var entry = before.map(function (s) { return { el: s.el, html: s.html, cls: s.cls, html2: s.el.innerHTML, cls2: s.el.getAttribute("class") }; })
+      .filter(function (x) { return x.html !== x.html2 || x.cls !== x.cls2; });
+    if (entry.length) {
+      styleUndo.push(entry); if (styleUndo.length > 60) styleUndo.shift();
+      styleRedo = [];
+      markDirty();
+    }
     captureStyleRange();
+  }
+  // Ctrl+Z / Ctrl+Shift+Z for style changes: only when the blocks still look exactly
+  // like right after the change; otherwise the browser's own undo runs.
+  function styleUndoKey(e) {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey) return false;
+    var k = (e.key || "").toLowerCase();
+    var redo = (k === "z" && e.shiftKey) || (k === "y" && !e.shiftKey);
+    var undo = k === "z" && !e.shiftKey;
+    if (!undo && !redo) return false;
+    var stack = undo ? styleUndo : styleRedo;
+    var top = stack[stack.length - 1];
+    if (!top) return false;
+    var ok = top.every(function (x) { return undo ? blockMatches(x.el, x.html2, x.cls2) : blockMatches(x.el, x.html, x.cls); });
+    if (!ok) return false;
+    e.preventDefault();
+    stack.pop();
+    top.forEach(function (x) { if (undo) setBlock(x.el, x.html, x.cls); else setBlock(x.el, x.html2, x.cls2); });
+    (undo ? styleRedo : styleUndo).push(top);
+    try {
+      var r = document.createRange(); r.selectNodeContents(top[0].el); r.collapse(false);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    } catch (e2) {}
+    markDirty();
+    return true;
   }
   function applyFont(id) {
     if (!id) return;
-    var map = { serif: "ee-serif", sans: "ee-sans" };
-    wrapSelection(map[id] || "");
+    applyFamily("font", id === "default" ? "" : id);
   }
   function applySize(id) {
     if (!id) return;
-    if (!/^(12|14|16|18|20|24)$/.test(id)) return;
-    wrapSelection("ee-pt-" + id);
+    applyFamily("size", id === "default" ? "" : id);
   }
   function applyBlockStyle(id) {
     if (!id) return;
     if (state.page) {
-      if (id === "p") { document.execCommand("formatBlock", false, "p"); return; }
-      if (id === "h2") { document.execCommand("formatBlock", false, "h2"); return; }
-      if (id === "h3") { document.execCommand("formatBlock", false, "h3"); return; }
-      if (id === "cap") { wrapSelection("ee-caption"); return; }
+      if (id === "p") { document.execCommand("formatBlock", false, "p"); markDirty(); return; }
+      if (id === "h2") { document.execCommand("formatBlock", false, "h2"); markDirty(); return; }
+      if (id === "h3") { document.execCommand("formatBlock", false, "h3"); markDirty(); return; }
+      if (id === "cap") { applyFamily("cap", "cap"); return; }
       return;
     }
-    if (id === "p") { wrapSelection(""); return; }
-    var map = { h2: "ee-h2", h3: "ee-h3", cap: "ee-caption" };
-    wrapSelection(map[id] || "");
+    applyFamily("head", id === "p" ? "" : id);
   }
   function onSelChange() {
     if (!state.editing) return;
@@ -918,12 +1109,8 @@
     commitMsg([{ path: "edit/profiles.json", text: jsonDoc(next) }], "Profiles: set owner of " + PATH + (login ? " to " + login : " to none") + " via edit mode")
       .then(function () {
         closePanel();
-        editBar("Owner updated · live in about 1–2 minutes", "ee-done");
-        var b = $("ee-bar");
-        if (b && !b.querySelector("#ee-x")) {
-          b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
-          $("ee-x").onclick = closeBar;
-        }
+        if (state.editing) editBar("Owner updated · live in about 1–2 minutes", "ee-done");
+        else doneBar("Owner updated · live in about 1–2 minutes");
       })
       .catch(function (e) { fail(e.message || "Save failed."); });
   }
@@ -1061,12 +1248,9 @@
         hero.src = rel;
         if (entry.title) hero.alt = entry.title;
         closePanel();
-        editBar("Hero set from gallery · live in about 1–2 minutes", "ee-done");
-        var b = $("ee-bar");
-        if (b && !b.querySelector("#ee-x")) {
-          b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
-          $("ee-x").onclick = closeBar;
-        }
+        // Back to the normal edit bar (Save/Cancel); no bare Close that strands edit mode.
+        if (state.editing) editBar("Hero set from gallery · live in about 1–2 minutes", "ee-done");
+        else doneBar("Hero set from gallery · live in about 1–2 minutes");
       });
     }).catch(function (e) {
       editBar();
@@ -1102,6 +1286,7 @@
       return;
     }
     closePanel();
+    markDirty();
     editBar("Image inserted — Save to commit");
   }
 
@@ -1143,12 +1328,8 @@
           hero.src = rel;
           if (title) hero.alt = title;
           closePanel();
-          editBar("Hero image replaced · live in about 1–2 minutes", "ee-done");
-          var b = $("ee-bar");
-          if (b && !b.querySelector("#ee-x")) {
-            b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
-            $("ee-x").onclick = closeBar;
-          }
+          if (state.editing) editBar("Hero image replaced · live in about 1–2 minutes", "ee-done");
+          else doneBar("Hero image replaced · live in about 1–2 minutes");
         });
       });
     }).catch(function (e) { fail(e.message || "Upload failed."); editBar(); });
@@ -1156,6 +1337,7 @@
 
   function onKey(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;
+    if (styleUndoKey(e)) return;
     if (e.key === "Enter") {
       e.preventDefault();
       // Name/epithet stay single-line (site header).
@@ -1383,6 +1565,46 @@
     var a = e.target.closest && e.target.closest(".ee-editable a");
     if (a) e.preventDefault(); // editing a link's text shouldn't navigate
   }
+  /* ---------------- Unsaved-changes tracking ---------------- */
+  var LEAVE_MSG = "Leave this page? Your unsaved changes will be lost.";
+  function markDirty() { if (state.editing) state.dirty = true; }
+  function onEditInput(e) {
+    var t = e.target;
+    if (t && t.closest && t.closest(".ee-editable")) { markDirty(); styleRedo = []; }
+  }
+  function onNavClick(e) {
+    if (!state.editing || !state.dirty || state.leaving) return;
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest && e.target.closest("a[href]");
+    if (!a || a.closest(".ee-editable") || a.closest("#ee-bar,#ee-panel,#ee-stylebar")) return;
+    var tgt = a.getAttribute("target");
+    if (tgt && tgt !== "_self") return;
+    var u;
+    try { u = new URL(a.getAttribute("href"), location.href); } catch (x) { return; }
+    if (!/^https?:$/.test(u.protocol)) return;
+    if (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search && a.getAttribute("href").indexOf("#") >= 0) return;
+    if (window.confirm(LEAVE_MSG)) { state.leaving = true; return; }
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }
+  function onBeforeUnload(e) {
+    if (!state.editing || !state.dirty || state.leaving) return;
+    e.preventDefault();
+    e.returnValue = "";
+    return "";
+  }
+  function addDirtyListeners() {
+    state.dirty = false;
+    state.leaving = false;
+    document.addEventListener("input", onEditInput, true);
+    window.addEventListener("click", onNavClick, true);
+    window.addEventListener("beforeunload", onBeforeUnload);
+  }
+  function removeDirtyListeners() {
+    document.removeEventListener("input", onEditInput, true);
+    window.removeEventListener("click", onNavClick, true);
+    window.removeEventListener("beforeunload", onBeforeUnload);
+  }
   function stopEditing() {
     if (state.page && state.page.el) {
       var mainEl = state.page.el;
@@ -1404,13 +1626,19 @@
     document.removeEventListener("click", onClick, true);
     document.removeEventListener("selectionchange", onSelChange);
     window.removeEventListener("resize", positionStyleBar);
+    removeDirtyListeners();
     removeStyleBar();
     state.editing = false;
+    state.dirty = false;
+    styleUndo = []; styleRedo = [];
   }
   function cancelEdit() {
     if (!state.editing) return;
-    if (state.page && state.page.el) state.page.el.innerHTML = state.page.original;
-    state.records.forEach(function (r) { r.el.innerHTML = r.original; });
+    // Only rebuild the DOM when something was changed (keeps page scripts' listeners).
+    if (state.dirty) {
+      if (state.page && state.page.el) state.page.el.innerHTML = state.page.original;
+      state.records.forEach(function (r) { r.el.innerHTML = r.original; });
+    }
     stopEditing();
     state.records = [];
     state.page = null;
@@ -1486,21 +1714,237 @@
     walk(root, out);
     return out.innerHTML;
   }
+  /* Full-page save rebuilds main from the page SOURCE, not from the live DOM.
+     At startEdit every live element under main is matched to its source element
+     (before any edit-mode marking). On save, untouched elements are copied from the
+     source byte-for-byte (comments, entities, srcset, whitespace and all); only the
+     blocks whose content actually changed are re-serialized. Elements that scripts
+     injected at runtime (sibling navs, chapter navs, player buttons, cards) never
+     match the source and are dropped; runtime classes/attributes are stripped. */
+  var RUNTIME_CLASS = /^(nav-fade[\w-]*|ee-(editable|page|locked|index-[\w-]+))$/;
+  var INJECTED_SEL = "nav.nt-siblings, nav.nt-chapnav, .profile-gh-actions, .card-lore-back, .nt-rel-head, .nt-related, [data-ee-ui]";
+  var CONTAINER_TAGS = { main: 1, section: 1, div: 1, ul: 1, ol: 1, dl: 1, blockquote: 1, figure: 1, header: 1, footer: 1, article: 1, table: 1, thead: 1, tbody: 1, tr: 1 };
+  var SRC_INLINE = { a: 1, em: 1, strong: 1, i: 1, b: 1, u: 1, s: 1, sub: 1, sup: 1, small: 1, span: 1, code: 1, cite: 1, q: 1, abbr: 1, br: 1, img: 1, wbr: 1, mark: 1, time: 1 };
+  function keyClasses(list) { return Array.prototype.filter.call(list || [], function (c) { return !RUNTIME_CLASS.test(c); }).sort().join("."); }
+  function liveKey(n) { return n.tagName.toLowerCase() + "#" + (n.id || "") + "." + keyClasses(n.classList); }
+  function srcKey(s) { return s.tag + "#" + (s.id || "") + "." + keyClasses(s.classes); }
+  function srcIsContainer(s) {
+    return !!CONTAINER_TAGS[s.tag] && s.children.some(function (c) { return !SRC_INLINE[c.tag]; });
+  }
+  function imgKey(src) {
+    var s = String(src || "").trim().replace(/^https?:\/\/[^\/]+/i, "").replace(/^\/cdn-cgi\/image\/[^\/]+/i, "");
+    try { s = decodeURI(s); } catch (e) {}
+    return s;
+  }
+  function findSrcMain(root) {
+    var kids = root.children || [];
+    for (var i = 0; i < kids.length; i++) {
+      var c = kids[i], cls = c.classes || [];
+      if (c.tag === "main" && (cls.indexOf("art-body") >= 0 || cls.indexOf("read") >= 0)) return c;
+      var d = findSrcMain(c);
+      if (d) return d;
+    }
+    return null;
+  }
+  function lcsPairs(a, b) {
+    var n = a.length, m = b.length, w = m + 1, dp = new Uint16Array((n + 1) * w);
+    for (var i = n - 1; i >= 0; i--) for (var j = m - 1; j >= 0; j--) {
+      dp[i * w + j] = a[i] === b[j] ? dp[(i + 1) * w + j + 1] + 1 : Math.max(dp[(i + 1) * w + j], dp[i * w + j + 1]);
+    }
+    var out = [], x = 0, y = 0;
+    while (x < n && y < m) {
+      if (a[x] === b[y]) { out.push([x, y]); x++; y++; }
+      else if (dp[(x + 1) * w + y] >= dp[x * w + y + 1]) x++;
+      else y++;
+    }
+    return out;
+  }
+  function pageSrc() { return state.page.src; }
+  function srcTextOf(s) {
+    var P0 = pageSrc();
+    if (!P0.textCache.has(s)) P0.textCache.set(s, norm(textOf(P0.text.slice(s.start, s.end))));
+    return P0.textCache.get(s);
+  }
+  // Clean a detached clone: drop injected UI, locked regions (canon) or lock
+  // placeholders (emit), runtime classes and attributes; put source img URLs back.
+  function cleanRuntime(root, mode) {
+    Array.prototype.slice.call(root.querySelectorAll(INJECTED_SEL)).forEach(function (n) { n.remove(); });
+    if (mode !== "raw") Array.prototype.slice.call(root.querySelectorAll("[data-ee-lock], " + PAGE_LOCK_SEL)).forEach(function (n) {
+      if (!n.parentNode) return;
+      var idx = n.getAttribute("data-ee-lock");
+      if (mode === "emit" && idx != null) {
+        var ph = document.createElement("div"); ph.setAttribute("data-ee-lock-ph", idx);
+        n.parentNode.replaceChild(ph, n);
+      } else n.remove();
+    });
+    [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))).forEach(function (n) {
+      if (n.tagName === "IMG") {
+        var k = imgKey(n.getAttribute("data-eimg-orig") || n.getAttribute("src"));
+        if (mode === "canon") { n.setAttribute("src", k); n.removeAttribute("srcset"); n.removeAttribute("sizes"); }
+        else {
+          var sa = pageSrc().imgs[k];
+          if (sa && (n.getAttribute("data-eimg-fell") || !n.hasAttribute("srcset"))) {
+            ["src", "srcset", "sizes", "loading", "decoding", "width", "height"].forEach(function (a) {
+              if (sa[a] != null) n.setAttribute(a, sa[a]); else if (a !== "src") n.removeAttribute(a);
+            });
+          }
+        }
+      }
+      if (n.hasAttribute("class")) {
+        var kc = Array.prototype.filter.call(n.classList, function (c) { return !RUNTIME_CLASS.test(c); });
+        if (kc.length) n.setAttribute("class", kc.join(" ")); else n.removeAttribute("class");
+      }
+      Array.prototype.slice.call(n.attributes).forEach(function (a) {
+        var nm = a.name;
+        if (nm === "style" || nm === "contenteditable" || nm === "spellcheck" || nm === "draggable" ||
+            (/^data-(ee|eimg)-/.test(nm) && nm !== "data-ee-lock-ph")) n.removeAttribute(nm);
+      });
+    });
+    return root;
+  }
+  function canonOf(n) {
+    if (n.matches(PAGE_LOCK_SEL)) return { all: "LOCK", inner: "LOCK", cls: "" };
+    var c = cleanRuntime(n.cloneNode(true), "canon");
+    var w = document.createElement("div"); w.appendChild(c);
+    return {
+      all: sanitizePageHtml(w).replace(/\s+/g, " "),
+      inner: sanitizePageHtml(c).replace(/\s+/g, " "),
+      cls: keyClasses(n.classList)
+    };
+  }
+  function mapPage(liveEl, srcNode) {
+    var P0 = pageSrc();
+    var live = Array.prototype.slice.call(liveEl.children);
+    var src = srcNode.children.slice();
+    var pairs = lcsPairs(live.map(liveKey), src.map(srcKey));
+    var lm = new Array(live.length), sm = new Array(src.length);
+    pairs.forEach(function (p) { lm[p[0]] = p[1]; sm[p[1]] = p[0]; });
+    // Second pass: same tag and same text between matched anchors (scripts can
+    // toggle classes on elements; their text still identifies them).
+    var li = 0, si = 0;
+    for (var a = 0; a <= pairs.length; a++) {
+      var le = a < pairs.length ? pairs[a][0] : live.length, se = a < pairs.length ? pairs[a][1] : src.length;
+      var j = si;
+      for (var i = li; i < le; i++) {
+        var t = live[i].tagName.toLowerCase(), txt = null;
+        for (var k = j; k < se; k++) {
+          if (sm[k] != null || src[k].tag !== t) continue;
+          if (txt == null) txt = norm(live[i].textContent);
+          if (srcTextOf(src[k]) === txt) { lm[i] = k; sm[k] = i; j = k + 1; break; }
+        }
+      }
+      if (a < pairs.length) { li = pairs[a][0] + 1; si = pairs[a][1] + 1; }
+    }
+    live.forEach(function (n, i) {
+      if (lm[i] == null) { P0.injected.add(n); return; }
+      var s = src[lm[i]];
+      P0.map.set(n, s);
+      P0.mapped.add(s);
+      P0.canon0.set(n, canonOf(n));
+      if (srcIsContainer(s) && !n.matches(PAGE_LOCK_SEL)) mapPage(n, s);
+    });
+  }
+  function initPageSource(mainEl, text) {
+    var root = M.parse(text);
+    var srcMain = findSrcMain(root);
+    if (!srcMain) return null;
+    var imgs = {};
+    (function walk(s) {
+      if (s.tag === "img" && s.attrs && s.attrs.src) {
+        var k = imgKey(s.attrs.src);
+        if (!(k in imgs)) imgs[k] = s.attrs;
+      }
+      (s.children || []).forEach(walk);
+    })(srcMain);
+    state.page.src = {
+      text: text, node: srcMain, imgs: imgs, textCache: new Map(),
+      map: new WeakMap(), mapped: new WeakSet(), injected: new WeakSet(), canon0: new WeakMap(), lockHTML: []
+    };
+    mapPage(mainEl, srcMain);
+    return state.page.src;
+  }
+  function rebuildOpenTag(rawOpen, liveEl) {
+    // Only the class attribute changes (e.g. a paragraph got ee-pt-12).
+    var kc = Array.prototype.filter.call(liveEl.classList, function (c) { return !RUNTIME_CLASS.test(c) && /^[\w-]+$/.test(c); }).join(" ");
+    var re = /(\sclass\s*=\s*)("[^"]*"|'[^']*'|[^\s>]+)/i;
+    if (re.test(rawOpen)) {
+      return kc ? rawOpen.replace(re, function (m, a) { return a + '"' + kc + '"'; }) : rawOpen.replace(re, "");
+    }
+    if (!kc) return rawOpen;
+    return rawOpen.replace(/^<([a-zA-Z][\w-]*)/, '<$1 class="' + kc + '"');
+  }
+  function fillLocks(html) {
+    var P0 = pageSrc();
+    return html.replace(/<div[^>]*data-ee-lock-ph="(\d+)"[^>]*>\s*<\/div>/gi, function (_, i) { return P0.lockHTML[Number(i)] || ""; });
+  }
+  function emitNew(n) {
+    var w = document.createElement("div");
+    w.appendChild(cleanRuntime(n.cloneNode(true), "emit"));
+    return fillLocks(sanitizePageHtml(w));
+  }
+  var LEAF_TAGS = { p: 1, h1: 1, h2: 1, h3: 1, h4: 1, h5: 1, h6: 1, li: 1, dd: 1, dt: 1, figcaption: 1, td: 1, th: 1 };
+  // Blocks pasted/typed inside a paragraph become line breaks (no <p> inside <p>).
+  function flattenBlocks(c) {
+    if (!LEAF_TAGS[c.tagName.toLowerCase()]) return;
+    Array.prototype.slice.call(c.querySelectorAll("p,div,h1,h2,h3,h4,h5,h6,section,blockquote,header")).reverse().forEach(function (b) {
+      var prev = b.previousSibling;
+      if (prev && (prev.nodeType !== 3 || /\S/.test(prev.nodeValue)) && prev.nodeName !== "BR") b.parentNode.insertBefore(document.createElement("br"), b);
+      while (b.firstChild) b.parentNode.insertBefore(b.firstChild, b);
+      b.remove();
+    });
+  }
+  function emitInnerOf(n, rawInner) {
+    var c = cleanRuntime(n.cloneNode(true), "emit");
+    flattenBlocks(c);
+    var html = fillLocks(sanitizePageHtml(c));
+    if (!/&nbsp;|&#160;|&#xa0;/i.test(rawInner)) html = html.replace(/&nbsp;/g, " ");
+    return preserveEntities(html, rawInner);
+  }
+  function emitElement(n, s) {
+    var P0 = pageSrc(), T = P0.text;
+    var verbatim = T.slice(s.start, s.end);
+    if (n.matches(PAGE_LOCK_SEL)) return verbatim;
+    var c0 = P0.canon0.get(n), c1 = canonOf(n);
+    if (c0 && c1.all === c0.all) return verbatim;
+    var open = T.slice(s.start, s.openEnd), close = T.slice(s.closeStart, s.end);
+    if (c0 && c1.cls !== c0.cls) open = rebuildOpenTag(open, n);
+    if (srcIsContainer(s)) return open + emitChildren(n, s) + close;
+    if (s.closeStart === s.openEnd && s.end === s.openEnd) return emitNew(n); // void (img etc.)
+    var rawInner = T.slice(s.openEnd, s.closeStart);
+    var inner = (c0 && c1.inner === c0.inner) ? rawInner : emitInnerOf(n, rawInner);
+    return open + inner + close;
+  }
+  var NEW_BLOCK = { p: 1, h1: 1, h2: 1, h3: 1, h4: 1, h5: 1, h6: 1, section: 1, header: 1, blockquote: 1, ul: 1, ol: 1, li: 1, dl: 1, dt: 1, dd: 1, figure: 1, figcaption: 1, hr: 1, div: 1, img: 1 };
+  function emitChildren(liveEl, s) {
+    var P0 = pageSrc(), T = P0.text, kids = s.children, out = "", last = -1;
+    var index = new Map(); kids.forEach(function (k, i) { index.set(k, i); });
+    function gap(i) { return T.slice(i === 0 ? s.openEnd : kids[i - 1].end, kids[i].start); }
+    function orphans(upto) {
+      for (var j = last + 1; j < upto; j++) if (!P0.mapped.has(kids[j])) out += gap(j) + T.slice(kids[j].start, kids[j].end);
+    }
+    Array.prototype.forEach.call(liveEl.childNodes, function (ch) {
+      if (ch.nodeType === 3) {
+        if (/\S/.test(ch.nodeValue)) out += esc(ch.nodeValue).replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+        return;
+      }
+      if (ch.nodeType !== 1 || P0.injected.has(ch)) return;
+      var sn = P0.map.get(ch), idx = sn ? index.get(sn) : undefined;
+      if (idx != null && idx > last) {
+        orphans(idx);
+        out += gap(idx) + emitElement(ch, sn);
+        last = idx;
+        return;
+      }
+      if (!sn && (ch.matches(PAGE_LOCK_SEL) || ch.matches(INJECTED_SEL))) return;
+      var tag = ch.tagName.toLowerCase();
+      out += (NEW_BLOCK[tag] ? "\n" : "") + emitNew(ch);
+    });
+    orphans(kids.length);
+    out += T.slice(kids.length ? kids[kids.length - 1].end : s.openEnd, s.closeStart);
+    return out;
+  }
   function serializePageMain() {
-    var mainEl = state.page.el;
-    var clone = mainEl.cloneNode(true);
-    Array.prototype.forEach.call(clone.querySelectorAll("[data-ee-lock]"), function (n) {
-      var i = n.getAttribute("data-ee-lock");
-      var ph = document.createElement("div");
-      ph.setAttribute("data-ee-lock-ph", i);
-      n.parentNode.replaceChild(ph, n);
-    });
-    var html = sanitizePageHtml(clone);
-    html = html.replace(/<div[^>]*data-ee-lock-ph="(\d+)"[^>]*>\s*<\/div>/gi, function (_, i) {
-      return state.page.locks[Number(i)] || "";
-    });
-    // Prefer compact section/paragraph spacing like the rest of the site.
-    return html.replace(/\n{3,}/g, "\n\n");
+    return emitChildren(state.page.el, pageSrc().node);
   }
   function createArticleFromTitle(title) {
     title = String(title || "").trim();
@@ -1525,7 +1969,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=art96\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=edit-no-connect\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=editor-critical\">\n" +
         "<script src=\"/rail-toggle.js?v=nt26-veil\"></script>\n" +
         "<script src=\"/skip-link.js?v=nt11-skip\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
@@ -1536,9 +1980,9 @@
         "<header class=\"art-title\"><h1>" + escTitle + "</h1><p class=\"art-epithet\"></p></header>\n" +
         "<section class=\"art-sec\" id=\"lore\"><h2>Lore</h2><p class=\"art-life\"></p></section>\n" +
         "</main>\n" +
-        "<script src=\"/search.js?v=img-resize\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
+        "<script src=\"/search.js?v=editor-critical\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=img-resize\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=editor-critical\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -1571,6 +2015,7 @@
           }).then(function (dest) {
             if (dest) {
               editBar("Published — opening…", "ee-done");
+              state.leaving = true;
               location.href = dest;
               return;
             }
@@ -1734,7 +2179,8 @@
     String(rawInner).replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z][a-z0-9]*);/gi, function (ent) {
       t.innerHTML = ent; var ch = t.value;
       if (ch.length === 1 || (ch.length === 2 && /[\ud800-\udbff]/.test(ch))) {
-        if (!/[&<>\u00a0"]/.test(ch) && !(ch in map)) { map[ch] = ent; any = true; }
+        // Text segments only (tags are skipped below), so a source &quot; is safe to keep.
+        if (!/[&<>\u00a0]/.test(ch) && !(ch in map)) { map[ch] = ent; any = true; }
       }
       return ent;
     });
@@ -1760,10 +2206,14 @@
 
   function buildOutput(latest) {
     if (state.page) {
-      if (state.page.el.innerHTML === state.page.original) return { none: true };
+      var PS = pageSrc();
+      var baseInner = PS.text.slice(PS.node.openEnd, PS.node.closeStart);
       var html = serializePageMain();
+      if (html === baseInner) return { none: true };
       var range = sourceMainRange(latest.text);
       if (!range) return { conflict: true };
+      // Someone changed the page body upstream since edit started: never overwrite it.
+      if (latest.sha !== state.base.sha && latest.text.slice(range.start, range.end) !== baseInner) return { conflict: true };
       var out = latest.text.slice(0, range.start) + html + latest.text.slice(range.end);
       return { out: out, edits: [{ start: range.start, end: range.end, html: html }], changed: [state.page], page: true };
     }
@@ -1920,7 +2370,12 @@
   /* Nav Edit / #edit: enter edit mode when already connected — never bounce to Connect. */
   function tryEnterEdit() {
     if (!E.session.get() || !state.profile) return false;
-    if (state.editing || state.busy) { clearEditHash(); return true; }
+    if (state.editing || state.busy) {
+      clearEditHash();
+      // Recover a lost edit bar (never leave edit mode without Save/Cancel).
+      if (state.editing && !state.busy && !$("ee-bar")) editBar();
+      return true;
+    }
     var Org = window.EloraeIndexOrg;
     if (isIndexOrganizePage() && Org && Org.start) {
       closePanel();

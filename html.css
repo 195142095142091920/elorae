@@ -5218,10 +5218,16 @@ body.article .art-life:empty { min-height: 1.65em; }
 @media (min-width: 801px) { body.article .art-sec, body.article .art-sec .art-life { font-size: 14pt; line-height: 1.75; } }
 @media (max-width: 800px) { body.article .art-sec { font-size: 16px; } }
 
-/* Editor point sizes (toolbar Size menu) */
-.ee-pt-12, body.article .art-body .ee-pt-12, .read .ee-pt-12 { font-size: 12pt; }
-.ee-pt-14, body.article .art-body .ee-pt-14, .read .ee-pt-14 { font-size: 14pt; }
-.ee-pt-16, body.article .art-body .ee-pt-16, .read .ee-pt-16 { font-size: 16pt; }
-.ee-pt-18, body.article .art-body .ee-pt-18, .read .ee-pt-18 { font-size: 18pt; }
-.ee-pt-20, body.article .art-body .ee-pt-20, .read .ee-pt-20 { font-size: 20pt; }
-.ee-pt-24, body.article .art-body .ee-pt-24, .read .ee-pt-24 { font-size: 24pt; }
+/* Editor point sizes (toolbar Size menu). Work on inline spans AND whole paragraphs
+   (p.ee-pt-*), so the line box shrinks too; the repeated class out-ranks the article,
+   journal and lore paragraph rules (e.g. body.article .art-sec .art-life). */
+.ee-pt-10, html body .ee-pt-10.ee-pt-10.ee-pt-10 { font-size: 10pt; }
+.ee-pt-11, html body .ee-pt-11.ee-pt-11.ee-pt-11 { font-size: 11pt; }
+.ee-pt-12, html body .ee-pt-12.ee-pt-12.ee-pt-12 { font-size: 12pt; }
+.ee-pt-14, html body .ee-pt-14.ee-pt-14.ee-pt-14 { font-size: 14pt; }
+.ee-pt-16, html body .ee-pt-16.ee-pt-16.ee-pt-16 { font-size: 16pt; }
+.ee-pt-18, html body .ee-pt-18.ee-pt-18.ee-pt-18 { font-size: 18pt; }
+.ee-pt-20, html body .ee-pt-20.ee-pt-20.ee-pt-20 { font-size: 20pt; }
+.ee-pt-24, html body .ee-pt-24.ee-pt-24.ee-pt-24 { font-size: 24pt; }
+html body .ee-serif.ee-serif.ee-serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; }
+html body .ee-sans.ee-sans.ee-sans { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }

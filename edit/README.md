@@ -181,4 +181,4 @@ catalog visibility does not hide HTTP access. Encrypting private images is plann
 `perms.js` (globs, shared with the guard), `srcmap.js` (tokenizer/splicer), `editor.js` (UI and
 save), `edit.css`, `profiles.json`, `visibility.json`, `secrets/`, `crypto.js`, `vis.js`,
 `secret.html` + `secret.js`, `media.js` + `media/catalog.json`, `dashboard.html` + `dashboard.js`, `guard.js`, `workflows/edit-guard.yml` (to install), `test/` (`e2e.js`: browser test
-with a mocked GitHub API, see its header; `guard.test.js`: guard scenarios, `node edit/test/guard.test.js`).
+with a mocked GitHub API, see its header; `e2e-editor.js`: full-page editor — sizes/fonts, one-line save diffs, conflicts, unsaved-changes prompts, Index organizer; both serve this checkout on a fresh port via `server.js`; `guard.test.js`: guard scenarios, `node edit/test/guard.test.js`).

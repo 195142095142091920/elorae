@@ -625,9 +625,9 @@
   if (!body || !body.classList.contains("article")) return;
   var h1 = document.querySelector(".art-title h1");
   var loginGate = document.querySelector(".mast .topbar > .mark > a[href*=\"login\"], .mast .mark > a[href*=\"login\"]");
-  if (!h1 || !loginMark) return;
+  if (!h1 || !loginGate) return;
   var name = (h1.textContent || "").trim().split(/\s+/)[0];
-  if (name) loginMark.textContent = name;
+  if (name) loginGate.textContent = name;
 })();
 
 /* art72: lock phone safe-area once (no scroll/resize chrome rewrite) */
