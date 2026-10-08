@@ -557,7 +557,15 @@
       '</select>' +
       '<button type="button" class="ee-glyph-btn" id="ee-bold" title="Bold" aria-label="Bold"><b>B</b></button>' +
       '<button type="button" class="ee-glyph-btn" id="ee-italic" title="Italic" aria-label="Italic"><i>I</i></button>' +
-      '<button type="button" class="ee-glyph-btn" id="ee-link" title="Link" aria-label="Link">↗</button>';
+      '<button type="button" class="ee-glyph-btn" id="ee-link" title="Link" aria-label="Link">↗</button>' +
+      (state.page
+        ? '<span class="ee-al-group" role="group" aria-label="Alignment">' +
+          ALIGNS.map(function (a) {
+            return '<button type="button" class="ee-glyph-btn ee-al-btn" id="ee-al-' + a + '" data-al="' + a + '" title="' + ALIGN_TITLES[a] + '" aria-label="' + ALIGN_TITLES[a] + '" aria-pressed="false">' + alignSvg(a) + '</button>';
+          }).join("") +
+          '<button type="button" class="ee-glyph-btn ee-al-btn" id="ee-al-cycle" title="Alignment: left (tap for center)" aria-label="Alignment: left">' + alignSvg("left") + '</button>' +
+          '</span>'
+        : '');
     $("ee-font").onchange = function () {
       var v = this.value; this.selectedIndex = 0;
       runStyleCommand(function () { applyFont(v); });
@@ -575,6 +583,12 @@
     };
     $("ee-italic").onclick = function () {
       runStyleCommand(function () { document.execCommand("italic", false, null); });
+    };
+    Array.prototype.forEach.call(b.querySelectorAll("[data-al]"), function (btn) {
+      btn.onclick = function () { runStyleCommand(function () { applyAlign(btn.getAttribute("data-al")); }); };
+    });
+    if ($("ee-al-cycle")) $("ee-al-cycle").onclick = function () {
+      runStyleCommand(function () { applyAlign(ALIGNS[(ALIGNS.indexOf(currentAlign()) + 1) % 3]); });
     };
     $("ee-link").onclick = function () {
       runStyleCommand(function () {
@@ -631,8 +645,58 @@
     size: { re: /^ee-(pt-\d+|size-(sm|md|lg))$/, valid: /^(10|11|12|14|16|18|20|24)$/, cls: function (v) { return "ee-pt-" + v; } },
     font: { re: /^ee-(serif|sans)$/, valid: /^(serif|sans)$/, cls: function (v) { return "ee-" + v; } },
     cap: { re: /^ee-caption$/, valid: /^cap$/, cls: function () { return "ee-caption"; }, toggle: true },
-    head: { re: /^ee-(h2|h3|caption)$/, valid: /^(h2|h3|cap)$/, cls: function (v) { return v === "cap" ? "ee-caption" : "ee-" + v; } }
+    head: { re: /^ee-(h2|h3|caption)$/, valid: /^(h2|h3|cap)$/, cls: function (v) { return v === "cap" ? "ee-caption" : "ee-" + v; } },
+    // Alignment is always a whole-block class (never an inline span). Left is the default:
+    // the class is dropped, unless the block is centred by the page itself.
+    align: { re: /^ee-al-(left|center|right)$/, valid: /^(left|center|right)$/, cls: function (v) { return "ee-al-" + v; }, block: true,
+      post: function (b) {
+        if (!b.classList.contains("ee-al-left")) return;
+        b.classList.remove("ee-al-left");
+        var ta = getComputedStyle(b).textAlign;
+        if (ta === "center" || ta === "right" || ta === "end" || ta === "justify") b.classList.add("ee-al-left");
+        if (!b.classList.length) b.removeAttribute("class");
+      } }
   };
+  var ALIGNS = ["left", "center", "right"];
+  var ALIGN_TITLES = { left: "Align left (Ctrl+Shift+L)", center: "Center (Ctrl+Shift+E)", right: "Align right (Ctrl+Shift+R)" };
+  function alignSvg(a) {
+    var L = { left: [[1, 13], [1, 9], [1, 11]], center: [[1, 13], [3, 11], [2, 12]], right: [[1, 13], [5, 13], [3, 13]] }[a];
+    return '<svg viewBox="0 0 14 12" aria-hidden="true">' + L.map(function (x, i) {
+      return '<path d="M' + x[0] + ' ' + (2 + i * 4) + 'H' + x[1] + '" stroke="currentColor" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
+    }).join("") + '</svg>';
+  }
+  var AL_SEL = "p,h1,h2,h3,h4,h5,h6,li,dd,dt,figcaption,blockquote";
+  function alignOfBlock(b) {
+    if (!b) return "left";
+    if (b.classList.contains("ee-al-center")) return "center";
+    if (b.classList.contains("ee-al-right")) return "right";
+    if (b.classList.contains("ee-al-left")) return "left";
+    var ta = getComputedStyle(b).textAlign;
+    return ta === "center" ? "center" : (ta === "right" || ta === "end") ? "right" : "left";
+  }
+  function currentAlign() {
+    var root = state.page && state.page.el, n = selNode();
+    return alignOfBlock(root && n ? leafOf(n, root) : null);
+  }
+  function applyAlign(v) {
+    if (!state.page || ALIGNS.indexOf(v) < 0) return;
+    applyFamily("align", v);
+    syncAlignButtons();
+  }
+  function syncAlignButtons() {
+    var bar = $("ee-stylebar");
+    if (!bar || !state.page) return;
+    var a = currentAlign();
+    ALIGNS.forEach(function (x) { var btn = $("ee-al-" + x); if (btn) btn.setAttribute("aria-pressed", x === a ? "true" : "false"); });
+    var cyc = $("ee-al-cycle");
+    if (cyc && cyc.getAttribute("data-cur") !== a) {
+      var next = ALIGNS[(ALIGNS.indexOf(a) + 1) % 3];
+      cyc.setAttribute("data-cur", a);
+      cyc.innerHTML = alignSvg(a);
+      cyc.title = "Alignment: " + a + " (tap for " + next + ")";
+      cyc.setAttribute("aria-label", "Alignment: " + a);
+    }
+  }
   var LEAF_SEL = "p,li,h1,h2,h3,h4,h5,h6,dd,dt,figcaption,blockquote,div";
   var BLOCKISH_SEL = LEAF_SEL + ",section,ul,ol,dl,figure,table,header,article";
   function isLeafBlock(n) { return n && n.nodeType === 1 && n.matches(LEAF_SEL) && !n.querySelector(BLOCKISH_SEL); }
@@ -788,7 +852,7 @@
     var blocks = targetBlocks(range, root);
     if (!blocks.length) return;
     var before = blocks.map(snapBlock);
-    var whole = range.collapsed || blocks.length > 1 || coversBlock(range, blocks[0]);
+    var whole = F.block || range.collapsed || blocks.length > 1 || coversBlock(range, blocks[0]);
     if (whole) {
       if (F.toggle && blocks.every(function (b) { return b.classList.contains(cls); })) cls = "";
       var first = blocks[0], last = blocks[blocks.length - 1];
@@ -805,6 +869,7 @@
             b.appendChild(sp);
           }
         }
+        if (F.post) F.post(b);
         b.normalize();
       });
       try {
@@ -870,9 +935,13 @@
       var r0 = sel.getRangeAt(0);
       var blocks = targetBlocks(r0, root).filter(function (b) { return /^(P|H[1-6]|DIV)$/.test(b.tagName); });
       if (!blocks.length) return;
+      var als = blocks.map(function (b) { return (b.className.match(/\bee-al-\w+/) || [""])[0]; });
       document.execCommand("formatBlock", false, tag);
       var r1 = sel.rangeCount ? sel.getRangeAt(0) : null;
-      if (r1) targetBlocks(r1, root).forEach(fixBlockClass);
+      var after = r1 ? targetBlocks(r1, root) : [];
+      after.forEach(fixBlockClass);
+      // formatBlock drops classes: put each block's alignment back (same order).
+      if (after.length === als.length) after.forEach(function (b, i) { if (als[i] && !b.classList.contains(als[i])) b.classList.add(als[i]); });
       var lf = leafOf(selNode(), root);
       if (lf) fixBlockClass(lf);
       markDirty();
@@ -889,6 +958,7 @@
     if (selectionEditable()) {
       captureStyleRange();
       b.hidden = false;
+      syncAlignButtons();
     } else if (!onBar) {
       b.hidden = true;
     }
@@ -1441,6 +1511,10 @@
   function onKey(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;
     if (styleUndoKey(e)) return;
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && state.page) {
+      var ak = { l: "left", e: "center", r: "right" }[(e.key || "").toLowerCase()];
+      if (ak && !isTitleField(e.target) && !isTitleField(selNode())) { e.preventDefault(); applyAlign(ak); return; }
+    }
     if (e.key === "Enter" && !e.isComposing) {
       e.preventDefault();
       // Name/epithet stay single-line (site header).
@@ -1473,7 +1547,7 @@
   function fixBlockClass(b) {
     if (!b || !b.isConnected) return;
     if (b.tagName === "P") {
-      var keep = Array.prototype.filter.call(b.classList, function (c) { return /^ee-(pt-|serif|sans|caption)/.test(c); });
+      var keep = Array.prototype.filter.call(b.classList, function (c) { return /^ee-(pt-|serif|sans|caption|al-)/.test(c); });
       var body = b.classList.length && Array.prototype.some.call(b.classList, function (c) { return !/^ee-/.test(c); });
       if (!body) {
         var pc = paraClassFor(b);
@@ -1504,6 +1578,10 @@
     if (nb && nb !== leaf) {
       if (nb.id && nb.id === leaf.id) nb.removeAttribute("id");
       fixBlockClass(nb);
+      // The new block keeps the alignment (Chrome copies the class from a paragraph,
+      // not from a heading).
+      var al = Array.prototype.filter.call(leaf.classList, function (c) { return /^ee-al-/.test(c); });
+      if (al.length && !Array.prototype.some.call(nb.classList, function (c) { return /^ee-al-/.test(c); })) al.forEach(function (c) { nb.classList.add(c); });
     }
     markDirty();
     return true;
@@ -1574,9 +1652,16 @@
   function sanitizePasteBlocks(html, paraCls) {
     var wrap = document.createElement("div");
     wrap.innerHTML = String(html || "").replace(/<!--[\s\S]*?-->/g, "");
-    var out = document.createElement("div"), cur = null;
+    var out = document.createElement("div"), cur = null, curAl = "";
+    // Centred / right-aligned source blocks (text-align, align=, or our own ee-al-* class).
+    function alignOf(n) {
+      var m = /\bee-al-(left|center|right)\b/.exec(n.getAttribute("class") || "");
+      var v = m ? m[1] : (styleOf(n, "text-align") || String(n.getAttribute("align") || "").toLowerCase());
+      return v === "center" || v === "right" ? "ee-al-" + v : (v === "left" || v === "start" || v === "justify") ? "-" : "";
+    }
+    function withAl(cls) { return [cls, curAl && curAl !== "-" ? curAl : ""].filter(Boolean).join(" "); }
     function para() {
-      if (!cur) { cur = document.createElement("p"); if (paraCls) cur.className = paraCls; out.appendChild(cur); }
+      if (!cur) { cur = document.createElement("p"); var c = withAl(paraCls); if (c) cur.className = c; out.appendChild(cur); }
       return cur;
     }
     function end() { cur = null; }
@@ -1589,6 +1674,8 @@
         if (/^h[1-6]$/.test(tag)) {
           end();
           var h = document.createElement(/^h[12]$/.test(tag) ? "h2" : "h3");
+          var hal = alignOf(ch) || curAl;
+          if (hal && hal !== "-") h.className = hal;
           pasteInline(ch, h);
           if (/\S/.test(h.textContent)) out.appendChild(h);
           return;
@@ -1618,7 +1705,13 @@
         }
         if (tag === "li") { end(); walk(ch); end(); return; }
         if (tag === "hr") { end(); return; }
-        if (PASTE_BLOCK.test(tag)) { end(); walk(ch); end(); return; }
+        if (PASTE_BLOCK.test(tag)) {
+          end();
+          var prevAl = curAl; curAl = alignOf(ch) || prevAl;
+          walk(ch); end();
+          curAl = prevAl;
+          return;
+        }
         if (tag === "br") {
           // Two line breaks in a row = a paragraph break; one stays a line break.
           if (cur && cur.lastChild && cur.lastChild.nodeName === "BR") { cur.removeChild(cur.lastChild); end(); }
@@ -2161,7 +2254,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=art96\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=editor-batch2\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=editor-align\">\n" +
         "<script src=\"/rail-toggle.js?v=nt26-veil\"></script>\n" +
         "<script src=\"/skip-link.js?v=nt11-skip\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
@@ -2174,7 +2267,7 @@
         "</main>\n" +
         "<script src=\"/search.js?v=editor-batch2\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=editor-batch2\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=editor-align\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },

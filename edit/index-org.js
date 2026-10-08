@@ -342,7 +342,7 @@
 
   function articleTemplate(name, slug, catId) {
     var title = name;
-    var vEdit = "editor-batch2";
+    var vEdit = "editor-align";
     // Minimal article; art-index stub — Category rail still works for chrome.
     return '<!doctype html>\n<html lang="en">\n<head>\n' +
       '<script src="../session-gate.js?v=guest-browse"><\/script>\n\n' +
@@ -352,7 +352,7 @@
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n' +
       '<title>' + esc(title) + ' - Elorae</title>\n' +
       '<link rel="stylesheet" href="/styles.css?v=art96">\n' +
-      '<link rel="stylesheet" href="/html.css?v=editor-batch2">\n' +
+      '<link rel="stylesheet" href="/html.css?v=editor-align">\n' +
       '<script src="../rail-toggle.js?v=nt26-veil"><\/script>\n' +
       '<script src="../skip-link.js?v=nt11-skip"><\/script>\n' +
       '<link rel="icon" href="/favicon.svg">\n' +

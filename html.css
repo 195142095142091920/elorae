@@ -5241,3 +5241,9 @@ body.article .art-sec h3 {
   font-size: 1.2em; font-weight: 400; line-height: 1.35; letter-spacing: 0.01em; color: #f3eee6;
 }
 body.article .art-sec > h3:first-child { margin-top: 0; }
+
+/* Editor alignment (style bar left / center / right): whole-block classes on paragraphs,
+   headings and captions; the repeated class out-ranks article, journal and lore rules. */
+.ee-al-left, html body .ee-al-left.ee-al-left.ee-al-left { text-align: left; }
+.ee-al-center, html body .ee-al-center.ee-al-center.ee-al-center { text-align: center; }
+.ee-al-right, html body .ee-al-right.ee-al-right.ee-al-right { text-align: right; }

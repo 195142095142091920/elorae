@@ -311,6 +311,15 @@ main.read .ee-editable img { max-width: 100%; height: auto; vertical-align: midd
 }
 #ee-stylebar .ee-glyph-btn:hover, #ee-stylebar .ee-glyph-btn:focus-visible { color: #f3eee6; outline: none; }
 #ee-stylebar .ee-glyph-btn b, #ee-stylebar .ee-glyph-btn i { font-size: 13px; }
+/* Alignment: three bare line glyphs (desktop); one cycling glyph on phone. */
+#ee-stylebar .ee-al-group { display: inline-flex; align-items: center; gap: 4px; }
+#ee-stylebar .ee-al-btn { display: inline-flex; align-items: center; padding: 5px 3px; }
+#ee-stylebar .ee-al-btn svg { width: 14px; height: 12px; display: block; }
+#ee-stylebar .ee-al-btn[aria-pressed="true"] { color: #f3eee6; }
+#ee-stylebar #ee-al-cycle { display: none; }
+.ee-al-left, html body .ee-al-left.ee-al-left.ee-al-left { text-align: left; }
+.ee-al-center, html body .ee-al-center.ee-al-center.ee-al-center { text-align: center; }
+.ee-al-right, html body .ee-al-right.ee-al-right.ee-al-right { text-align: right; }
 /* Gallery: what a click on a picture does (pages with hero art). */
 #ee-panel .ee-gal-act { display: flex; gap: 18px; margin: 0 0 10px; font-size: 12px; letter-spacing: .04em; color: #8f8a82; }
 #ee-panel .ee-gal-act label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
@@ -327,6 +336,8 @@ html.ee-page-editing main .art-title:not(.ee-locked) .art-epithet:empty::before 
   }
   #ee-stylebar select { width: auto; max-width: 4.6em; padding: 5px 2px; }
   #ee-stylebar .ee-glyph-btn { padding: 6px 4px; flex: none; }
+  #ee-stylebar .ee-al-btn[data-al] { display: none; }
+  #ee-stylebar #ee-al-cycle { display: inline-flex; color: #f3eee6; }
 }
 
 /* Index organizer (admin edit mode) */

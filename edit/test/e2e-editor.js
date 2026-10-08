@@ -527,6 +527,104 @@ async function batch2Tests(browser, vpName) {
   }
 }
 
+// Alignment: left / center / right on whole blocks (classes ee-al-*), never inline.
+async function alignTests(browser, vpName) {
+  const vp = VPS[vpName], LORE = "main.art-body p.art-life", phone = vpName === "phone";
+  const blockAt = (page) => page.evaluate(() => { const n = getSelection().anchorNode; const b = (n.nodeType === 1 ? n : n.parentElement).closest("p,h2,h3,li"); return { tag: b.tagName, cls: b.getAttribute("class") || "", ta: getComputedStyle(b).textAlign, text: b.textContent, spans: b.querySelectorAll("[class*=ee-al-]").length }; });
+  const pressed = (page) => page.evaluate(() => ({ l: document.getElementById("ee-al-left").getAttribute("aria-pressed"), c: document.getElementById("ee-al-center").getAttribute("aria-pressed"), r: document.getElementById("ee-al-right").getAttribute("aria-pressed"), cyc: document.getElementById("ee-al-cycle").getAttribute("aria-label") }));
+  // Desktop: three buttons; phone: one cycling glyph (left → center → right → left).
+  async function setAl(page, a) {
+    if (!phone) { await page.click("#ee-al-" + a); await page.waitForTimeout(120); return; }
+    for (let i = 0; i < 3; i++) {
+      const cur = await page.evaluate(() => document.getElementById("ee-al-cycle").getAttribute("aria-label"));
+      if (cur === "Alignment: " + a) return;
+      await page.click("#ee-al-cycle"); await page.waitForTimeout(120);
+    }
+  }
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    const file = "articles/aghor/index.html", orig = fs.readFileSync(path.join(ROOT, file), "utf8");
+    await openEdit(page, "articles/aghor/");
+    const vis = await page.evaluate(() => [...document.querySelectorAll("#ee-stylebar .ee-al-btn")].filter((b) => b.offsetWidth > 0).map((b) => b.id).join(","));
+    check(`[${vpName}] alignment controls: ${phone ? "one cycling glyph" : "three glyph buttons"} with tooltips`, phone ? vis === "ee-al-cycle" : vis === "ee-al-left,ee-al-center,ee-al-right", vis);
+    const t0 = await caretIn(page, LORE, 0.4); await page.waitForTimeout(150);
+    const p0 = await pressed(page);
+    await setAl(page, "center");
+    const c = await blockAt(page), pc = await pressed(page);
+    check(`[${vpName}] Center: class on the paragraph (no span), centred, active state shown`, /\bee-al-center\b/.test(c.cls) && /\bart-life\b/.test(c.cls) && c.ta === "center" && c.spans === 0 && c.text === t0 && p0.l === "true" && pc.c === "true" && pc.l === "false" && pc.cyc === "Alignment: center", JSON.stringify({ c, p0, pc }).slice(0, 200));
+    await page.keyboard.press("Control+z"); await page.waitForTimeout(100);
+    const u = await blockAt(page);
+    await page.keyboard.press("Control+Shift+z"); await page.waitForTimeout(100);
+    const rd = await blockAt(page);
+    check(`[${vpName}] Ctrl+Z undoes an alignment change (Ctrl+Shift+Z redoes)`, !/ee-al-/.test(u.cls) && u.ta !== "center" && /ee-al-center/.test(rd.cls), `"${u.cls}" → "${rd.cls}"`);
+    await page.click("#ee-cancel").catch(() => {}); page._answer = true; await page.waitForTimeout(100);
+    await ctx.close();
+  }
+  // One change → one-line diff (class only), both copies identical.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    const file = "articles/aghor/index.html", orig = fs.readFileSync(path.join(ROOT, file), "utf8");
+    await openEdit(page, "articles/aghor/");
+    await caretIn(page, LORE, 0.4); await page.waitForTimeout(100);
+    await setAl(page, "right");
+    await page.click("#ee-save"); await page.waitForTimeout(1500);
+    const saved = String(mock.file(file)), n = diffLines(orig, saved, vpName + "-align");
+    const want = orig.replace('<p class="art-life">Rogue Ancient', '<p class="art-life ee-al-right">Rogue Ancient');
+    check(`[${vpName}] one alignment change saves as a one-line, class-only diff (both copies)`, saved === want && n <= 2 && String(mock.file("articles/aghor.html")) === saved, `diff lines ${n}`);
+    check(`[${vpName}] alignment save: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // Enter carries it; several paragraphs at once; partial selection = whole block; headings;
+  // keyboard; Left = default; paste maps text-align.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    await openEdit(page, "articles/aghor/");
+    await caretIn(page, LORE, 1.0); await page.waitForTimeout(100);
+    await setAl(page, "center");
+    await page.keyboard.press("Enter"); await page.keyboard.type("Second Za");
+    const e = await blockAt(page);
+    check(`[${vpName}] Enter on a centred paragraph: new p.art-life stays centred`, e.text === "Second Za" && /\bart-life\b/.test(e.cls) && /\bee-al-center\b/.test(e.cls) && e.ta === "center", JSON.stringify(e));
+    await page.evaluate(() => { const ps = [...document.querySelectorAll("#lore p")]; const a = ps[0].firstChild, b = ps[1].firstChild; const r = document.createRange(); r.setStart(a, 5); r.setEnd(b, 3); ps[0].closest(".ee-editable").focus(); getSelection().removeAllRanges(); getSelection().addRange(r); });
+    await page.waitForTimeout(100);
+    await setAl(page, "right");
+    const two = await page.evaluate(() => [...document.querySelectorAll("#lore p")].map((p) => p.getAttribute("class") + "/" + getComputedStyle(p).textAlign + "/" + p.querySelectorAll("[class*=ee-al-]").length));
+    check(`[${vpName}] selection across two paragraphs: both aligned right, no spans`, two.length === 2 && two.every((x) => /ee-al-right\/right\/0$/.test(x) && !/ee-al-center/.test(x)), two.join(" | "));
+    await caretIn(page, "#lore p", 0.2, 0.5); await page.waitForTimeout(100);
+    await setAl(page, "center");
+    const part = await blockAt(page);
+    check(`[${vpName}] partial selection: alignment goes on the whole block, never an inline span`, /ee-al-center/.test(part.cls) && part.spans === 0, JSON.stringify(part).slice(0, 120));
+    await pick(page, "#ee-block", "h2");
+    const h = await blockAt(page);
+    check(`[${vpName}] Block → Heading keeps the alignment (h2.ee-al-center)`, h.tag === "H2" && /ee-al-center/.test(h.cls) && h.ta === "center", JSON.stringify(h).slice(0, 120));
+    await pick(page, "#ee-block", "p");
+    await page.keyboard.press("Control+Shift+R"); await page.waitForTimeout(120);
+    const kr = await blockAt(page);
+    await page.keyboard.press("Control+Shift+L"); await page.waitForTimeout(120);
+    const kl = await blockAt(page);
+    await page.keyboard.press("Control+Shift+E"); await page.waitForTimeout(120);
+    const ke = await blockAt(page);
+    check(`[${vpName}] Ctrl+Shift+R / L / E: right, left (class removed = default), center`, /ee-al-right/.test(kr.cls) && kr.ta === "right" && !/ee-al-/.test(kl.cls) && kl.ta !== "center" && kl.ta !== "right" && /\bart-life\b/.test(kl.cls) && /ee-al-center/.test(ke.cls), `${kr.cls} | ${kl.cls} | ${ke.cls}`);
+    await caretIn(page, "#lore p", 1.0);
+    await pasteInto(page, { html: '<p>Lead Zl</p><p style="text-align:center;font-family:Arial">Pasted centre Zc</p><p align="right">Pasted right Zr</p><p>Pasted plain Zp</p>', text: "x" });
+    const pa = await page.evaluate(() => ["Pasted centre Zc", "Pasted right Zr", "Pasted plain Zp"].map((t) => { const p = [...document.querySelectorAll("main p")].find((x) => x.textContent === t); return p ? (p.getAttribute("class") || "") + (p.hasAttribute("style") ? " STYLE" : "") : "missing"; }));
+    check(`[${vpName}] paste: text-align / align= become ee-al-* classes (no inline styles)`, /ee-al-center/.test(pa[0]) && /ee-al-right/.test(pa[1]) && /art-life/.test(pa[2]) && !/ee-al-/.test(pa[2]) && pa.every((x) => !/STYLE|missing/.test(x)), pa.join(" | "));
+    check(`[${vpName}] alignment: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    if (vpName === "desktop") { await caretIn(page, "#lore p", 0.3); await page.waitForTimeout(150); }
+    await page.screenshot({ path: path.join(OUT, `align-${vpName}.png`) });
+    await ctx.close();
+  }
+  // Journal and lore pages: the classes win over the page's paragraph rules.
+  for (const [url, sel] of [["journal/", "main.read > p"], ["codex/lore/", "main.read blockquote p, main.read p"]]) {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); watch(page);
+    await openEdit(page, url);
+    await caretIn(page, sel, 0.3); await page.waitForTimeout(100);
+    await setAl(page, "right"); const r1 = await blockAt(page);
+    await setAl(page, "center"); const r2 = await blockAt(page);
+    check(`[${vpName}] ${url}: right then center apply (classes beat the page's rules)`, r1.ta === "right" && r2.ta === "center" && /ee-al-center/.test(r2.cls) && !/ee-al-right/.test(r2.cls), `${r1.ta}/${r2.ta} "${r2.cls}"`);
+    await ctx.close();
+  }
+}
+
 (async () => {
   const srv = await serverForTests();
   BASE = srv.base;
@@ -536,7 +634,7 @@ async function batch2Tests(browser, vpName) {
   const only = process.env.ONLY || "";
   try {
     for (const vpName of ["desktop", "phone"]) {
-      for (const [name, fn] of [["size", sizeTests], ["diff", (b, v) => diffTests(b, v, counts[v] = {})], ["flow", flowTests], ["batch2", batch2Tests]]) {
+      for (const [name, fn] of [["size", sizeTests], ["diff", (b, v) => diffTests(b, v, counts[v] = {})], ["flow", flowTests], ["batch2", batch2Tests], ["align", alignTests]]) {
         if (only && only.split(",").indexOf(name) < 0) continue;
         try { await fn(browser, vpName); } catch (e) { check(`[${vpName}] ${name} stage ran without exceptions`, false, e.stack.split("\n").slice(0, 3).join(" ")); }
       }
