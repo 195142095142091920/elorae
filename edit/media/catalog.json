@@ -1065,6 +1065,42 @@
         "sawyer"
       ],
       "everyone": true
+    },
+    "fort-red-eve": {
+      "path": "assets/fort-red-eve.png",
+      "title": "Fort Red Eve",
+      "tags": [
+        "Fort Red Eve"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-08T18:05:20.512Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
+    },
+    "the-gaze-of-yudai": {
+      "path": "assets/the-gaze-of-yudai.png",
+      "title": "The Gaze of Yudai",
+      "tags": [
+        "Yudai"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-08T18:05:20.583Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer"
+      ],
+      "everyone": true
     }
   }
 }
