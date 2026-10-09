@@ -4,7 +4,8 @@ var PHRASE_HASH = {
   "25f67f02357a90b9e703068227e71c7acb44b967da68cb69f039ba975be72fd2":"jon",
   "7d0823c4ca0c0bfefdc14e67786e5c6b41d517a36a8b1cce9e0bbaf1448ce0e5":"julie",
   "340bbcf62fb5b430085a948675b2b76a33f7eb855f94b538a077973a96571c61":"sawyer",
-  "0eedbe39d20f666a54f9fd82e2a7b8c7673ade3d1f86f530d68b56d3e6500740":"devin"
+  "0eedbe39d20f666a54f9fd82e2a7b8c7673ade3d1f86f530d68b56d3e6500740":"devin",
+  "4ea140588150773ce3aace786aeef7f4049ce100fa649c94fbbddb960f1da942":"sylum"
 };
 /* Player names shown on the login welcome after a successful phrase. */
 var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",sylum:"Sylum",devin:"Devin"};
