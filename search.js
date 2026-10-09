@@ -490,6 +490,38 @@
 
   if (seek) seek.addEventListener("input", applyQuery);
 
+  /* search-letters: Dota-style typed letters. Restores the fading #seek-ghost from the old app
+     (fc1bb6c2, legacy features.js), lost when the static site replaced that app (c1113efe) and the
+     field went off-screen (994dbc01). Same look/timing: large serif letters mid-screen, fade 900ms
+     after the last key. Not on /search/ (it has its own visible field and #seek-show). */
+  var ghost = null;
+  var ghostFade = null;
+  function ensureGhost() {
+    if (ghost) return ghost;
+    if (!document.getElementById("seek-ghost-css")) {
+      var css = document.createElement("style");
+      css.id = "seek-ghost-css";
+      css.textContent = "#seek-ghost{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:180;pointer-events:none;font-family:\"Iowan Old Style\",Palatino,\"Times New Roman\",serif;font-weight:400;font-size:clamp(64px,9vw,128px);letter-spacing:.04em;color:rgba(243,238,230,.92);text-shadow:0 18px 50px rgba(0,0,0,.65);opacity:0;transition:opacity .45s ease;white-space:nowrap}#seek-ghost.show{opacity:1;transition:opacity .08s ease}@media (max-width:800px){#seek-ghost{font-size:56px}}";
+      document.head.appendChild(css);
+    }
+    ghost = document.createElement("div");
+    ghost.id = "seek-ghost";
+    ghost.setAttribute("aria-hidden", "true");
+    document.documentElement.appendChild(ghost);
+    return ghost;
+  }
+  function showGhost() {
+    if (!seek || isSearchPage) return;
+    var q = seek.value;
+    if (!q && !ghost) return;
+    ensureGhost();
+    ghost.textContent = q;
+    ghost.classList.toggle("show", !!q);
+    clearTimeout(ghostFade);
+    if (q) ghostFade = setTimeout(function () { ghost.classList.remove("show"); }, 900);
+  }
+  if (seek) seek.addEventListener("input", showGhost);
+
   function scrollToIndexCard(articleHref) {
     if (!articleHref) return;
     var cards = document.querySelectorAll("a.index-card");
