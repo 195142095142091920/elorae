@@ -7,8 +7,8 @@ var PHRASE_HASH = {
   "0eedbe39d20f666a54f9fd82e2a7b8c7673ade3d1f86f530d68b56d3e6500740":"devin"
 };
 /* Player names shown on the login welcome after a successful phrase. */
-var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",devin:"Devin"};
-var LOGIN_PLAYERS = {jack:1,jon:1,julie:1,sawyer:1,devin:1};
+var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",sylum:"Sylum",devin:"Devin"};
+var LOGIN_PLAYERS = {jack:1,jon:1,julie:1,sawyer:1,sylum:1,devin:1};
 var GUEST_KEY = "elorae-guest";
 var PENDING_ENROLL_KEY = "elorae-enroll-pending";
 var PHRASE_MEMORY_KEY = "elorae-login-phrase";
@@ -256,7 +256,7 @@ function applyLogin() {
   var who = readLoginWho();
   var guest = !who && isGuest();
   if (who) setLoginSession(who); /* keep cookie in sync with existing localStorage sessions */
-  ["login-jack","login-jon","login-julie","login-sawyer","login-devin","login-guest"].forEach(function (c) {
+  ["login-jack","login-jon","login-julie","login-sawyer","login-sylum","login-devin","login-guest"].forEach(function (c) {
     document.body.classList.remove(c);
   });
   if (who) document.body.classList.add("login-" + who);

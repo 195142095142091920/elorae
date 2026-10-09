@@ -6,7 +6,7 @@
    Legacy elorae-seal cookie/localStorage still accepted. */
 (function () {
   "use strict";
-  var PLAYERS = { jack: 1, jon: 1, julie: 1, sawyer: 1, devin: 1 };
+  var PLAYERS = { jack: 1, jon: 1, julie: 1, sawyer: 1, sylum: 1, devin: 1 };
   var path = location.pathname || "";
   if (/(^|\/)(login|seal)(\.html)?\/?$/i.test(path)) return;
 

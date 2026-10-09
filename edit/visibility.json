@@ -43,6 +43,10 @@
     "sawyer": {
       "name": "Sawyer",
       "key": null
+    },
+    "sylum": {
+      "name": "Sylum",
+      "key": null
     }
   },
   "secrets": {

@@ -11,7 +11,7 @@
   var ASSET_DIR = "assets";
   var MAX_BYTES = 5 * 1024 * 1024; // 5 MB
   var OK_TYPES = { "image/png": "png", "image/jpeg": "jpg", "image/jpg": "jpg", "image/webp": "webp", "image/gif": "gif" };
-  var PEOPLE = ["devin", "jack", "jon", "julie", "sawyer"];
+  var PEOPLE = ["devin", "jack", "jon", "julie", "sawyer", "sylum"];
 
   function slugify(name) {
     return String(name || "image")

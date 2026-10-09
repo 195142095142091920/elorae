@@ -1,12 +1,13 @@
 var canvas = document.getElementById("friend-glow");
 if (canvas) {
   var ctx = canvas.getContext("2d");
-  /* Login / success tones: Jack yellow-gold, Julie pink, Sawyer red-orange,
+  /* Login / success tones: Jack yellow-gold, Julie pink, Sawyer red-orange, Sylum light blue,
      Jon Telorin green / Silar red (marks stay fixed; ambient blends), Devin white. */
   var tones = {
     jack: [230, 190, 80],
     julie: [255, 210, 220],
     sawyer: [230, 120, 40],
+    sylum: [142, 202, 230],
     jon: [80, 180, 90],
     jon2: [230, 90, 40],
     devin: [243, 238, 230]
@@ -14,7 +15,7 @@ if (canvas) {
   var bits = [];
   function who() {
     var c = document.body.className;
-    var m = c.match(/login-(jack|jon|julie|sawyer|devin)/);
+    var m = c.match(/login-(jack|jon|julie|sawyer|sylum|devin)/);
     return m ? m[1] : "";
   }
   function lerpTone(a, b, t) {

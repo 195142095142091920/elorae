@@ -16,6 +16,7 @@ Nothing secret is committed. There are no passwords or tokens in the repo.
 | Jon | `<jon-github-login>` | player (editor), saves as PR | Silar Scorria: `articles/silar-scorria.html`; Telorin: `articles/telorin.html` |
 | Jack | `<jack-github-login>` | player (editor), saves as PR | Galand Helviath: `articles/galand-helviath.html` |
 | Julie | `<julie-github-login>` | player (editor), saves as PR | Saoirse: `articles/saoirse.html` |
+| Sylum | `<sylum-github-login>` | player (editor), saves as PR | Alaric: `articles/alaric.html` |
 
 **Hard ceiling: players edit article pages only.** Every non-admin is capped at
 `articles/*.html` in code (`edit/perms.js`, used by both the editor and the guard). Codex, journal,
