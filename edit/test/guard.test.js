@@ -21,7 +21,7 @@ write("edit/profiles.json", JSON.stringify({ profiles: {
   "player5-gh": { role: "editor", person: "sylum", permissions: ["articles/alaric.html"], save: "pr" },
   "viewer-gh": { role: "viewer", permissions: "view" },
   "player6-gh": { role: "viewer", person: "jason", permissions: "view" } } }));
-for (const f of ["articles/vaerek.html", "articles/saoirse.html", "articles/silar-scorria.html", "articles/telorin.html", "articles/yena.html", "index/heroes.html", "codex/vaerek.html", "index/ancients.html", "journal.html", "codex/lore.html", "index.html", "edit/visibility.json", "articles/alaric.html", "articles/alaric/index.html", "articles/galand-helviath.html", "players/sylum.html", "players/sylum/index.html", "players/jason.html", "players/jason/index.html"]) write(f, "<p>x</p>\n");
+for (const f of ["articles/vaerek.html", "articles/saoirse.html", "articles/silar-scorria.html", "articles/telorin.html", "articles/yena.html", "index/heroes.html", "codex/vaerek.html", "index/ancients.html", "journal.html", "codex/lore.html", "index.html", "edit/visibility.json", "articles/alaric.html", "articles/alaric/index.html", "articles/galand-helviath.html", "players/sylum.html", "players/sylum/index.html", "players/jason.html", "players/jason/index.html", "edit/secrets/m/README.md"]) write(f, "<p>x</p>\n");
 const BASE = commit("base");
 const scenario = (name, files, msg, actor, expectCode, expectText) => {
   git("checkout", "-q", "--detach", BASE);
@@ -55,6 +55,9 @@ scenario("jason (viewer) refused on any article", ["articles/vaerek.html"], "x [
 scenario("jason (viewer) refused on his player page", ["players/jason.html"], "x [edit-mode]", "player6-gh", 1);
 scenario("jason can't grant himself permissions", ["edit/profiles.json"], "x", "player6-gh", 1, "only admins may change edit/profiles.json");
 scenario("jason can't change visibility.json", ["edit/visibility.json"], "x", "player6-gh", 1);
+// Private journal edit mode is admin-only: even as a listed owner, a player may never save a private page.
+scenario("jason refused on a private page blob + its epoch", ["edit/visibility.json", "edit/secrets/m/README.md"], "Edit private page jason-journal-1 via edit mode [edit-mode]", "player6-gh", 1, "only admins may change edit/visibility.json");
+scenario("sylum (editor) refused on a private page blob", ["edit/secrets/m/README.md"], "Edit private page x via edit mode [edit-mode]", "player5-gh", 1, "only admins may change edit/secrets/m/README.md");
 // Same rules against the repo's real profiles.json (perms.js is shared by editor + guard).
 {
   const P = require(path.resolve(__dirname, "../perms.js"));
@@ -78,6 +81,8 @@ scenario("jason can't change visibility.json", ["edit/visibility.json"], "x", "p
   check("real profiles.json: no profile answers to the slug \"jason\" as a login", P.profileFor(real, "jason") === null);
   for (const f of ["articles/vaerek.html", "articles/alaric.html", "articles/yena.html", "players/jason.html", "players/jason/index.html", "journal.html", "edit/profiles.json", "edit/visibility.json"])
     check("real profiles.json: jason cannot edit " + f, !P.canEdit(ja, f));
+  check("real profiles.json: jason cannot edit a private page, even one he owns", !P.canEditSecret(ja, { status: "encrypted", owner: "jason" }) && !P.canEditSecret(Object.assign({}, ja, { role: "editor" }), { status: "encrypted", owner: "jason" }));
+  check("admin may edit a private page, never a nav secret", P.canEditSecret({ role: "admin" }, { status: "encrypted", owner: "jason" }) && !P.canEditSecret({ role: "admin" }, { status: "encrypted", owner: "jason", kind: "nav" }));
 }
 fs.rmSync(dir, { recursive: true, force: true });
 console.log(`\n${pass}/${pass + fail} passed`);

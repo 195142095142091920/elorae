@@ -117,6 +117,15 @@
     return permList(profile).some(function (g) { return !/[*?]/.test(g) && canonicalPath(g) === c; });
   }
 
+  // Private (encrypted) pages, e.g. the hidden journal tabs: the page's source lives only inside
+  // edit/secrets/<id>.json, so a save re-encrypts it and commits edit/secrets/** + visibility.json.
+  // ADMIN ONLY (Devin): no player, owner or not, ever gets edit mode on a private page; the guard
+  // already rejects any non-admin change under edit/**. Nav secrets (sidebar links) are never page-edited.
+  function canEditSecret(profile, sec) {
+    if (!profile || !sec || sec.status !== "encrypted" || sec.kind === "nav") return false;
+    return isAdmin(profile);
+  }
+
   function saveMode(profile) {
     if (!profile) return "pr";
     if (profile.save === "direct" || profile.save === "pr") return profile.save;
@@ -140,6 +149,7 @@
     isProtected: isProtected,
     canEdit: canEdit,
     ownsPage: ownsPage,
+    canEditSecret: canEditSecret,
     canonicalPath: canonicalPath,
     mirrorPath: mirrorPath,
     saveMode: saveMode

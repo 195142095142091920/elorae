@@ -187,7 +187,29 @@ Jason (`jason-journal-1` … `-6`) and the Journal sidebar link to them (`jason-
   dashboard work unchanged. Images are separate files, `secrets/m/<hash>.bin`, each AES-256-GCM
   with its own key; the keys sit only inside the encrypted page (`#gw-media`), and the page's own
   loader decrypts them near the viewport. Rotation re-keys the page, not the image files (rebuild
-  to re-key those). Editing these pages in edit mode is not supported (no source file to save to).
+  to re-key those).
+- **Edit mode on hidden pages: Devin (admin) only.** `perms.js` `canEditSecret` is true for admins
+  only; no player gets an Edit button, the `#edit` panel or a save path there, the owner (Jason)
+  included, even with a linked GitHub login. The guard already rejects any non-admin change
+  under `edit/**`. Each page carries `<meta name="elorae-secret" content="<id>">` (the tab swap keeps
+  it current), which makes the editor take its source from the decrypted payload instead of a repo
+  file. Devin's secrets key must be unlocked in that tab (Dashboard) or Edit says so and stops.
+  Save re-encrypts the edited page in the browser with the page's own content key at epoch + 1 and
+  commits (directly, as for any admin edit) only `secrets/<id>.json`, that epoch in
+  `visibility.json` and, for pasted or dropped pictures, `secrets/m/<hash>.bin` (AES-256-GCM, own
+  key, metadata stripped; the key goes into the page's `#gw-media`). The commit message names the id
+  only (`Edit private page jason-journal-3 via edit mode`). No plaintext is ever sent to GitHub. Art /
+  Share / Owner / New article are hidden on these pages.
+- **Source of truth after a browser edit: the encrypted blob, not `/workspace/gw2/src`.**
+  `build-secrets.js` records the sha256 of every blob it writes (`/workspace/gw2/built.json`) and
+  refuses to run if any blob differs (that is, it was edited in the browser since the last build):
+  - `node build-secrets.js --skip-edited` rebuilds the rest and leaves edited tabs (blob, manifest
+    entry, pictures) untouched;
+  - `node build-secrets.js --force` overwrites them (the browser edits are lost; recover from git);
+  - bring the edits into `src` first by hand (decrypt as Devin, copy the changed text), then
+    `--force`; `--record` marks the current blobs as built after review.
+  It never deletes `secrets/m/*.bin` files it did not make itself, so pictures added in edit mode
+  survive any rebuild.
 - Speed: a decrypted page is kept for the tab in sessionStorage (`elorae-hp:<path>`, next to the
   unlocked key). With it, `/hidden.js` writes the page while the 404 is still parsing, so it renders
   in one pass like any static page; the manifest is then re-checked and a re-keyed or unshared page

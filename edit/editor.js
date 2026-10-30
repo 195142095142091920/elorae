@@ -10,6 +10,109 @@
   var PATH = E.pagePath();
   var state = { profiles: null, profile: null, editing: false, base: null, records: [], busy: false };
 
+  /* ---------------- Private (encrypted) pages ----------------
+     hidden.js renders a secret at its URL; the payload marks itself with
+     <meta name="elorae-secret" content="<id>"> (swap.js keeps it current on tab swaps). Its source
+     is the decrypted payload html, never a repo file. ADMIN ONLY (P.canEditSecret). A save re-encrypts
+     the edited html IN THIS BROWSER with the secret's own content key at epoch + 1 and commits only
+     edit/secrets/<id>.json, that epoch in edit/visibility.json, and any new pictures as encrypted
+     edit/secrets/m/<hash>.bin (key inside the page's #gw-media map). Plaintext never leaves the
+     browser; commit messages and branch names name the secret id, never its path or title. */
+  var SEC = null;
+  function readSec() {
+    var m = document.querySelector('meta[name="elorae-secret"]');
+    var id = m && m.getAttribute("content");
+    if (!id || !/^[\w-]+$/.test(id)) { SEC = null; return; }
+    if (SEC && SEC.id === id) return;
+    var me = SEC = { id: id, meta: null };
+    if (V) V.manifest(false).then(function (man) {
+      if (SEC !== me) return;
+      me.meta = (man.secrets || {})[id] || null;
+      if (typeof glyph === "function") glyph();
+    }).catch(function () {});
+  }
+  readSec();
+  function canEditHere(pr) {
+    if (!pr) return false;
+    if (SEC) return !!(SEC.meta && P.canEditSecret && P.canEditSecret(pr, SEC.meta));
+    return P.canEdit(pr, PATH);
+  }
+  function b64u8(u8) { var s0 = ""; for (var i = 0; i < u8.length; i++) s0 += String.fromCharCode(u8[i]); return btoa(s0); }
+  function secretSource(ref) {
+    var mine = V && V.myKey.get();
+    if (!K || !mine) return Promise.reject(new Error("Unlock your secrets key first (Dashboard), then press Edit again. Nothing was changed."));
+    return Promise.all([E.getFile("edit/visibility.json", ref), E.getFile("edit/secrets/" + SEC.id + ".json", ref), K.importPrivate(mine.jwk)]).then(function (r) {
+      var man = JSON.parse(r[0].text), file = JSON.parse(r[1].text), sec = man.secrets && man.secrets[SEC.id];
+      if (!sec || sec.status !== "encrypted" || !sec.keys || !sec.keys[mine.person]) throw new Error("This private page is not shared with your secrets key. Nothing was changed.");
+      if (file.id !== SEC.id || file.epoch !== sec.epoch) throw new Error("This private page and visibility.json disagree on GitHub (epoch). Nothing was changed.");
+      return K.unwrap(r[2], sec.keys[mine.person]).then(function (raw) {
+        return K.decryptSecret(file, raw).then(function (payload) {
+          if (!payload || typeof payload.html !== "string") throw new Error("Could not open this private page's source.");
+          return { sha: r[1].sha, text: payload.html, secret: { raw: raw, payload: payload, manText: r[0].text, epoch: sec.epoch } };
+        });
+      });
+    });
+  }
+  function getSource(ref) { return SEC ? secretSource(ref) : E.getFile(PATH, ref); }
+  // New pictures on a private page: AES-256-GCM each with its own random key, file named by the
+  // hash of the ciphertext; the key goes into the page's own #gw-media map, as build-secrets.js does.
+  function encryptImages(used) {
+    var seq = Promise.resolve(), files = [], media = {};
+    used.forEach(function (u) {
+      if (u.hero || !u.pd || !u.pd.file) return;
+      // validateFile: type/size limits and metadata (EXIF, GPS) stripped before encryption.
+      seq = seq.then(function () { return Media.validateFile(u.pd.file); }).then(function (info) { return info.bytes; }).then(function (buf) {
+        var key = crypto.getRandomValues(new Uint8Array(32)), iv = crypto.getRandomValues(new Uint8Array(12));
+        return crypto.subtle.importKey("raw", key, "AES-GCM", false, ["encrypt"]).then(function (k) {
+          return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, k, buf);
+        }).then(function (ct) {
+          return crypto.subtle.digest("SHA-256", ct).then(function (h) {
+            var hex = Array.prototype.map.call(new Uint8Array(h), function (x) { return (x < 16 ? "0" : "") + x.toString(16); }).join("").slice(0, 24);
+            media["e" + hex] = { f: hex, k: b64u8(key), iv: b64u8(iv) };
+            files.push({ path: "edit/secrets/m/" + hex + ".bin", binary: true, bytes: new Uint8Array(ct) });
+            u.gwm = "e" + hex;
+          });
+        });
+      });
+    });
+    return seq.then(function () { return { files: files, used: used.filter(function (u) { return !u.hero; }), media: media }; });
+  }
+  function withMedia(html, media) {
+    var keys = Object.keys(media || {});
+    if (!keys.length) return html;
+    var re = /(<script type="application\/json" id="gw-media">)([\s\S]*?)(<\/script>)/;
+    var m = re.exec(html), map = {};
+    if (m) { try { map = JSON.parse(m[2]); } catch (e) { throw new Error("Could not read this page's picture list. Nothing was saved."); } }
+    keys.forEach(function (k) { map[k] = media[k]; });
+    var tag = '<script type="application/json" id="gw-media">' + JSON.stringify(map).replace(/</g, "\\u003c") + "</script>";
+    if (m) return html.slice(0, m.index) + tag + html.slice(m.index + m[0].length);
+    return html.replace(/<\/body>/i, function (b) { return tag + "\n" + b; });
+  }
+  function secretFiles(latest, html, prep) {
+    var S = latest.secret, epoch = S.epoch + 1;
+    var payload = Object.assign({}, S.payload, { html: withMedia(html, prep.media) });
+    return K.encryptSecret(SEC.id, epoch, S.raw, payload).then(function (file) {
+      var man = JSON.parse(S.manText);
+      man.secrets[SEC.id].epoch = epoch;
+      return { epoch: epoch, html: payload.html, files: [{ path: "edit/secrets/" + SEC.id + ".json", text: JSON.stringify(file) + "\n" },
+        { path: "edit/visibility.json", text: JSON.stringify(man, null, 2) + "\n" }].concat(prep.files || []) };
+    });
+  }
+  // This tab's decrypted copies of the page (hidden.js / swap.js) are stale after a save.
+  function forgetSecretCache(id) {
+    try {
+      Object.keys(sessionStorage).forEach(function (k) {
+        if (k.indexOf("elorae-hp:") !== 0) return;
+        var c = JSON.parse(sessionStorage.getItem(k) || "null");
+        if (c && c.id === id) sessionStorage.removeItem(k);
+      });
+    } catch (e) {}
+  }
+  window.addEventListener("elorae-content-swapped", function () {
+    if (state.editing) return;
+    PATH = E.pagePath(); readSec(); glyph();
+  });
+
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function el(tag, attrs, html) {
@@ -121,7 +224,7 @@
     var s = E.session.get();
     if (s) {
       var pr = state.profile;
-      var canHere = pr && P.canEdit(pr, PATH);
+      var canHere = pr && canEditHere(pr);
       var onDash = onDashboardPage();
       var how = pr ? (onDash
         ? (P.isAdmin(pr) ? "Your dashboard is ready on this page." : "The dashboard is only for admins.")
@@ -281,7 +384,7 @@
     var g = $("ee-glyph");
     var Org = window.EloraeIndexOrg;
     if (Org && state.profile) Org.setProfile(state.profile);
-    var textOk = !!(E.session.get() && state.profile && P.canEdit(state.profile, PATH) && (findLiveMain() || liveBlocks().length));
+    var textOk = !!(E.session.get() && state.profile && canEditHere(state.profile) && (findLiveMain() || liveBlocks().length));
     var indexOk = !!(E.session.get() && isIndexOrganizePage());
     var ok = textOk || indexOk;
     if (!ok) { if (g) g.remove(); return; }
@@ -316,10 +419,10 @@
 
   function startEdit() {
     if (state.editing || state.busy) return;
-    if (!P.canEdit(state.profile, PATH)) return;
+    if (!canEditHere(state.profile)) return;
     state.busy = true;
     bar('<span class="ee-msg">Loading the page source…</span>');
-    E.getFile(PATH).then(function (f) {
+    getSource().then(function (f) {
       var mainEl = findLiveMain();
       if (mainEl) {
         var range = sourceMainRange(f.text);
@@ -409,7 +512,7 @@
   }
   /* Hero name + epithet: admins, and players on their own page. Inside main they are
      saved with the body; in the hero (most articles) they are their own small regions. */
-  function titlesAllowed() { return !!(state.profile && P.ownsPage && P.ownsPage(state.profile, PATH)); }
+  function titlesAllowed() { return SEC ? canEditHere(state.profile) : !!(state.profile && P.ownsPage && P.ownsPage(state.profile, PATH)); }
   function setupTitles(mainEl) {
     state.titles = [];
     var ok = titlesAllowed();
@@ -438,11 +541,11 @@
   function editBar(msg, cls) {
     var mode = P.saveMode(state.profile) === "direct" ? "Saves to the live site" : "Saves as a pull request";
     var admin = P.isAdmin(state.profile);
-    var artBtn = (admin && Media)
+    var artBtn = (admin && Media && !SEC) // private page: pictures come in by paste/drop only (encrypted)
       ? '<button type="button" class="ee-btn" id="ee-art">Art</button>' : '';
-    var shareBtn = (admin && V) ? '<button type="button" class="ee-btn" id="ee-share">Share</button>' : '';
-    var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
-    var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart" aria-label="New article">New<span class="ee-wide-only"> article</span></button>' : '';
+    var shareBtn = (admin && V && !SEC) ? '<button type="button" class="ee-btn" id="ee-share">Share</button>' : '';
+    var ownerBtn = admin && !SEC ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
+    var newBtn = admin && !SEC ? '<button type="button" class="ee-btn" id="ee-newart" aria-label="New article">New<span class="ee-wide-only"> article</span></button>' : '';
     bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
       artBtn + shareBtn + ownerBtn + newBtn +
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
@@ -1446,8 +1549,9 @@
       if (pd) used.push({ pd: pd, img: im });
       else im.removeAttribute("data-ee-pending");
     });
-    if (state.hero && state.hero.pending) used.push({ pd: state.hero.pending, hero: true });
+    if (state.hero && state.hero.pending && !SEC) used.push({ pd: state.hero.pending, hero: true });
     if (!used.length) return Promise.resolve([]);
+    if (SEC) return encryptImages(used);
     var who = (state.profile && state.profile.person) || "devin";
     return E.getFile(Media.CATALOG).then(function (f) { return JSON.parse(f.text); }, function () { return { version: 1, media: {} }; }).then(function (catalog) {
       var bins = [], seq = Promise.resolve();
@@ -1475,12 +1579,15 @@
     var back = [];
     (prep.used || []).forEach(function (u) {
       if (u.hero) { state.hero.src = u.rel; return; }
-      back.push([u.img, u.img.getAttribute("src"), u.img.getAttribute("data-ee-pending")]);
-      u.img.setAttribute("src", u.rel);
+      back.push([u.img, u.img.getAttribute("src"), u.img.getAttribute("data-ee-pending"), u.img.getAttribute("data-gwm")]);
+      if (u.gwm) { u.img.setAttribute("data-gwm", u.gwm); u.img.removeAttribute("src"); } else u.img.setAttribute("src", u.rel);
       u.img.removeAttribute("data-ee-pending");
     });
     return function () {
-      back.forEach(function (b) { b[0].setAttribute("src", b[1]); b[0].setAttribute("data-ee-pending", b[2]); });
+      back.forEach(function (b) {
+        b[0].setAttribute("src", b[1]); b[0].setAttribute("data-ee-pending", b[2]);
+        if (b[3] == null) b[0].removeAttribute("data-gwm"); else b[0].setAttribute("data-gwm", b[3]);
+      });
     };
   }
 
@@ -1944,6 +2051,15 @@
         if (from.getAttribute("target") === "_blank") { to.setAttribute("target", "_blank"); to.setAttribute("rel", "noopener"); }
       }
       if (tag === "img") {
+        // Encrypted picture on a private page: referenced by data-gwm (key in #gw-media), no src.
+        var gwm = SEC && from.getAttribute("data-gwm");
+        if (gwm && /^[\w-]+$/.test(gwm)) {
+          to.setAttribute("data-gwm", gwm);
+          var alt0 = from.getAttribute("alt");
+          if (alt0 != null) to.setAttribute("alt", alt0);
+          keepImgSizing(from, to);
+          return true;
+        }
         var src = safeSrc(from.getAttribute("src"));
         if (src == null) return false;
         to.setAttribute("src", src);
@@ -2005,7 +2121,7 @@
      blocks whose content actually changed are re-serialized. Elements that scripts
      injected at runtime (sibling navs, chapter navs, player buttons, cards) never
      match the source and are dropped; runtime classes/attributes are stripped. */
-  var RUNTIME_CLASS = /^(nav-fade[\w-]*|ee-(editable|page|locked|index-[\w-]+))$/;
+  var RUNTIME_CLASS = /^(nav-fade[\w-]*|gw-zoomable|ee-(editable|page|locked|index-[\w-]+))$/;
   var INJECTED_SEL = "nav.nt-siblings, nav.nt-chapnav, .profile-gh-actions, .card-lore-back, .nt-rel-head, .nt-related, [data-ee-ui]";
   var CONTAINER_TAGS = { main: 1, section: 1, div: 1, ul: 1, ol: 1, dl: 1, blockquote: 1, figure: 1, header: 1, footer: 1, article: 1, table: 1, thead: 1, tbody: 1, tr: 1 };
   var SRC_INLINE = { a: 1, em: 1, strong: 1, i: 1, b: 1, u: 1, s: 1, sub: 1, sup: 1, small: 1, span: 1, code: 1, cite: 1, q: 1, abbr: 1, br: 1, img: 1, wbr: 1, mark: 1, time: 1 };
@@ -2062,7 +2178,11 @@
       } else n.remove();
     });
     [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))).forEach(function (n) {
-      if (n.tagName === "IMG") {
+      if (n.tagName === "IMG" && SEC && n.hasAttribute("data-gwm") && mode !== "raw") {
+        // Decrypted here (blob: src, viewer tabindex/class): none of that is page source.
+        ["src", "srcset", "sizes", "tabindex"].forEach(function (a) { n.removeAttribute(a); });
+        n.classList.remove("gw-zoomable"); if (!n.classList.length) n.removeAttribute("class");
+      } else if (n.tagName === "IMG") {
         var k = imgKey(n.getAttribute("data-eimg-orig") || n.getAttribute("src"));
         if (mode === "canon") { n.setAttribute("src", k); n.removeAttribute("srcset"); n.removeAttribute("sizes"); }
         else {
@@ -2419,6 +2539,15 @@
         if (from.getAttribute("target") === "_blank") { to.setAttribute("target", "_blank"); to.setAttribute("rel", "noopener"); }
       }
       if (tag === "img") {
+        // Encrypted picture on a private page: referenced by data-gwm (key in #gw-media), no src.
+        var gwm = SEC && from.getAttribute("data-gwm");
+        if (gwm && /^[\w-]+$/.test(gwm)) {
+          to.setAttribute("data-gwm", gwm);
+          var alt0 = from.getAttribute("alt");
+          if (alt0 != null) to.setAttribute("alt", alt0);
+          keepImgSizing(from, to);
+          return true;
+        }
         var src = safeSrc(from.getAttribute("src"));
         if (src == null) return false;
         to.setAttribute("src", src);
@@ -2611,7 +2740,7 @@
   // The other copy of this article (pretty URL <-> .html) gets the same regions, when
   // they are identical there; otherwise it is left alone and the bar says so.
   function mirrorFor(ref, regions) {
-    var mp = P.mirrorPath ? P.mirrorPath(PATH) : null;
+    var mp = !SEC && P.mirrorPath ? P.mirrorPath(PATH) : null;
     if (!mp || !regions || !P.canEdit(state.profile, mp)) return Promise.resolve(null);
     return E.getFile(mp, ref).then(function (f) {
       var out = applyRegions(f.text, regions);
@@ -2623,44 +2752,50 @@
     if (!state.editing || state.busy) return;
     state.busy = true;
     var pr = state.profile, mode = P.saveMode(pr);
-    var msg = "Edit " + PATH + " via edit mode [edit-mode]";
+    var label = SEC ? "private page " + SEC.id : PATH, secId = SEC && SEC.id;
+    var msg = "Edit " + label + " via edit mode [edit-mode]";
     var s = E.session.get();
     editBar("Saving\u2026", "ee-busy");
     var latestRef, branch, prep = { files: [], used: [] }, undoPending = null, mirror = null;
     var p = preparePending().then(function (pp) {
       if (pp && pp.files) prep = pp;
       return E.headSha(E.BRANCH);
-    }).then(function (sha) { latestRef = sha; return E.getFile(PATH, sha); });
+    }).then(function (sha) { latestRef = sha; return getSource(sha); });
     p.then(function (latest) {
       var r;
       if (prep.used.length) undoPending = applyPending(prep);
       try { r = buildOutput(latest); } finally { if (undoPending) undoPending(); }
       if (r.none) { editBar("No changes to save."); return null; }
       if (r.conflict) { var e = new Error(conflictMsg()); e.conflict = true; throw e; }
-      return mirrorFor(latestRef, r.edits ? null : r.regions).then(function (m) {
-        mirror = m;
-        var files = [{ path: PATH, text: r.out }];
-        if (m && !m.skipped) files.push({ path: m.path, text: m.text });
-        files = files.concat(prep.files);
-        if (prep.used.length) msg = "Edit " + PATH + " via edit mode (+" + prep.used.length + " image" + (prep.used.length > 1 ? "s" : "") + ") [edit-mode]";
+      return (SEC ? secretFiles(latest, r.out, prep) : mirrorFor(latestRef, r.edits ? null : r.regions)).then(function (m) {
+        var files;
+        if (SEC) { files = m.files; r.out = m.html; r.epoch = m.epoch; }
+        else {
+          mirror = m;
+          files = [{ path: PATH, text: r.out }];
+          if (m && !m.skipped) files.push({ path: m.path, text: m.text });
+          files = files.concat(prep.files);
+        }
+        if (prep.used.length) msg = "Edit " + label + " via edit mode (+" + prep.used.length + " image" + (prep.used.length > 1 ? "s" : "") + ") [edit-mode]";
         var one = files.length === 1;
         if (mode === "direct") {
           return (one ? E.putFile(PATH, r.out, latest.sha, msg, E.BRANCH) : E.commitFiles(files, msg, E.BRANCH, latestRef))
             .then(function (res) { return { res: res, r: r, multi: !one }; });
         }
-        branch = "edit/" + slug(s.login) + "/" + slug(PATH) + "-" + stamp();
+        branch = "edit/" + slug(s.login) + "/" + slug(SEC ? SEC.id : PATH) + "-" + stamp();
         return E.api(E.repoPath("/git/refs"), { method: "POST", body: { ref: "refs/heads/" + branch, sha: latestRef } })
           .then(function () { return one ? E.putFile(PATH, r.out, latest.sha, msg, branch) : E.commitFiles(files, msg, branch, latestRef); })
           .then(function (res) {
             return E.api(E.repoPath("/pulls"), { method: "POST", body: {
-              title: "Edit " + PATH + " via edit mode",
+              title: "Edit " + label + " via edit mode",
               head: branch, base: E.BRANCH,
-              body: "Proposed in edit mode by @" + s.login + ".\n\nOnly the edited regions of `" + PATH + "`" + (files.length > 1 ? " (and its copies/images)" : "") + " changed. The edit-guard check verifies the author is allowed to edit this path.\n\n[edit-mode]"
+              body: "Proposed in edit mode by @" + s.login + ".\n\nOnly the edited regions of `" + (SEC ? SEC.id + "` (re-encrypted in the browser" + ")" : PATH + "`") + (files.length > 1 ? " (and its copies/images)" : "") + " changed. The edit-guard check verifies the author is allowed to edit this path.\n\n[edit-mode]"
             } }).then(function (pull) { return { res: res, r: r, pull: pull, multi: !one }; }, function (err) { return { res: res, r: r, pullErr: err, multi: !one }; });
           });
       });
     }).then(function (done) {
       if (!done) return;
+      if (secId) forgetSecretCache(secId);
       var commitUrl = done.multi ? (done.res && done.res.html_url) : (done.res && done.res.commit && done.res.commit.html_url);
       if (mode === "direct") {
         state.base = {
@@ -2772,7 +2907,7 @@
       Org.start();
       return true;
     }
-    if (!P.canEdit(state.profile, PATH)) return false;
+    if (!canEditHere(state.profile)) return false;
     if (!liveBlocks().length && !isIndexOrganizePage()) return false;
     closePanel();
     clearEditHash();
