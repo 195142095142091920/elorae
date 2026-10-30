@@ -31,7 +31,7 @@
   ready(navFade);
   ready(function () {
     var rail = document.querySelector("aside.index-toc, aside.art-index") ||
-      document.querySelector("aside.toc:not(.private-journal)") || document.querySelector("aside.toc");
+      document.querySelector("aside.toc");
     var bar = document.querySelector(".mast .topbar") || document.querySelector(".topbar");
     if (!rail || !bar) { h.classList.remove("toc-rail-collapsed"); return; }
     var cats = rail.matches("aside.index-toc, aside.art-index");

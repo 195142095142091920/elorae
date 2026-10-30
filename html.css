@@ -27,8 +27,6 @@ body.login-jack .friend[data-owner=jack],body.login-jon .friend[data-owner=jon],
 
 }
 
-.private-journal{display:none;right:0;left:auto}
-body.login-devin .private-journal{display:block}
 .read{padding-top:28px}
 
 body.login-page{
