@@ -97,6 +97,38 @@
     out.sort();
     return out;
   }
+  /* Encrypted secret card art: decrypt the secret with the viewer's unlocked key (same as
+     hidden.js), take its banner (or first) encrypted image (edit/secrets/m/, key inside the
+     payload) and show it as an object URL. Nothing is published in plaintext. */
+  var cryptoP = null;
+  function loadCrypto() {
+    if (window.EloraeCrypto) return Promise.resolve(window.EloraeCrypto);
+    return cryptoP || (cryptoP = new Promise(function (res, rej) {
+      var s = document.createElement("script"); s.src = "/edit/crypto.js?v=hidden1";
+      s.onload = function () { res(window.EloraeCrypto); }; s.onerror = rej; document.head.appendChild(s);
+    }));
+  }
+  function secretArt(sec, myKey) {
+    var w = myKey && sec && sec.keys && sec.keys[myKey.person];
+    if (!w) return Promise.resolve(null);
+    function b(s) { var x = atob(s), u = new Uint8Array(x.length); for (var i = 0; i < x.length; i++) u[i] = x.charCodeAt(i); return u; }
+    return loadCrypto().then(function (K) {
+      return K.importPrivate(myKey.jwk).then(function (pk) { return K.unwrap(pk, w); }).then(function (raw) {
+        return fetch(url("edit/secrets/" + sec.id + ".json"), { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then(function (file) { return K.decryptSecret(file, raw); });
+      });
+    }).then(function (pl) {
+      var d = new DOMParser().parseFromString((pl && pl.html) || "", "text/html");
+      var im = d.querySelector(".gw-banner img[data-gwm]") || d.querySelector("img[data-gwm]");
+      var mj = d.getElementById("gw-media");
+      if (!im || !mj) return null;
+      var e = JSON.parse(mj.textContent)[im.getAttribute("data-gwm")];
+      if (!e) return null;
+      return fetch(url("edit/secrets/m/" + e.f + ".bin")).then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+        .then(function (buf) { return crypto.subtle.importKey("raw", b(e.k), "AES-GCM", false, ["decrypt"]).then(function (k) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: b(e.iv) }, k, buf); }); })
+        .then(function (pt) { return URL.createObjectURL(new Blob([pt], { type: "image/webp" })); });
+    }).catch(function () { return null; });
+  }
   function kindLabel(edit, secret) {
     if (edit && secret) return { sy: "✎⚑", label: "Edit · Secret" };
     if (edit) return { sy: "✎", label: "Edit" };
@@ -128,8 +160,16 @@
       addKind();
     }
     if (!fetchPath) {
-      box.appendChild(el("div", "ph"));
+      var ph = el("div", "ph");
+      box.appendChild(ph);
       finish(fallbackName);
+      if (kind.art) kind.art.then(function (src) {
+        if (!src || !ph.parentNode) return;
+        var img = document.createElement("img"); img.src = src; img.alt = "";
+        var node = img;
+        if (doLink && go) { node = link(go, ""); node.setAttribute("aria-hidden", "true"); node.tabIndex = -1; node.appendChild(img); }
+        ph.replaceWith(node);
+      });
       return;
     }
     doc(fetchPath).then(function (d) {
@@ -224,7 +264,7 @@
           if (enc) { bag[key].href = href; bag[key].link = true; }
           else if (!canLink) bag[key].link = false;
         } else {
-          bag[key] = { path: path, href: href || "", title: s.title, edit: false, secret: true, link: canLink };
+          bag[key] = { path: path, href: href || "", title: s.title, edit: false, secret: true, link: canLink, art: enc && !path ? secretArt(s, myKey) : null };
         }
       });
     }
@@ -237,7 +277,7 @@
       root.appendChild(row);
       items.forEach(function (it) {
         var box = el("div", "nt-pl-char"); row.appendChild(box);
-        fillComboCard(box, it.path, it.title, it.link, { edit: it.edit, secret: it.secret }, it.href);
+        fillComboCard(box, it.path, it.title, it.link, { edit: it.edit, secret: it.secret, art: it.art }, it.href);
       });
     }
     /* Unlock-secrets nudge: signed-out visitors only. Never show to signed-in players. */
