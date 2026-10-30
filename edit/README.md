@@ -121,112 +121,36 @@ can be forged. Then:
 - The Pages workflow publishes from `main` only. Edit branches run it but the `github-pages`
   environment refuses to deploy them, so you may see a failed "Deploy" run on `edit/*` branches.
 
-## Visibility layer (secrets)
-Today, the 12 "private" pages (Bel Harath, Haethlin in the Dream, Ito Gangara, Vallorca, Yena (Jack's);
-Curse of Olesh, Cursed of Olesh, Darmstadt, Elraim, Imani Valash, Rathalon, Sen Teloch Ini (Devin's))
-are **public plaintext**. Each one is a private article, `articles/<id>.html`
-(`<main class="art-body private" data-owner=…>`), with its image in `assets/`, its `search-index.js`
-entry and its card in the Index **Private** category (`index/ancients.html`), all in the public repo.
-They are hidden only by CSS (`.private` + `login.js`). The old friend-door phrases are in a comment in
-`login.js`, and the SHA-256 hashes of one-word phrases can be brute-forced instantly anyway. That
-mechanism is a curtain, not a lock.
+## Visibility layer (secrets): visibility among friends, no encryption
+Since 2026-10-30 secrets are **not encrypted**. A secret is a normal page, article, link or image
+in this repo; `edit/visibility.json` only says who sees it. This is a curtain among friends, not a
+lock: anyone can read the repo or view the page source.
 
-The new layer gives real secrecy:
-
-- Each secret's private article (`visibility.json` `path`, HTML with images inlined) is encrypted with its own random **AES-256-GCM**
-  content key and stored in `edit/secrets/<id>.json`.
-- Each person has an **RSA-OAEP-3072** keypair made in their own browser. `edit/visibility.json`
-  stores their public key and their private key **encrypted with their passphrase**
-  (PBKDF2-SHA-256, 600,000 iterations). The passphrase is never stored or sent anywhere.
-- For every allowed person, the content key is wrapped (encrypted) with that person's public key.
-  Devin is always included.
-- **Everyone** publishes the content key (`openKey`), so anyone can open the page.
-- **Revealing** to someone wraps the key for them (one commit). **Hiding** from someone, or turning
-  Everyone off, **rotates** the key: a new key, re-encryption, and re-wrapping for the people who remain.
-- Titles, owners and who-can-see lists in `visibility.json` are public metadata (the dashboard
-  needs them); only the page content is encrypted.
-- A shared page decrypts in the reader's browser; they can copy it. Weak passphrases can be
-  brute-forced offline from the published encrypted key, so use long ones.
-- Anything already revealed may have been saved, cached or screenshotted. Rotation protects future
-  versions only. Git history keeps old ciphertext, but old keys only ever went to people who were allowed at the time.
-
-### Setup, per person
-1. Open `https://elorae.world/edit/secret.html?enroll`, choose your name, and pick a passphrase of
-   four or more random words. Keep it private. It can't be recovered.
-2. Send the enrollment code shown to Devin. It contains only your public key and a passphrase-locked private key.
-3. To read something shared with you, use the link Devin gives you (`edit/secret.html?id=<secret>`),
-   choose your name and enter your passphrase.
-
-### Setup, Devin
-1. Enter at `edit/dashboard.html` (or the DASHBOARD link) with your token. The dashboard activates on that same page as soon as you enter (no need to navigate away); the DASHBOARD link also appears immediately in the top nav on every content page.
-2. Create your secrets key with your own passphrase. Next time, unlock it with that passphrase.
-3. Paste each person's enrollment code under **People → Add key**.
-4. **Encrypt** a secret, then use its toggles: *Everyone*, plus a checkbox per person. Each click is one
-   `[edit-mode]` commit to `main` (visibility.json, plus the secret file when the key rotates).
-
-### Migration status
-Encrypting a secret in the dashboard **adds** the encrypted copy and does not remove anything. The
-plaintext now lives in `articles/<id>.html` and stays public until a separate, explicit cleanup
-removes or replaces that article, its `search-index.js` entry, its card in the Index Private category
-(`index/ancients.html`) and its image in `assets/`, and points the card at `edit/secret.html?id=<id>`.
-The viewer shows the decrypted article as the unlocked original (it drops only the `.private` CSS gate). Image files also stay in git history,
-so truly secret art needs a history rewrite or new art. This cleanup is deliberately not automated.
-
-### Hidden pages (no public trace)
-Some pages exist only as secrets: no HTML file, no image file, no search or sitemap entry, no link
-in static HTML. Their URL simply 404s for everyone else. Today: the six Journal tabs shared with
-Jason (`jason-journal-1` … `-6`) and the Journal sidebar link to them (`jason-journal-nav`).
-
-- `visibility.json` `secrets.<id>.routes` holds `sha256("elorae-route:" + path)` for each URL the
-  page answers at (path with a trailing slash; `.html` and `/index.html` forms map to it), so the
-  path itself is not published. `404.html` loads `/hidden.js`: if the signed-in person's key opens a
-  secret routed at that path, the decrypted page replaces the 404 at the same URL.
-- `kind: "nav"` secrets carry `payload.nav` (`where` selector + link HTML); `/hidden.js` with
-  `data-mode="nav"` adds the links for people the secret is shared with (journal page).
-- The payload is the whole page with its CSS/JS inlined, so Share / Hide / key rotation in the
-  dashboard work unchanged. Images are separate files, `secrets/m/<hash>.bin`, each AES-256-GCM
-  with its own key; the keys sit only inside the encrypted page (`#gw-media`), and the page's own
-  loader decrypts them near the viewport. Rotation re-keys the page, not the image files (rebuild
-  to re-key those).
-- **Edit mode on hidden pages: Devin (admin) only.** `perms.js` `canEditSecret` is true for admins
-  only; no player gets an Edit button, the `#edit` panel or a save path there, the owner (Jason)
-  included, even with a linked GitHub login. The guard already rejects any non-admin change
-  under `edit/**`. Each page carries `<meta name="elorae-secret" content="<id>">` (the tab swap keeps
-  it current), which makes the editor take its source from the decrypted payload instead of a repo
-  file. Devin's secrets key must be unlocked in that tab (Dashboard) or Edit says so and stops.
-  Save re-encrypts the edited page in the browser with the page's own content key at epoch + 1 and
-  commits (directly, as for any admin edit) only `secrets/<id>.json`, that epoch in
-  `visibility.json` and, for pasted or dropped pictures, `secrets/m/<hash>.bin` (AES-256-GCM, own
-  key, metadata stripped; the key goes into the page's `#gw-media`). The commit message names the id
-  only (`Edit private page jason-journal-3 via edit mode`). No plaintext is ever sent to GitHub. Art /
-  Share / Owner / New article are hidden on these pages.
-- **Source of truth after a browser edit: the encrypted blob, not `/workspace/gw2/src`.**
-  `build-secrets.js` records the sha256 of every blob it writes (`/workspace/gw2/built.json`) and
-  refuses to run if any blob differs (that is, it was edited in the browser since the last build):
-  - `node build-secrets.js --skip-edited` rebuilds the rest and leaves edited tabs (blob, manifest
-    entry, pictures) untouched;
-  - `node build-secrets.js --force` overwrites them (the browser edits are lost; recover from git);
-  - bring the edits into `src` first by hand (decrypt as Devin, copy the changed text), then
-    `--force`; `--record` marks the current blobs as built after review.
-  It never deletes `secrets/m/*.bin` files it did not make itself, so pictures added in edit mode
-  survive any rebuild.
-- Speed: a decrypted page is kept for the tab in sessionStorage (`elorae-hp:<path>`, next to the
-  unlocked key). With it, `/hidden.js` writes the page while the 404 is still parsing, so it renders
-  in one pass like any static page; the manifest is then re-checked and a re-keyed or unshared page
-  is dropped. `payload.warm` / `payload.nav.warm` list pages to decrypt ahead of time when idle.
-- Keys: the secrets key is unlocked at sign-in (phrase-is-key). In a new tab the remembered login
-  phrase unlocks it again. Devin's main key was made on the dashboard with its own passphrase, so
-  his phrase can't open it. He also has a **sign-in key** (`people.devin.phraseKey`, derived from
-  his login phrase like a player's key; sessionStorage `elorae-secret-key-p`). Secrets shared with
-  him carry a second wrap for it in `pkeys.devin`, so they open on a normal sign-in with no
-  Dashboard step. Today: the six journal tabs and their sidebar link. The Dashboard's Share and
-  rotation keep `pkeys` current. A secret without a `pkeys` wrap (e.g. `yena`, only ever wrapped
-  for his main key) still needs the Dashboard unlock. Managing secrets (Share, rotate, encrypt)
-  still needs the main key. Edit mode on a private page accepts either key. If Devin changes his
-  login phrase, rerun `/workspace/gw2/devin-signin-key.js` (after removing `phraseKey`) or the
-  sign-in key stops unlocking.
-- Not covered: the plaintext of the journal and its images were public briefly on
-  2026-10-30 and remain in git history and in older Cloudflare Pages deployments.
+- `visibility.json` `secrets.<id>`: `title`, `owner`, `path` (the page, if any), `allowed` (people),
+  `everyone`, `kind: "nav"` for a link-only secret, `listed: false` = no profile card. Devin always
+  sees everything; the owner always sees their own.
+- **Pages** (e.g. Jason's journal tabs, `journal/ghostly-wanderer/<tab>/index.html`):
+  `<html data-secret-page="<id>" data-owner="<owner>">` plus `/vis-gate.js` in `<head>`. The owner
+  and Devin see the page at once; anyone else waits for the manifest and either sees it or gets the
+  site's Not found page at the same URL. Guests and signed-out visitors are sent to sign-in first by
+  `session-gate.js`. `noindex`, no search or sitemap entry.
+- **Links / elements** (the Journal sidebar's Private Journal link, Index Private cards, article
+  sidebars): class `private` + `data-owner` (hidden by `html.css` for all but the owner and Devin),
+  `data-secret="<id>"` where there is no article path. `vis-gate.js` (loaded by `login.js` on every
+  page) removes `private` for anyone else the manifest allows, so Devin's toggles reveal them.
+- **Dashboard** (and the editor's Share panel): Everyone + one checkbox per person; each click is
+  one `[edit-mode]` commit of `visibility.json`. No keys, passphrases or re-keying.
+- **Edit mode** on these pages is normal edit mode: admin (Devin) only (players' permissions never
+  cover them), saving plain HTML; a pasted picture becomes a normal image file. The journal tabs swap
+  in place (`ghostly-swap.js`) and edit mode follows the tab shown.
+- **Source of truth:** the repo files. The old `/workspace/gw2` pipeline (`build-secrets.js`,
+  encrypted payloads, `edit/secrets/m/*.bin`) is retired (`/workspace/gw2/retired/`). The journal's
+  shared CSS/JS live in `/ghostly.css` and `/ghostly.js`; images are normal `/assets/` files resized
+  by Cloudflare like other chapter art.
+- **Legacy encrypted:** `yena` (`edit/secrets/yena.json`) is still encrypted, wrapped only for
+  Devin's Dashboard key, and keeps the old flow (unlock on the Dashboard, `edit/secret.html?id=yena`).
+  Its readable article `articles/yena.html` already exists and is gated like the other private
+  articles. The key code (`crypto.js`, `vis.js`, Dashboard key box) stays only for it.
 
 ## Shared art catalog
 Admins can upload images from the dashboard (**Media**) or replace an article hero via **Art** while editing.

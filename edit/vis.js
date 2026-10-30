@@ -3,7 +3,6 @@
   "use strict";
   var E = window.EloraeEdit, K = window.EloraeCrypto;
   var MKEY = "elorae-secret-key";
-  var MKEY_P = "elorae-secret-key-p"; // sign-in key (people.<p>.phraseKey), see hidden.js
 
   function sameOrigin(path) {
     return fetch(E.ROOT + path + "?t=" + Date.now(), { cache: "no-store" }).then(function (r) {
@@ -29,39 +28,6 @@
     clear: function () { try { sessionStorage.removeItem(MKEY); } catch (e) {} },
     privateKey: function () { var s = myKey.get(); return s ? K.importPrivate(s.jwk) : Promise.resolve(null); }
   };
-
-  // Sign-in key: a second key for someone whose main key has its own passphrase (Devin). It is
-  // unlocked by the login phrase and opens only the secrets that carry a "pkeys" wrap for it.
-  var viewKey = {
-    get: function () {
-      try { var s = JSON.parse(sessionStorage.getItem(MKEY_P) || "null"); return s && s.person && s.jwk ? s : null; } catch (e) { return null; }
-    },
-    set: function (person, jwk) { try { sessionStorage.setItem(MKEY_P, JSON.stringify({ person: person, jwk: jwk })); } catch (e) {} },
-    clear: function () { try { sessionStorage.removeItem(MKEY_P); } catch (e) {} }
-  };
-  function unlockView(man, person, pass) {
-    var p = man.people && man.people[person];
-    if (!p || !p.phraseKey) return Promise.reject(new Error("No sign-in key for that name."));
-    return K.unlock(p.phraseKey, pass).then(function (priv) {
-      return K.exportPrivate(priv).then(function (jwk) { viewKey.set(person, jwk); return priv; });
-    });
-  }
-  // Wraps for every sign-in key among "people" (used when a secret is (re)keyed).
-  function wrapPhraseKeys(man, people, raw) {
-    var out = {};
-    return Promise.all((people || []).filter(function (p) { return man.people[p] && man.people[p].phraseKey; }).map(function (p) {
-      return K.wrapFor(man.people[p].phraseKey, raw).then(function (w) { out[p] = w; });
-    })).then(function () { return out; });
-  }
-  // Raw content key via the main key, else via the sign-in key (or null).
-  function contentKeyAny(man, id, person) {
-    var sec = man.secrets[id], m = myKey.get(), v = viewKey.get();
-    var first = (m && m.person === person) ? myKey.privateKey().then(function (priv) { return contentKey(man, id, person, priv); }) : Promise.resolve(null);
-    return first.then(function (raw) {
-      if (raw || !v || v.person !== person || !sec || !sec.pkeys || !sec.pkeys[person]) return raw;
-      return K.importPrivate(v.jwk).then(function (priv) { return K.unwrap(priv, sec.pkeys[person]); }).catch(function () { return null; });
-    });
-  }
 
   function unlockAs(man, person, pass) {
     var p = man.people && man.people[person];
@@ -104,5 +70,5 @@
     document.close();
   }
 
-  window.EloraeVis = { viewKey: viewKey, unlockView: unlockView, wrapPhraseKeys: wrapPhraseKeys, contentKeyAny: contentKeyAny, manifest: manifest, secretFile: secretFile, myKey: myKey, unlockAs: unlockAs, allowedList: allowedList, contentKey: contentKey, renderPage: renderPage };
+  window.EloraeVis = { manifest: manifest, secretFile: secretFile, myKey: myKey, unlockAs: unlockAs, allowedList: allowedList, contentKey: contentKey, renderPage: renderPage };
 })();

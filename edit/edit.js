@@ -43,9 +43,7 @@
       return s;
     } catch (e) { return null; }
   }
-  // A private (encrypted) page never offers the sign-in panel through #edit: edit mode there is
-  // admin only, so it only wakes for an existing session (and editor.js shows nothing to non-admins).
-  function wanted() { return (location.hash === "#edit" && !document.querySelector('meta[name="elorae-secret"]')) || !!readSession(); }
+  function wanted() { return location.hash === "#edit" || !!readSession(); }
 
   function load(file) {
     return new Promise(function (res, rej) {

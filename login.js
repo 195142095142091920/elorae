@@ -100,7 +100,6 @@ function clearMyKey() {
   try {
     if (window.EloraeVis && EloraeVis.myKey) EloraeVis.myKey.clear();
     else sessionStorage.removeItem("elorae-secret-key");
-    sessionStorage.removeItem("elorae-secret-key-p");
   } catch (e) {}
 }
 
@@ -552,13 +551,6 @@ function afterIdentity(who, phrase, man) {
 
   if (!K || !V) { afterKeys(); return Promise.resolve(); }
 
-  /* Sign-in key (Devin: his main key has its own Dashboard passphrase, so the phrase can't open
-     it). The phrase unlocks this second key; secrets shared with him carry a wrap for it. */
-  if (man && man.people && man.people[who] && man.people[who].phraseKey && V.unlockView) {
-    return withPhraseMaterial(phrase, function (material) { return V.unlockView(man, who, material); })
-      .then(afterKeys, afterKeys);
-  }
-
   if (hasKey) {
     return unlockWithPhrase(man, who, phrase).then(function () {
       afterKeys();
@@ -849,6 +841,11 @@ function onGithubFailed(msg) {
 }
 
 applyLogin();
+/* Visibility among friends: private pieces shared beyond their owner (edit/visibility.json). */
+(function () {
+  if (window.__visGate || !document.head) return;
+  var g = document.createElement("script"); g.src = "/vis-gate.js?v=plain1"; document.head.appendChild(g);
+})();
 
 /* Login page: phrase enter, welcome + optional Connect (in-box), guest browse. */
 if (document.body.classList.contains("login-page")) {

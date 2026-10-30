@@ -1,50 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-secret-page="jason-journal-1" data-owner="jason" data-secret-go="/journal/ghostly-wanderer/my-tale/">
 <head>
 <script src="/session-gate.js?v=jason-ghost"></script>
-<script src="/hidden.js?v=hidden3"></script>
-
+<script src="/vis-gate.js?v=plain1"></script>
 <meta charset="utf-8">
-<script src="/img.js?v=img-resize"></script>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Not found - Elorae</title>
 <meta name="robots" content="noindex">
-<link rel="icon" href="/favicon.svg">
-<script>
-/* Old Gallery (/gallery/<slug>.html) and figure (/figures/<slug>.html) pages were retired
-   in art96; send them to the matching article. Anything else falls through to the Index link. */
-(function () {
-  if (/^\/(?:gallery|figures)\/?(?:index\.html)?$/i.test(location.pathname)) { location.replace("/index/ancients.html"); return; }
-  var m = location.pathname.match(/\/(?:gallery|figures)\/([^\/?#]+?)(?:\.html)?\/?$/i);
-  if (!m) return;
-  var slug = decodeURIComponent(m[1]).toLowerCase();
-  var map = {
-    "aszurithice-human": "aszurithice",
-    "heldranc-flies": "heldranc", "heldranc-human": "heldranc",
-    "kojin-redroot": "kojin",
-    "ashforge-kuroishi": "kuroishi",
-    "montmorian-alabaster": "montmorian", "montmorian-chamber": "montmorian", "montmorian-rages": "montmorian",
-    "nyralshirad-human": "nyralshirad",
-    "pethengorom-fate": "pethengorom", "pethengorom-human": "pethengorom",
-    "salaseth-ii": "salaseth",
-    "saoirse-canyon": "saoirse",
-    "vaerek-at-ease": "vaerek", "vaerek-heldranc": "vaerek"
-  };
-  var known = ["aghor","aszurithice","auralon","baiji","bel-harath","cadarinost-falls","caurobor","curse-of-olesh","cursed-of-olesh","darmstadt","elraim","filibeth","galand-helviath","haethlin-dream","haethlin","hanto-han","heldranc","hesk","imani-valash","ito-gangara","kojin","kuroishi","maegoroth","mano","mintas-fae","montmorian","nyralshirad","perstrin-naba","pethengorom","phantom-cavern","rathalon","revenant-host","salaseth","saoirse","sen-teloch-ini","silar-scorria","sthistu","telorin","vaerek","vallorca","vehem-adahr","vorn","yena","yuo-nanaga"];
-  var target = map[slug] || slug;
-  if (known.indexOf(target) === -1) return;
-  location.replace("/articles/" + target + ".html");
-})();
-</script>
-<style>
-html, body { background: #070707; color: #f3eee6; margin: 0; }
-body { font: calc(15px * var(--fs,1.2075))/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; padding: 48px 24px; }
-h1 { font: 400 calc(28px * var(--fs,1.2075))/1.2 "Iowan Old Style", Palatino, serif; margin: 0 0 12px; }
-a { color: #f3eee6; }
-</style>
+<title>Elorae</title>
+<style>html,body{background:#070707;margin:0}</style>
 </head>
-<body>
-<h1>Not found</h1>
-<p>This page doesn&rsquo;t exist. Browse everything from the <a href="/index/ancients/">Index</a>.</p>
-</body>
+<body></body>
 </html>

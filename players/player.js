@@ -97,38 +97,6 @@
     out.sort();
     return out;
   }
-  /* Encrypted secret card art: decrypt the secret with the viewer's unlocked key (same as
-     hidden.js), take its banner (or first) encrypted image (edit/secrets/m/, key inside the
-     payload) and show it as an object URL. Nothing is published in plaintext. */
-  var cryptoP = null;
-  function loadCrypto() {
-    if (window.EloraeCrypto) return Promise.resolve(window.EloraeCrypto);
-    return cryptoP || (cryptoP = new Promise(function (res, rej) {
-      var s = document.createElement("script"); s.src = "/edit/crypto.js?v=hidden1";
-      s.onload = function () { res(window.EloraeCrypto); }; s.onerror = rej; document.head.appendChild(s);
-    }));
-  }
-  function secretArt(sec, myKey) {
-    var w = myKey && sec && sec.keys && sec.keys[myKey.person];
-    if (!w) return Promise.resolve(null);
-    function b(s) { var x = atob(s), u = new Uint8Array(x.length); for (var i = 0; i < x.length; i++) u[i] = x.charCodeAt(i); return u; }
-    return loadCrypto().then(function (K) {
-      return K.importPrivate(myKey.jwk).then(function (pk) { return K.unwrap(pk, w); }).then(function (raw) {
-        return fetch(url("edit/secrets/" + sec.id + ".json"), { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-          .then(function (file) { return K.decryptSecret(file, raw); });
-      });
-    }).then(function (pl) {
-      var d = new DOMParser().parseFromString((pl && pl.html) || "", "text/html");
-      var im = d.querySelector(".gw-banner img[data-gwm]") || d.querySelector("img[data-gwm]");
-      var mj = d.getElementById("gw-media");
-      if (!im || !mj) return null;
-      var e = JSON.parse(mj.textContent)[im.getAttribute("data-gwm")];
-      if (!e) return null;
-      return fetch(url("edit/secrets/m/" + e.f + ".bin")).then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
-        .then(function (buf) { return crypto.subtle.importKey("raw", b(e.k), "AES-GCM", false, ["decrypt"]).then(function (k) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: b(e.iv) }, k, buf); }); })
-        .then(function (pt) { return URL.createObjectURL(new Blob([pt], { type: "image/webp" })); });
-    }).catch(function () { return null; });
-  }
   function kindLabel(edit, secret) {
     if (edit && secret) return { sy: "✎⚑", label: "Edit · Secret" };
     if (edit) return { sy: "✎", label: "Edit" };
@@ -175,7 +143,7 @@
       return;
     }
     doc(fetchPath).then(function (d) {
-      var hero = d.querySelector(".art-hero img");
+      var hero = d.querySelector(".art-hero img") || d.querySelector(".gw-banner img"); /* journal page: its banner */
       if (hero) {
         var img = document.createElement("img");
         artSrc(img, new URL(hero.getAttribute("src"), url(fetchPath)).href);
@@ -185,7 +153,7 @@
           ln.appendChild(img); box.appendChild(ln);
         } else box.appendChild(img);
       } else box.appendChild(el("div", "ph"));
-      finish(text(d.querySelector(".art-title h1")) || text(d.querySelector("h1")) || fallbackName);
+      finish((kind.secret && !kind.edit && fallbackName) || text(d.querySelector(".art-title h1")) || text(d.querySelector("h1")) || fallbackName);
     }).catch(function () {
       box.appendChild(el("div", "ph"));
       finish(fallbackName);
@@ -240,12 +208,6 @@
     var v = viewer(), vGM = (vis.admins || []).indexOf(v) >= 0;
     var vRec = v && vis.people && vis.people[v];
     var vEnrolled = !!(vRec && vRec.key);
-    var myKey = null;
-    try {
-      var raw = sessionStorage.getItem("elorae-secret-key");
-      myKey = raw ? JSON.parse(raw) : null;
-      if (!(myKey && myKey.person && myKey.jwk)) myKey = null;
-    } catch (e) { myKey = null; }
 
     if (v && (v === slug || vGM)) {
       var mine = secretsFor(vis, slug), theirs = {};
@@ -257,16 +219,17 @@
         if (path && inCharacters[path]) return;
         var key = path || ("secret:" + s.id);
         var enc = s.status === "encrypted";
-        /* Encrypted: open via secret viewer (uses unlocked myKey from merged sign-in). */
-        var href = enc ? ("/edit/secret/?id=" + encodeURIComponent(s.id)) : "";
-        var canLink = enc ? true : !!(path && (vGM || s.owner === v));
+        /* Encrypted (only yena is left): open via the secret viewer. Plain secrets are normal pages,
+           shown to whoever visibility.json lets see them (vis-gate.js). */
+        var href = enc ? ("/edit/secret/?id=" + encodeURIComponent(s.id)) : (/\/index\.html$/.test(path) ? "/" + path.replace(/index\.html$/, "") : "");
+        var canLink = enc ? true : !!path;
         if (bag[key]) {
           bag[key].secret = true;
           bag[key].title = s.title || bag[key].title;
           if (enc) { bag[key].href = href; bag[key].link = true; }
           else if (!canLink) bag[key].link = false;
         } else {
-          bag[key] = { path: path, href: href || "", title: s.title, edit: false, secret: true, link: canLink, art: enc && !path ? secretArt(s, myKey) : null };
+          bag[key] = { path: path, href: href || "", title: s.title, edit: false, secret: true, link: canLink, art: null };
         }
       });
     }

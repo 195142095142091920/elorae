@@ -155,9 +155,6 @@
     return K.encryptSecret(id, sec.epoch, raw, payload).then(function (file) {
       return wrapAll(sec, raw).then(function (keys) {
         sec.keys = keys;
-        return V.wrapPhraseKeys(st.man, V.allowedList(sec), raw);
-      }).then(function (pk) {
-        if (Object.keys(pk).length) sec.pkeys = pk; else delete sec.pkeys;
         sec.openKey = sec.everyone ? K.b64(raw) : null;
         return file;
       });
@@ -172,7 +169,23 @@
     });
   }
 
+  // Plain secret (a normal page/article in the repo, shown by vis-gate.js): sharing is just the
+  // "allowed" / "everyone" fields in visibility.json. No keys, one commit.
+  function togglePlain(id, who, on) {
+    run((on ? "Sharing " : "Hiding ") + st.man.secrets[id].title, function () {
+      var man = JSON.parse(JSON.stringify(st.man)), sec = man.secrets[id];
+      if (who === "everyone") sec.everyone = on;
+      else {
+        var a = V.allowedList(sec);
+        if (on && a.indexOf(who) < 0) a.push(who);
+        sec.allowed = on ? a : a.filter(function (p) { return p !== who || p === "devin" || p === sec.owner; });
+      }
+      return commit([{ path: "edit/visibility.json", text: json(man) }], "Visibility: " + (on ? "show " : "hide ") + id + (who === "everyone" ? " for everyone" : " for " + who) + " via dashboard")
+        .then(function () { st.man = man; return "Saved"; });
+    });
+  }
   function toggle(id, who, on) {
+    if (st.man.secrets[id].status !== "encrypted") return togglePlain(id, who, on);
     run((on ? "Sharing " : "Hiding ") + st.man.secrets[id].title, function () {
       var man = JSON.parse(JSON.stringify(st.man)), sec = man.secrets[id];
       var prev = st.man;
@@ -188,8 +201,7 @@
         if (on) {
           if (a.indexOf(who) < 0) a.push(who);
           sec.allowed = a;
-          return K.wrapFor(man.people[who].key, cur.raw).then(function (w) { sec.keys[who] = w; return V.wrapPhraseKeys(man, [who], cur.raw); })
-            .then(function (pk) { if (pk[who]) { sec.pkeys = sec.pkeys || {}; sec.pkeys[who] = pk[who]; } return files; });
+          return K.wrapFor(man.people[who].key, cur.raw).then(function (w) { sec.keys[who] = w; return files; });
         }
         sec.allowed = a.filter(function (p) { return p !== who || p === "devin"; });
         return rotate(id, sec, cur.payload).then(function (f) { files.push({ path: "edit/secrets/" + id + ".json", text: JSON.stringify(f) + "\n" }); return files; });
@@ -306,22 +318,26 @@
         '<div class="ee-row"><button class="ee-btn ee-primary" type="submit">Create key</button></div></form>'
       : st.priv ? '<p class="ee-note">Your key is unlocked for this session.</p>'
       : '<form id="ee-unlock" autocomplete="off"><input type="password" id="ee-pass" placeholder="Passphrase" autocomplete="current-password"><div class="ee-row"><button class="ee-btn ee-primary" type="submit">Unlock</button></div></form>';
+    var encIds = Object.keys(man.secrets).filter(function (id) { return man.secrets[id].status === "encrypted"; });
+    var anyEnc = encIds.length > 0, encNames = encIds.map(function (id) { return man.secrets[id].title; }).join(", ");
     var rows = Object.keys(man.secrets).map(function (id) {
       var s = man.secrets[id], enc = s.status === "encrypted";
       var allowed = V.allowedList(s);
-      var sees = !enc ? "Anyone (not encrypted yet; hidden only by CSS)" : s.everyone ? "Everyone" : allowed.map(nameOf).join(", ");
-      var dis = (!enc || !st.priv || st.busy) ? " disabled" : "";
+      if (!enc && s.owner && allowed.indexOf(s.owner) < 0) allowed.push(s.owner);
+      var sees = s.everyone ? "Everyone" : allowed.map(nameOf).join(", ");
+      // Plain secrets: plain toggles (no key). Encrypted (legacy, e.g. yena): needs the unlocked key.
+      var dis = ((enc && !st.priv) || st.busy) ? " disabled" : "";
       var boxes = '<label class="ee-tog"><input type="checkbox" data-id="' + esc(id) + '" data-who="everyone"' + (s.everyone ? " checked" : "") + dis + '> Everyone</label>' +
         people.map(function (p) {
-          var locked = p === "devin";
-          var noKey = !(man.people[p] && man.people[p].key);
+          var locked = p === "devin" || (!enc && p === s.owner);
+          var noKey = enc && !(man.people[p] && man.people[p].key);
           var on = allowed.indexOf(p) >= 0;
           return '<label class="ee-tog' + (noKey ? " ee-nokey" : "") + '" title="' + (noKey ? "No key yet" : "") + '"><input type="checkbox" data-id="' + esc(id) + '" data-who="' + esc(p) + '"' + (on ? " checked" : "") + ((locked || noKey) ? " disabled" : dis) + '> ' + esc(nameOf(p)) + '</label>';
         }).join("");
-      var title = enc ? '<a href="/edit/secret/?id=' + encodeURIComponent(id) + '">' + esc(s.title) + '</a>' : '<a href="../' + esc(s.path) + '">' + esc(s.title) + '</a>';
-      return '<tr data-row="' + esc(id) + '"><td class="ee-t">' + title + '<span class="ee-sub">' + (enc ? "Encrypted" : "Plaintext") + '</span></td>' +
-        '<td>' + esc(nameOf(s.owner)) + '</td><td class="ee-sees">' + esc(sees) + '</td><td class="ee-togs">' +
-        (enc ? boxes : '<button class="ee-btn" data-encrypt="' + esc(id) + '"' + ((st.priv && !st.busy) ? "" : " disabled") + '>Encrypt</button>') + '</td></tr>';
+      var href = enc ? "/edit/secret/?id=" + encodeURIComponent(id) : s.path ? "/" + s.path.replace(/(^|\/)index\.html$/, "$1") : "";
+      var title = href ? '<a href="' + esc(href) + '">' + esc(s.title) + '</a>' : esc(s.title);
+      return '<tr data-row="' + esc(id) + '"><td class="ee-t">' + title + '<span class="ee-sub">' + (enc ? "Encrypted (needs your key)" : s.kind === "nav" ? "Link" : "Page") + '</span></td>' +
+        '<td>' + esc(nameOf(s.owner)) + '</td><td class="ee-sees">' + esc(sees) + '</td><td class="ee-togs">' + boxes + '</td></tr>';
     }).join("");
     var ppl = people.map(function (p) {
       var keyNote = man.people[p].key ? "key set" : "no key yet";
@@ -340,7 +356,7 @@
         '<button type="submit" class="ee-btn ee-primary"' + (st.busy ? " disabled" : "") + '>Invite</button></form></li>';
     }).join("");
     main.innerHTML =
-      '<section class="ee-sec"><h2>Your key</h2>' + keyBox + '</section>' +
+      (anyEnc ? '<section class="ee-sec"><h2>Your key</h2><p class="ee-note">Only for the secrets still encrypted (' + esc(encNames) + '). Everything else is plain visibility: just tick who sees it.</p>' + keyBox + '</section>' : '') +
       (st.msg ? '<p class="ee-status" id="ee-msg">' + esc(st.msg) + '</p>' : '') +
       '<section class="ee-sec"><h2>Secrets</h2><div class="ee-scroll"><table class="ee-table"><thead><tr><th>Title</th><th>Owner</th><th>Can see</th><th>Share</th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
       mediaSection() +

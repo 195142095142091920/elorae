@@ -81,8 +81,6 @@ scenario("sylum (editor) refused on a private page blob", ["edit/secrets/m/READM
   check("real profiles.json: no profile answers to the slug \"jason\" as a login", P.profileFor(real, "jason") === null);
   for (const f of ["articles/vaerek.html", "articles/alaric.html", "articles/yena.html", "players/jason.html", "players/jason/index.html", "journal.html", "edit/profiles.json", "edit/visibility.json"])
     check("real profiles.json: jason cannot edit " + f, !P.canEdit(ja, f));
-  check("real profiles.json: jason cannot edit a private page, even one he owns", !P.canEditSecret(ja, { status: "encrypted", owner: "jason" }) && !P.canEditSecret(Object.assign({}, ja, { role: "editor" }), { status: "encrypted", owner: "jason" }));
-  check("admin may edit a private page, never a nav secret", P.canEditSecret({ role: "admin" }, { status: "encrypted", owner: "jason" }) && !P.canEditSecret({ role: "admin" }, { status: "encrypted", owner: "jason", kind: "nav" }));
 }
 fs.rmSync(dir, { recursive: true, force: true });
 console.log(`\n${pass}/${pass + fail} passed`);
