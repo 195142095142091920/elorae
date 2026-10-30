@@ -25,7 +25,7 @@
   var css = document.createElement("style");
   css.textContent =
     ".nt-siblings{display:flex;justify-content:space-between;gap:24px}" +
-    ".nt-siblings a{font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8f8a82;text-decoration:none}" +
+    ".nt-siblings a{font-family:Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.05));letter-spacing:.14em;text-transform:uppercase;color:#8f8a82;text-decoration:none}" +
     ".nt-siblings a:hover,.nt-siblings a:focus-visible{color:#f3eee6;outline:none}" +
     ".nt-siblings .nt-next{margin-left:auto}" +
     "@media (min-width:801px){.nt-siblings{margin:40px 0 24px}}" +

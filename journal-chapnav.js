@@ -18,7 +18,7 @@
   css.id = "nt-chapnav-css";
   css.textContent =
     ".nt-chapnav{display:flex;justify-content:space-between;align-items:baseline;gap:24px;clear:both}" +
-    ".nt-chapnav a{font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:400;font-style:normal;letter-spacing:.14em;" +
+    ".nt-chapnav a{font-family:Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.05));font-weight:400;font-style:normal;letter-spacing:.14em;" +
     "text-transform:uppercase;color:#8f8a82;text-decoration:none;border:0;background:none;text-shadow:0 1px 2px rgba(0,0,0,.85)}" +
     ".nt-chapnav a:hover,.nt-chapnav a:focus-visible{color:#f3eee6;outline:none}" +
     ".nt-chapnav a:focus-visible{text-decoration:underline;text-underline-offset:4px}" +

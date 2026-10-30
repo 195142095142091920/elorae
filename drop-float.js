@@ -26,7 +26,7 @@
     "background:#070707;flex-direction:column;align-items:center;gap:10px;text-align:center;" +
     "box-shadow:0 16px 40px rgba(0,0,0,.55)}" +
     "#drop-float.open{display:flex}" +
-    "#drop-float a{display:block;padding:5px 0;white-space:nowrap;font:11px/1.3 Helvetica,Arial,sans-serif;" +
+    "#drop-float a{display:block;padding:5px 0;white-space:nowrap;font:calc(11px * var(--fs,1.05))/1.3 Helvetica,Arial,sans-serif;" +
     "letter-spacing:.16em;text-transform:uppercase;color:#8f8a82;text-decoration:none}" +
     "#drop-float a:hover,#drop-float a.active{color:#f3eee6}" +
     "@media (max-width:800px){#drop-float{display:none!important}}";

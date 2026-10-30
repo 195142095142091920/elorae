@@ -25,7 +25,7 @@
       "background:#070707;pointer-events:auto}" +
       "#section-bar.show{display:flex}" +
       "#section-bar a{color:#8f8a82;text-decoration:none;padding:8px 12px;" +
-      "font-family:Helvetica,Arial,sans-serif;font-size:15px;" +
+      "font-family:Helvetica,Arial,sans-serif;font-size:calc((15px) * var(--fs,1.05));" +
       "letter-spacing:.16em;text-transform:uppercase;pointer-events:auto;cursor:pointer}" +
       "#section-bar a:hover,#section-bar a.active{color:#f3eee6}" +
       "body.has-section-bar .sheet,body.has-section-bar .lore-rail{" +
