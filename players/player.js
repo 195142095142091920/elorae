@@ -220,16 +220,13 @@
         var path = s.path || "";
         if (path && inCharacters[path]) return;
         var key = path || ("secret:" + s.id);
-        var enc = s.status === "encrypted";
-        /* Encrypted (only yena is left): open via the secret viewer. Plain secrets are normal pages,
-           shown to whoever visibility.json lets see them (vis-gate.js). */
-        var href = enc ? ("/edit/secret/?id=" + encodeURIComponent(s.id)) : (/\/index\.html$/.test(path) ? "/" + path.replace(/index\.html$/, "") : "");
-        var canLink = enc ? true : !!path;
+        /* Secrets are plain pages, shown to whoever visibility.json lets see them (vis-gate.js). */
+        var href = /\/index\.html$/.test(path) ? "/" + path.replace(/index\.html$/, "") : "";
+        var canLink = !!path;
         if (bag[key]) {
           bag[key].secret = true;
           bag[key].title = s.title || bag[key].title;
-          if (enc) { bag[key].href = href; bag[key].link = true; }
-          else if (!canLink) bag[key].link = false;
+          if (!canLink) bag[key].link = false;
         } else {
           bag[key] = { path: path, href: href || "", title: s.title, edit: false, secret: true, link: canLink, art: null };
         }

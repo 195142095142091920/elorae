@@ -1,75 +1,30 @@
 {
-  "_readme": "Visibility manifest for secret pages. Only admins may change it (edit-guard). people.<slug>.key holds that person's PUBLIC key and their passphrase-ENCRYPTED private key (safe to publish; the passphrase is never stored). secrets.<id>.path is the private article (articles/<id>.html). status 'plaintext' = not migrated yet: the article and its image are public files, hidden only by CSS (.private + login.js); 'encrypted' = an encrypted copy (page HTML with images inlined) lives in edit/secrets/<id>.json. keys.<slug> = the content key wrapped for that person. everyone=true publishes the content key as openKey. devin is always allowed.",
+  "_readme": "Visibility manifest for secret pages (no encryption; see edit/README.md, 'Visibility layer'). Only admins may change it (edit-guard). secrets.<id>: owner, path (the plain page in the repo; '' for a nav-only entry), everyone, allowed (who may see it; the owner and Devin always can). Pages are gated by vis-gate.js and the .private/data-owner CSS.",
   "version": 1,
   "admins": [
     "devin"
   ],
   "people": {
     "devin": {
-      "name": "Devin",
-      "key": {
-        "v": 1,
-        "person": "devin",
-        "alg": "RSA-OAEP-3072-SHA256",
-        "publicKey": {
-          "kty": "RSA",
-          "n": "xsHe3Q7x9Vyq79gBVc27NOeednt3mLEqFuQnQ5KtGQfkVep6NRA9PjgVT9TgM7UUdjvShMBslhAtc3sW7yHcPKqm5xT8-LPqOFv2w4i1lJbcldl0W_gQqwrowz4Ss_YcbVW-SkAcjautpsXM9DsyJJpAIVr6kkGUGCNFX0rs-utsv-OMCMXELZwTDIitvLD61bseGL6f5rykEp0BlqQGG_uMZlLQbrcdwZxvbfHV7KwoPpDmEn-9Sos7ct4gvMvTtIKnQHE_fxu1y5CARTsZWMiI4inoTQa-WzfwwZ1M4W1f9JifleRa0Pb2hR0L6xB2ZcS1mYU5V8aS9NwEfV2paAe3sYw6iXj9lDeQ76ajhYrk-8bxIVNK2KsHiJ2NFyqHRorkVxO4xCgUx054p_o6Tx0Vwep91ii9MpL5H0wyoRiV4hFiRGAD8fC64J_GwCpBJuGl1uFJORSTGjhmtN4sdlgknIEHhMh9sm2qNvmgYJMnPuaIqVeRhv6078EF1VYB",
-          "e": "AQAB",
-          "alg": "RSA-OAEP-256",
-          "ext": true
-        },
-        "privateKey": {
-          "kdf": "PBKDF2-SHA256",
-          "iter": 600000,
-          "salt": "1tCb5Jo0AuregEQ9USuvVQ==",
-          "iv": "m+GcXyzSagPdCgtV",
-          "ct": "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"
-        },
-        "created": "2026-10-07T03:58:53.802Z"
-      }
+      "name": "Devin"
     },
     "jack": {
-      "name": "Jack",
-      "key": null
+      "name": "Jack"
     },
     "jon": {
-      "name": "Jon",
-      "key": null
+      "name": "Jon"
     },
     "julie": {
-      "name": "Julie",
-      "key": null
+      "name": "Julie"
     },
     "sawyer": {
-      "name": "Sawyer",
-      "key": null
+      "name": "Sawyer"
     },
     "sylum": {
-      "name": "Sylum",
-      "key": null
+      "name": "Sylum"
     },
     "jason": {
-      "name": "Jason",
-      "key": {
-        "v": 1,
-        "person": "jason",
-        "alg": "RSA-OAEP-3072-SHA256",
-        "publicKey": {
-          "kty": "RSA",
-          "n": "yIRGE0FFUZkwb6TCoTzCY88mhk-yG76mhMoLwolPqEL1R9ypSOFQuZG9P9NGYLf-X2TtHc7DqhHmhmQjnWyRy8F0G172disY3CK2Z4GR0OuDjcT_pWItTNSZAdTybxLVckaDyo-84Cj-EiKY4iDK_F9pSxV0XhLJfJQhbThaZJFHacY3wI8en1NlGOD3ZuqKDQcvFwks7ysWQY5upH1DSwoiLz-hldD3gTvXfhbqErb6FH8HNElvl80BWbkfMBBjUBaM7k0BdYRSeH9oHmLnipP2XjEKwzIyh0qbdnGp7nNMfPnqJ9jxILaVjPgnWBTD4LxUdmChE5iQX-VdjyMB3LeldUlvlZL-wQ-haV_2aSj87yYMnJedgT6E7PnBqY6Jx8IqXnXql745bxMTvMKwpVE3t_pEerkjC4WydAz-5sTf3_4o9RNC9aG7jNubi6xGnh8CIaOg0w2Kj4A1osnWCkNeW7X4CbXIT5Q5PPP1mEXZbM0n8ASjmXRRSEK9bOSn",
-          "e": "AQAB",
-          "alg": "RSA-OAEP-256",
-          "ext": true
-        },
-        "privateKey": {
-          "kdf": "PBKDF2-SHA256",
-          "iter": 600000,
-          "salt": "vMhdHGTjBDCzZ+TyyCFZXA==",
-          "iv": "QuNmKdWuATXYkVOg",
-          "ct": "ijwSQE+MqfyAPW9sj6bYl7ySJj3W7Ud464sW4Zc0ZniVPA+InyESR6EbcZYl3QmovGEciwi56YpaVWHJXIc4tsS7fgfmcxsYpd+DnfY1yKACWcUMNBlMqL4yahgMFazhkTU+FJ3ESQZuIoKAzT7aJlP5fBuuk3sc2ym+QiCaI8lZRFIK/T3NiRLR7KEWEabCg3Bx1vXu1Eo5UkjdSN2xvIf6f6az1q0Eb9tBQij72+XVkW9VQm9qTbi/D7yrlDTY05K0FUprd8YKMCvN2KZTts/dE6Pt7hCflBKtv6NXbXsngnwrWV2KibYtNvLc8L7olMP4IbE3ELSzxSpoqpB9CPqlP6ha8Wri/8HU5r/QQdzq9DICcJ4QAWC9jb5aXCPpzzlnvD7F33y3qAQK+q3EKwKIU5MCg17xPzTHD9JVSZ7GORTmHutKOAcHnx9f2CVtbr0B8mv0QUqYrggtngyYDoj1AcyYVVrV0wtTuzPDzm0CRNaa6KChpN9MWDGcLMngKVi/7sElviHJu0tyR1NM+NDwU3yDx+XqZFN9gsC2CFKvw4ez2xw/ZFFy9MqjsaKyI4sAAGAw8VoQyBDi2o1RO/wraMNqPqaxp02e2INGlV5hSCgyeyq7GG49WQUt576wF7vHkJcc0XSIlzQSLPGeUMoCRVfWWcyshFu5dff5SZ5vDqUBBQ1dVvlhADVTLxTdA6QD8mQptP1sVszldmOXsdqZmcC8Pjtnv48HHnwRoHhU/djyiu7D2tAhCZLinhnP9qN8fbVpG80ncoZ+fGS2coOe37xJnbK6kc3Xffe0G3h6Cx8etFcTucGAUvLPsJMdYzhUh1Vn/JEKuP/mxDOqulllxC4G2wP/quSTutecqUNTU2EQC/6NqgCZY4xW/1Ksj59ACJ0GEXtD90DC9TnWHXf+VnuRUBlRhOKCPrDEgh7xNCUNu0Rjrf2dCA8Cj8MQD8w9Qb+9QEEQ1JpcX9ui3EKwGWPp4x7g7rt7u/Avel4+6PehAghqVcZvJdPR1DHIqkAO/dWUWrCoKw1geRIFUsBqsfbdkFcpP9QXkXD+Si0WCggOxJA7d9juMZ5eQ7m69fL0EqDM0Cv/9paAH2zc/FOByfkepEIYSAz0SxzlD8rZPL59aBMT59D1ebEOMaCrwRIP20fqD5HtrqbVC6Vso/TGDJDxdxdw6AIYqC2pBJunNwXkFrwfT+Virc4TkEum+QKu5McCym8ZkCQ9zVdWg+Zj7id/Kn7cRsGQp93tZMQF8pY10DY7lIoE54sIR5iREcYuqOKvlNkVSWGAPSnlrwjCG1VYUpzjjkLnFV9uHqHWJ2UMqTeBMPgRgEL5ixa8l9EnfPnX3hcTCm3XLxPIgy87lvv452UmLuUuNQ4gt5lgI2001FHKAt+LxyZq+GnBhLk+v1tWGLxlrBI8iOW3Jm/HlOhivMicq7wbVF1+hWclbpvLcyO2O3S5mg+lbPKtIy3vEnw53RbBpOUccCAhMZQP1pvXpnsGfoGhRflllW1dYH3rBWM5rhLEHmHJgELAF5ZRmmzbQMyOFHWrhxBUetIy4VqziMRLR8BzJHAwYTdvvY3XSECKhlVO1pRKMEKJ1tXl1r3hGrVAFzfEt8z5Xgd6EKb6iSe63eIenZARanq69dcJedojDIa5gKz0HXNoyyOoPH5q4u4zcLcKa9zhD0JnyYT4Rm2COS0t6Cqr0rJCx2s/iFnQe8HfmutXNGQHty04EToWIElKdXVNQ2PCTabc43N9YzgD/wAK8h1JGU05dPoGjIqOqLdjqHut54GlsEz+3Y+BZBDCsVYiFPx1QX9J+OmVgLGYlXiZTT+s6rAT9Xv0ttmc7d/8XjZG7dMOTac2ExjGHpmziLfOXI00cwramZPj0nigqwktV4EqnoLLYVEajowhyO7dJpVSL8HNqZUnR/mJBwumg6Bq3safswoQ5e0OZ/Vm3bO2P4tRjrdq2TNTXqGZv7/SmyXYCtcN6mBjJgnvKHkhEyCNLcEiBeAPe+EOuniC+XK5SS0HNAfsqsl36CVTe5ynEktp2XjB/v8msct7+Pw6MUunGnVatULi0phvk6vK9dBz018/gURSADhOfX1uA5jQTg5faP3QykH5rQtRlQ0PhgYf7A6K3lKKyoDc6Pv8fgp5bSbUGTC3x50u6Ao5N7uoQGmOZmpE0lP/mRwtGceL6DNILtIGouAh+T5MxS5eLQRP2fbQqS90KeFKHnQ47zl+61786DsS7rEESGVBC7fjZ5DYuRzdWgVfHjzAxIH7SCNu76jWbCya9RYLtGemPM+sKovtpPz5HUao9i1FxqVTyDwkDBle0XBRrbzjNO0D3YFfX50ZcfnqIIuU+P222IHvg16kOGPybagWx6/M5U/gX02IShfc0G7+wEvq5QBP/ABgjbd9YuHnUg=="
-        },
-        "created": "2026-10-30T14:21:42.828Z"
-      }
+      "name": "Jason"
     }
   },
   "secrets": {
@@ -224,16 +179,14 @@
       "title": "Yena",
       "owner": "jack",
       "path": "articles/yena.html",
-      "status": "encrypted",
+      "status": "plaintext",
       "everyone": false,
       "allowed": [
         "devin",
         "jack"
       ],
-      "epoch": 1,
-      "keys": {
-        "devin": "DPrsmfF8WW+j6nABqgqGFTMCuJ3RdJcmWM/5iY9B+TMqrkb0zdy4y9xfwAP29HrDXI4/SzZA8ckyBS0fLPpH76Ozvb/xptJwnaJ0lYcXpPHFq4ivsiVPpjru5wO5vkTP5AK+FtJe3Oo60Ht8q/vnlwQwdL3yp554fEL2YnfNk+g3po3exzCbgVvTAYddJd13ll1nQw+CGc6qDy6rKZIgtmorkYR5LGS481BrwkILl6kQCJSyEHpfp1KKUqMFbJFDMZRGUR+eDDkgk1MitEfvNUdHQCx1v0E8wKg42FejbVad3ZXwnsbtrLwr/U4SUoU+rWgC+zxXKNClO5Cu57HQS3dJ3OPOYhaVMZM0OyN/Zz5itIgRpGCDfVI5b024KczdJNbmTqwZXHOrk1oPrx35JvqSq0xKXxaXMgt04/vcVuppSK9+igslO81kGySc6eSoApfWrRCEpOKvbUH0RjB3oWMH+XLKK0jkZhH1uVvER+iTHJmMuoqkx6aIH5lONjCG"
-      },
+      "epoch": 0,
+      "keys": {},
       "openKey": null
     },
     "jason-journal-1": {

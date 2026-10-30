@@ -147,10 +147,10 @@ lock: anyone can read the repo or view the page source.
   encrypted payloads, `edit/secrets/m/*.bin`) is retired (`/workspace/gw2/retired/`). The journal's
   shared CSS/JS live in `/ghostly.css` and `/ghostly.js`; images are normal `/assets/` files resized
   by Cloudflare like other chapter art.
-- **Legacy encrypted:** `yena` (`edit/secrets/yena.json`) is still encrypted, wrapped only for
-  Devin's Dashboard key, and keeps the old flow (unlock on the Dashboard, `edit/secret.html?id=yena`).
-  Its readable article `articles/yena.html` already exists and is gated like the other private
-  articles. The key code (`crypto.js`, `vis.js`, Dashboard key box) stays only for it.
+- **No encryption anywhere:** the old encrypted copy of `yena` and every key were removed
+  (Oct 30); `articles/yena.html` is the one Yena page (owner Jack; Jack + Devin). Old
+  `edit/secret.html?id=<id>` links redirect to the plain page. `crypto.js`/`vis.js` remain only as
+  dormant helpers for the Dashboard; nothing in the manifest is encrypted.
 
 ## Shared art catalog
 Admins can upload images from the dashboard (**Media**) or replace an article hero via **Art** while editing.
