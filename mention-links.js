@@ -161,8 +161,15 @@
         if (ok[sl] && t.length >= 3 && !places[t] && !names[t]) names[t] = ok[sl];
       });
       wrap(names);
+      lastNames = names;
     }).catch(function () {});
   }
+  /* Content swapped in place (private journal tabs): wrap the new chapter the same way. */
+  var lastNames = null;
+  window.addEventListener("elorae-content-swapped", function () {
+    hide();
+    if (lastNames && !editing()) wrap(lastNames);
+  });
   window.addEventListener("elorae-edit-session", function () { if (editing()) { hide(); unwrapAll(); } });
 
   /* ---------- 2. cards ---------- */

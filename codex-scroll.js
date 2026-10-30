@@ -27,10 +27,16 @@
       if (list && on) list.scrollTop = Math.max(0, on.offsetTop - list.clientHeight / 2);
     });
   }
-  var items = Array.prototype.map.call(toc.querySelectorAll("a[href^='#']"), function (a) {
-    return { a: a, el: document.getElementById(a.getAttribute("href").slice(1)) };
-  }).filter(function (item) { return item.el; });
-  if (!items.length) return;
+  function collect() {
+    return Array.prototype.map.call(toc.querySelectorAll("a[href^='#']"), function (a) {
+      return { a: a, el: document.getElementById(a.getAttribute("href").slice(1)) };
+    }).filter(function (item) { return item.el; });
+  }
+  var items = collect();
+  /* Pages whose content is swapped in place (elorae-content-swapped, e.g. the private journal
+     tabs) re-read their Contents after each swap. */
+  var swaps = !!document.querySelector("main.read.gw");
+  if (!items.length && !swaps) return;
   var current = "";
   /* jump: section a Contents click / hash just sent the reader to. Near page bottom the last
      sections can never reach the highlight line, so the jumped-to one wins until the reader
@@ -71,6 +77,7 @@
       if (bb.bottom > 0) line = Math.max(line, bb.bottom + 40);
     }
     if (drop && phone.matches) line = Math.max(line, toc.getBoundingClientRect().bottom + 40);
+    if (!items.length) return;
     var id = items[0].el.id;
     items.forEach(function (item) {
       if (item.el.getBoundingClientRect().top <= line) id = item.el.id;
@@ -92,4 +99,8 @@
     window.setTimeout(update, 0);
   });
   window.addEventListener("load", update);
+  window.addEventListener("elorae-content-swapped", function () {
+    items = collect(); current = ""; jump = location.hash && location.hash.length > 1 ? location.hash.slice(1) : "";
+    update();
+  });
 })();
