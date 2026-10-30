@@ -165,10 +165,12 @@
       finish(fallbackName);
       if (kind.art) kind.art.then(function (src) {
         if (!src || !ph.parentNode) return;
+        /* inside the sized placeholder, so page img rules (height:auto) can't shrink it */
         var img = document.createElement("img"); img.src = src; img.alt = "";
+        img.style.cssText = "width:100%;height:100%;object-fit:cover;margin:0;display:block";
         var node = img;
-        if (doLink && go) { node = link(go, ""); node.setAttribute("aria-hidden", "true"); node.tabIndex = -1; node.appendChild(img); }
-        ph.replaceWith(node);
+        if (doLink && go) { node = link(go, ""); node.setAttribute("aria-hidden", "true"); node.tabIndex = -1; node.style.cssText = "display:block;height:100%"; node.appendChild(img); }
+        ph.appendChild(node);
       });
       return;
     }
