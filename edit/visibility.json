@@ -275,7 +275,8 @@
       "openKey": null,
       "routes": [
         "993c8c5734bd54de7fe53e2044b3c73227de6a85d193e387a7aac2e114dc9b5c"
-      ]
+      ],
+      "listed": false
     },
     "jason-journal-3": {
       "title": "Journal: The Dark",
@@ -295,7 +296,8 @@
       "openKey": null,
       "routes": [
         "1a90e5b20a5891c5f9c726ed041955a724a6e592d878906adb35029887820eda"
-      ]
+      ],
+      "listed": false
     },
     "jason-journal-4": {
       "title": "Journal: The Demonic Lords",
@@ -315,7 +317,8 @@
       "openKey": null,
       "routes": [
         "a7f38f13e855f923360dc905b3676ad6497ad919b0e46962e04182571139b378"
-      ]
+      ],
+      "listed": false
     },
     "jason-journal-5": {
       "title": "Journal: The Glaurfeldt",
@@ -335,7 +338,8 @@
       "openKey": null,
       "routes": [
         "41e60bd9e87f2520edc9104fd2e186ce299e53638196c67ca5339808e3ac0317"
-      ]
+      ],
+      "listed": false
     },
     "jason-journal-6": {
       "title": "Journal: Reference",
@@ -355,7 +359,8 @@
       "openKey": null,
       "routes": [
         "70318b7a54a376340a72fea7d0d38d75e8a328fa72a7ed882597a7e3d10127db"
-      ]
+      ],
+      "listed": false
     },
     "jason-journal-nav": {
       "title": "Journal: sidebar link",

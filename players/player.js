@@ -210,6 +210,7 @@
       secretsFor(vis, v).forEach(function (s) { theirs[s.id] = 1; });
       mine.forEach(function (s) {
         if (!theirs[s.id] || !s.title || s.kind === "nav") return; /* nav secrets are links, not pages */
+        if (s.listed === false) return; /* listed:false = reachable page, no profile card (e.g. journal sub-tabs) */
         var path = s.path || "";
         if (path && inCharacters[path]) return;
         var key = path || ("secret:" + s.id);
