@@ -39,13 +39,15 @@
   }
   function b64u8(u8) { var s0 = ""; for (var i = 0; i < u8.length; i++) s0 += String.fromCharCode(u8[i]); return btoa(s0); }
   function secretSource(ref) {
-    var mine = V && V.myKey.get();
-    if (!K || !mine) return Promise.reject(new Error("Unlock your secrets key first (Dashboard), then press Edit again. Nothing was changed."));
-    return Promise.all([E.getFile("edit/visibility.json", ref), E.getFile("edit/secrets/" + SEC.id + ".json", ref), K.importPrivate(mine.jwk)]).then(function (r) {
+    // Main secrets key (Dashboard unlock) or the sign-in key the login phrase unlocked.
+    var mine = V && (V.myKey.get() || (V.viewKey && V.viewKey.get()));
+    if (!K || !mine) return Promise.reject(new Error("Unlock your secrets key first (sign in again, or Dashboard), then press Edit again. Nothing was changed."));
+    return Promise.all([E.getFile("edit/visibility.json", ref), E.getFile("edit/secrets/" + SEC.id + ".json", ref)]).then(function (r) {
       var man = JSON.parse(r[0].text), file = JSON.parse(r[1].text), sec = man.secrets && man.secrets[SEC.id];
-      if (!sec || sec.status !== "encrypted" || !sec.keys || !sec.keys[mine.person]) throw new Error("This private page is not shared with your secrets key. Nothing was changed.");
+      if (!sec || sec.status !== "encrypted") throw new Error("This private page is not shared with your secrets key. Nothing was changed.");
       if (file.id !== SEC.id || file.epoch !== sec.epoch) throw new Error("This private page and visibility.json disagree on GitHub (epoch). Nothing was changed.");
-      return K.unwrap(r[2], sec.keys[mine.person]).then(function (raw) {
+      return V.contentKeyAny(man, SEC.id, mine.person).then(function (raw) {
+        if (!raw) throw new Error("This private page is not shared with your secrets key. Nothing was changed.");
         return K.decryptSecret(file, raw).then(function (payload) {
           if (!payload || typeof payload.html !== "string") throw new Error("Could not open this private page's source.");
           return { sha: r[1].sha, text: payload.html, secret: { raw: raw, payload: payload, manText: r[0].text, epoch: sec.epoch } };
@@ -1193,6 +1195,9 @@
     return K.encryptSecret(id, sec.epoch, raw, payload).then(function (file) {
       return wrapAllKeys(man, sec, raw).then(function (keys) {
         sec.keys = keys;
+        return V.wrapPhraseKeys(man, V.allowedList(sec), raw);
+      }).then(function (pk) {
+        if (Object.keys(pk).length) sec.pkeys = pk; else delete sec.pkeys;
         sec.openKey = sec.everyone ? K.b64(raw) : null;
         return file;
       });
@@ -1227,7 +1232,8 @@
         if (a.indexOf(who) < 0) a.push(who);
         sec.allowed = a;
         if (!next.people[who] || !next.people[who].key) throw new Error(nameOfPerson(next, who) + " has no key yet.");
-        return K.wrapFor(next.people[who].key, cur.raw).then(function (w) { sec.keys[who] = w; return files; });
+        return K.wrapFor(next.people[who].key, cur.raw).then(function (w) { sec.keys[who] = w; return V.wrapPhraseKeys(next, [who], cur.raw); })
+          .then(function (pk) { if (pk[who]) { sec.pkeys = sec.pkeys || {}; sec.pkeys[who] = pk[who]; } return files; });
       }
       sec.allowed = a.filter(function (p) { return p !== who || p === "devin"; });
       return rotateSecret(next, id, sec, cur.payload).then(function (f) {

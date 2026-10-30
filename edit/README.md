@@ -215,8 +215,16 @@ Jason (`jason-journal-1` … `-6`) and the Journal sidebar link to them (`jason-
   in one pass like any static page; the manifest is then re-checked and a re-keyed or unshared page
   is dropped. `payload.warm` / `payload.nav.warm` list pages to decrypt ahead of time when idle.
 - Keys: the secrets key is unlocked at sign-in (phrase-is-key). In a new tab the remembered login
-  phrase unlocks it again. Devin's current key was made on the dashboard with its own passphrase:
-  unlock it on the Dashboard first, then open the page in the same tab.
+  phrase unlocks it again. Devin's main key was made on the dashboard with its own passphrase, so
+  his phrase can't open it. He also has a **sign-in key** (`people.devin.phraseKey`, derived from
+  his login phrase like a player's key; sessionStorage `elorae-secret-key-p`). Secrets shared with
+  him carry a second wrap for it in `pkeys.devin`, so they open on a normal sign-in with no
+  Dashboard step. Today: the six journal tabs and their sidebar link. The Dashboard's Share and
+  rotation keep `pkeys` current. A secret without a `pkeys` wrap (e.g. `yena`, only ever wrapped
+  for his main key) still needs the Dashboard unlock. Managing secrets (Share, rotate, encrypt)
+  still needs the main key. Edit mode on a private page accepts either key. If Devin changes his
+  login phrase, rerun `/workspace/gw2/devin-signin-key.js` (after removing `phraseKey`) or the
+  sign-in key stops unlocking.
 - Not covered: the plaintext of the journal and its images were public briefly on
   2026-10-30 and remain in git history and in older Cloudflare Pages deployments.
 

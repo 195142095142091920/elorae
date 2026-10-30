@@ -155,6 +155,9 @@
     return K.encryptSecret(id, sec.epoch, raw, payload).then(function (file) {
       return wrapAll(sec, raw).then(function (keys) {
         sec.keys = keys;
+        return V.wrapPhraseKeys(st.man, V.allowedList(sec), raw);
+      }).then(function (pk) {
+        if (Object.keys(pk).length) sec.pkeys = pk; else delete sec.pkeys;
         sec.openKey = sec.everyone ? K.b64(raw) : null;
         return file;
       });
@@ -185,7 +188,8 @@
         if (on) {
           if (a.indexOf(who) < 0) a.push(who);
           sec.allowed = a;
-          return K.wrapFor(man.people[who].key, cur.raw).then(function (w) { sec.keys[who] = w; return files; });
+          return K.wrapFor(man.people[who].key, cur.raw).then(function (w) { sec.keys[who] = w; return V.wrapPhraseKeys(man, [who], cur.raw); })
+            .then(function (pk) { if (pk[who]) { sec.pkeys = sec.pkeys || {}; sec.pkeys[who] = pk[who]; } return files; });
         }
         sec.allowed = a.filter(function (p) { return p !== who || p === "devin"; });
         return rotate(id, sec, cur.payload).then(function (f) { files.push({ path: "edit/secrets/" + id + ".json", text: JSON.stringify(f) + "\n" }); return files; });

@@ -80,29 +80,54 @@
   function allowed(sec) {
     var a = (sec.allowed || []).slice(); if (a.indexOf("devin") < 0) a.push("devin"); return a;
   }
-  // This person's unlocked private key, or null.
-  function privateKey(K, man) {
-    var rec = man.people && man.people[me] && man.people[me].key;
-    if (!rec) return Promise.resolve(null);
-    try {
-      var s = JSON.parse(sessionStorage.getItem(MKEY) || "null");
-      if (s && s.person === me && s.jwk) return K.importPrivate(s.jwk).catch(function () { return null; });
-    } catch (e) {}
+  // This person's unlocked keys, or null. "main" is their secrets key (sessionStorage
+  // "elorae-secret-key"; for players it is derived from the login phrase). "view" is the optional
+  // sign-in key (people.<me>.phraseKey, sessionStorage "elorae-secret-key-p") for someone whose
+  // main key has its own passphrase (Devin): secrets carry a second wrap for it in "pkeys", so
+  // they open on a normal sign-in with no Dashboard unlock.
+  var MKEY_P = "elorae-secret-key-p";
+  function phraseUnlock(K, rec, slot) {
     var phrase = "";
     try { phrase = String(localStorage.getItem("elorae-login-phrase") || "").trim().toLowerCase(); } catch (e) {}
-    if (!phrase) return Promise.resolve(null);
+    if (!phrase || !rec) return Promise.resolve(null);
     return K.phraseMaterial(phrase).then(function (m) { return K.unlock(rec, m); }).then(function (priv) {
       return K.exportPrivate(priv).then(function (jwk) {
-        try { sessionStorage.setItem(MKEY, JSON.stringify({ person: me, jwk: jwk })); } catch (e) {}
+        try { sessionStorage.setItem(slot, JSON.stringify({ person: me, jwk: jwk })); } catch (e) {}
         return priv;
       });
     }).catch(function () { return null; });
   }
-  function open(K, man, id, priv) {
+  function stored(K, slot) {
+    try {
+      var s = JSON.parse(sessionStorage.getItem(slot) || "null");
+      if (s && s.person === me && s.jwk) return K.importPrivate(s.jwk).catch(function () { return null; });
+    } catch (e) {}
+    return null;
+  }
+  function privateKey(K, man) {
+    var p = man.people && man.people[me];
+    if (!p || (!p.key && !p.phraseKey)) return Promise.resolve(null);
+    var main = p.key ? stored(K, MKEY) : null, view = p.phraseKey ? stored(K, MKEY_P) : null;
+    // No main key in this tab: the phrase opens it for players. A person with a sign-in key never
+    // has a phrase-derived main key, so skip that (slow, always failing) attempt for them.
+    if (!main && p.key && !p.phraseKey) main = phraseUnlock(K, p.key, MKEY);
+    if (!view && p.phraseKey) view = phraseUnlock(K, p.phraseKey, MKEY_P);
+    return Promise.all([main, view]).then(function (r) {
+      return r[0] || r[1] ? { main: r[0], view: r[1] } : null;
+    });
+  }
+  function canOpen(sec) { return !!((sec.keys && sec.keys[me]) || (sec.pkeys && sec.pkeys[me])); }
+  function open(K, man, id, ring) {
     var sec = man.secrets[id];
-    var w = sec.keys && sec.keys[me];
-    if (!priv || !w) return Promise.resolve(null);
-    return K.unwrap(priv, w).then(function (raw) {
+    if (!ring || !canOpen(sec)) return Promise.resolve(null);
+    var tries = [];
+    if (ring.main && sec.keys && sec.keys[me]) tries.push([ring.main, sec.keys[me]]);
+    if (ring.view && sec.pkeys && sec.pkeys[me]) tries.push([ring.view, sec.pkeys[me]]);
+    var raw = tries.reduce(function (q, t) {
+      return q.then(function (got) { return got || K.unwrap(t[0], t[1]).catch(function () { return null; }); });
+    }, Promise.resolve(null));
+    return raw.then(function (raw) {
+      if (!raw) return null;
       return json("/edit/secrets/" + id + ".json").then(function (file) {
         if (file.epoch !== sec.epoch) return null;
         return K.decryptSecret(file, raw);
@@ -164,7 +189,7 @@
         // Still the page the manifest routes here, for this person, at this key epoch?
         Promise.all([json("/edit/visibility.json"), routeHash(path)]).then(function (r) {
           var man = r[0], id = routed(man, r[1]), sec = id && man.secrets[id];
-          if (!sec || id !== hit.id || sec.epoch !== hit.epoch || !(sec.keys && sec.keys[me])) { cacheDrop(path); location.reload(); }
+          if (!sec || id !== hit.id || sec.epoch !== hit.epoch || !canOpen(sec)) { cacheDrop(path); location.reload(); }
         }).catch(function () {});
       }, 0);
       return;
@@ -221,7 +246,7 @@
     var K = r[0], man = r[1];
     var ids = Object.keys(man.secrets || {}).filter(function (k) {
       var s = man.secrets[k];
-      return s.kind === "nav" && s.status === "encrypted" && allowed(s).indexOf(me) >= 0 && s.keys && s.keys[me];
+      return s.kind === "nav" && s.status === "encrypted" && allowed(s).indexOf(me) >= 0 && canOpen(s);
     });
     var fresh = navHit && navHit.items.length === ids.length && navHit.items.every(function (it) { return ids.indexOf(it.id) >= 0 && man.secrets[it.id].epoch === it.epoch; });
     if (fresh) return;
