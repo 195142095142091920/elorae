@@ -45,7 +45,8 @@
     main.appendChild(frag);
     if (linkParent) {
       var ls = o === "oldest" ? links.slice().reverse() : links;
-      ls.forEach(function (a) { linkParent.appendChild(a); });
+      var tail = linkParent.querySelector(".toc-more"); /* other journals stay last (gw) */
+      ls.forEach(function (a) { linkParent.insertBefore(a, tail); });
     }
     order = o;
     document.documentElement.classList.toggle("journal-oldest-first", o === "oldest");

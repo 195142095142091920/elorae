@@ -281,7 +281,7 @@
     }
     indexLoading = new Promise(function (resolve) {
       var s = document.createElement("script");
-      s.src = assetBase() + "search-index.js?v=nt28-eras";
+      s.src = assetBase() + "search-index.js?v=gw-pages";
       s.onload = function () { indexReady = true; resolve(); };
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);

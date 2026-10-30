@@ -178,7 +178,13 @@ const PAGES = [
   ["journal/", "journal/index.html", "main.read > p"],
   ["codex/lore/", "codex/lore/index.html", "main.read blockquote p"],
   ["players/jack/", "players/jack/index.html", "main.read h1"],
-  ["atlas/", "atlas/index.html", "main p"]
+  ["atlas/", "atlas/index.html", "main p"],
+  ["journal/ghostly-wanderer/my-tale/", "journal/ghostly-wanderer/my-tale/index.html", "main.read > p"],
+  ["journal/ghostly-wanderer/heldrancs-tale/", "journal/ghostly-wanderer/heldrancs-tale/index.html", "main.read > p"],
+  ["journal/ghostly-wanderer/the-dark/", "journal/ghostly-wanderer/the-dark/index.html", "main.read > p"],
+  ["journal/ghostly-wanderer/the-demonic-lords/", "journal/ghostly-wanderer/the-demonic-lords/index.html", "main.read blockquote h5"],
+  ["journal/ghostly-wanderer/the-glaurfeldt/", "journal/ghostly-wanderer/the-glaurfeldt/index.html", "main.read h4"],
+  ["journal/ghostly-wanderer/reference/", "journal/ghostly-wanderer/reference/index.html", "main.read li"]
 ];
 async function diffTests(browser, vpName, counts) {
   for (const [url, file, sel] of PAGES) {
@@ -197,7 +203,7 @@ async function diffTests(browser, vpName, counts) {
     const saved = mock.file(file) == null ? null : String(mock.file(file));
     const n = saved === orig ? 0 : diffLines(orig, saved, vpName + "-" + file.replace(/\W+/g, "_"));
     // Article pages have two identical copies (pretty URL + .html): both get the same edit.
-    const mirror = /^articles\/([^/]+)\/index\.html$/.test(file) ? file.replace(/\/index\.html$/, ".html") : null;
+    const mirror = /^(articles|journal\/ghostly-wanderer)\/([^/]+)\/index\.html$/.test(file) ? file.replace(/\/index\.html$/, ".html") : null;
     if (mirror && fs.existsSync(path.join(ROOT, mirror))) {
       const mo = fs.readFileSync(path.join(ROOT, mirror), "utf8"), ms = String(mock.file(mirror));
       if (mo === orig) check(`[${vpName}] ${url}: the .html copy gets the same edit (copies stay identical)`, ms === saved, `mirror +${ms.length - mo.length} bytes`);
