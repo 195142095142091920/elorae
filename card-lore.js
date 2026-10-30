@@ -1,4 +1,4 @@
-/* Index card lore reveal (art82 -> art86 flip -> art90 fill -> art91 face toggles -> art96 hover).
+/* Index card lore reveal (art82 -> art86 flip -> art90 fill -> art91 face toggles -> art96 hover -> art97 prefetch).
    art96: the face now shows on HOVER and a click opens the card's page (see below); the text that
    follows describes the older click-to-reveal flow, still used for cards with no page.
    One click / tap / Enter on an Index card reveals its dossier face over the card (crossfade,
@@ -37,7 +37,7 @@
      (empty href, or its article came back missing) keeps the old click-to-reveal toggle.
      Edit-mode Index organizer (html.ee-index-org) and Devin's editing: no preview, no
      navigation handling here - the organizer owns clicks and drags. */
-  var HOVER_MS = 280, timer = null, hoverCard = null;
+  var HOVER_MS = 150, timer = null, hoverCard = null;
   var canHover = window.matchMedia ? window.matchMedia("(hover: hover) and (pointer: fine)") : { matches: false };
   function editing() { var c = document.documentElement.classList; return c.contains("ee-index-org") || c.contains("ee-editing"); }
   function hasPage(card) {
@@ -68,7 +68,11 @@
     if (hoverCard) leave(hoverCard);
     hoverCard = card;
     clearTimeout(timer);
-    timer = setTimeout(function () { if (hoverCard === card && !editing() && !isOpen(card)) flip(card); }, HOVER_MS);
+    load(card.href); /* art97: start the article read now (usually already prefetched) */
+    timer = setTimeout(function () {
+      /* art97: never show a half-filled face - wait for the text, then show it at its final size */
+      load(card.href).then(function () { if (hoverCard === card && !editing() && !isOpen(card)) flip(card); });
+    }, HOVER_MS);
   });
   document.addEventListener("mouseout", function (e) {
     if (!hoverCard) return;
@@ -148,12 +152,42 @@
     var go = function (d) { render(face, d, url, name); links(back, isOpen(card)); if (isOpen(card)) fit(back); };
     if (cache[url]) { go(cache[url]); return; }
     render(face, { loading: true }, url, name);
-    fetch(url, { credentials: "same-origin" }).then(function (r) {
+    load(url).then(go);
+  }
+
+  /* art97: one shared read per article (deduped), cached as extracted face data. Missing /
+     not-shared articles cache as { missing: true }. */
+  var pending = {};
+  function load(url) {
+    if (cache[url]) return Promise.resolve(cache[url]);
+    if (pending[url]) return pending[url];
+    return (pending[url] = fetch(url, { credentials: "same-origin" }).then(function (r) {
       if (!r.ok) throw new Error(r.status);
       return r.text();
-    }).then(function (html) { cache[url] = extract(html); go(cache[url]); })
-      .catch(function () { go({ missing: true }); });
+    }).then(function (html) { return (cache[url] = extract(html)); })
+      .catch(function () { return (cache[url] = { missing: true }); })
+      .then(function (d) { delete pending[url]; return d; }));
   }
+  /* art97: prefetch every card's face text once the Index has
+     loaded and the browser is idle, a few at a time, so the first hover is instant. */
+  function prefetch() {
+    var urls = [], seen = {};
+    cards.forEach(function (c) {
+      var h = c.getAttribute("href") || "";
+      if (!h || h === "#" || /^javascript:/i.test(h) || seen[c.href]) return;
+      seen[c.href] = 1; urls.push(c.href);
+    });
+    var i = 0;
+    function next() {
+      if (i >= urls.length) return;
+      var u = urls[i++];
+      load(u).then(next);
+    }
+    for (var k = 0; k < 4; k++) next();
+  }
+  function idle(fn) { (window.requestIdleCallback || function (f) { setTimeout(f, 200); })(fn, { timeout: 2000 }); }
+  if (document.readyState === "complete") idle(prefetch);
+  else window.addEventListener("load", function () { idle(prefetch); });
 
   /* ---- extraction (verbatim text) ---- */
   function text(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
