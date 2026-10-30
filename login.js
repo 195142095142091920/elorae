@@ -5,11 +5,12 @@ var PHRASE_HASH = {
   "7d0823c4ca0c0bfefdc14e67786e5c6b41d517a36a8b1cce9e0bbaf1448ce0e5":"julie",
   "340bbcf62fb5b430085a948675b2b76a33f7eb855f94b538a077973a96571c61":"sawyer",
   "0eedbe39d20f666a54f9fd82e2a7b8c7673ade3d1f86f530d68b56d3e6500740":"devin",
-  "4ea140588150773ce3aace786aeef7f4049ce100fa649c94fbbddb960f1da942":"sylum"
+  "4ea140588150773ce3aace786aeef7f4049ce100fa649c94fbbddb960f1da942":"sylum",
+  "ead6ef03d61ee60c533d6d450c50a1e559a8a37f6b796a4094cd0dac6b744428":"jason"
 };
 /* Player names shown on the login welcome after a successful phrase. */
-var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",sylum:"Sylum",devin:"Devin"};
-var LOGIN_PLAYERS = {jack:1,jon:1,julie:1,sawyer:1,sylum:1,devin:1};
+var NAMES = {jack:"Jack",jon:"Jon",julie:"Julie",sawyer:"Sawyer",sylum:"Sylum",jason:"Jason",devin:"Devin"};
+var LOGIN_PLAYERS = {jack:1,jon:1,julie:1,sawyer:1,sylum:1,jason:1,devin:1};
 var GUEST_KEY = "elorae-guest";
 var PENDING_ENROLL_KEY = "elorae-enroll-pending";
 var PHRASE_MEMORY_KEY = "elorae-login-phrase";
@@ -257,7 +258,7 @@ function applyLogin() {
   var who = readLoginWho();
   var guest = !who && isGuest();
   if (who) setLoginSession(who); /* keep cookie in sync with existing localStorage sessions */
-  ["login-jack","login-jon","login-julie","login-sawyer","login-sylum","login-devin","login-guest"].forEach(function (c) {
+  ["login-jack","login-jon","login-julie","login-sawyer","login-sylum","login-jason","login-devin","login-guest"].forEach(function (c) {
     document.body.classList.remove(c);
   });
   if (who) document.body.classList.add("login-" + who);

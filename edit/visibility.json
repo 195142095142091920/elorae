@@ -47,6 +47,29 @@
     "sylum": {
       "name": "Sylum",
       "key": null
+    },
+    "jason": {
+      "name": "Jason",
+      "key": {
+        "v": 1,
+        "person": "jason",
+        "alg": "RSA-OAEP-3072-SHA256",
+        "publicKey": {
+          "kty": "RSA",
+          "n": "yIRGE0FFUZkwb6TCoTzCY88mhk-yG76mhMoLwolPqEL1R9ypSOFQuZG9P9NGYLf-X2TtHc7DqhHmhmQjnWyRy8F0G172disY3CK2Z4GR0OuDjcT_pWItTNSZAdTybxLVckaDyo-84Cj-EiKY4iDK_F9pSxV0XhLJfJQhbThaZJFHacY3wI8en1NlGOD3ZuqKDQcvFwks7ysWQY5upH1DSwoiLz-hldD3gTvXfhbqErb6FH8HNElvl80BWbkfMBBjUBaM7k0BdYRSeH9oHmLnipP2XjEKwzIyh0qbdnGp7nNMfPnqJ9jxILaVjPgnWBTD4LxUdmChE5iQX-VdjyMB3LeldUlvlZL-wQ-haV_2aSj87yYMnJedgT6E7PnBqY6Jx8IqXnXql745bxMTvMKwpVE3t_pEerkjC4WydAz-5sTf3_4o9RNC9aG7jNubi6xGnh8CIaOg0w2Kj4A1osnWCkNeW7X4CbXIT5Q5PPP1mEXZbM0n8ASjmXRRSEK9bOSn",
+          "e": "AQAB",
+          "alg": "RSA-OAEP-256",
+          "ext": true
+        },
+        "privateKey": {
+          "kdf": "PBKDF2-SHA256",
+          "iter": 600000,
+          "salt": "vMhdHGTjBDCzZ+TyyCFZXA==",
+          "iv": "QuNmKdWuATXYkVOg",
+          "ct": "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"
+        },
+        "created": "2026-10-30T14:21:42.828Z"
+      }
     }
   },
   "secrets": {
@@ -210,6 +233,145 @@
       "epoch": 1,
       "keys": {
         "devin": "DPrsmfF8WW+j6nABqgqGFTMCuJ3RdJcmWM/5iY9B+TMqrkb0zdy4y9xfwAP29HrDXI4/SzZA8ckyBS0fLPpH76Ozvb/xptJwnaJ0lYcXpPHFq4ivsiVPpjru5wO5vkTP5AK+FtJe3Oo60Ht8q/vnlwQwdL3yp554fEL2YnfNk+g3po3exzCbgVvTAYddJd13ll1nQw+CGc6qDy6rKZIgtmorkYR5LGS481BrwkILl6kQCJSyEHpfp1KKUqMFbJFDMZRGUR+eDDkgk1MitEfvNUdHQCx1v0E8wKg42FejbVad3ZXwnsbtrLwr/U4SUoU+rWgC+zxXKNClO5Cu57HQS3dJ3OPOYhaVMZM0OyN/Zz5itIgRpGCDfVI5b024KczdJNbmTqwZXHOrk1oPrx35JvqSq0xKXxaXMgt04/vcVuppSK9+igslO81kGySc6eSoApfWrRCEpOKvbUH0RjB3oWMH+XLKK0jkZhH1uVvER+iTHJmMuoqkx6aIH5lONjCG"
+      },
+      "openKey": null
+    },
+    "jason-journal-1": {
+      "title": "Journal: My Tale",
+      "owner": "jason",
+      "path": "",
+      "status": "encrypted",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 1,
+      "keys": {
+        "devin": "Ai2T6ZvomoC19XJyVSAsaaE15ZVb6oJ3oVZrJHbfJUUiVHCNevJb9ysSqizkvKn2h3kacJ+Pm77Jz1+O7E1IgRzK6nY9FsW2IUd4VQOAV92gnrJ+saeUt8ovoY3b1gZcK6rtofygMMwU8QvqVy6X6rFJap2JKl+95Mjrpu7wIz70y2n0FXQh2+7vEioZBZxpsOZrd2KSzjVrVUgD5VUi1lFWU5baYGfGZiKEQl0Z7xM1r8F9BfYFeBPiPPGEZwEoteZiAyjFg6dOnj7FaLDtYlF2Jkpe3sMEY3T0N+rFzWCE46AsIDYEOowYLfM7RelE3Uyp9+/TmESBGLlTFBub5CjCTjNNfVLDV/kfMPzKaVIUVy3mgdmCW4l2x0kIYamlWbM9Kd9N20nUOxcDXsov23NESBM2XGdSnf5PEAZMhXtSaKy0tBwQWsrOL7+hwA8pahPoJUCZX60umd9G/rrruvZVPEENcRKOcZOvc+ZU4JqnARJxnuuZNEhIX+CVt5mD",
+        "jason": "bqVSgSe4YG80u7Xal8LFh4Rjfn5X8VXZsq6PVDJpzk+BRNjdz1xlpyxwya3YFhGOFCqMTYRITx8esOxkOPWPX7PBehvF2V/QvlkyXut53ZjWb79Mfqwz+jO9pyEFft5LjfoHBKqdvsrL+C7iptP2K8FT9ZJi4EM/ndrsI/FJAowlevk2lW0GjtLe83h/0tiLj1KI3BWqtiyrvUhdSzt31UCekohyOI8Fj745h+Em1EAIBrfaCOiSamTsMCNdWUz/9IttKM/y61fWW6o2RoJRZflruSPUCB2aSHLofR02NRxqtUoW6tHtG76Jg1zGXm2S/09mi9z2ksxisGstK37q2nlgYopvSde+nXqQRYUTywxCxR5hD2d1TCcAfyfKzWM3GuRq2XF+UXJVYuFmYUiAj4GMLPx+Wt4HijMwIqH1hZjrkNjSdhWETgirw3tfQ1VKD/IaIpmbRyoUUU+3yjUu/bEACuqdTb+YrNYfiQW9pRdzoh67lMFv/1Exyg/AfzgG"
+      },
+      "openKey": null,
+      "routes": [
+        "a19715c033bb3ef20ca90416f37de1abe5ecb255926d317d3fa6c338da174774",
+        "454183ec12f09643a1f240eb6e81b2704ac5b94dfc2482f361d120cd1fec3be5"
+      ]
+    },
+    "jason-journal-2": {
+      "title": "Journal: Heldranc's Tale",
+      "owner": "jason",
+      "path": "",
+      "status": "encrypted",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 1,
+      "keys": {
+        "devin": "CO9EGqkuHj2N7PWDmovPcVKAMfH1TPT7MZFO8hryFYWGZBA10rK3qTdlFG1PyfhZRrN4trcT2re881Y+CL3939TBvOXimbEqvnOC+lOLqVCdHLp4miYU5W3ItgRygxiTDysreRDuIMUv3VI8cXd9maEj8u5cu9fJYZh+e6v/yydU5Ei1TM2z0aRFWvmcEU8D5pFG66WPG+EfLwDY5cPn7jI5Kg3yb0MQUibFeB3gB3VY6CGtusd5sKnf7skdCYMzQ1DqiCAF5r6wKqbdG/4WgRAa4gG2Z98hpZdryRKYAgot6WTldw5eHoo8pmtLCPZzxm9JxomcbWV7hCCYPxJPcFpW3LJ4RE4zM9b0pGbZbgRgopvUZYds0JNV8xRuK1POg54roRIcAjNYVlwwcRRaTVOfWXUM341mwA0Inrn3EjmZDkIfGVAK5QxIuw1rrllKNcEsf7o6NCyHiHyQ4/Q8E6tEdCN5U/2ZLXkYTZZETj20UsPmWvHQy/x/GGrbrvsC",
+        "jason": "ar58TUQL26GQthxBDoHXhsaGqCdC9Issn6ctdHRfEfnYsz6PMV9gQ0KBs1no4Vhec9H9Q9xyilgV68RF37DUx3Z0Qh/3JMiBQeNCn5qEWcL4VqWKog3aLZL+/s0T7RagAbzRBgh+tZ6fXuV8rrCbIkxiM88+HsHCXsEghTP+7l41mOWqS4XeIp1JsREttwEf2txpMXXrvII0UYEiSDd8DPemt219IBW+EPtuiTuYQgBZQiBgHE87ymUS+ReGG2Q6+uCC+a4WcLHstz03Jh+zGem5Krx9Q3k7HDI/W2ssulMv/cRH6gfS45GPQ6JUY904AxJHMpywJtxvyCzA7LTqR/Ktby2s66N0A08dF6ASK7L26gjCm14WSG0mCKcMxRaCc9Dd1DHvejlwRfXy5DcF55NDVjLyXNNTlNJvNDkhMrmso3ts4ehCdJ+NBou3PK8X+rEFKx8hz+zMvhO5y3nYMCf8UBbiGQOhslcAMR29K4ugtditcNpIiff/aHA0eJkh"
+      },
+      "openKey": null,
+      "routes": [
+        "993c8c5734bd54de7fe53e2044b3c73227de6a85d193e387a7aac2e114dc9b5c"
+      ]
+    },
+    "jason-journal-3": {
+      "title": "Journal: The Dark",
+      "owner": "jason",
+      "path": "",
+      "status": "encrypted",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 1,
+      "keys": {
+        "devin": "APjlPbbfPqR28YmrBpyswOYw2cBaiZArINIGbCQsO8e4HY27lE4Qs6j13x2FMSQDH4tf4bP0y3ZbfqCTnTm+VfW0n6Eh4kqr6et3feSk+RrfLHPvtaimMLcEeZKLieZJa5iWvCNLj0Hv6XNlF6rmGjXlxfaqIHvlY0QJypyc8C2fu6g0/PEf5PE8WNm5AtaI5vj8wpQlDHw04YQ1BwfadI5ql3lVVIa/KbRXmY8thMdgh/1mgA0rN7xcjMRcCUmqpk9bRIs8xLHt4JfOZozgdCxcITCvlBK4LKb3TTVnnqYoYsFr2NowjE54Z4DqV1EN4hFmqgFI+tPv902R74Ppx3I5UXxq8YxXUeSZm+BnPSimp5lfT/osrba9h7qlfuXnxajitH1lMGPAbeONHxhCeAjOhaaiRysmC++epdnd+eU9ul0bO+0VTesE9HdvH9NxDp2YkLe3bJDgCaySJ/CDBfuQSKq7LgZ7t3E4ac+bNxbOoNRoVEAw0WI3r90+IR6B",
+        "jason": "g4jhlqm5/CU3nM1YuLAWfMpgflQ0F+5ej2NcIN7R9mO3A5NPWT/k90KnQ+8CuHSxv1A5Wnzpah7uyFDv5Kv0YmtWFhODq0eDvfLtajF9UfON3i6AJDZ0YPLwHAp082g6lWthaYPt416LXa2umyHQlKeghsOqn5i9vLWWwZdnpndCRsDFsBoaFSm99xt9+Pqa+Gb9wTDTSUhqlIJWP37crDIhl8I2ERO/MdG8tPFfs8ucl197cnPbN0gH5DXQGWUrZY1iP1WFiVz73h4g8UOAzXRRLCBKroNzCairNZc/7bIKLFHYG9xU/VzKM+brVC6o2apn+Tde47cO36dUpOgkD42tFGx3lXNj9izqzzNxBWLOMbDZrBVbH8AAS/03QqSNzgirp3xrjbIpa4BMQQVzruTbLleaWjS19NjsJh3yOVBN1Qo0Tg4kfIgGxUo1SYD5/CaZO8msnTnAFMStR8HZ6R95dlZdalCG6xXthqQjgAqlltmUN3QyjdJa8An1ochD"
+      },
+      "openKey": null,
+      "routes": [
+        "1a90e5b20a5891c5f9c726ed041955a724a6e592d878906adb35029887820eda"
+      ]
+    },
+    "jason-journal-4": {
+      "title": "Journal: The Demonic Lords",
+      "owner": "jason",
+      "path": "",
+      "status": "encrypted",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 1,
+      "keys": {
+        "devin": "AMxlxi0AgqinMMKjZE8ojHC9ocTw+fYLTE3DmZolNUpAFp2bjtCwFFsFjngOO8vF5l92KI75yn3DsWJPy8kugatDfoCpIbI96IDxE0bD0zHUcNaoIyoYjJO2FyNAhNpnhzNUEd4iwwvTxstrRrpMlWqDSnLPmsWPiHnEBf3aqrdmUsOhnEyrJARvhIGFmBVmPOLcniG9crwjbvNqAiYxB7cal6o+o9cFJuTfibPkyZXZtsmFXgYoQVEONTO8yJyB+DMU80rYUcPoESpk7kszHmsQPJeYjdeO5Me9RL9hMrjqfLBgl7XSggA0SHiKRy2rGjNeYa6t4Z8GFGSvwVULFegHZMvWBfG4H5SQ5ZeIqU80Cdo0JdMa/agI/hh3K4XT9LhXehe3LTHI2ejRxzUzXD0jfts1zK6ch4KebpCLNj74QMplEwIaW2FCxzE76axkED2sGPdPdvq8MN0w7YAKXRvN2WezGvlx5TXfkcX2wEpnK/T9k9RP/vOt/Tl+cJRQ",
+        "jason": "MeuXqffZNYvISsJAljYEV/P6ys+9RyRVm1lZXREiAkkiY01kRFDDbJvPUtM0CBKJ5uv81bDmXpgRXdnpyJeGy/k6jJ7aH93W/dn3hkNLtcSWnRJw72JHVWQcvKsFR5gZdjyvtz7CDrsDgThwcK53P5I+x1++a4k4H87EH84D/nHuj+EAjjif12ZscHNyBgGSAg9anjHVUSw4i3KqwEeInF1SpnfwRYiRU8kA0pPJ/v+eaEZpq+eOydaEB0HFq5BXiteI7HSMuXmFxDqqC9H4XsuzZ9txcmNZhh76+xuiuNOem41q2+6FeJaL9/l1SFc2I/qALtzi//znjsG8+UcNzln1XRVAv+0XfidTPKtEECrVfHQFMxQKdOInAEjwBiDV0q6TI0CPnLUFgjAaxIJWuMJGoonETMLSrq1z6g8zFR8dE1vD0r7PdXB632HId5q40xlqGOLVYIsLe2HHJv4mof+rPO3cqB+85aXSPWckkGAV4af5lnizijacdo7juXo9"
+      },
+      "openKey": null,
+      "routes": [
+        "a7f38f13e855f923360dc905b3676ad6497ad919b0e46962e04182571139b378"
+      ]
+    },
+    "jason-journal-5": {
+      "title": "Journal: The Glaurfeldt",
+      "owner": "jason",
+      "path": "",
+      "status": "encrypted",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 1,
+      "keys": {
+        "devin": "FfNcybLSqIMeact7i6ZrnnNyIiJZbYjKphytZ+UOUqVhWg01ieb4gPd6wr4y/2sImrrRjD96L0jXkegITp2IzsD4Ku1STz39/L/WhUkVsZuYcNPR7B7h8EhN8aed64YlXoTHWxdQagv75Ds9+xGVcOb9w/vStFALH/wyPeHSzTU30MbIAvlV5JhUIE7tr9wMngNdcF1yyaKOXdbqvDntg1COyl1Nz+87xgLZMIprzly76WCmR0kUJrzF4K8g4vXJi6gWXGWuStZHO/gDfAx/++BCYn3rxDszQVTrTc87wiqcUQIwI+uPlWdV+2xniN1SoUvpVoMeqql5bP0FLtUUA6SjHU0hZKz/l6+//Fuudltcz60CrZy9rmrUxVjtM++njYtigqZLaqRtdFh3VNrGkmLCMXIxSRl3uDTZGxQ4ZQjEMsp9VrW2p0v2S9eyY6QZu3sdKBsPQQPQMXRuMobT8ZMnbgEsA5gRSRRBfMxwnWgYl3ZwonGGFj0fTnnxsBQ9",
+        "jason": "o8yP9GWIyk236nGOdCndl43ov/Qp3raHbDTVDpIi34vGa888FYus20CMJcVuqGr76pC2lv6cm3JJ0eUjJVDp6/xN0JCRCiEmUOirnRmojm0fBjvARC+0DHvgZDQ3/WuLMix3N61HVtzr4XBFV13Ng92z5zj2L0wKkt+jPeOfyppMZ4lUy3zHZXuNKoHUd0bSdhqzmDi2xmLEp1N6Cf7qKTAV8b2qlRJR+NgZQOxtqLOVfqIOmcJANomN3WRTk2u8JlsuBArvpadQvc1+8BNKAXQH5Z12LmPXbg/YjUf/OmUsT9pVdMth6hGKKPbGm/Y4S6CmFFPVFDs9p5NsDJsV2SJrVFfUJgN9YGOnn/3aZ6vQk/NP4ouqdDUtHDMIQ6oMhNKm5qyXgyDiWUkYqvpwb/aFZwAeftrNJcaJLxElzR2l46mEzsUXfmAjn/v1e38+UlBYFdD9C1BLrw+jThmt0jiMKuztUGELrDKxbZJxEnrGlVeOS6nkFY/06HBa0A/h"
+      },
+      "openKey": null,
+      "routes": [
+        "41e60bd9e87f2520edc9104fd2e186ce299e53638196c67ca5339808e3ac0317"
+      ]
+    },
+    "jason-journal-6": {
+      "title": "Journal: Reference",
+      "owner": "jason",
+      "path": "",
+      "status": "encrypted",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 1,
+      "keys": {
+        "devin": "ES9Q6ShTspa2Ftb8MsJVtJiaEvUkwfxS8y+N6QgI9DDDZUHrZ5MtZt5iNiX2PFebahZlq7cBfkv/FoYhfQsEIbAgO1Y+1kqy86KtXK+1WElURv6GBLBCGIu0pGs+az4E1+19diqB7bksLDXjxnHozzUIOYvcSNjqAJ4u3F/ws1jPf/mfiZSBF0fDH9VoLnSbbDhYA2mxF53UegBl/hEgZ7M+vH3LPtC4o7BhPE/Spg72b3AQjzpiWQTibdi/ZrSA8gwINYVqtkDAnOwJFwqEVV6Ba2w7Sl9FdwylDaaP9sTH1BTErZC8nkcaDFqP9wuM/+yI//47jUMRt3hf8wBr4afys/3zNxztzNTSgXot62P3XskzFPMD3yS/0GEWGDE5mFv76gN8ulBVUttBl2/abxVwmP/rFNCpvuz+rWHLIdXYWYqELX5q/6zE6mO45i6OJ6mY0DMzPgWggnV6DKaGJuEktbdgGPMz93SEZlyonYI9cZnZZS/cgGMaTlWMmKkk",
+        "jason": "ozJ/TZElKzjktQ+c2qcKoecIubzIuS75W8mwei/7TOsIJIvsrKUjrmcgQ3d8DjR3cfeP/rsSZ7n1C5rFBiJp1ZLGC3dH3FRcN0xGZeXs1itKv9zwNIShtxVwG7B2VZ0FlnV9z+CesDx6f6IlrlZ1682wKcVkI9eHK+C+KguymVxaAowO9UQ4J+7+9A9YDF7eXLqx1EEHrIwpgabBXiXbDSVmPAsqLz74sSAIdyg/l+0HpXfkBW0fVfCBGXilhy1xRbxvb5gSWrV9qkvwlrIG4rdUipz54V4mq2EU8oDi8kmWA/AeIyRqp7UW9ZI8zVefAneKp+fXjJ/slK1Xjnq3uK4T2YFfeAAs2Oboc6dcyIPua4jgcM77+HEwcTl5nYTm7Ry97BMN81KZPdZASJrAY20VQ6CgSBi56OJOmMs+PnIZh0Vmq/bXdbmQD9muso/R+I4ZWFSzubN6tZh8abP8rbiLmsZxCYs/XfUqzixQtBnES9dr/Hk/YJvePGrya1/a"
+      },
+      "openKey": null,
+      "routes": [
+        "70318b7a54a376340a72fea7d0d38d75e8a328fa72a7ed882597a7e3d10127db"
+      ]
+    },
+    "jason-journal-nav": {
+      "title": "Journal: sidebar link",
+      "owner": "jason",
+      "path": "",
+      "kind": "nav",
+      "status": "encrypted",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 1,
+      "keys": {
+        "devin": "Zc+m8ogCkUOoz+E5D45LKrPmXvhQ3j1TMLThpB5/s34KlkgaENSLGoK83pEMFxP2JSzzDaSRyQslBLWg7AgalLH4EL9iMdj/00U3oRmQ/oppyTIcE0wYPuDUOczA+orVd0GmwuQIHla6DR2/Sk6T7WiiPtjK7x0bKxhfPDTKYExJ8eZFcLMdDCp8atzRoZHgST1l+V/uxmKYiJM3q4G/HWKFhjb5QWHXHGj4/2EsYHQRYP08CaHWdMyGe2obTR5FSWjSB9JnC7BApe7quFDNpTE8sr36vX4xrL9udQR6cKMjw0ME5D7ZWrfOEUrjJxh2QZ096xTzevSbq5IqfmCWyTtXZxbNMM75wrCTd8xfN75XF5f1M+istpFRKSgINx2o2rvKdh+ZpbiaEX/Jb0EBFptcV8WEyyD5SQ6sq6yuqvxh3vDAxSrHMAYiE2PJ83JzzkeGd7imeEJzfFx2X7arugsiAMPvVAornVbcAL2Zd1Wdh/NyoaCIP2PGctjoAqL5",
+        "jason": "UjUdmZ6b2QdL3aipFDD9iOH8ZCj1KWlQ4rOlTImHUZhNc270nn8XuzI3ANwqodA8dLJ3xxT3UaFqSVSTkXxSaT4arofwNFIIqsx4eBe+deQtv8gzGS21t4/FXKj4FMq5n8SJLaa+JuwHpni/dVmNekp3Suk+A7s6npfOP5AD/gqpMsK6beciAL+1vz3BTSBn2YUIrY91QsJPIu8Lx7UbwZdbvj28A2ICwLvxRn7r2f1lHZtfn6XvPfyZad3jB5UV2dJmK3K4oNpaob8lcLfycbky6APVeoJFZIX9NgoR7vZBVPBOwbcu6dUjEFe51PsVEG5ubiI2ifFmwK+16P6t2TN8ctOO1q7XEiq1BrVJyPOKYVZCO+5weHgpJ0xpN5dGzmLZIMhsTaskmhf3dj9rtKEHuLQ6Xg/OJkVIP313j8vUJIWR1M3BA+LGg8S0UL3vfxer0CmXDmvzwFD3HnW/YldCzS/Vk+affjYP2yOZhKLLcx4tA60p4kw5vqjJN2HB"
       },
       "openKey": null
     }

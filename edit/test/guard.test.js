@@ -19,8 +19,9 @@ write("edit/profiles.json", JSON.stringify({ profiles: {
   "julie-gh": { role: "editor", permissions: ["articles/saoirse.html", "**"] },
   "jon-gh": { role: "editor", permissions: ["articles/silar-scorria.html", "articles/telorin.html"] },
   "player5-gh": { role: "editor", person: "sylum", permissions: ["articles/alaric.html"], save: "pr" },
-  "viewer-gh": { role: "viewer", permissions: "view" } } }));
-for (const f of ["articles/vaerek.html", "articles/saoirse.html", "articles/silar-scorria.html", "articles/telorin.html", "articles/yena.html", "index/heroes.html", "codex/vaerek.html", "index/ancients.html", "journal.html", "codex/lore.html", "index.html", "edit/visibility.json", "articles/alaric.html", "articles/alaric/index.html", "articles/galand-helviath.html", "players/sylum.html", "players/sylum/index.html"]) write(f, "<p>x</p>\n");
+  "viewer-gh": { role: "viewer", permissions: "view" },
+  "player6-gh": { role: "viewer", person: "jason", permissions: "view" } } }));
+for (const f of ["articles/vaerek.html", "articles/saoirse.html", "articles/silar-scorria.html", "articles/telorin.html", "articles/yena.html", "index/heroes.html", "codex/vaerek.html", "index/ancients.html", "journal.html", "codex/lore.html", "index.html", "edit/visibility.json", "articles/alaric.html", "articles/alaric/index.html", "articles/galand-helviath.html", "players/sylum.html", "players/sylum/index.html", "players/jason.html", "players/jason/index.html"]) write(f, "<p>x</p>\n");
 const BASE = commit("base");
 const scenario = (name, files, msg, actor, expectCode, expectText) => {
   git("checkout", "-q", "--detach", BASE);
@@ -50,6 +51,10 @@ scenario("sylum (Alaric) login is case-insensitive", ["articles/alaric.html"], "
 scenario("sylum refused on Galand", ["articles/galand-helviath.html"], "x [edit-mode]", "player5-gh", 1, "may not edit articles/galand-helviath.html");
 scenario("sylum refused on his player page (non-admin ceiling)", ["players/sylum.html"], "x [edit-mode]", "player5-gh", 1, "non-admins may only edit articles/*.html");
 scenario("sylum can't grant himself permissions", ["edit/profiles.json"], "x", "player5-gh", 1, "only admins may change edit/profiles.json");
+scenario("jason (viewer) refused on any article", ["articles/vaerek.html"], "x [edit-mode]", "player6-gh", 1);
+scenario("jason (viewer) refused on his player page", ["players/jason.html"], "x [edit-mode]", "player6-gh", 1);
+scenario("jason can't grant himself permissions", ["edit/profiles.json"], "x", "player6-gh", 1, "only admins may change edit/profiles.json");
+scenario("jason can't change visibility.json", ["edit/visibility.json"], "x", "player6-gh", 1);
 // Same rules against the repo's real profiles.json (perms.js is shared by editor + guard).
 {
   const P = require(path.resolve(__dirname, "../perms.js"));
@@ -62,6 +67,17 @@ scenario("sylum can't grant himself permissions", ["edit/profiles.json"], "x", "
   check("real profiles.json: sylum can edit articles/alaric.html + pretty copy", P.canEdit(sy, "articles/alaric.html") && P.canEdit(sy, "articles/alaric/index.html") && P.ownsPage(sy, "articles/alaric.html"));
   for (const f of ["articles/galand-helviath.html", "articles/galand-helviath/index.html", "articles/vaerek.html", "articles/yena.html", "players/sylum.html", "players/sylum/index.html", "index/ancients.html", "journal.html", "edit/profiles.json", "edit/visibility.json"])
     check("real profiles.json: sylum cannot edit " + f, !P.canEdit(sy, f));
+}
+{
+  const P = require(path.resolve(__dirname, "../perms.js"));
+  const real = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../profiles.json"), "utf8"));
+  // Jason: no character, no GitHub login: placeholder-keyed viewer with no edit rights.
+  const key = Object.keys(real.profiles).find(k => real.profiles[k] && real.profiles[k].person === "jason");
+  const ja = key && real.profiles[key];
+  check("real profiles.json: jason entry is a placeholder-keyed viewer", !!ja && /^<.*>$/.test(key) && ja.role === "viewer" && ja.permissions === "view");
+  check("real profiles.json: no profile answers to the slug \"jason\" as a login", P.profileFor(real, "jason") === null);
+  for (const f of ["articles/vaerek.html", "articles/alaric.html", "articles/yena.html", "players/jason.html", "players/jason/index.html", "journal.html", "edit/profiles.json", "edit/visibility.json"])
+    check("real profiles.json: jason cannot edit " + f, !P.canEdit(ja, f));
 }
 fs.rmSync(dir, { recursive: true, force: true });
 console.log(`\n${pass}/${pass + fail} passed`);

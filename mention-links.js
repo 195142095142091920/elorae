@@ -97,7 +97,7 @@
   /* ---------- 1. sparse plain-text wrapping (first mention per chapter) ---------- */
   function chapters() {
     var heads = Array.prototype.slice.call(main.querySelectorAll(":scope > h1[id]"));
-    /* Pages with no chapter headings (Ghostly Wanderer tabs): the whole column is one chapter. */
+    /* Pages with no chapter headings (single-page journals): the whole column is one chapter. */
     if (!heads.length) return [Array.prototype.slice.call(main.children)];
     return heads.map(function (h) {
       var nodes = [], n = h.nextElementSibling;

@@ -17,6 +17,7 @@ Nothing secret is committed. There are no passwords or tokens in the repo.
 | Jack | `<jack-github-login>` | player (editor), saves as PR | Galand Helviath: `articles/galand-helviath.html` |
 | Julie | `<julie-github-login>` | player (editor), saves as PR | Saoirse: `articles/saoirse.html` |
 | Sylum | `<sylum-github-login>` | player (editor), saves as PR | Alaric: `articles/alaric.html` |
+| Jason | `<jason-github-login>` | viewer (no character, can't edit) | nothing |
 
 **Hard ceiling: players edit article pages only.** Every non-admin is capped at
 `articles/*.html` in code (`edit/perms.js`, used by both the editor and the guard). Codex, journal,
@@ -170,6 +171,26 @@ removes or replaces that article, its `search-index.js` entry, its card in the I
 (`index/ancients.html`) and its image in `assets/`, and points the card at `edit/secret.html?id=<id>`.
 The viewer shows the decrypted article as the unlocked original (it drops only the `.private` CSS gate). Image files also stay in git history,
 so truly secret art needs a history rewrite or new art. This cleanup is deliberately not automated.
+
+### Hidden pages (no public trace)
+Some pages exist only as secrets: no HTML file, no image file, no search or sitemap entry, no link
+in static HTML. Their URL simply 404s for everyone else. Today: the six Journal tabs shared with
+Jason (`jason-journal-1` … `-6`) and the Journal sidebar link to them (`jason-journal-nav`).
+
+- `visibility.json` `secrets.<id>.routes` holds `sha256("elorae-route:" + path)` for each URL the
+  page answers at (path with a trailing slash; `.html` and `/index.html` forms map to it), so the
+  path itself is not published. `404.html` loads `/hidden.js`: if the signed-in person's key opens a
+  secret routed at that path, the decrypted page replaces the 404 at the same URL.
+- `kind: "nav"` secrets carry `payload.nav` (`where` selector + link HTML); `/hidden.js` with
+  `data-mode="nav"` adds the links for people the secret is shared with (journal page).
+- The payload is the whole page with its CSS/JS inlined and images inlined as WebP data URIs, so
+  Share / Hide / key rotation in the dashboard work unchanged. Editing these pages in edit mode is
+  not supported (there is no source file to save to).
+- Keys: the secrets key is unlocked at sign-in (phrase-is-key). In a new tab the remembered login
+  phrase unlocks it again. Devin's current key was made on the dashboard with its own passphrase:
+  unlock it on the Dashboard first, then open the page in the same tab.
+- Not covered: the plaintext of the journal and its images were public briefly on
+  2026-10-30 and remain in git history and in older Cloudflare Pages deployments.
 
 ## Shared art catalog
 Admins can upload images from the dashboard (**Media**) or replace an article hero via **Art** while editing.

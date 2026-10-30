@@ -94,7 +94,7 @@ def rule(kind, w, h):
                     lo=640, hi=2560, fb=1920, lazy=False)
     if kind == "map":              # Atlas map in the reading column; zoom loads the original
         return dict(sizes="(max-width: 800px) 100vw, 752px", lo=480, hi=1600, fb=1280, lazy=False)
-    if kind == "banner":           # page header art across the reading column (Ghostly Wanderer)
+    if kind == "banner":           # page header art across the reading column
         return dict(sizes="(max-width: 800px) 100vw, 760px", lo=480, hi=1680, fb=1280, lazy=False)
     if kind == "figure":           # journal / lore figure: reading column (<=752px content)
         return dict(sizes="(max-width: 800px) 100vw, 752px", lo=320, hi=1280, fb=960, lazy=True)
