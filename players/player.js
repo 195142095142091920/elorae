@@ -146,7 +146,9 @@
       var hero = d.querySelector(".art-hero img") || d.querySelector(".gw-banner img"); /* journal page: its banner */
       if (hero) {
         var img = document.createElement("img");
-        artSrc(img, new URL(hero.getAttribute("src").replace(/^\/cdn-cgi\/image\/[^\/]+\//, "/"), url(fetchPath)).href); /* original, re-sized for the card */
+        var hs = hero.getAttribute("src") || "";
+        if (/^\/cdn-cgi\/image\/width=\d+/.test(hs)) img.src = hs.replace(/width=\d+/, "width=480"); /* already-resized page art: card size */
+        else artSrc(img, new URL(hs, url(fetchPath)).href);
         img.alt = ""; img.loading = "lazy";
         if (doLink && go) {
           var ln = link(go, ""); ln.setAttribute("aria-hidden", "true"); ln.tabIndex = -1;
