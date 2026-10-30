@@ -351,8 +351,8 @@
       '<script src="../cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n' +
       '<title>' + esc(title) + ' - Elorae</title>\n' +
-      '<link rel="stylesheet" href="/styles.css?v=fs12">\n' +
-      '<link rel="stylesheet" href="/html.css?v=fs12">\n' +
+      '<link rel="stylesheet" href="/styles.css?v=wide1">\n' +
+      '<link rel="stylesheet" href="/html.css?v=wide1">\n' +
       '<script src="../rail-toggle.js?v=nt26-veil"><\/script>\n' +
       '<script src="../skip-link.js?v=fs12"><\/script>\n' +
       '<link rel="icon" href="/favicon.svg">\n' +
