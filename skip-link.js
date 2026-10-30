@@ -12,7 +12,7 @@
     css.id = "nt-skip-css";
     css.textContent =
       "#nt-skip{position:fixed;left:0;top:0;z-index:10000;transform:translateY(-120%);opacity:0;pointer-events:none;" +
-      "background:#070707;color:#f3eee6;font-family:Helvetica,Arial,sans-serif;font-size:calc((12px) * var(--fs,1.05));font-weight:400;letter-spacing:.14em;" +
+      "background:#070707;color:#f3eee6;font-family:Helvetica,Arial,sans-serif;font-size:calc((12px) * var(--fs,1.2075));font-weight:400;letter-spacing:.14em;" +
       "text-transform:uppercase;text-decoration:none;border:0;outline:none}" +
       "#nt-skip:focus,#nt-skip:focus-visible{transform:none;opacity:1;pointer-events:auto;text-decoration:underline;text-underline-offset:4px}" +
       "@media (min-width:801px){#nt-skip{padding:18px 24px}}" +

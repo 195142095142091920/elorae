@@ -1201,7 +1201,7 @@
       '<p class="ee-note">Who may edit <code>' + esc(PATH) + '</code> (writes <code>edit/profiles.json</code>). Admin always can. Current: ' +
       (current.length ? esc(current.join(", ")) : "no player") + '.</p>' +
       '<label class="ee-note">Assign to</label>' +
-      '<select id="ee-owner-select" style="width:100%;margin-top:8px;background:#0b0b0b;color:#f3eee6;border:0;border-bottom:1px solid rgba(143,138,130,.28);padding:8px 0;font:calc(14px * var(--fs,1.05)) Helvetica,Arial,sans-serif">' + opts + '</select>' +
+      '<select id="ee-owner-select" style="width:100%;margin-top:8px;background:#0b0b0b;color:#f3eee6;border:0;border-bottom:1px solid rgba(143,138,130,.28);padding:8px 0;font:calc(14px * var(--fs,1.2075)) Helvetica,Arial,sans-serif">' + opts + '</select>' +
       '<div class="ee-row"><button type="button" class="ee-btn ee-primary" id="ee-owner-save">Save owner</button>' +
       '<button type="button" class="ee-btn" id="ee-owner-back">Back</button></div>' +
       '<p class="ee-err" id="ee-owner-err" hidden></p>';
@@ -2253,10 +2253,10 @@
         "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">\n" +
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
-        "<link rel=\"stylesheet\" href=\"/styles.css?v=fs105\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=fs105\">\n" +
+        "<link rel=\"stylesheet\" href=\"/styles.css?v=fs12\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=fs12\">\n" +
         "<script src=\"/rail-toggle.js?v=nt26-veil\"></script>\n" +
-        "<script src=\"/skip-link.js?v=fs105\"></script>\n" +
+        "<script src=\"/skip-link.js?v=fs12\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
         "<div class=\"mast\"><header class=\"topbar\"><span class=\"mark\"></span>" +
         "<form action=\"/search/\"><input id=\"seek\" name=\"q\" type=\"search\" placeholder=\"Search\" aria-label=\"Search\"></form>" +
@@ -2265,9 +2265,9 @@
         "<header class=\"art-title\"><h1>" + escTitle + "</h1><p class=\"art-epithet\"></p></header>\n" +
         "<section class=\"art-sec\" id=\"lore\"><h2>Lore</h2><p class=\"art-life\"></p></section>\n" +
         "</main>\n" +
-        "<script src=\"/search.js?v=fs105\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
+        "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=fs105\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=fs12\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },

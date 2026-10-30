@@ -501,7 +501,7 @@
     if (!document.getElementById("seek-ghost-css")) {
       var css = document.createElement("style");
       css.id = "seek-ghost-css";
-      css.textContent = "#seek-ghost{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:180;pointer-events:none;font-family:\"Iowan Old Style\",Palatino,\"Times New Roman\",serif;font-weight:400;font-size:calc((clamp(64px,9vw,128px)) * var(--fs,1.05));letter-spacing:.04em;color:rgba(243,238,230,.92);text-shadow:0 18px 50px rgba(0,0,0,.65);opacity:0;transition:opacity .45s ease;white-space:nowrap}#seek-ghost.show{opacity:1;transition:opacity .08s ease}@media (max-width:800px){#seek-ghost{font-size:calc((56px) * var(--fs,1.05))}}";
+      css.textContent = "#seek-ghost{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:180;pointer-events:none;font-family:\"Iowan Old Style\",Palatino,\"Times New Roman\",serif;font-weight:400;font-size:calc((clamp(64px,9vw,128px)) * var(--fs,1.2075));letter-spacing:.04em;color:rgba(243,238,230,.92);text-shadow:0 18px 50px rgba(0,0,0,.65);opacity:0;transition:opacity .45s ease;white-space:nowrap}#seek-ghost.show{opacity:1;transition:opacity .08s ease}@media (max-width:800px){#seek-ghost{font-size:calc((56px) * var(--fs,1.2075))}}";
       document.head.appendChild(css);
     }
     ghost = document.createElement("div");

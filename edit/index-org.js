@@ -351,15 +351,15 @@
       '<script src="../cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n' +
       '<title>' + esc(title) + ' - Elorae</title>\n' +
-      '<link rel="stylesheet" href="/styles.css?v=fs105">\n' +
-      '<link rel="stylesheet" href="/html.css?v=fs105">\n' +
+      '<link rel="stylesheet" href="/styles.css?v=fs12">\n' +
+      '<link rel="stylesheet" href="/html.css?v=fs12">\n' +
       '<script src="../rail-toggle.js?v=nt26-veil"><\/script>\n' +
-      '<script src="../skip-link.js?v=fs105"><\/script>\n' +
+      '<script src="../skip-link.js?v=fs12"><\/script>\n' +
       '<link rel="icon" href="/favicon.svg">\n' +
       '</head>\n<body class="article">\n' +
       '<div class="mast"><header class="topbar"><span class="mark"><span class="friend" data-owner="jack"><a href="/articles/galand-helviath/">Galand</a></span><span class="friend" data-owner="jon"><a href="/articles/telorin/">Telorin</a><a href="/articles/silar-scorria/">Silar</a></span><span class="friend" data-owner="julie"><a href="/articles/saoirse/">Saoirse</a></span><span class="friend" data-owner="sawyer"><a href="/articles/vaerek/">Vaerek</a></span><span class="friend" data-owner="sylum"><a href="/articles/alaric/">Alaric</a></span><a href="/login/">Elorae</a></span><form action="/search/"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="/atlas/">Atlas</a><a class="" href="/codex/lore/">Codex</a><a class="active" href="/index/ancients/">Index</a><a class="" href="/journal/">Journal</a></nav></header></div>\n' +
       '<nav id="section-bar"><button type="button" class="sec-toggle" data-sec-for="art-index" aria-controls="art-index-panel" aria-expanded="false">Categories</button></nav>\n' +
-      '<aside class="art-index" id="art-index"><button type="button" class="art-index-cue" aria-controls="art-index-panel" aria-expanded="false" aria-label="Index categories"><svg viewBox="0 0 6 10" aria-hidden="true"><polyline points="1,1 5,5 1,9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></button><nav class="art-index-panel" id="art-index-panel" aria-label="Index categories"><h3>Categories</h3><p class="ee-note" style="font-size:calc((12px) * var(--fs,1.05));color:#8f8a82;margin:12px 0">See the <a href="/index/ancients/#' + esc(catId) + '">Index</a> for the full list.</p></nav></aside>\n' +
+      '<aside class="art-index" id="art-index"><button type="button" class="art-index-cue" aria-controls="art-index-panel" aria-expanded="false" aria-label="Index categories"><svg viewBox="0 0 6 10" aria-hidden="true"><polyline points="1,1 5,5 1,9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></button><nav class="art-index-panel" id="art-index-panel" aria-label="Index categories"><h3>Categories</h3><p class="ee-note" style="font-size:calc((12px) * var(--fs,1.2075));color:#8f8a82;margin:12px 0">See the <a href="/index/ancients/#' + esc(catId) + '">Index</a> for the full list.</p></nav></aside>\n' +
       '<a class="art-back" href="/index/ancients/#' + esc(catId) + '">Index</a>\n' +
       '<!-- Chosen background art: swap the img src below to change it. -->\n' +
       '<section class="art-hero no-art"><div class="art-title"><h1>' + esc(title) + '</h1><p class="art-epithet"></p></div></section>\n' +
@@ -367,11 +367,11 @@
       '<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier"><dt>Name</dt><dd>' + esc(title) + '</dd></dl></section>\n' +
       '<section class="art-sec" id="description"><h2>Description</h2><p class="art-line"></p></section>\n' +
       '</main>\n' +
-      '<script src="../search.js?v=fs105"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
+      '<script src="../search.js?v=fs12"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n' +
       '<script src="../glow.js?v=nt32-ambient"><\/script>\n' +
       '<script src="../art-index.js?v=art87"><\/script>\n' +
-      '<script src="../article-siblings.js?v=fs105"><\/script>\n' +
+      '<script src="../article-siblings.js?v=fs12"><\/script>\n' +
       '<script src="../related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="../edit/edit.js?v=' + vEdit + '" defer><\/script>\n' +
       '</body>\n</html>\n';

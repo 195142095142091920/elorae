@@ -41,9 +41,9 @@
     ".nt-hot.on{color:#f6d58a}" +
     "#nt-place:empty{display:none}" +
     "#nt-place{margin:18px 0 28px;text-align:left}" +
-    "#nt-place .nt-place-name{font-size:calc((12px) * var(--fs,1.05));letter-spacing:.18em;text-transform:uppercase;color:#f3eee6;margin:0 0 10px}" +
-    "#nt-place .nt-place-row{display:flex;gap:14px;align-items:baseline;margin:0 0 6px;font-size:calc((15px) * var(--fs,1.05));line-height:1.55}" +
-    "#nt-place .nt-place-k{flex:0 0 5.5em;font-size:calc((10px) * var(--fs,1.05));letter-spacing:.16em;text-transform:uppercase;color:#8f8a82}" +
+    "#nt-place .nt-place-name{font-size:calc((12px) * var(--fs,1.2075));letter-spacing:.18em;text-transform:uppercase;color:#f3eee6;margin:0 0 10px}" +
+    "#nt-place .nt-place-row{display:flex;gap:14px;align-items:baseline;margin:0 0 6px;font-size:calc((15px) * var(--fs,1.2075));line-height:1.55}" +
+    "#nt-place .nt-place-k{flex:0 0 5.5em;font-size:calc((10px) * var(--fs,1.2075));letter-spacing:.16em;text-transform:uppercase;color:#8f8a82}" +
     "#nt-place a{color:#cfc6b8}" +
     "html.ee-editing .nt-hot,html.ee-editing #nt-place{display:none !important}" +
     "@media (min-width:801px){.nt-hot{width:30px;height:30px}.nt-hot:hover,.nt-hot:focus-visible{color:#f6d58a;outline:none}#nt-place a:hover{color:#fff}}" +

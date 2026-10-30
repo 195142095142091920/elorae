@@ -78,10 +78,10 @@
   css.id = "nt-order-css";
   css.textContent =
     ".nt-order{appearance:none;-webkit-appearance:none;background:none;border:0;margin:0;padding:0;cursor:pointer;display:flex;align-items:baseline;gap:8px;" +
-    "font-family:Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.05));font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:#8f8a82;text-align:left}" +
+    "font-family:Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.2075));font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:#8f8a82;text-align:left}" +
     ".nt-order:hover,.nt-order:focus-visible{color:#f3eee6;outline:none}" +
     ".nt-order:focus-visible .nt-order-label{text-decoration:underline;text-underline-offset:4px}" +
-    ".nt-order-glyph{font-size:calc((13px) * var(--fs,1.05));letter-spacing:0}" +
+    ".nt-order-glyph{font-size:calc((13px) * var(--fs,1.2075));letter-spacing:0}" +
     "html.nt-order-off .nt-order{display:none}" +
     "@media (min-width:801px){.nt-order{margin:0 0 14px}}" +
     "@media (max-width:800px){.nt-order{padding:12px 0 10px;width:100%}}";

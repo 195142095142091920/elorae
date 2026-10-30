@@ -1,9 +1,9 @@
-/* Site-wide text scale (font-5pct test): every font-size is calc(... * var(--fs)). Set 1 to undo. */
-:root { --fs: 1.05; }
-html { font-size: calc(100% * var(--fs, 1.05)); }
-body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;background:#070707}#section-bar{display:flex;justify-content:center;gap:18px;background:#070707;padding:12px}#section-bar a{color:#8f8a82;text-decoration:none;letter-spacing:.12em;text-transform:uppercase;font-size:calc((12px) * var(--fs,1.05))}#section-bar a.active{color:#f3eee6}.read{max-width:720px;margin:32px auto 80px;padding:0 22px;font-family:"Iowan Old Style","Palatino Linotype",Palatino,serif;font-size:calc((18px) * var(--fs,1.05));line-height:1.55}.read h2{font-weight:400;font-style:italic}.read img{width:100%;height:auto}.toc{position:fixed;left:0;top:96px;bottom:0;width:240px;overflow:auto;padding:28px 22px;background:#070707}.toc a{display:block;margin:0 0 10px;color:#8f8a82;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:calc((12px) * var(--fs,1.05))}.toc a.on{color:#f3eee6}.with-toc{margin-left:240px}.index-flow{display:flex;flex-wrap:wrap;justify-content:center;gap:34px 26px;padding:32px 40px 72px}.index-card{width:220px;color:#f3eee6;text-decoration:none}.index-card span{display:block;min-height:2.7em;margin:0 0 12px;font-size:calc((12px) * var(--fs,1.05));letter-spacing:.14em;text-transform:uppercase}.index-card img{width:220px;height:300px;object-fit:cover}@media(max-width:800px){.toc{position:static;width:auto}.with-toc{margin-left:0}.wall{grid-template-columns:1fr 1fr}}
+/* Site-wide text scale (font test: 1.05 x 1.15): every font-size is calc(... * var(--fs)). Set 1 to undo. */
+:root { --fs: 1.2075; }
+html { font-size: calc(100% * var(--fs, 1.2075)); }
+body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;background:#070707}#section-bar{display:flex;justify-content:center;gap:18px;background:#070707;padding:12px}#section-bar a{color:#8f8a82;text-decoration:none;letter-spacing:.12em;text-transform:uppercase;font-size:calc((12px) * var(--fs,1.2075))}#section-bar a.active{color:#f3eee6}.read{max-width:720px;margin:32px auto 80px;padding:0 22px;font-family:"Iowan Old Style","Palatino Linotype",Palatino,serif;font-size:calc((18px) * var(--fs,1.2075));line-height:1.55}.read h2{font-weight:400;font-style:italic}.read img{width:100%;height:auto}.toc{position:fixed;left:0;top:96px;bottom:0;width:240px;overflow:auto;padding:28px 22px;background:#070707}.toc a{display:block;margin:0 0 10px;color:#8f8a82;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:calc((12px) * var(--fs,1.2075))}.toc a.on{color:#f3eee6}.with-toc{margin-left:240px}.index-flow{display:flex;flex-wrap:wrap;justify-content:center;gap:34px 26px;padding:32px 40px 72px}.index-card{width:220px;color:#f3eee6;text-decoration:none}.index-card span{display:block;min-height:2.7em;margin:0 0 12px;font-size:calc((12px) * var(--fs,1.2075));letter-spacing:.14em;text-transform:uppercase}.index-card img{width:220px;height:300px;object-fit:cover}@media(max-width:800px){.toc{position:static;width:auto}.with-toc{margin-left:0}.wall{grid-template-columns:1fr 1fr}}
 
-.private{display:none}body.login-devin .private{display:block}body.login-jack .private[data-owner=jack]{display:block}body.login-jon .private[data-owner=jon]{display:block}body.login-julie .private[data-owner=julie]{display:block}body.login-sawyer .private[data-owner=sawyer]{display:block}body.login-sylum .private[data-owner=sylum]{display:block}body.login-jason .private[data-owner=jason]{display:block}#seek{background:#070707;color:#f3eee6;border:0;border-bottom:1px solid #8f8a82;font:calc(13px * var(--fs,1.05)) Helvetica,Arial,sans-serif;letter-spacing:.08em;opacity:0;position:absolute;left:-9999px;width:0;height:0;margin:0;padding:0}.tile.is-seek-miss,.index-card.is-seek-miss{display:none!important}.index-cat.is-seek-empty{display:none!important}.tile.is-dim{display:none!important}
+.private{display:none}body.login-devin .private{display:block}body.login-jack .private[data-owner=jack]{display:block}body.login-jon .private[data-owner=jon]{display:block}body.login-julie .private[data-owner=julie]{display:block}body.login-sawyer .private[data-owner=sawyer]{display:block}body.login-sylum .private[data-owner=sylum]{display:block}body.login-jason .private[data-owner=jason]{display:block}#seek{background:#070707;color:#f3eee6;border:0;border-bottom:1px solid #8f8a82;font:calc(13px * var(--fs,1.2075)) Helvetica,Arial,sans-serif;letter-spacing:.08em;opacity:0;position:absolute;left:-9999px;width:0;height:0;margin:0;padding:0}.tile.is-seek-miss,.index-card.is-seek-miss{display:none!important}.index-cat.is-seek-empty{display:none!important}.tile.is-dim{display:none!important}
 
 
 
@@ -16,7 +16,7 @@ body.login-jack .friend[data-owner=jack],body.login-jon .friend[data-owner=jon],
 
 
 
-.facts{margin:0 0 16px;padding:0;list-style:none;font-family:Helvetica,Arial,sans-serif;font-size:calc((12px) * var(--fs,1.05));letter-spacing:.08em;text-transform:uppercase;color:#d8d0c4}
+.facts{margin:0 0 16px;padding:0;list-style:none;font-family:Helvetica,Arial,sans-serif;font-size:calc((12px) * var(--fs,1.2075));letter-spacing:.08em;text-transform:uppercase;color:#d8d0c4}
 .facts li{margin:0 0 6px}
 @media(max-width:800px){
   .toc{position:static;width:auto;padding:12px 18px}
@@ -38,14 +38,14 @@ body.login-page{
   --login-font-serif:"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",serif;
 }
 .login-card{min-height:calc(100vh - 72px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.login-kicker{margin:0 0 18px;font-family:var(--login-font-sans);letter-spacing:.28em;text-transform:uppercase;font-size:calc((18px) * var(--fs,1.05));color:#8f8a82;text-align:center;width:100%}
-#login-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:var(--login-font-serif);font-size:calc((28px) * var(--fs,1.05));text-align:center;padding:8px 0}
+.login-kicker{margin:0 0 18px;font-family:var(--login-font-sans);letter-spacing:.28em;text-transform:uppercase;font-size:calc((18px) * var(--fs,1.2075));color:#8f8a82;text-align:center;width:100%}
+#login-code{width:min(420px,80vw);background:transparent;border:0;border-bottom:1px solid #8f8a82;color:#f3eee6;font-family:var(--login-font-serif);font-size:calc((28px) * var(--fs,1.2075));text-align:center;padding:8px 0}
 .login-card button{margin-top:18px;background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:var(--login-font-sans)}
 .filters a,.toc a,#section-bar a{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 
 
 
-.filters,.topbar{letter-spacing:.28em;font-size:calc((14.3px) * var(--fs,1.05))}
+.filters,.topbar{letter-spacing:.28em;font-size:calc((14.3px) * var(--fs,1.2075))}
 #section-bar{letter-spacing:.22em;padding:0 28px 16px}
 .journal-read,.read{max-width:760px;padding-top:72px;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.8)}
 .with-toc.journal-read,.with-toc.read{background:#070707;padding:72px 48px 80px}
@@ -90,18 +90,18 @@ body.login-devin{--glow:rgba(243,238,230,.7)}
 .journal-page{background:#070707 center/cover no-repeat}
 
 #login-form{display:flex;flex-direction:column;align-items:center}
-.login-welcome{margin:0 0 6px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;font-size:calc((11px) * var(--fs,1.05));color:#8f8a82}
-.login-name{margin:0 0 14px;font-family:"Iowan Old Style",Palatino,serif;font-size:calc((28px) * var(--fs,1.05));color:#f3eee6}
+.login-welcome{margin:0 0 6px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;font-size:calc((11px) * var(--fs,1.2075));color:#8f8a82}
+.login-name{margin:0 0 14px;font-family:"Iowan Old Style",Palatino,serif;font-size:calc((28px) * var(--fs,1.2075));color:#f3eee6}
 
 .login-top{position:fixed;left:0;right:0;top:0;background:#070707;justify-content:flex-start}
-.login-top #login-back{color:#f3eee6;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.05));letter-spacing:.22em}
-#login-code{width:min(280px,80vw);font-size:calc((18px) * var(--fs,1.05));letter-spacing:.08em;padding:10px 12px}
+.login-top #login-back{color:#f3eee6;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.2075));letter-spacing:.22em}
+#login-code{width:min(280px,80vw);font-size:calc((18px) * var(--fs,1.2075));letter-spacing:.08em;padding:10px 12px}
 #login-code::placeholder{color:#8f8a82;animation:phrase-pulse 2.6s ease-in-out infinite}
 @keyframes phrase-pulse{0%,100%{opacity:.28}50%{opacity:.9}}
-.login-card button,.login-err{font-size:calc((11px) * var(--fs,1.05));letter-spacing:.22em;color:#8f8a82}
+.login-card button,.login-err{font-size:calc((11px) * var(--fs,1.2075));letter-spacing:.22em;color:#8f8a82}
 .login-card{min-height:100dvh;padding:88px 24px 72px}
-.login-note{margin-top:16px;max-width:36ch;line-height:1.5;color:#cfc6b8;font-size:calc((16px) * var(--fs,1.05))}
-.login-name{font-weight:400;letter-spacing:.14em;font-size:calc((clamp(28px,4vw,40px)) * var(--fs,1.05))}
+.login-note{margin-top:16px;max-width:36ch;line-height:1.5;color:#cfc6b8;font-size:calc((16px) * var(--fs,1.2075))}
+.login-name{font-weight:400;letter-spacing:.14em;font-size:calc((clamp(28px,4vw,40px)) * var(--fs,1.2075))}
 
 .filters{gap:0}
 .filters a + a::before,.filters .seek-glyph::before,.friend a + a::before{content:"\00b7";color:#5c5852;padding:0 11px;letter-spacing:0}
@@ -111,7 +111,7 @@ body.login-devin{--glow:rgba(243,238,230,.7)}
   .filters,
   .filters a{
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size:calc((17.3px) * var(--fs,1.05));
+    font-size:calc((17.3px) * var(--fs,1.2075));
     letter-spacing:0.12em;
     font-weight:400;
     line-height:1;
@@ -140,7 +140,7 @@ body.login-devin{--glow:rgba(243,238,230,.7)}
     gap:14px;
     color:#8f8a82;
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size:calc((17.3px) * var(--fs,1.05));
+    font-size:calc((17.3px) * var(--fs,1.2075));
     letter-spacing:0.12em;
     font-weight:400;
     line-height:1;
@@ -149,7 +149,7 @@ body.login-devin{--glow:rgba(243,238,230,.7)}
   .mast .topbar > .mark a{
     color:#8f8a82;
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size:calc((17.3px) * var(--fs,1.05));
+    font-size:calc((17.3px) * var(--fs,1.2075));
     letter-spacing:0.12em;
     font-weight:400;
     line-height:1;
@@ -168,7 +168,7 @@ body.login-devin .mark > a[href$="login.html"]{display:none}
 
 .tile .label{
   font-family:Helvetica,Arial,sans-serif;
-  font-size:calc((15px) * var(--fs,1.05));
+  font-size:calc((15px) * var(--fs,1.2075));
   font-weight:700;
   letter-spacing:0.06em;
   color:#f3eee6;
@@ -209,7 +209,7 @@ body.login-devin .mark > a[href$="login.html"]{display:none}
 }
 .journal-page .read p,
 body.lore-page .read p {
-  font-size: calc((18px) * var(--fs,1.05));
+  font-size: calc((18px) * var(--fs,1.2075));
   line-height: 1.75;
   color: #f0e9de;
   text-shadow: 0 1px 12px rgba(0,0,0,.45);
@@ -218,7 +218,7 @@ body.lore-page .read p {
 .journal-page .read > h2:first-child {
   font-weight: 400;
   font-style: normal;
-  font-size: calc((26px) * var(--fs,1.05));
+  font-size: calc((26px) * var(--fs,1.2075));
   letter-spacing: 0.03em;
   text-align: center;
   margin: 0 0 28px;
@@ -241,7 +241,7 @@ body.lore-page .read p {
 }
 .journal-page figcaption {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
@@ -286,7 +286,7 @@ body.lore-page .read p {
 .journal-page .toc h3 {
   margin: 0 0 12px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -298,7 +298,7 @@ body.lore-page .read p {
   padding: 7px 0;
   border-bottom: 1px solid rgba(243,238,230,.07);
   font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
-  font-size: calc((15px) * var(--fs,1.05));
+  font-size: calc((15px) * var(--fs,1.2075));
   line-height: 1.45;
   letter-spacing: 0;
   text-transform: none;
@@ -325,7 +325,7 @@ body.lore-page .read p {
 }
 #section-bar a {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((14.4px) * var(--fs,1.05));
+  font-size: calc((14.4px) * var(--fs,1.2075));
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #8f8a82;
@@ -342,7 +342,7 @@ body:has(#section-bar) main.index-flow { padding-top: 72px; }
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
   font-weight: 400;
   font-style: normal;
-  font-size: calc((26px) * var(--fs,1.05));
+  font-size: calc((26px) * var(--fs,1.2075));
   letter-spacing: 0.03em;
   text-align: center;
   color: #f3eee6;
@@ -355,7 +355,7 @@ body.journal-page .read h2 {
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
   font-weight: 400;
   font-style: normal;
-  font-size: calc((28px) * var(--fs,1.05));
+  font-size: calc((28px) * var(--fs,1.2075));
   letter-spacing: 0.04em;
   text-align: center;
   color: #f3eee6;
@@ -375,7 +375,7 @@ body.journal-page .read h2 + h2 {
 /* Lore book titles only, the old .codex-title. */
 body.book .read h2 {
   font-style: italic;
-  font-size: calc((26px) * var(--fs,1.05));
+  font-size: calc((26px) * var(--fs,1.2075));
   letter-spacing: 0.02em;
   margin: 96px 0 28px;
   padding-top: 40px;
@@ -393,7 +393,7 @@ body.book .read > h3 + ul { display: none; }
 body.journal-page .read h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #cfc6b8;
@@ -410,7 +410,7 @@ body.book .read {
 /* Lore passages. Scoped copy of .journal-read rules in codex.css. */
 body.book .read .codex-by {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #9a948a;
@@ -434,7 +434,7 @@ body.book .read .codex-quote + .codex-quote {
 body.book .read .codex-quote p {
   font-family: "Iowan Old Style", Palatino, serif;
   font-style: normal;
-  font-size: calc((20px) * var(--fs,1.05));
+  font-size: calc((20px) * var(--fs,1.2075));
   line-height: 1.7;
   color: #ece6db;
   margin: 0;
@@ -445,7 +445,7 @@ body.book .read .codex-quote cite {
   margin-top: 12px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #9a948a;
@@ -463,7 +463,7 @@ body.book .toc:hover {
 }
 body.book .toc h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -472,7 +472,7 @@ body.book .toc h3 {
 }
 body.book .toc a {
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  font-size: calc((13px) * var(--fs,1.05));
+  font-size: calc((13px) * var(--fs,1.2075));
   line-height: 1.35;
   padding: 4px 0;
   color: #a39c92;
@@ -545,7 +545,7 @@ body:not(.journal-page) .toc {
 body:not(.journal-page) .toc h3 {
   margin: 0 0 12px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -556,7 +556,7 @@ body:not(.journal-page) .toc a {
   padding: 5px 0;
   border-bottom: 1px solid rgba(243,238,230,0.06);
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  font-size: calc((14px) * var(--fs,1.05));
+  font-size: calc((14px) * var(--fs,1.2075));
   line-height: 1.35;
   letter-spacing: 0;
   text-transform: none;
@@ -567,7 +567,7 @@ body:not(.journal-page) .toc a:hover { color: #f3eee6; }
 
 body.index-page .toc a {
   border-bottom: 0;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   padding: 2px 0;
   line-height: 1.25;
 }
@@ -609,12 +609,12 @@ body.index-page .toc a {
     justify-content: center;
     align-items: center;
     transform: none;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     letter-spacing: 0.1em;
     line-height: 1.4;
   }
   .mast .topbar > .mark a {
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     letter-spacing: 0.1em;
   }
   .mast .topbar .filters {
@@ -631,12 +631,12 @@ body.index-page .toc a {
     justify-content: center;
     align-items: center;
     transform: none;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     letter-spacing: 0.1em;
     line-height: 1.4;
   }
   .mast .topbar .filters a {
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     letter-spacing: 0.1em;
   }
   #section-bar {
@@ -650,7 +650,7 @@ body.index-page .toc a {
     gap: 2px 8px;
   }
   #section-bar a {
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     padding: 6px 8px;
   }
 }
@@ -718,7 +718,7 @@ body.index-page .toc a {
   }
   .mast .topbar .filters a {
     flex: 0 0 auto;
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
     letter-spacing: 0.05em;
     white-space: nowrap;
   }
@@ -760,7 +760,7 @@ body.index-page .toc a {
   .journal-page #section-bar a,
   #section-bar a {
     flex: 0 0 auto;
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
     letter-spacing: 0.08em;
     padding: 6px 6px;
     white-space: nowrap;
@@ -861,7 +861,7 @@ body.index-page .index-toc-head > h3,
 body.index-page .index-toc-panel > h3 {
   margin: 0;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -930,7 +930,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     text-align: center;
     font-family: Helvetica, Arial, sans-serif;
     font-weight: 400;
-    font-size: calc((26px) * var(--fs,1.05));
+    font-size: calc((26px) * var(--fs,1.2075));
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #f3eee6;
@@ -942,7 +942,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     text-align: center;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 400;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #8f8a82;
@@ -963,7 +963,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     text-align: center;
     color: #8f8a82;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
@@ -997,7 +997,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     margin: 0;
     text-align: left;
     font-family: Helvetica, Arial, sans-serif;
-    font-size: calc((15px) * var(--fs,1.05));
+    font-size: calc((15px) * var(--fs,1.2075));
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: 0.06em;
@@ -1087,7 +1087,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     text-align: center;
     font-family: Helvetica, Arial, sans-serif;
     font-weight: 400;
-    font-size: calc((22px) * var(--fs,1.05));
+    font-size: calc((22px) * var(--fs,1.2075));
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #f3eee6;
@@ -1099,7 +1099,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     text-align: center;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 400;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #8f8a82;
@@ -1117,7 +1117,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     text-align: center;
     color: #8f8a82;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
@@ -1150,7 +1150,7 @@ body.index-page aside.toc.index-toc.pinned .index-toc-pin svg path {
     margin: 0;
     text-align: left;
     font-family: Helvetica, Arial, sans-serif;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     font-weight: 700;
     line-height: 1.25;
     letter-spacing: 0.05em;
@@ -1225,7 +1225,7 @@ body.index-page .toc-sub {
   margin: 0;
   border-bottom: 0;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: 0.08em;
@@ -1252,7 +1252,7 @@ body.index-page .toc-group .toc-name { padding-left: 8px; }
 @media (max-width: 800px) {
   body.index-page .toc-nest { padding: 2px 0 10px 12px; }
   body.index-page .toc-name,
-  body.index-page .toc-sub { font-size: calc((12px) * var(--fs,1.05)); padding: 4px 0; }
+  body.index-page .toc-sub { font-size: calc((12px) * var(--fs,1.2075)); padding: 4px 0; }
 }
 
 
@@ -1329,7 +1329,7 @@ body.article .art-index-panel::-webkit-scrollbar { display: none; width: 0; heig
 body.article .art-index-panel > h3 {
   margin: 0 0 12px;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1349,7 +1349,7 @@ body.article .art-index .toc-row > a {
   padding: 2px 0;
   border: 0;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   font-weight: 400;
   line-height: 1.25;
   letter-spacing: 0.14em;
@@ -1397,7 +1397,7 @@ body.article .art-index .toc-sub {
   margin: 0;
   border: 0;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: 0.08em;
@@ -1478,7 +1478,7 @@ body.article .art-index .toc-group .toc-name { padding-left: 8px; }
   }
   body.article .art-index-panel > h3 { display: none; }
   body.article .art-index .toc-name,
-  body.article .art-index .toc-sub { font-size: calc((12px) * var(--fs,1.05)); padding: 4px 0; }
+  body.article .art-index .toc-sub { font-size: calc((12px) * var(--fs,1.2075)); padding: 4px 0; }
   /* Article mast is transparent over hero; keep #section-bar hard opaque. */
   body.article #section-bar {
     position: fixed;
@@ -1571,7 +1571,7 @@ body.article .art-sec > h2 {
   padding: 0 0 12px;
   border-bottom: 1px solid rgba(243,238,230,0.14);
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -1588,30 +1588,30 @@ body.article .art-rel-head {
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
-body.article .art-dossier dt { font-size: calc((11px) * var(--fs,1.05)); color: #8f8a82; }
-body.article .art-dossier dd { margin: 0; font-size: calc((17px) * var(--fs,1.05)); line-height: 1.45; color: #f3eee6; }
+body.article .art-dossier dt { font-size: calc((11px) * var(--fs,1.2075)); color: #8f8a82; }
+body.article .art-dossier dd { margin: 0; font-size: calc((17px) * var(--fs,1.2075)); line-height: 1.45; color: #f3eee6; }
 body.article .art-quote { margin: 0 0 28px; padding: 0; border: 0; text-align: center; }
 body.article .art-quote p {
   margin: 0;
   font-family: "Iowan Old Style", Palatino, serif;
   font-style: italic;
-  font-size: calc((20px) * var(--fs,1.05));
+  font-size: calc((20px) * var(--fs,1.2075));
   line-height: 1.55;
   color: #f3eee6;
 }
-body.article .art-quote cite { display: block; margin: 14px 0 0; font-style: normal; font-size: calc((11px) * var(--fs,1.05)); color: #9a948a; }
+body.article .art-quote cite { display: block; margin: 14px 0 0; font-style: normal; font-size: calc((11px) * var(--fs,1.2075)); color: #9a948a; }
 body.article .art-facts {
   list-style: none;
   margin: 0 0 28px;
   padding: 0 0 22px;
   border-bottom: 1px solid rgba(243,238,230,0.14);
 }
-body.article .art-facts li { margin: 0; font-size: calc((12px) * var(--fs,1.05)); line-height: 1.7; color: #b7b0a4; }
-body.article .art-life { margin: 0; font-size: calc((17px) * var(--fs,1.05)); line-height: 1.65; }
-body.article .art-rel-head { margin: 0 0 14px; font-size: calc((12px) * var(--fs,1.05)); }
+body.article .art-facts li { margin: 0; font-size: calc((12px) * var(--fs,1.2075)); line-height: 1.7; color: #b7b0a4; }
+body.article .art-life { margin: 0; font-size: calc((17px) * var(--fs,1.2075)); line-height: 1.65; }
+body.article .art-rel-head { margin: 0 0 14px; font-size: calc((12px) * var(--fs,1.2075)); }
 body.article .art-rel-head a { color: #f3eee6; }
 body.article .art-related { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 26px; }
-body.article .art-related a { font-size: calc((17px) * var(--fs,1.05)); color: #cfc6b8; }
+body.article .art-related a { font-size: calc((17px) * var(--fs,1.2075)); color: #cfc6b8; }
 body.article .art-related a:hover,
 body.article .art-rel-head a:hover,
 body.article .art-dossier a:hover { color: #f3eee6; }
@@ -1654,12 +1654,12 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.article .art-life + .art-life { margin-top: 1.1em; }
   body.article .art-related + .art-rel-head, body.article .art-related + .art-related, body.article .art-rel-head + .art-rel-head { margin-top: 28px; }
   body.article .mast { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding-bottom: 0; background: #070707; }
-  body.article .art-back { position: fixed; top: 0; left: 28px; height: 56px; display: flex; align-items: center; font-size: calc((16px) * var(--fs,1.05)); }
+  body.article .art-back { position: fixed; top: 0; left: 28px; height: 56px; display: flex; align-items: center; font-size: calc((16px) * var(--fs,1.2075)); }
   body.article .art-title { width: min(46vw, 560px); padding: 40px 28px 28px; }
-  body.article .art-title h1 { font-size: calc((clamp(28px, 4vw, 42px)) * var(--fs,1.05)); }
-  body.article .art-title .art-epithet { font-size: calc((16px) * var(--fs,1.05)); }
+  body.article .art-title h1 { font-size: calc((clamp(28px, 4vw, 42px)) * var(--fs,1.2075)); }
+  body.article .art-title .art-epithet { font-size: calc((16px) * var(--fs,1.2075)); }
   body.article .art-body { padding: 72px 28px 96px; }
-  body.article .art-line { font-size: calc((22px) * var(--fs,1.05)); }
+  body.article .art-line { font-size: calc((22px) * var(--fs,1.2075)); }
 }
 @media (max-width: 800px) {
   /* Previous always-visible thumbnail row (replaced by arrows, art5):
@@ -1694,15 +1694,15 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   /* Phone: Index return is the main nav; hide leftover art-back "INDEX" label. */
   body.article .art-back { display: none !important; }
   body.article .art-title { width: 100%; padding: 36px 18px max(22px, env(safe-area-inset-bottom)); }
-  body.article .art-title h1 { font-size: calc((clamp(26px, 7.2vw, 34px)) * var(--fs,1.05)); line-height: 1.12; overflow-wrap: break-word; }
-  body.article .art-title .art-epithet { font-size: calc((15px) * var(--fs,1.05)); }
+  body.article .art-title h1 { font-size: calc((clamp(26px, 7.2vw, 34px)) * var(--fs,1.2075)); line-height: 1.12; overflow-wrap: break-word; }
+  body.article .art-title .art-epithet { font-size: calc((15px) * var(--fs,1.2075)); }
   body.article .art-body { padding: 44px 20px 72px; }
   body.article .art-sec { margin-bottom: 52px; }
-  body.article .art-line { font-size: calc((19px) * var(--fs,1.05)); }
+  body.article .art-line { font-size: calc((19px) * var(--fs,1.2075)); }
   body.article .art-dossier { grid-template-columns: 1fr; gap: 4px; }
   body.article .art-dossier dd { margin-bottom: 12px; }
-  body.article .art-quote p { font-size: calc((18px) * var(--fs,1.05)); }
-  body.article .art-life { font-size: calc((16px) * var(--fs,1.05)); }
+  body.article .art-quote p { font-size: calc((18px) * var(--fs,1.2075)); }
+  body.article .art-life { font-size: calc((16px) * var(--fs,1.2075)); }
 }
 
 /* Old JS site typography (art7). Copied from the pre-rebuild site at commit c1113ef. */
@@ -1710,17 +1710,17 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   /* Hero name: typography carried over from the old JS site (c1113ef). */
   body.article .art-title h1{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
   /* Hero epithet: typography carried over from the old JS site (20px @min-width 801, line-height 1.4). */
-  body.article .art-title .art-epithet{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: calc((20px) * var(--fs,1.05)); line-height: 1.4; color: #e4ddd2; }
+  body.article .art-title .art-epithet{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: calc((20px) * var(--fs,1.2075)); line-height: 1.4; color: #e4ddd2; }
   /* Index: old index-sections.js #index-section-css (rail h3, rail buttons, .index-card span, .index-empty). */
-  body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.05)); font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
-  body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.05)); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.2075)); font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.2075)); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
   body.index-page .toc a.on,
   body.index-page .toc a:hover { color: #f3eee6; }
-  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: calc((15px) * var(--fs,1.05)); font-weight: 700; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase; color: #f3eee6; }
-  body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.05)); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: calc((15px) * var(--fs,1.2075)); font-weight: 700; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.2075)); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
   /* Lore contents: old codex.css .lore-rail .codex-h3 and .lore-rail .codex-toc li / a. */
-  body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: calc((24px) * var(--fs,1.05)); font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
-  body.book .toc a { font-family: "Iowan Old Style", Palatino, serif; font-style: normal; font-size: calc((15px) * var(--fs,1.05)); font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; color: #d2cbc0; }
+  body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: calc((24px) * var(--fs,1.2075)); font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
+  body.book .toc a { font-family: "Iowan Old Style", Palatino, serif; font-style: normal; font-size: calc((15px) * var(--fs,1.2075)); font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; color: #d2cbc0; }
   body.book .toc a.on,
   body.book .toc a:hover { color: #f3eee6; }
 }
@@ -1728,17 +1728,17 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   /* Hero name: typography carried over from the old JS site (c1113ef). */
   body.article .art-title h1{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; font-weight: 400; font-style: normal; letter-spacing: normal; text-transform: none; color: #f3eee6; }
   /* Hero epithet: typography carried over from the old JS site (15px base, line-height 1.35). */
-  body.article .art-title .art-epithet{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: calc((15px) * var(--fs,1.05)); line-height: 1.35; color: #e4ddd2; }
+  body.article .art-title .art-epithet{ font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif !important; font-weight: 400; font-style: normal; letter-spacing: 0.01em; text-transform: none; font-size: calc((15px) * var(--fs,1.2075)); line-height: 1.35; color: #e4ddd2; }
   /* Index: old index-sections.js #index-section-css (rail h3, rail buttons, .index-card span, .index-empty). */
-  body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.05)); font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
-  body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.05)); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  body.index-page .toc h3 { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.2075)); font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .toc a { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.2075)); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
   body.index-page .toc a.on,
   body.index-page .toc a:hover { color: #f3eee6; }
-  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.05)); font-weight: 700; line-height: 1.25; letter-spacing: 0.05em; text-transform: uppercase; color: #f3eee6; }
-  body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.05)); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
+  body.index-page .index-card span { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.2075)); font-weight: 700; line-height: 1.25; letter-spacing: 0.05em; text-transform: uppercase; color: #f3eee6; }
+  body.index-page .index-empty { font-family: Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.2075)); font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: #8f8a82; }
   /* Lore contents: old codex.css .lore-rail .codex-h3 and .lore-rail .codex-toc li / a (+ @max-width 980px li 16px). */
-  body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: calc((24px) * var(--fs,1.05)); font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
-  body.book .toc a { font-family: "Iowan Old Style", Palatino, serif; font-style: normal; font-size: calc((16px) * var(--fs,1.05)); font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; color: #d2cbc0; }
+  body.book .toc h3 { font-family: "Iowan Old Style", Palatino, serif; font-size: calc((24px) * var(--fs,1.2075)); font-weight: 700; letter-spacing: 0.06em; text-transform: none; color: #f3eee6; }
+  body.book .toc a { font-family: "Iowan Old Style", Palatino, serif; font-style: normal; font-size: calc((16px) * var(--fs,1.2075)); font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; color: #d2cbc0; }
   body.book .toc a.on,
   body.book .toc a:hover { color: #f3eee6; }
 }
@@ -1880,7 +1880,7 @@ body.search-page .tile::after {
   padding: 10px 22px 0;
   text-align: center;
   font-family: "Iowan Old Style", Palatino, "Times New Roman", serif;
-  font-size: calc((22px) * var(--fs,1.05));
+  font-size: calc((22px) * var(--fs,1.2075));
   letter-spacing: 0.04em;
   color: #f3eee6;
 }
@@ -1894,7 +1894,7 @@ body.search-page .tile::after {
   font-family: "Iowan Old Style", Palatino, serif;
   font-weight: 400;
   font-style: italic;
-  font-size: calc((22px) * var(--fs,1.05));
+  font-size: calc((22px) * var(--fs,1.2075));
   color: #f3eee6;
 }
 #search-hits a.hit {
@@ -1920,7 +1920,7 @@ body.search-page .tile::after {
 #search-hits .hit-title {
   display: block;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((13px) * var(--fs,1.05));
+  font-size: calc((13px) * var(--fs,1.2075));
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1930,7 +1930,7 @@ body.search-page .tile::after {
   display: inline-block;
   margin: 4px 0 0;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #8f8a82;
@@ -1938,7 +1938,7 @@ body.search-page .tile::after {
 #search-hits .hit-snip {
   margin: 8px 0 0;
   font-family: "Iowan Old Style", Palatino, serif;
-  font-size: calc((16px) * var(--fs,1.05));
+  font-size: calc((16px) * var(--fs,1.2075));
   line-height: 1.45;
   color: #d2cbc0;
 }
@@ -1948,14 +1948,14 @@ body.search-page .tile::after {
   font-weight: 700;
 }
 @media (min-width: 801px) {
-  #seek-show { font-size: calc((28px) * var(--fs,1.05)); padding-top: 16px; }
+  #seek-show { font-size: calc((28px) * var(--fs,1.2075)); padding-top: 16px; }
   #search-hits .hit-art { flex-basis: 88px; width: 88px; height: 118px; }
 }
 @media (max-width: 800px) {
-  #seek-show { font-size: calc((18px) * var(--fs,1.05)); padding: 8px 16px 0; }
+  #seek-show { font-size: calc((18px) * var(--fs,1.2075)); padding: 8px 16px 0; }
   #search-hits { margin-top: 18px; padding: 0 16px 64px; }
   #search-hits .hit-art { flex-basis: 56px; width: 56px; height: 74px; }
-  #search-hits .hit-snip { font-size: calc((15px) * var(--fs,1.05)); }
+  #search-hits .hit-snip { font-size: calc((15px) * var(--fs,1.2075)); }
 }
 
 /* journal article links */
@@ -2001,14 +2001,14 @@ body.search-page .tile::after {
 .timeline-list li:last-child { border-bottom: 1px solid rgba(143,138,130,0.22); }
 .timeline-list .tl-when {
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #8f8a82;
 }
 .timeline-list .tl-what {
   font-family: "Iowan Old Style", Palatino, serif;
-  font-size: calc((17px) * var(--fs,1.05));
+  font-size: calc((17px) * var(--fs,1.2075));
   line-height: 1.45;
   color: #d2cbc0;
 }
@@ -2016,12 +2016,12 @@ body.search-page .tile::after {
 .timeline-list .tl-what a:hover { border-bottom-color: rgba(243,238,230,0.7); }
 @media (min-width: 801px) {
   .timeline-list li { grid-template-columns: 8.5em 1fr; gap: 22px; padding: 12px 0; }
-  .timeline-list .tl-what { font-size: calc((18px) * var(--fs,1.05)); }
+  .timeline-list .tl-what { font-size: calc((18px) * var(--fs,1.2075)); }
 }
 @media (max-width: 800px) {
   .timeline-list li { grid-template-columns: 1fr; gap: 4px; padding: 12px 0; }
-  .timeline-list .tl-when { font-size: calc((11px) * var(--fs,1.05)); }
-  .timeline-list .tl-what { font-size: calc((16px) * var(--fs,1.05)); }
+  .timeline-list .tl-when { font-size: calc((11px) * var(--fs,1.2075)); }
+  .timeline-list .tl-what { font-size: calc((16px) * var(--fs,1.2075)); }
 }
 
 /* era-years under headers */
@@ -2030,7 +2030,7 @@ body.journal-page .read h2 + .era-years {
   padding: 0;
   text-align: center;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((13px) * var(--fs,1.05));
+  font-size: calc((13px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0.1em;
   text-transform: none;
@@ -2042,17 +2042,17 @@ body.journal-page .read h2 + .era-years {
   display: block;
   margin: 4px 0 2px;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   letter-spacing: 0.08em;
   color: #8f8a82;
 }
 @media (min-width: 801px) {
-  body.journal-page .read h2 + .era-years { font-size: calc((14px) * var(--fs,1.05)); margin: -10px 0 32px; }
-  .timeline-list .era-years { font-size: calc((13px) * var(--fs,1.05)); }
+  body.journal-page .read h2 + .era-years { font-size: calc((14px) * var(--fs,1.2075)); margin: -10px 0 32px; }
+  .timeline-list .era-years { font-size: calc((13px) * var(--fs,1.2075)); }
 }
 @media (max-width: 800px) {
-  body.journal-page .read h2 + .era-years { font-size: calc((12px) * var(--fs,1.05)); margin: -8px 0 22px; }
-  .timeline-list .era-years { font-size: calc((11px) * var(--fs,1.05)); }
+  body.journal-page .read h2 + .era-years { font-size: calc((12px) * var(--fs,1.2075)); margin: -8px 0 22px; }
+  .timeline-list .era-years { font-size: calc((11px) * var(--fs,1.2075)); }
 }
 
 /* Codex + Atlas article paragraph gaps, matching LegendKeeper.
@@ -2151,7 +2151,7 @@ body.journal-page .read h2 + .era-years {
   border-bottom: 1px solid rgba(143,138,130,.28);
   color: #f3eee6;
   font-family: "Iowan Old Style", Palatino, serif;
-  font-size: calc((22px) * var(--fs,1.05));
+  font-size: calc((22px) * var(--fs,1.2075));
   letter-spacing: .04em;
   padding: 20px 48px 16px 22px;
   outline: none;
@@ -2266,7 +2266,7 @@ a.index-card.is-seek-flash {
 }
 .seek-panel-card span {
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   font-weight: 700;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -2277,7 +2277,7 @@ a.index-card.is-seek-flash {
   font-family: "Iowan Old Style", Palatino, serif;
   font-weight: 400;
   font-style: italic;
-  font-size: calc((18px) * var(--fs,1.05));
+  font-size: calc((18px) * var(--fs,1.2075));
   color: #f3eee6;
 }
 .seek-panel-ment {
@@ -2291,7 +2291,7 @@ a.index-card.is-seek-flash {
 .seek-panel-ment-title {
   display: block;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
@@ -2301,7 +2301,7 @@ a.index-card.is-seek-flash {
   display: inline-block;
   margin-top: 4px;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   letter-spacing: .12em;
   text-transform: uppercase;
   color: #8f8a82;
@@ -2309,7 +2309,7 @@ a.index-card.is-seek-flash {
 .seek-panel-snip {
   margin: 8px 0 0;
   font-family: "Iowan Old Style", Palatino, serif;
-  font-size: calc((15px) * var(--fs,1.05));
+  font-size: calc((15px) * var(--fs,1.2075));
   line-height: 1.45;
   color: #d2cbc0;
 }
@@ -2323,7 +2323,7 @@ a.index-card.is-seek-flash {
   text-align: center;
   color: #8f8a82;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   letter-spacing: .14em;
   text-transform: uppercase;
 }
@@ -2339,9 +2339,9 @@ body.seek-panel-open { overflow: hidden; }
   .seek-panel-box::before {
     width: 640px; height: 640px; opacity: .7; filter: blur(70px);
   }
-  #seek-panel-input { font-size: calc((26px) * var(--fs,1.05)); padding: 24px 52px 18px 26px; }
+  #seek-panel-input { font-size: calc((26px) * var(--fs,1.2075)); padding: 24px 52px 18px 26px; }
   .seek-panel-cards { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 14px; }
-  .seek-panel-snip { font-size: calc((16px) * var(--fs,1.05)); }
+  .seek-panel-snip { font-size: calc((16px) * var(--fs,1.2075)); }
 }
 
 @media (max-width: 800px) {
@@ -2367,7 +2367,7 @@ body.seek-panel-open { overflow: hidden; }
   .seek-panel-box::before {
     width: 420px; height: 420px; filter: blur(48px);
   }
-  #seek-panel-input { font-size: calc((18px) * var(--fs,1.05)); padding: 16px 44px 12px 16px; flex: 0 0 auto; }
+  #seek-panel-input { font-size: calc((18px) * var(--fs,1.2075)); padding: 16px 44px 12px 16px; flex: 0 0 auto; }
   #seek-panel-results {
     padding: 10px 12px 16px;
     flex: 1 1 auto;
@@ -2555,7 +2555,7 @@ body.seek-panel-open { overflow: hidden; }
   }
   body.login-page .login-box #login-code {
     min-height: 44px;
-    font-size: calc((18px) * var(--fs,1.05));
+    font-size: calc((18px) * var(--fs,1.2075));
   }
 }
 
@@ -2633,7 +2633,7 @@ body.seek-panel-open { overflow: hidden; }
   }
   .mast .topbar > .mark::-webkit-scrollbar { display: none; height: 0; }
   .mast .topbar > .mark a {
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
     letter-spacing: 0.06em;
     padding: 0 1px;
   }
@@ -2769,7 +2769,7 @@ body.login-page.login-sylum .mast .topbar.login-top > .mark .friend[data-owner=s
     gap: 8px;
   }
   body.login-page .mast .topbar.login-top > .mark a {
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
     letter-spacing: 0.06em;
   }
 }
@@ -2810,7 +2810,7 @@ body.login-page.login-jon .login-card::after{
   padding: 0;
   font: inherit;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -2908,7 +2908,7 @@ body.login-devin .friend { display: none !important; }
     box-sizing: border-box;
     cursor: pointer;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
     font-weight: 400;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -2949,7 +2949,7 @@ body.login-devin .friend { display: none !important; }
   .toc-drop > .toc-list > h3 { display: none; }
   body.journal-page .toc-drop > .toc-list a {
     font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-    font-size: calc((16px) * var(--fs,1.05));
+    font-size: calc((16px) * var(--fs,1.2075));
     line-height: 1.35;
     color: #d2cbc0;
     text-align: left;
@@ -2985,7 +2985,7 @@ body.login-devin .friend { display: none !important; }
   #section-bar,
   .journal-page #section-bar { gap: 0; padding-left: 4px; padding-right: 4px; }
   #section-bar a,
-  .journal-page #section-bar a { padding-left: 3px; padding-right: 3px; font-size: calc((10.5px) * var(--fs,1.05)); }
+  .journal-page #section-bar a { padding-left: 3px; padding-right: 3px; font-size: calc((10.5px) * var(--fs,1.2075)); }
 }
 
 
@@ -3065,7 +3065,7 @@ body.login-devin .friend { display: none !important; }
     box-shadow: none;
     cursor: pointer;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
     font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -3183,7 +3183,7 @@ body.login-devin .friend { display: none !important; }
 
   /* Codex/Atlas Contents (and any remaining toc-drop summary): match section-bar a, not custom strip. */
   .toc-drop > summary {
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
     font-weight: 400;
     letter-spacing: 0.08em;
     color: #8f8a82;
@@ -3328,7 +3328,7 @@ html, body {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: calc((11px) * var(--fs,1.05)) !important;
+    font-size: calc((11px) * var(--fs,1.2075)) !important;
     letter-spacing: 0.16em !important;
     text-transform: uppercase !important;
     color: #f3eee6 !important;
@@ -4139,7 +4139,7 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
   body.book .toc-list > h3 {
     margin: 0 0 12px;
     font-family: Helvetica, Arial, sans-serif;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     font-weight: 400;
     font-style: normal;
     letter-spacing: 0.16em;
@@ -4154,7 +4154,7 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
   body.journal-page .toc-list a,
   body.book .toc-list a {
     font-family: Helvetica, Arial, sans-serif;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     font-weight: 400;
     font-style: normal;
     line-height: 1.25;
@@ -4186,7 +4186,7 @@ html.cats-rail-boot body.index-page aside.toc.index-toc {
   body.journal-page aside.toc .toc-list a,
   body.book aside.toc .toc-list a {
     font-family: Helvetica, Arial, sans-serif;
-    font-size: calc((12px) * var(--fs,1.05));
+    font-size: calc((12px) * var(--fs,1.2075));
     font-weight: 400;
     font-style: normal;
     line-height: 1.25;
@@ -4431,18 +4431,18 @@ body.index-page .index-card .card-lore-dossier dd {
     padding: clamp(10px, 5cqw, 18px) clamp(12px, 5.5cqw, 20px);
     gap: calc(var(--ls, 1) * clamp(3px, 1.6cqw, 6px));
   }
-  body.index-page .index-card .card-lore-name { font-size: calc((calc(var(--ls, 1) * clamp(13px, 5.6cqw, 20px))) * var(--fs,1.05)); }
-  body.index-page .index-card .card-lore-epithet { font-size: calc((calc(var(--ls, 1) * clamp(7.5px, 2.7cqw, 10px))) * var(--fs,1.05)); margin-top: -2px; }
-  body.index-page .index-card .card-lore-quote p { font-size: calc((calc(var(--ls, 1) * clamp(9.5px, 3.8cqw, 13.5px))) * var(--fs,1.05)); }
-  body.index-page .index-card .card-lore-quote cite { font-size: calc((calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px))) * var(--fs,1.05)); margin-top: 2px; }
+  body.index-page .index-card .card-lore-name { font-size: calc((calc(var(--ls, 1) * clamp(13px, 5.6cqw, 20px))) * var(--fs,1.2075)); }
+  body.index-page .index-card .card-lore-epithet { font-size: calc((calc(var(--ls, 1) * clamp(7.5px, 2.7cqw, 10px))) * var(--fs,1.2075)); margin-top: -2px; }
+  body.index-page .index-card .card-lore-quote p { font-size: calc((calc(var(--ls, 1) * clamp(9.5px, 3.8cqw, 13.5px))) * var(--fs,1.2075)); }
+  body.index-page .index-card .card-lore-quote cite { font-size: calc((calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px))) * var(--fs,1.2075)); margin-top: 2px; }
   body.index-page .index-card .card-lore-dossier { gap: 1px; }
   body.index-page .index-card .card-lore-row { gap: clamp(6px, 2.6cqw, 10px); }
-  body.index-page .index-card .card-lore-dossier dt { font-size: calc((calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px))) * var(--fs,1.05)); }
-  body.index-page .index-card .card-lore-dossier dd { font-size: calc((calc(var(--ls, 1) * clamp(9.5px, 3.6cqw, 13px))) * var(--fs,1.05)); }
-  body.index-page .index-card .card-lore-facts { font-size: calc((calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px))) * var(--fs,1.05)); }
-  body.index-page .index-card .card-lore-desc { font-size: calc((calc(var(--ls, 1) * clamp(9.5px, 3.7cqw, 13px))) * var(--fs,1.05)); }
-  body.index-page .index-card .card-lore-note { font-size: calc((calc(var(--ls, 1) * 10px)) * var(--fs,1.05)); letter-spacing: .14em; }
-  body.index-page .index-card .card-lore-article { font-size: calc((clamp(9px, 3.4cqw, 11px)) * var(--fs,1.05)); padding: 4px 0 0 8px; margin-bottom: -2px; }
+  body.index-page .index-card .card-lore-dossier dt { font-size: calc((calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px))) * var(--fs,1.2075)); }
+  body.index-page .index-card .card-lore-dossier dd { font-size: calc((calc(var(--ls, 1) * clamp(9.5px, 3.6cqw, 13px))) * var(--fs,1.2075)); }
+  body.index-page .index-card .card-lore-facts { font-size: calc((calc(var(--ls, 1) * clamp(7px, 2.4cqw, 9px))) * var(--fs,1.2075)); }
+  body.index-page .index-card .card-lore-desc { font-size: calc((calc(var(--ls, 1) * clamp(9.5px, 3.7cqw, 13px))) * var(--fs,1.2075)); }
+  body.index-page .index-card .card-lore-note { font-size: calc((calc(var(--ls, 1) * 10px)) * var(--fs,1.2075)); letter-spacing: .14em; }
+  body.index-page .index-card .card-lore-article { font-size: calc((clamp(9px, 3.4cqw, 11px)) * var(--fs,1.2075)); padding: 4px 0 0 8px; margin-bottom: -2px; }
 }
 
 @media (max-width: 800px) {
@@ -4450,17 +4450,17 @@ body.index-page .index-card .card-lore-dossier dd {
     padding: 8px 9px;
     gap: calc(var(--ls, 1) * 2px);
   }
-  body.index-page .index-card .card-lore-name { font-size: calc((calc(var(--ls, 1) * clamp(11.5px, 6.6cqw, 17px))) * var(--fs,1.05)); }
-  body.index-page .index-card .card-lore-epithet { font-size: calc((calc(var(--ls, 1) * clamp(6.5px, 3.3cqw, 9px))) * var(--fs,1.05)); letter-spacing: .1em; }
-  body.index-page .index-card .card-lore-quote p { font-size: calc((calc(var(--ls, 1) * clamp(8.5px, 4.6cqw, 12px))) * var(--fs,1.05)); line-height: 1.3; }
-  body.index-page .index-card .card-lore-quote cite { font-size: calc((calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px))) * var(--fs,1.05)); letter-spacing: .08em; }
+  body.index-page .index-card .card-lore-name { font-size: calc((calc(var(--ls, 1) * clamp(11.5px, 6.6cqw, 17px))) * var(--fs,1.2075)); }
+  body.index-page .index-card .card-lore-epithet { font-size: calc((calc(var(--ls, 1) * clamp(6.5px, 3.3cqw, 9px))) * var(--fs,1.2075)); letter-spacing: .1em; }
+  body.index-page .index-card .card-lore-quote p { font-size: calc((calc(var(--ls, 1) * clamp(8.5px, 4.6cqw, 12px))) * var(--fs,1.2075)); line-height: 1.3; }
+  body.index-page .index-card .card-lore-quote cite { font-size: calc((calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px))) * var(--fs,1.2075)); letter-spacing: .08em; }
   body.index-page .index-card .card-lore-row { gap: 6px; }
-  body.index-page .index-card .card-lore-dossier dt { font-size: calc((calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px))) * var(--fs,1.05)); letter-spacing: .1em; }
-  body.index-page .index-card .card-lore-dossier dd { font-size: calc((calc(var(--ls, 1) * clamp(8.5px, 4.4cqw, 11.5px))) * var(--fs,1.05)); }
-  body.index-page .index-card .card-lore-facts { font-size: calc((calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px))) * var(--fs,1.05)); letter-spacing: .08em; }
-  body.index-page .index-card .card-lore-desc { font-size: calc((calc(var(--ls, 1) * clamp(8.5px, 4.5cqw, 12px))) * var(--fs,1.05)); line-height: 1.32; }
-  body.index-page .index-card .card-lore-note { font-size: calc((calc(var(--ls, 1) * 9px)) * var(--fs,1.05)); letter-spacing: .12em; }
-  body.index-page .index-card .card-lore-article { font-size: calc((8px) * var(--fs,1.05)); letter-spacing: .14em; padding: 6px 0 0 10px; margin: -4px 0 -2px; }
+  body.index-page .index-card .card-lore-dossier dt { font-size: calc((calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px))) * var(--fs,1.2075)); letter-spacing: .1em; }
+  body.index-page .index-card .card-lore-dossier dd { font-size: calc((calc(var(--ls, 1) * clamp(8.5px, 4.4cqw, 11.5px))) * var(--fs,1.2075)); }
+  body.index-page .index-card .card-lore-facts { font-size: calc((calc(var(--ls, 1) * clamp(6.5px, 3cqw, 8px))) * var(--fs,1.2075)); letter-spacing: .08em; }
+  body.index-page .index-card .card-lore-desc { font-size: calc((calc(var(--ls, 1) * clamp(8.5px, 4.5cqw, 12px))) * var(--fs,1.2075)); line-height: 1.32; }
+  body.index-page .index-card .card-lore-note { font-size: calc((calc(var(--ls, 1) * 9px)) * var(--fs,1.2075)); letter-spacing: .12em; }
+  body.index-page .index-card .card-lore-article { font-size: calc((8px) * var(--fs,1.2075)); letter-spacing: .14em; padding: 6px 0 0 10px; margin: -4px 0 -2px; }
 }
 
 /* ---- art92: Index card front name label takes the dossier name's font-family ----
@@ -4490,7 +4490,7 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
     width: min(640px, calc(100% - 276px));
     margin-left: calc(220px + (100% - 220px - min(640px, calc(100% - 276px))) / 2);
   }
-  body.article .art-life { font-size: calc((18px) * var(--fs,1.05)); line-height: 1.75; }
+  body.article .art-life { font-size: calc((18px) * var(--fs,1.2075)); line-height: 1.75; }
 }
 @media (max-width: 800px) {
   body.article .art-body {
@@ -4588,7 +4588,7 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
     padding: 0 !important;
     border: 0 !important;
     font-family: Helvetica, Arial, sans-serif !important;
-    font-size: calc((12px) * var(--fs,1.05)) !important;
+    font-size: calc((12px) * var(--fs,1.2075)) !important;
     font-weight: 400 !important;
     font-style: normal !important;
     line-height: normal !important;
@@ -4607,7 +4607,7 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
     padding: 2px 0 !important;
     border: 0 !important;
     font-family: Helvetica, Arial, sans-serif !important;
-    font-size: calc((12px) * var(--fs,1.05)) !important;
+    font-size: calc((12px) * var(--fs,1.2075)) !important;
     font-weight: 400 !important;
     font-style: normal !important;
     line-height: 15px !important;
@@ -4635,7 +4635,7 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
     padding: 12px 0 !important;
     border: 0 !important;
     font-family: Helvetica, Arial, sans-serif !important;
-    font-size: calc((12px) * var(--fs,1.05)) !important;
+    font-size: calc((12px) * var(--fs,1.2075)) !important;
     font-weight: 400 !important;
     line-height: 15px !important;
     letter-spacing: 0.14em !important;
@@ -4778,7 +4778,7 @@ body.journal-page main.read h3.tl-era-bar {
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
   font-weight: 400;
   font-style: normal;
-  font-size: calc((18px) * var(--fs,1.05));
+  font-size: calc((18px) * var(--fs,1.2075));
   line-height: 1.35;
   letter-spacing: 0;
   text-transform: none;
@@ -4787,7 +4787,7 @@ body.journal-page main.read h3.tl-era-bar {
 }
 body.journal-page main.read h3.tl-era-bar .tl-when {
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #8f8a82;
@@ -4807,7 +4807,7 @@ body.journal-page main.read h3.tl-era-bar .era-years {
   display: inline;
   margin: 0 0 0 auto;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: none;
@@ -4815,7 +4815,7 @@ body.journal-page main.read h3.tl-era-bar .era-years {
 }
 body.journal-page main.read .tl-era-blurb {
   margin: 0 0 4px;
-  font-size: calc((17px) * var(--fs,1.05));
+  font-size: calc((17px) * var(--fs,1.2075));
   line-height: 1.45;
   color: #d2cbc0;
 }
@@ -4824,22 +4824,22 @@ body.journal-page .read h2 + .era-years .tl-when {
   letter-spacing: 0.12em;
 }
 @media (min-width: 801px) {
-  body.journal-page main.read h3.tl-era-bar { font-size: calc((19px) * var(--fs,1.05)); padding: 12px 0; gap: 10px 18px; }
+  body.journal-page main.read h3.tl-era-bar { font-size: calc((19px) * var(--fs,1.2075)); padding: 12px 0; gap: 10px 18px; }
   body.journal-page main.read h3.tl-era-bar .tl-when { min-width: 2em; }
-  body.journal-page main.read .tl-era-blurb { font-size: calc((18px) * var(--fs,1.05)); }
+  body.journal-page main.read .tl-era-blurb { font-size: calc((18px) * var(--fs,1.2075)); }
 }
 @media (max-width: 800px) {
   body.journal-page main.read h3.tl-era-bar {
-    font-size: calc((17px) * var(--fs,1.05));
+    font-size: calc((17px) * var(--fs,1.2075));
     padding: 10px 0;
     gap: 4px 10px;
   }
   body.journal-page main.read h3.tl-era-bar .era-years {
     flex: 1 0 100%;
     margin-left: 0;
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
   }
-  body.journal-page main.read .tl-era-blurb { font-size: calc((16px) * var(--fs,1.05)); }
+  body.journal-page main.read .tl-era-blurb { font-size: calc((16px) * var(--fs,1.2075)); }
 }
 
 
@@ -4875,7 +4875,7 @@ body.player-page main.read > h1 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
   font-style: normal;
-  font-size: calc((12px) * var(--fs,1.05));
+  font-size: calc((12px) * var(--fs,1.2075));
   letter-spacing: 0.28em;
   text-transform: uppercase;
   text-align: left;
@@ -4894,7 +4894,7 @@ body.player-page #nt-player {
     padding: 24px 16px 72px;
   }
   body.player-page main.read > h1 {
-    font-size: calc((11px) * var(--fs,1.05));
+    font-size: calc((11px) * var(--fs,1.2075));
     letter-spacing: 0.22em;
     margin-bottom: 20px;
     padding-bottom: 14px;
@@ -4919,7 +4919,7 @@ body.login-page .login-actions[hidden] {
 /* Login chrome: phrase + enter only — no friend/player names in the mast. */
 body.login-page .mast .friend{display:none!important}
 body.login-page .mast .nt-pmark{display:none!important}
-body.login-page .login-gh-status{margin-top:14px;font-size:calc((12px) * var(--fs,1.05));letter-spacing:.08em;color:#8f8a82;text-align:center}
+body.login-page .login-gh-status{margin-top:14px;font-size:calc((12px) * var(--fs,1.2075));letter-spacing:.08em;color:#8f8a82;text-align:center}
 body.login-page .login-gh-status[data-kind=ok]{color:#c8e0c0}
 body.login-page .login-gh-status[data-kind=err]{color:#e0a8a0}
 body.login-page #login-welcome{text-align:center;letter-spacing:.12em}
@@ -4954,10 +4954,10 @@ body.login-page #login-code{
 }
 /* Login actions: Enter (primary) + Guest (secondary). */
 .login-actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center;align-items:center;margin-top:18px}
-.login-actions button,.login-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:calc((11px) * var(--fs,1.05));cursor:pointer}
+.login-actions button,.login-copy{background:none;border:0;color:#f3eee6;letter-spacing:.16em;text-transform:uppercase;font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:calc((11px) * var(--fs,1.2075));cursor:pointer}
 .login-actions button.login-guest,button.login-guest{
   color:#8f8a82;
-  font-size:calc((10px) * var(--fs,1.05));
+  font-size:calc((10px) * var(--fs,1.2075));
   letter-spacing:.2em;
   font-weight:400;
   opacity:.72;
@@ -4967,7 +4967,7 @@ body.login-page #login-code{
   min-width:0;
   background:none;border:0;text-transform:uppercase;font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);cursor:pointer;
 }
-.login-who{margin:10px 0 0;font-size:calc((11px) * var(--fs,1.05));letter-spacing:.18em;text-transform:uppercase;color:#8f8a82}
+.login-who{margin:10px 0 0;font-size:calc((11px) * var(--fs,1.2075));letter-spacing:.18em;text-transform:uppercase;color:#8f8a82}
 .profile-gh-actions{justify-content:flex-start;margin:0 0 18px}
 .profile-gh-actions + .login-gh-status{text-align:left;margin-top:0;margin-bottom:18px}
 body.login-guest .login-guest-exit{display:inline-flex;align-items:center;min-height:44px;font-weight:400;color:#f3eee6}
@@ -5009,7 +5009,7 @@ body.login-page #login-connect{
 }
 body.login-page .login-connect-steps{
   list-style:none;margin:0 auto;padding:0;width:100%;max-width:280px;text-align:center;
-  font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:calc((12px) * var(--fs,1.05));line-height:1.5;color:#8f8a82;
+  font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:calc((12px) * var(--fs,1.2075));line-height:1.5;color:#8f8a82;
 }
 body.login-page .login-connect-steps li{margin:0 0 16px}
 body.login-page .login-connect-steps li > span{display:block;margin:8px 0 0;letter-spacing:.02em}
@@ -5020,7 +5020,7 @@ body.login-page .login-connect-hero{
 body.login-page .login-connect-primary{
   display:inline-block;margin:0;padding:4px 8px;
   font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);
-  font-size:calc((13px) * var(--fs,1.05));font-weight:700;letter-spacing:.28em;text-transform:uppercase;
+  font-size:calc((13px) * var(--fs,1.2075));font-weight:700;letter-spacing:.28em;text-transform:uppercase;
   color:#fff;text-decoration:none;
   text-shadow:0 0 14px rgba(255,255,255,.55),0 0 28px rgba(243,238,230,.35);
 }
@@ -5032,7 +5032,7 @@ body.login-page .login-connect-primary:focus-visible{
 body.login-page .login-connect-hint{
   margin:12px 0 0;max-width:240px;
   font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);
-  font-size:calc((11px) * var(--fs,1.05));font-weight:400;line-height:1.45;letter-spacing:.04em;
+  font-size:calc((11px) * var(--fs,1.2075));font-weight:400;line-height:1.45;letter-spacing:.04em;
   color:#8f8a82;text-align:center;text-transform:none;
 }
 body.login-page .login-connect-form{width:100%;max-width:280px;margin:0 auto;}
@@ -5041,7 +5041,7 @@ body.login-page .login-connect-btn,
 body.login-page .login-connect-submit,
 body.login-page .login-connect-back{
   appearance:none;-webkit-appearance:none;background:none;border:0;padding:0;margin:0;cursor:pointer;
-  font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:calc((11px) * var(--fs,1.05));font-weight:700;
+  font-family:var(--login-font-sans,"Helvetica Neue",Helvetica,Arial,sans-serif);font-size:calc((11px) * var(--fs,1.2075));font-weight:700;
   letter-spacing:.2em;text-transform:uppercase;color:#f3eee6;text-decoration:none;
 }
 body.login-page .login-box #login-connect-back{
@@ -5061,7 +5061,7 @@ body.login-page .login-connect-submit:hover,
 body.login-page .login-connect-back:hover{color:#fff;text-shadow:0 0 12px rgba(243,238,230,.45)}
 body.login-page #login-connect-token{
   box-sizing:border-box;width:100%;background:transparent;border:0;border-bottom:1px solid rgba(143,138,130,.28);
-  color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:calc((18px) * var(--fs,1.05));letter-spacing:.04em;
+  color:#f3eee6;font-family:"Iowan Old Style",Palatino,serif;font-size:calc((18px) * var(--fs,1.2075));letter-spacing:.04em;
   padding:10px 0;outline:none;text-align:center;margin-top:8px;
 }
 body.login-page #login-connect-token:focus{border-bottom-color:rgba(243,238,230,.55)}
@@ -5104,7 +5104,7 @@ body.login-page #login-elorae {
   left: 0;
   right: 0;
   z-index: 2;
-  font-size: calc((18px) * var(--fs,1.05));
+  font-size: calc((18px) * var(--fs,1.2075));
 }
 @media (max-width: 800px) {
   body.login-page #login-elorae { top: 22px; } /* match Guest bottom inset (phone) */
@@ -5135,7 +5135,7 @@ body.login-page .login-swap {
 body.article .art-body .ee-h2, body.book .read .ee-h2, body.journal-page .read .ee-h2, body.lore-page .read .ee-h2 {
   display: block; margin: 0.85em 0 0.35em;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05)); font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: #8f8a82;
+  font-size: calc((11px) * var(--fs,1.2075)); font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: #8f8a82;
 }
 body.article .art-body .ee-h3, body.book .read .ee-h3, body.journal-page .read .ee-h3, body.lore-page .read .ee-h3 {
   display: block; margin: 0.7em 0 0.3em;
@@ -5145,7 +5145,7 @@ body.article .art-body .ee-h3, body.book .read .ee-h3, body.journal-page .read .
 body.article .art-body .ee-caption, body.book .read .ee-caption, body.journal-page .read .ee-caption, body.lore-page .read .ee-caption {
   display: block; margin: 0.35em 0 0.6em;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.05)); letter-spacing: 0.08em; color: #8f8a82;
+  font-size: calc((11px) * var(--fs,1.2075)); letter-spacing: 0.08em; color: #8f8a82;
 }
 body.article .art-body .ee-quote, .read .ee-quote { display: block; margin: 0.5em 0; font-style: italic; color: #e4ddd2; }
 body.article .art-body .ee-serif, .read .ee-serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; }
@@ -5195,7 +5195,7 @@ body.login-page #login-form > #login-err {
   max-width: 90%;
   text-align: center;
   letter-spacing: .22em;
-  font-size: calc((11px) * var(--fs,1.05));
+  font-size: calc((11px) * var(--fs,1.2075));
   color: #cfc6b8;
   z-index: 2;
   pointer-events: none;
@@ -5224,22 +5224,22 @@ body.login-page.login-gh-connected #login-github {
 
 /* Article body text base = reading size (Medium), so typed/pasted lines without a class
    read the same as Lore; empty Lore paragraph keeps a line so the caret can land in it. */
-body.article .art-sec { font-size: calc((17px) * var(--fs,1.05)); line-height: 1.65; }
+body.article .art-sec { font-size: calc((17px) * var(--fs,1.2075)); line-height: 1.65; }
 body.article .art-life:empty { min-height: 1.65em; }
-@media (min-width: 801px) { body.article .art-sec, body.article .art-sec .art-life { font-size: calc((14pt) * var(--fs,1.05)); line-height: 1.75; } }
-@media (max-width: 800px) { body.article .art-sec { font-size: calc((16px) * var(--fs,1.05)); } }
+@media (min-width: 801px) { body.article .art-sec, body.article .art-sec .art-life { font-size: calc((14pt) * var(--fs,1.2075)); line-height: 1.75; } }
+@media (max-width: 800px) { body.article .art-sec { font-size: calc((16px) * var(--fs,1.2075)); } }
 
 /* Editor point sizes (toolbar Size menu). Work on inline spans AND whole paragraphs
    (p.ee-pt-*), so the line box shrinks too; the repeated class out-ranks the article,
    journal and lore paragraph rules (e.g. body.article .art-sec .art-life). */
-.ee-pt-10, html body .ee-pt-10.ee-pt-10.ee-pt-10 { font-size: calc((10pt) * var(--fs,1.05)); }
-.ee-pt-11, html body .ee-pt-11.ee-pt-11.ee-pt-11 { font-size: calc((11pt) * var(--fs,1.05)); }
-.ee-pt-12, html body .ee-pt-12.ee-pt-12.ee-pt-12 { font-size: calc((12pt) * var(--fs,1.05)); }
-.ee-pt-14, html body .ee-pt-14.ee-pt-14.ee-pt-14 { font-size: calc((14pt) * var(--fs,1.05)); }
-.ee-pt-16, html body .ee-pt-16.ee-pt-16.ee-pt-16 { font-size: calc((16pt) * var(--fs,1.05)); }
-.ee-pt-18, html body .ee-pt-18.ee-pt-18.ee-pt-18 { font-size: calc((18pt) * var(--fs,1.05)); }
-.ee-pt-20, html body .ee-pt-20.ee-pt-20.ee-pt-20 { font-size: calc((20pt) * var(--fs,1.05)); }
-.ee-pt-24, html body .ee-pt-24.ee-pt-24.ee-pt-24 { font-size: calc((24pt) * var(--fs,1.05)); }
+.ee-pt-10, html body .ee-pt-10.ee-pt-10.ee-pt-10 { font-size: calc((10pt) * var(--fs,1.2075)); }
+.ee-pt-11, html body .ee-pt-11.ee-pt-11.ee-pt-11 { font-size: calc((11pt) * var(--fs,1.2075)); }
+.ee-pt-12, html body .ee-pt-12.ee-pt-12.ee-pt-12 { font-size: calc((12pt) * var(--fs,1.2075)); }
+.ee-pt-14, html body .ee-pt-14.ee-pt-14.ee-pt-14 { font-size: calc((14pt) * var(--fs,1.2075)); }
+.ee-pt-16, html body .ee-pt-16.ee-pt-16.ee-pt-16 { font-size: calc((16pt) * var(--fs,1.2075)); }
+.ee-pt-18, html body .ee-pt-18.ee-pt-18.ee-pt-18 { font-size: calc((18pt) * var(--fs,1.2075)); }
+.ee-pt-20, html body .ee-pt-20.ee-pt-20.ee-pt-20 { font-size: calc((20pt) * var(--fs,1.2075)); }
+.ee-pt-24, html body .ee-pt-24.ee-pt-24.ee-pt-24 { font-size: calc((24pt) * var(--fs,1.2075)); }
 html body .ee-serif.ee-serif.ee-serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; }
 html body .ee-sans.ee-sans.ee-sans { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
 

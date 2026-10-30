@@ -85,7 +85,7 @@
     if (!st) {
       st = document.createElement("style");
       st.id = "ee-dash-style";
-      st.textContent = ".mast .topbar > .mark > .ee-dash,.mast .mark > .ee-dash{display:inline-flex;align-items:center;flex:0 0 auto;min-height:44px;margin-right:14px;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.05));font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;text-decoration:none;background:none;border:0}.mast .topbar > .mark > .ee-dash:hover,.mast .mark > .ee-dash:hover,.mast .topbar > .mark > .ee-dash:focus-visible,.mast .mark > .ee-dash:focus-visible{color:#fff;outline:none;text-shadow:0 0 16px rgba(243,238,230,.95),0 0 32px rgba(243,238,230,.55)}";
+      st.textContent = ".mast .topbar > .mark > .ee-dash,.mast .mark > .ee-dash{display:inline-flex;align-items:center;flex:0 0 auto;min-height:44px;margin-right:14px;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.2075));font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;text-decoration:none;background:none;border:0}.mast .topbar > .mark > .ee-dash:hover,.mast .mark > .ee-dash:hover,.mast .topbar > .mark > .ee-dash:focus-visible,.mast .mark > .ee-dash:focus-visible{color:#fff;outline:none;text-shadow:0 0 16px rgba(243,238,230,.95),0 0 32px rgba(243,238,230,.55)}";
       document.head.appendChild(st);
     }
     mark.insertBefore(a, mark.firstChild);
@@ -153,7 +153,7 @@
     if (!st) {
       st = document.createElement("style");
       st.id = "ee-edit-style";
-      st.textContent = ".mast .topbar > .mark > .ee-edit,.mast .mark > .ee-edit{display:inline-flex;align-items:center;flex:0 0 auto;min-height:44px;margin-right:14px;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.05));font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;text-decoration:none;background:none;border:0;cursor:pointer}.mast .topbar > .mark > .ee-edit:hover,.mast .mark > .ee-edit:hover,.mast .topbar > .mark > .ee-edit:focus-visible,.mast .mark > .ee-edit:focus-visible{color:#fff;outline:none;text-shadow:0 0 16px rgba(243,238,230,.95),0 0 32px rgba(243,238,230,.55)}";
+      st.textContent = ".mast .topbar > .mark > .ee-edit,.mast .mark > .ee-edit{display:inline-flex;align-items:center;flex:0 0 auto;min-height:44px;margin-right:14px;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.2075));font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;text-decoration:none;background:none;border:0;cursor:pointer}.mast .topbar > .mark > .ee-edit:hover,.mast .mark > .ee-edit:hover,.mast .topbar > .mark > .ee-edit:focus-visible,.mast .mark > .ee-edit:focus-visible{color:#fff;outline:none;text-shadow:0 0 16px rgba(243,238,230,.95),0 0 32px rgba(243,238,230,.55)}";
       document.head.appendChild(st);
     }
     /* Place Edit after Dashboard if present, else at start of mark. */
