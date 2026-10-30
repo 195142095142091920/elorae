@@ -1,4 +1,6 @@
-/* Index card lore reveal (art82 -> art86 flip -> art90 fill -> art91 face toggles).
+/* Index card lore reveal (art82 -> art86 flip -> art90 fill -> art91 face toggles -> art96 hover).
+   art96: the face now shows on HOVER and a click opens the card's page (see below); the text that
+   follows describes the older click-to-reveal flow, still used for cards with no page.
    One click / tap / Enter on an Index card reveals its dossier face over the card (crossfade,
    instant with prefers-reduced-motion) without navigating; a click / Enter anywhere on the
    revealed face flips it back to the card. Navigation only via the two links on the face: the
@@ -29,22 +31,58 @@
 
   cards.forEach(function (card) { card.setAttribute("aria-expanded", "false"); });
 
-  /* Capture: a card click reveals its face; a click on the revealed face flips it back; the
-     face's links (name, ARTICLE line) navigate normally and never flip. art92: cards flip
-     independently - any number can be open; nothing else (other cards, Escape, outside
-     clicks) closes them. */
+  /* art96 (hover preview): on a hover-capable pointer the dossier face appears after a short
+     hover delay and goes away when the pointer leaves; any plain click / tap / Enter on the card
+     goes straight to its page (the anchor's own navigation). Only a card with no page to open
+     (empty href, or its article came back missing) keeps the old click-to-reveal toggle.
+     Edit-mode Index organizer (html.ee-index-org) and Devin's editing: no preview, no
+     navigation handling here - the organizer owns clicks and drags. */
+  var HOVER_MS = 280, timer = null, hoverCard = null;
+  var canHover = window.matchMedia ? window.matchMedia("(hover: hover) and (pointer: fine)") : { matches: false };
+  function editing() { var c = document.documentElement.classList; return c.contains("ee-index-org") || c.contains("ee-editing"); }
+  function hasPage(card) {
+    var h = card.getAttribute("href") || "";
+    if (!h || h === "#" || /^javascript:/i.test(h)) return false;
+    var d = cache[card.href];
+    return !(d && d.missing);
+  }
   document.addEventListener("click", function (e) {
-    if (document.documentElement.classList.contains("ee-index-org")) return; /* edit-mode Index organizer */
+    if (editing()) return;
     var t = e.target;
     if (t.closest && t.closest("a.card-lore-link")) return; /* inner link: default navigation */
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; /* new tab etc. */
     var card = t.closest && t.closest("a.index-card");
     if (!card) return;
+    clearTimeout(timer);
+    if (hasPage(card)) return; /* straight to the page */
     e.preventDefault();
     e.stopPropagation();
-    if (isOpen(card)) unflip(card); /* click on its own face: back to the card */
+    if (isOpen(card)) unflip(card);
     else flip(card);
   }, true);
+  document.addEventListener("mouseover", function (e) {
+    if (!canHover.matches || editing() || e.buttons) return;
+    var card = e.target.closest && e.target.closest("a.index-card");
+    if (!card) { if (hoverCard) { leave(hoverCard); hoverCard = null; } return; }
+    if (card === hoverCard) return;
+    if (hoverCard) leave(hoverCard);
+    hoverCard = card;
+    clearTimeout(timer);
+    timer = setTimeout(function () { if (hoverCard === card && !editing() && !isOpen(card)) flip(card); }, HOVER_MS);
+  });
+  document.addEventListener("mouseout", function (e) {
+    if (!hoverCard) return;
+    var to = e.relatedTarget;
+    if (to && hoverCard.contains(to)) return;
+    if (e.target.closest && e.target.closest("a.index-card") !== hoverCard) return;
+    leave(hoverCard); hoverCard = null;
+  });
+  function leave(card) { clearTimeout(timer); if (isOpen(card) && hasPage(card)) unflip(card); }
+  /* Never leave a face open when edit mode / the organizer starts, or on drag. */
+  document.addEventListener("dragstart", function () { clearTimeout(timer); cards.forEach(function (c) { if (isOpen(c)) unflip(c); }); }, true);
+  if (window.MutationObserver) new MutationObserver(function () {
+    if (editing()) { clearTimeout(timer); hoverCard = null; cards.forEach(function (c) { if (isOpen(c)) unflip(c); }); }
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
   function slugOf(url) { var m = /\/articles\/([^\/?#]+)\.html/.exec(url); return m ? m[1] : ""; }
 
