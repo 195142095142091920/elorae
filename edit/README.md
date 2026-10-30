@@ -183,9 +183,15 @@ Jason (`jason-journal-1` … `-6`) and the Journal sidebar link to them (`jason-
   secret routed at that path, the decrypted page replaces the 404 at the same URL.
 - `kind: "nav"` secrets carry `payload.nav` (`where` selector + link HTML); `/hidden.js` with
   `data-mode="nav"` adds the links for people the secret is shared with (journal page).
-- The payload is the whole page with its CSS/JS inlined and images inlined as WebP data URIs, so
-  Share / Hide / key rotation in the dashboard work unchanged. Editing these pages in edit mode is
-  not supported (there is no source file to save to).
+- The payload is the whole page with its CSS/JS inlined, so Share / Hide / key rotation in the
+  dashboard work unchanged. Images are separate files, `secrets/m/<hash>.bin`, each AES-256-GCM
+  with its own key; the keys sit only inside the encrypted page (`#gw-media`), and the page's own
+  loader decrypts them near the viewport. Rotation re-keys the page, not the image files (rebuild
+  to re-key those). Editing these pages in edit mode is not supported (no source file to save to).
+- Speed: a decrypted page is kept for the tab in sessionStorage (`elorae-hp:<path>`, next to the
+  unlocked key). With it, `/hidden.js` writes the page while the 404 is still parsing, so it renders
+  in one pass like any static page; the manifest is then re-checked and a re-keyed or unshared page
+  is dropped. `payload.warm` / `payload.nav.warm` list pages to decrypt ahead of time when idle.
 - Keys: the secrets key is unlocked at sign-in (phrase-is-key). In a new tab the remembered login
   phrase unlocks it again. Devin's current key was made on the dashboard with its own passphrase:
   unlock it on the Dashboard first, then open the page in the same tab.
