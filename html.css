@@ -5115,3 +5115,47 @@ body:not(:has(.journal-bg)) .journal-page .read::before, body.journal-page:not(:
     background: none !important;
   }
 }
+
+/* ---- aov1: article text rises over pinned art (2026-10-31) ----
+   The hero (single art or the art-swap switcher) is position:sticky at the top of the page, so it
+   stays put in the viewport while the article content (main.art-body) scrolls up over it as an
+   opaque #070707 panel; scrolling back reveals the art again. Pure CSS, compositor-only — no
+   scroll JS. The hero is 100svh tall and sticks at top:0, under the fixed nav exactly as at load.
+   The panel's full-bleed background is a border-image drawn with an outset to both screen edges
+   (outset is paint-only, so it adds no sideways scroll), behind the text column, which keeps its
+   width and typography; a short soft top edge lets it rise cleanly over the art. Same stacking z
+   as the hero (6 desktop / 2 phone) and later in the DOM, so it paints over the art and its
+   title / switcher, but under the Categories rail (18) and the nfs1 nav fade strip (7).
+   Off in edit mode (the editor docks and resizes the hero). */
+body.article > section.art-hero {
+  position: sticky !important;
+  top: 0;
+}
+body.article > main.art-body {
+  border-style: solid;
+  border-width: 0;
+  border-image-source: linear-gradient(to bottom, rgba(7, 7, 7, 0) 0, rgba(7, 7, 7, 0.86) 34px, #070707 72px);
+  border-image-slice: 0 fill;
+  border-image-width: 0;
+  border-image-outset: 0 100vw;
+  border-image-repeat: stretch;
+}
+/* The old exit parallax (art-lift) follows the hero leaving the viewport, which it no longer does. */
+body.article > section.art-hero > img { animation: none !important; }
+html.ee-editing body.article > section.art-hero { position: relative !important; top: auto; }
+@media (max-width: 800px) {
+  body.article > main.art-body { border-image-source: linear-gradient(to bottom, rgba(7, 7, 7, 0) 0, rgba(7, 7, 7, 0.86) 20px, #070707 40px); }
+}
+/* The panel's full-bleed paint (border-image outset) is not hit-testable, so once it covers the
+   switcher, hide the switcher outright — no invisible arrows / hover thumbnails through the
+   panel margins. Scroll-driven (compositor, no JS): hidden once the panel's top edge has risen over
+   the arrows (~72px of scroll; they sit at the bottom edge, where it rises first). Browsers without scroll timelines keep today's behaviour. */
+@supports (animation-timeline: scroll()) {
+  body.article > section.art-hero .art-swap {
+    animation: aov1-cover linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 72px 73px; /* the arrows sit 28px (22px phone) above the bottom edge, where the panel rises first */
+  }
+  html.ee-editing body.article > section.art-hero .art-swap { animation: none; }
+}
+@keyframes aov1-cover { from { visibility: visible; } to { visibility: hidden; } }

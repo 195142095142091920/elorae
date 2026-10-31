@@ -2913,7 +2913,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=wide1\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=nfs1\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=aov1\">\n" +
         "<script src=\"/rail-toggle.js?v=nfs1\"></script>\n" +
         "<script src=\"/skip-link.js?v=fs12\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
