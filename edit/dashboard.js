@@ -126,7 +126,7 @@
     if (st.busy) return;
     st.busy = true; st.msg = label + "…"; render();
     Promise.resolve().then(fn).then(function (done) {
-      st.msg = (done || "Saved") + ". Live in about 1–2 minutes.";
+      st.msg = (done || "Saved") + " at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + ".";
     }, function (err) {
       st.msg = err.message || "Failed.";
       if (err.reload) return load();

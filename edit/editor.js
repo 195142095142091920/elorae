@@ -2285,7 +2285,7 @@
         "</main>\n" +
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=fs12\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=saved1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -2699,7 +2699,7 @@
       var note = mirror && mirror.skipped ? " The other copy (" + esc(mirror.path) + ") differs here and was left unchanged." : "";
       var html;
       if (mode === "direct") {
-        html = '<span class="ee-msg ee-good">Saved. Live in about 1\u20132 minutes while GitHub Pages rebuilds.' + note + (commitUrl ? ' <a href="' + esc(commitUrl) + '" target="_blank" rel="noopener">Commit</a>' : '') + '</span>';
+        html = '<span class="ee-msg ee-good">Saved at ' + esc(new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) + '.' + note + '</span>';
       } else if (done.pull) {
         html = '<span class="ee-msg ee-good">Proposed as pull request #' + esc(done.pull.number) + '. Live about 1\u20132 minutes after it is merged.' + note + ' <a href="' + esc(done.pull.html_url) + '" target="_blank" rel="noopener">Open</a></span>';
       } else {

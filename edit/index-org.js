@@ -342,7 +342,7 @@
 
   function articleTemplate(name, slug, catId) {
     var title = name;
-    var vEdit = "editor-align";
+    var vEdit = "saved1";
     // Minimal article; art-index stub — Category rail still works for chrome.
     return '<!doctype html>\n<html lang="en">\n<head>\n' +
       '<script src="../session-gate.js?v=guest-browse"><\/script>\n\n' +
