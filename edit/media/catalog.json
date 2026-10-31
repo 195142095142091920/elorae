@@ -1378,5 +1378,8 @@
       ],
       "everyone": true
     }
-  }
+  },
+  "hidden": [
+    "assets/Ghostly Wanderer - Heldranc's Final Night.png"
+  ]
 }
