@@ -1377,6 +1377,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "telorin-nelis-2": {
+      "path": "assets/telorin-nelis-2.webp",
+      "title": "Telorin Nelis",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T20:05:45.396Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
