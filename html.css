@@ -4483,15 +4483,8 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
   }
 }
 
-/* ---- art89/nt26: hard nav edge, content fades under it ----
-   No gradient / veil strip hangs below the main nav, the secondary bar or the phone Contents
-   row any more. Instead rail-toggle.js marks the scrolling CONTENT (.nav-fade: children of
-   main.read / main.art-body, plus article hero art / title / swap; Index still masks main)
-   and feeds --nf (nav bottom, relative to the mask image) and --nfl (ramp length): text goes
-   transparent -> opaque over 48px (phone 40px) starting exactly at the nav line. The column
-   veil (main.read::before) is NOT masked — it stays fully opaque at every scroll position.
-   Fixed page backdrops (.journal-bg) and the sidebars are not masked. Mask image is oversized
-   340px / 140px per side with mask-clip:no-clip. */
+/* ---- art89/nt26: hard nav edge (no veil strip hangs off the nav bars) ----
+   The content fade itself is nfs1 below (a viewport-fixed strip, no per-scroll mask). */
 .mast::after,
 body .mast::after,
 body:not([hidden]) .mast::after,
@@ -4509,44 +4502,49 @@ body.journal-flow #section-bar::after {
 @media (max-width: 800px) {
   body.journal-page aside.toc:has(> .toc-drop)::after { content: none !important; display: none !important; background: none !important; }
 }
-html.nav-fade-on .nav-fade {
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent var(--nf, -9999px), #000 calc(var(--nf, -9999px) + var(--nfl, 0px)));
-  mask-image: linear-gradient(to bottom, transparent 0, transparent var(--nf, -9999px), #000 calc(var(--nf, -9999px) + var(--nfl, 0px)));
-  -webkit-mask-size: calc(100% + 680px) calc(100% + 280px);
-  mask-size: calc(100% + 680px) calc(100% + 280px);
-  -webkit-mask-position: -340px -140px;
-  mask-position: -340px -140px;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-origin: border-box;
-  mask-origin: border-box;
-  -webkit-mask-clip: no-clip;
-  mask-clip: no-clip;
+/* ---- nfs1: the fade is locked to the viewport (2026-10-31) ----
+   Replaces the art89 per-element mask, whose stop positions (--nf) were re-set from JS on every
+   scroll and so trailed fast scrolls by a frame or more (hard card edges under the nav, then a
+   snap). Now one fixed strip, body::before, sits exactly at the bottom of the lowest chrome
+   (--nav-bottom: mast + #section-bar + phone Contents row, measured by rail-toggle.js on
+   resize / layout changes only, never on scroll) and shades black -> clear over 48px (40px
+   phone). On the plain black page that is the same look as the old transparent -> opaque mask,
+   and it moves with the compositor, so it can never lag. Stacking: page content (body > main,
+   article hero) is one layer under the strip; the strip is under every rail / dropdown
+   (Categories, Contents) and the nav bars, so those are never shaded and nothing is drawn on
+   the nav. It grows in over the first 48px of scroll (scroll-driven animation; no JS). */
+html.nav-fade-on body::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--nav-bottom, 56px);
+  height: 48px;
+  z-index: 7;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #070707 0, rgba(7, 7, 7, 0) 100%);
 }
-@media (min-width: 801px) {
-  /* Index: the mask makes the grid a stacking context. Lift it above the rail (18) so card
-     names / glyph / flipped backs keep drawing above the art77 fade (art81), and redraw that
-     fade inside the grid at z-18 (above card art, below the z-19 labels), exactly as before. */
-  html.nav-fade-on body.index-page main.index-flow.nav-fade { position: relative; z-index: 19; }
-  html.nav-fade-on body.index-page.index-toc-open main.index-flow.nav-fade::before {
-    content: "";
-    position: fixed;
-    top: var(--rail-top, 56px);
-    bottom: 0;
-    left: 218px;
-    width: 120px;
-    z-index: 18;
-    pointer-events: none;
-    background: linear-gradient(
-      to right,
-      #070707 0%,
-      rgba(7, 7, 7, 0.85) 20%,
-      rgba(7, 7, 7, 0.6) 40%,
-      rgba(7, 7, 7, 0.35) 60%,
-      rgba(7, 7, 7, 0.15) 80%,
-      rgba(7, 7, 7, 0) 100%
-    );
+html.nav-fade-on body.player-page::before { background: linear-gradient(to bottom, #000 0, rgba(0, 0, 0, 0) 100%); }
+@supports (animation-timeline: scroll()) {
+  html.nav-fade-on body::before {
+    opacity: 0; /* a page too short to scroll has an inactive timeline: no strip, like the old 0px ramp */
+    animation: nfs1-in linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 48px;
   }
+}
+/* No scroll-driven animations (older browsers): rail-toggle.js flips html.nfs1-top at the very top only. */
+html.nav-fade-on.nfs1-top body::before { opacity: 0; }
+@keyframes nfs1-in { from { opacity: 0; } to { opacity: 1; } }
+/* Page content: one layer below the strip, above the ambient glow canvas (4), below the rails (8 / 18). */
+html.nav-fade-on body > main,
+html.nav-fade-on body.article > section.art-hero { position: relative; z-index: 6 !important; }
+@media (max-width: 800px) {
+  html.nav-fade-on body::before { height: 40px; z-index: 3; }
+  @supports (animation-timeline: scroll()) { html.nav-fade-on body::before { animation-range: 0 40px; } }
+  /* Phone: content stays at 2 (glow canvas 4 above it, as before); rails / dropdowns are 29+. */
+  html.nav-fade-on body > main,
+  html.nav-fade-on body.article > section.art-hero { z-index: 2 !important; }
 }
 
 /* ---- art95: private articles + Index entries (owner-gated) ----

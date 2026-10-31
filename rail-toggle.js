@@ -9,12 +9,10 @@
       Codex/Journal TOCs: toggles html.toc-rail-collapsed and persists it.
    3) Sets --rail-top on <html> to the measured bottom of the nav chrome (mast + a visible
       fixed/sticky #section-bar) so desktop rails sit flush under it.
-   4) art89 content fade: the nav bars end in a hard edge (no veil strips); instead the
-      scrolling content layers (body > main, article hero art/title/swap) get a CSS mask whose
-      transparent->opaque ramp (48px desktop / 40px phone, grows in over the first scroll px)
-      starts exactly at the measured bottom of the nav stack (incl. a phone Contents row).
-      The mask image is oversized (340px / 140px each side, mask-clip:no-clip) so overflowing
-      column veils keep their soft edges; only the --nf offset changes on scroll (rAF). */
+   4) nfs1 content fade: the nav bars end in a hard edge; content fades under them through one
+      viewport-fixed strip (html.css body::after, 48px desktop / 40px phone) placed at
+      --nav-bottom, the measured bottom of the nav stack (incl. a phone Contents row). Measured
+      on resize / layout changes only; nothing runs per scroll frame, so the fade cannot lag. */
 (function () {
   var KEY = "elorae-toc-rail";
   var h = document.documentElement;
@@ -109,54 +107,35 @@
   }
   function navFade() {
     var mast = document.querySelector(".mast");
-    if (!mast || getComputedStyle(mast).display === "none") return;
-    /* Mask TEXT/content only — never the column veil (main.read::before). Index keeps
-       masking main (its ::before is the rail fade redraw, not a reading veil). */
-    var els = [], main = document.querySelector("body > main");
-    if (main) {
-      if (document.body.classList.contains("index-page")) {
-        els.push(main);
-      } else if (main.classList.contains("read") || main.classList.contains("art-body")) {
-        Array.prototype.forEach.call(main.children, function (c) {
-          if (/^(SCRIPT|STYLE|LINK|TEMPLATE)$/.test(c.tagName)) return;
-          els.push(c);
-        });
-      } else {
-        els.push(main);
-      }
+    if (!mast || getComputedStyle(mast).display === "none" || !document.querySelector("body > main")) return;
+    /* nfs1: the fade is one viewport-fixed strip (html.css body::after) at --nav-bottom. Only the
+       chrome height is measured here, on resize / layout changes, never on scroll. */
+    var last = "";
+    function measure() {
+      var v = Math.round(chromeBottom() * 100) / 100 + "px";
+      if (v !== last) { last = v; h.style.setProperty("--nav-bottom", v); }
     }
-    Array.prototype.forEach.call(document.querySelectorAll(
-      "body.article .art-hero > img, body.article .art-title, body.article .art-swap"), function (el) {
-      els.push(el);
-    });
-    if (!els.length) return;
-    var phone = window.matchMedia("(max-width: 800px)");
-    els.forEach(function (el) { el.classList.add("nav-fade"); });
+    measure();
     h.classList.add("nav-fade-on");
-    var queued = false;
-    function update() {
-      queued = false;
-      var nav = chromeBottom(), y = window.scrollY || window.pageYOffset || 0;
-      var len = Math.min(phone.matches ? 40 : 48, Math.max(0, y));
-      h.style.setProperty("--nav-bottom", Math.round(nav * 100) / 100 + "px");
-      els.forEach(function (el) {
-        var top = el.getBoundingClientRect().top - 140; /* mask image starts 140px above the box */
-        el.style.setProperty("--nf", Math.round((nav - top) * 10) / 10 + "px");
-        el.style.setProperty("--nfl", len + "px");
-      });
-    }
-    function queue() { if (!queued) { queued = true; window.requestAnimationFrame(update); } }
-    update();
-    window.addEventListener("scroll", queue, { passive: true });
-    window.addEventListener("resize", queue);
-    window.addEventListener("load", queue);
+    window.addEventListener("resize", measure);
+    window.addEventListener("load", measure);
     if (window.ResizeObserver) {
-      var ro = new ResizeObserver(queue);
+      var ro = new ResizeObserver(measure);
       ro.observe(mast);
       var sb = document.getElementById("section-bar");
       if (sb) ro.observe(sb);
+      var tr = null; try { tr = document.querySelector("aside.toc:has(> .toc-drop)"); } catch (e) {}
+      if (tr) ro.observe(tr);
     }
-    /* rail push / dropdown toggles move things without scrolling */
-    document.addEventListener("click", function () { setTimeout(queue, 0); setTimeout(queue, 320); }, true);
+    /* Rail / dropdown toggles can change the chrome without a resize. */
+    document.addEventListener("click", function () { setTimeout(measure, 0); setTimeout(measure, 320); }, true);
+    /* Browsers without scroll-driven animations: hide the strip at the very top only (a class
+       flip when crossing 0, not a per-frame position). */
+    if (!(window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()"))) {
+      var top = null;
+      var flip = function () { var t = (window.scrollY || window.pageYOffset || 0) < 1; if (t !== top) { top = t; h.classList.toggle("nfs1-top", t); } };
+      flip();
+      window.addEventListener("scroll", flip, { passive: true });
+    }
   }
 })();
