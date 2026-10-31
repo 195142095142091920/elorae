@@ -54,13 +54,36 @@
     });
   }
 
+  /* Your own save from the last few minutes (edit/recent.js): hide the body until recent.js has
+     compared it with the page the site served, so an out-of-date copy never flashes. Only with an
+     edit session in this browser; without one the kept copy is simply dropped. */
+  var RECENT = "elorae-edit-recent";
+  function recentWait() {
+    try {
+      var raw = localStorage.getItem(RECENT);
+      if (!raw) return;
+      if (!readSession()) { localStorage.removeItem(RECENT); return; }
+      var o = JSON.parse(raw), p = decodeURIComponent(location.pathname).replace(/^\//, ""), m;
+      if (p === "" || /\/$/.test(p)) p += "index.html";
+      else if (!/\.[a-z0-9]+$/i.test(p)) p += ".html";
+      var alt = (m = /^(.+)\/index\.html$/.exec(p)) ? m[1] + ".html" : ((m = /^(.+)\.html$/.exec(p)) && !/(^|\/)index$/.test(m[1]) ? m[1] + "/index.html" : "");
+      var f = o && o.files && (o.files[p] || o.files[alt]);
+      if (!f || !(Date.now() - f.at < 180000)) return;
+      var st = document.createElement("style");
+      st.textContent = "html.ee-recent-wait main,html.ee-recent-wait section.art-hero{visibility:hidden}";
+      document.head.appendChild(st);
+      document.documentElement.classList.add("ee-recent-wait");
+      setTimeout(function () { document.documentElement.classList.remove("ee-recent-wait"); }, 2500);
+    } catch (e) {}
+  }
+
   var started = false;
   function start() {
     if (started) return; started = true;
     var css = document.createElement("link");
     css.rel = "stylesheet"; css.href = new URL("edit.css" + (V ? "?" + V : ""), base).href;
     document.head.appendChild(css);
-    ["core.js", "perms.js", "srcmap.js", "media.js", "crypto.js", "vis.js", "editor.js", "index-org.js"].reduce(function (p, f) {
+    ["core.js", "perms.js", "srcmap.js", "recent.js", "media.js", "crypto.js", "vis.js", "editor.js", "index-org.js"].reduce(function (p, f) {
       return p.then(function () { return load(f); });
     }, Promise.resolve()).catch(function () {});
   }
@@ -173,6 +196,7 @@
     }
     dash();
     editAffordance();
+    recentWait();
     if (wanted()) start();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

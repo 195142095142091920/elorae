@@ -342,7 +342,7 @@
 
   function articleTemplate(name, slug, catId) {
     var title = name;
-    var vEdit = "saved1";
+    var vEdit = "recent1";
     // Minimal article; art-index stub — Category rail still works for chrome.
     return '<!doctype html>\n<html lang="en">\n<head>\n' +
       '<script src="../session-gate.js?v=guest-browse"><\/script>\n\n' +
@@ -425,7 +425,9 @@
       // Also persist index in same commit
       return serializeIndex().then(function (r) {
         files.push({ path: PATH, text: r.html });
-        return E.commitFiles(files, "Index: add card “" + name + "” + scaffold " + artPath + " [edit-mode]", E.BRANCH);
+        return E.commitFiles(files, "Index: add card “" + name + "” + scaffold " + artPath + " [edit-mode]", E.BRANCH).then(function () {
+          if (window.EloraeRecent) window.EloraeRecent.remember([{ path: PATH, text: r.html, base: r.text }]);
+        });
       }).then(function () {
         state.busy = false;
         state.dirty = false;
@@ -567,7 +569,11 @@
       var mp = P.mirrorPath ? P.mirrorPath(PATH) : null;
       var mirror = mp ? E.getFile(mp).then(function (m) { return m.text === r.text ? { path: mp, text: r.html } : null; }, function () { return null; }) : Promise.resolve(null);
       return mirror.then(function (m) {
-        return E.commitFiles([{ path: PATH, text: r.html }].concat(m ? [m] : []), "Index: reorganize cards [edit-mode]", E.BRANCH);
+        return E.commitFiles([{ path: PATH, text: r.html }].concat(m ? [m] : []), "Index: reorganize cards [edit-mode]", E.BRANCH).then(function (res) {
+          var R = window.EloraeRecent;
+          if (R) R.remember([{ path: PATH, text: r.html, base: r.text }].concat(m ? [{ path: m.path, text: m.text, base: r.text }] : []));
+          return res;
+        });
       });
     }).then(function (res) {
       state.busy = false;
@@ -589,6 +595,8 @@
   function start() {
     if (state.active || !isIndexPage()) return false;
     if (!state.profile || !P.isAdmin(state.profile) || !P.canEdit(state.profile, PATH)) return false;
+    var wait = window.EloraeRecent && window.EloraeRecent.blocked(PATH);
+    if (wait) { barMsg(wait); return false; }
     snapshot = {
       main: document.querySelector("main.index-flow").innerHTML,
       toc: document.querySelector("#index-toc-panel").innerHTML

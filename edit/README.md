@@ -160,7 +160,8 @@ catalog visibility does not hide HTTP access. Encrypting private images is plann
 
 ## Files
 `edit/edit.js` (bootstrap, the only thing pages load), `core.js` (session + GitHub API),
-`perms.js` (globs, shared with the guard), `srcmap.js` (tokenizer/splicer), `editor.js` (UI and
-save), `edit.css`, `profiles.json`, `visibility.json`, `secrets/`, `crypto.js`, `vis.js`,
+`perms.js` (globs, shared with the guard), `srcmap.js` (tokenizer/splicer), `recent.js` (after a
+save, a reload in the ~30 s before the site rebuilds shows your saved copy — your browser only; see its
+header), `editor.js` (UI and save), `edit.css`, `profiles.json`, `visibility.json`, `secrets/`, `crypto.js`, `vis.js`,
 `secret.html` + `secret.js`, `media.js` + `media/catalog.json`, `dashboard.html` + `dashboard.js`, `guard.js`, `workflows/edit-guard.yml` (to install), `test/` (`e2e.js`: browser test
-with a mocked GitHub API, see its header; `e2e-editor.js`: full-page editor — sizes/fonts, one-line save diffs, conflicts, unsaved-changes prompts, Index organizer; both serve this checkout on a fresh port via `server.js`; `guard.test.js`: guard scenarios, `node edit/test/guard.test.js`).
+with a mocked GitHub API, see its header; `e2e-editor.js`: full-page editor — sizes/fonts, one-line save diffs, conflicts, unsaved-changes prompts, Index organizer, instant reload after a save; both serve this checkout on a fresh port via `server.js`; `guard.test.js`: guard scenarios, `node edit/test/guard.test.js`).

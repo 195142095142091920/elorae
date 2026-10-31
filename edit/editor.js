@@ -3,7 +3,7 @@
 (function () {
   "use strict";
   var E = window.EloraeEdit, P = window.EloraeEditPerms, M = window.EloraeSrcMap, Media = window.EloraeMedia,
-      K = window.EloraeCrypto, V = window.EloraeVis;
+      K = window.EloraeCrypto, V = window.EloraeVis, R = window.EloraeRecent;
   if (!E || !P || !M || window.EloraeEditor) return;
 
   var X_SVG = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M1.5 1.5L12.5 12.5M12.5 1.5L1.5 12.5" fill="none" stroke="#f3eee6" stroke-width="1" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
@@ -324,6 +324,14 @@
   function startEdit() {
     if (state.editing || state.busy) return;
     if (!P.canEdit(state.profile, PATH)) return;
+    // Your last save is not live yet and this page could not be fully brought up to date:
+    // editing it now could save the old text back (recent.js).
+    var wait = R && R.blocked(PATH);
+    if (wait) {
+      bar('<span class="ee-msg">' + esc(wait) + '</span><button type="button" class="ee-btn" id="ee-x">Close</button>');
+      $("ee-x").onclick = closeBar;
+      return;
+    }
     state.busy = true;
     bar('<span class="ee-msg">Loading the page source…</span>');
     E.getFile(PATH).then(function (f) {
@@ -2285,7 +2293,7 @@
         "</main>\n" +
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=saved1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=recent1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -2633,7 +2641,7 @@
     if (!mp || !regions || !P.canEdit(state.profile, mp)) return Promise.resolve(null);
     return E.getFile(mp, ref).then(function (f) {
       var out = applyRegions(f.text, regions);
-      return out == null ? { path: mp, skipped: true } : (out === f.text ? null : { path: mp, text: out, sha: f.sha });
+      return out == null ? { path: mp, skipped: true } : (out === f.text ? null : { path: mp, text: out, sha: f.sha, base: f.text });
     }, function () { return null; });
   }
 
@@ -2644,7 +2652,7 @@
     var msg = "Edit " + PATH + " via edit mode [edit-mode]";
     var s = E.session.get();
     editBar("Saving\u2026", "ee-busy");
-    var latestRef, branch, prep = { files: [], used: [] }, undoPending = null, mirror = null;
+    var latestRef, branch, prep = { files: [], used: [] }, undoPending = null, mirror = null, baseText = null;
     var p = preparePending().then(function (pp) {
       if (pp && pp.files) prep = pp;
       return E.headSha(E.BRANCH);
@@ -2652,6 +2660,7 @@
     p.then(function (latest) {
       var r;
       if (prep.used.length) undoPending = applyPending(prep);
+      baseText = latest.text;
       try { r = buildOutput(latest); } finally { if (undoPending) undoPending(); }
       if (r.none) { editBar("No changes to save."); return null; }
       if (r.conflict) { var e = new Error(conflictMsg()); e.conflict = true; throw e; }
@@ -2681,6 +2690,8 @@
       if (!done) return;
       var commitUrl = done.multi ? (done.res && done.res.html_url) : (done.res && done.res.commit && done.res.commit.html_url);
       if (mode === "direct") {
+        // A reload before the site rebuilds shows this saved copy (this browser only, recent.js).
+        if (R) R.remember([{ path: PATH, text: done.r.out, base: baseText }].concat(mirror && !mirror.skipped ? [{ path: mirror.path, text: mirror.text, base: mirror.base }] : []));
         state.base = {
           sha: done.multi ? null : done.res.content.sha,
           text: done.r.out,
@@ -2844,7 +2855,8 @@
     }
     openPanel(); /* first-time Connect only — never connected on this browser */
   }
-  var profileReady = loadProfile().then(function () { glyph(); });
+  // Edit mode starts only after recent.js has put a just-saved copy in place (or found none).
+  var profileReady = Promise.all([loadProfile(), R ? R.ready : null]).then(function () { glyph(); });
   function onHash() {
     if (location.hash !== "#edit") return;
     profileReady.then(decideEditHash);

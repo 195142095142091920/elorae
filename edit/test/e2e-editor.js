@@ -625,6 +625,110 @@ async function alignTests(browser, vpName) {
   }
 }
 
+// Instant reload after a save (edit/recent.js): the test server keeps serving the old files (like
+// the ~30 s before Cloudflare finishes), so a reload must show the saved copy, editing again must
+// build on it (never re-save the old text), and nobody else in this browser ever sees it.
+async function recentTests(browser, vpName) {
+  if (vpName !== "desktop") return;
+  const vp = VPS[vpName];
+  const status = (page) => page.evaluate(() => window.EloraeRecent && window.EloraeRecent.ready.then(() => JSON.stringify(window.EloraeRecent.status)));
+  async function reloadReady(page) {
+    await page.reload({ waitUntil: "load" });
+    await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile && window.EloraeRecent, null, { timeout: 15000 });
+    return status(page);
+  }
+  const CASES = [
+    ["articles/aghor/", "articles/aghor/index.html", "main.art-body p.art-life", "main.art-body"],
+    ["journal/ghostly-wanderer/my-tale/", "journal/ghostly-wanderer/my-tale/index.html", "main.read > p", "main.read"],
+    ["atlas/", "atlas/index.html", "main p", "main"]
+  ];
+  for (const [url, file, sel, mainSel] of CASES) {
+    if (!fs.existsSync(path.join(ROOT, file))) continue;
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    const orig = fs.readFileSync(path.join(ROOT, file), "utf8");
+    await openEdit(page, url); await page.waitForTimeout(400);
+    await caretIn(page, sel, 1.0); await page.keyboard.type(" Zq");
+    await page.click("#ee-save");
+    await page.waitForFunction(() => /Saved at/.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 15000 }).catch(() => {});
+    const st = await reloadReady(page);
+    const shown = await page.evaluate((m) => (document.querySelector(m) || {}).textContent.includes(" Zq"), mainSel);
+    const hidden = await page.evaluate(() => document.documentElement.classList.contains("ee-recent-wait"));
+    check(`[${vpName}] ${url}: reload before the site rebuilds shows the saved edit`, shown && !hidden && /"shown"/.test(st), st);
+    // Edit again on the reloaded page: the new save keeps the first edit (old text never re-saved).
+    await page.evaluate(() => window.EloraeEditor.tryEnterEdit());
+    await page.waitForSelector("#ee-save", { timeout: 15000 }); await page.waitForTimeout(250);
+    await caretIn(page, sel, 1.0); await page.keyboard.type(" Wv");
+    await page.click("#ee-save");
+    await page.waitForFunction(() => /Saved at|refused|failed|changed this part/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 15000 }).catch(() => {});
+    const saved = String(mock.file(file)), n = diffLines(orig, saved, vpName + "-recent-" + file.replace(/\W+/g, "_"));
+    check(`[${vpName}] ${url}: editing after the reload builds on the saved copy (both edits, small diff)`, saved.includes(" Zq") && saved.includes(" Wv") && n <= 2 && saved.length - orig.length === 6, `diff lines ${n}, +${saved.length - orig.length} bytes`);
+    const st2 = await reloadReady(page);
+    const both = await page.evaluate((m) => { const t = document.querySelector(m).textContent; return t.includes(" Zq") && t.includes(" Wv"); }, mainSel);
+    check(`[${vpName}] ${url}: second reload shows both saves`, both && /"shown"/.test(st2), st2);
+    if (url === "articles/aghor/") {
+      // The site catches up: the served page now matches → the kept copy is dropped.
+      await ctx.route((u) => u.href === BASE + url, (r) => r.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: saved }));
+      const st3 = await reloadReady(page);
+      const kept = await page.evaluate(() => localStorage.getItem("elorae-edit-recent"));
+      check(`[${vpName}] once the site serves the saved page, the kept copy is dropped`, /"live"/.test(st3) && !kept && await page.evaluate(() => document.querySelector("main.art-body").textContent.includes(" Wv")), st3);
+      await ctx.unroute((u) => u.href === BASE + url);
+    }
+    if (url === "journal/ghostly-wanderer/my-tale/") {
+      // Another player signs in on this browser: the private copy is never shown, and is cleared.
+      await ctx.addInitScript(`try{localStorage.setItem("elorae-login","jason");document.cookie="elorae-login=jason;path=/";}catch(e){}`);
+      await page.reload({ waitUntil: "load" }); await page.waitForTimeout(1200);
+      const r = await page.evaluate(() => ({ zq: (document.querySelector("main.read") || document.body).textContent.includes(" Zq"), kept: localStorage.getItem("elorae-edit-recent") }));
+      check(`[${vpName}] a different signed-in player never sees the saved copy (and it is cleared)`, !r.zq && !r.kept, JSON.stringify({ zq: r.zq, kept: !!r.kept }));
+    }
+    check(`[${vpName}] ${url}: recent: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // Hero name + epithet (outside main) and both copies.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    await openEdit(page, "articles/vaerek/");
+    await caretIn(page, ".art-title h1", 1.0); await page.keyboard.type(" Zq");
+    await caretIn(page, ".art-title .art-epithet", 1.0); await page.keyboard.type(" of Zq");
+    await page.click("#ee-save"); await page.waitForTimeout(1500);
+    const st = await reloadReady(page);
+    const t = await page.evaluate(() => ({ h1: document.querySelector(".art-title h1").textContent, ep: document.querySelector(".art-title .art-epithet").textContent }));
+    check(`[${vpName}] name/epithet: reload shows the saved name and epithet`, t.h1 === "Vaerek Rathkin Zq" && t.ep === "Wreathbound Ranger of Zq" && /"shown"/.test(st), JSON.stringify(t) + " " + st);
+    await page.goto(BASE + "articles/vaerek.html", { waitUntil: "load" });
+    await page.waitForFunction(() => window.EloraeRecent, null, { timeout: 15000 });
+    const st2 = await status(page);
+    const h1b = await page.evaluate(() => document.querySelector(".art-title h1").textContent);
+    check(`[${vpName}] name/epithet: the .html copy shows it too`, h1b === "Vaerek Rathkin Zq", h1b + " " + st2);
+    check(`[${vpName}] name/epithet recent: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // Index organizer: heading rename survives a reload.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    await page.goto(BASE + "index/ancients/", { waitUntil: "load" });
+    await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    await page.evaluate(() => window.EloraeEditor.tryEnterEdit()); await page.waitForSelector("#ee-idx-save"); await page.waitForTimeout(400);
+    await page.evaluate(() => { const h = document.querySelector("#divines > h2"); h.focus(); h.textContent = "Divines Zq"; h.blur(); });
+    await page.waitForTimeout(200); await page.click("#ee-idx-save"); await page.waitForTimeout(1500);
+    const st = await reloadReady(page);
+    const h = await page.evaluate(() => document.querySelector("#divines > h2").textContent);
+    check(`[${vpName}] index organizer: reload shows the saved heading`, h === "Divines Zq" && /"shown"/.test(st), h + " " + st);
+    check(`[${vpName}] index recent: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // Signing out of edit mode forgets the kept copies.
+  {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); watch(page);
+    await openEdit(page, "articles/aghor/");
+    await caretIn(page, "main.art-body p.art-life", 1.0); await page.keyboard.type(" Zq");
+    await page.click("#ee-save"); await page.waitForTimeout(1200);
+    const before = await page.evaluate(() => !!localStorage.getItem("elorae-edit-recent"));
+    await page.evaluate(() => window.EloraeEdit.session.clear());
+    const after = await page.evaluate(() => localStorage.getItem("elorae-edit-recent"));
+    check(`[${vpName}] signing out of edit mode clears the kept copies`, before && !after);
+    await ctx.close();
+  }
+}
+
 (async () => {
   const srv = await serverForTests();
   BASE = srv.base;
@@ -634,7 +738,7 @@ async function alignTests(browser, vpName) {
   const only = process.env.ONLY || "";
   try {
     for (const vpName of ["desktop", "phone"]) {
-      for (const [name, fn] of [["size", sizeTests], ["diff", (b, v) => diffTests(b, v, counts[v] = {})], ["flow", flowTests], ["batch2", batch2Tests], ["align", alignTests]]) {
+      for (const [name, fn] of [["size", sizeTests], ["diff", (b, v) => diffTests(b, v, counts[v] = {})], ["flow", flowTests], ["batch2", batch2Tests], ["align", alignTests], ["recent", recentTests]]) {
         if (only && only.split(",").indexOf(name) < 0) continue;
         try { await fn(browser, vpName); } catch (e) { check(`[${vpName}] ${name} stage ran without exceptions`, false, e.stack.split("\n").slice(0, 3).join(" ")); }
       }
