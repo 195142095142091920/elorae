@@ -1137,46 +1137,6 @@
         "jason"
       ],
       "everyone": true
-    },
-    "zz-live-card": {
-      "path": "assets/zz-live-card.png",
-      "title": "Zz Live Card",
-      "tags": [
-        "card"
-      ],
-      "uploadedBy": "devin",
-      "date": "2026-10-31T07:20:46.502Z",
-      "owner": "devin",
-      "allowed": [
-        "devin",
-        "jack",
-        "jon",
-        "julie",
-        "sawyer",
-        "sylum",
-        "jason"
-      ],
-      "everyone": true
-    },
-    "zz-live-art-2": {
-      "path": "assets/zz-live-art-2.png",
-      "title": "zz-live-art-2",
-      "tags": [
-        "art"
-      ],
-      "uploadedBy": "devin",
-      "date": "2026-10-31T07:20:47.358Z",
-      "owner": "devin",
-      "allowed": [
-        "devin",
-        "jack",
-        "jon",
-        "julie",
-        "sawyer",
-        "sylum",
-        "jason"
-      ],
-      "everyone": true
     }
   }
 }
