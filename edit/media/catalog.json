@@ -1157,6 +1157,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "darcdressil": {
+      "path": "assets/darcdressil.webp",
+      "title": "Darcdressil",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T16:21:20.439Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
