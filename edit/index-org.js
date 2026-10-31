@@ -74,6 +74,7 @@
 
   function setSelected(card) {
     allCards().forEach(function (c) { c.classList.remove("ee-index-selected"); });
+    if (card) setTarget(null);
     state.selected = card || null;
     if (card) card.classList.add("ee-index-selected");
   }
@@ -96,7 +97,9 @@
     b.innerHTML =
       '<span class="ee-msg">' + esc(msg || "Index organizer · drag cards or select + Categories") + '</span>' +
       '<button type="button" class="ee-btn" id="ee-idx-add">Add card</button>' +
+      '<button type="button" class="ee-btn" id="ee-idx-subs-btn" aria-expanded="' + ($("ee-idx-subs") ? "true" : "false") + '">Sub<span class="ee-wide-only">section</span></button>' +
       '<button type="button" class="ee-btn" id="ee-idx-art" title="Art for the selected card (or drop an image file on a card)">Art</button>' +
+      '<button type="button" class="ee-btn ee-danger" id="ee-idx-del" title="Delete the selected card">Del<span class="ee-wide-only">ete</span></button>' +
       '<button type="button" class="ee-btn" id="ee-idx-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-idx-save">Save</button>';
     $("ee-idx-save").onclick = function () { saveIndex(); };
@@ -106,6 +109,12 @@
     };
     $("ee-idx-add").onclick = addCardPrompt;
     $("ee-idx-art").onclick = openCardArt;
+    $("ee-idx-del").onclick = function () {
+      if (state.selected) return deleteCardFlow(state.selected);
+      barMsg("Select a card to delete it (click it once). To delete a section or subsection, open Subsection.");
+    };
+    $("ee-idx-subs-btn").onclick = function () { if ($("ee-idx-subs")) closeSubs(); else openSubs(); barMsg(b.querySelector(".ee-msg").textContent, cls); };
+    if ($("ee-idx-subs")) setTimeout(positionSubs, 0);
     if (state.busy) Array.prototype.forEach.call(b.querySelectorAll("button"), function (x) { x.disabled = true; });
   }
   function savedAt() { return "Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + "."; }
@@ -248,7 +257,16 @@
       if (subs.length) {
         // Factions-style: nest groups
         var nest = '<div class="toc-nest">';
-        // Cards directly under section before first sub? rare
+        // Cards filed directly in the section (before its first subsection) come first.
+        for (var di = 0, dc; di < sec.children.length; di++) {
+          dc = sec.children[di];
+          if (dc.classList.contains("index-sub")) break;
+          if (dc.classList.contains("index-cards")) Array.prototype.forEach.call(dc.querySelectorAll("a.index-card"), function (card) {
+            var name = (card.querySelector("span") || {}).textContent || card.id;
+            var priv = card.classList.contains("private") ? ' private" data-owner="' + esc(card.getAttribute("data-owner") || "") + '"' : '"';
+            nest += '<a class="toc-name' + priv + ' href="#' + esc(card.id) + '">' + esc(name) + '</a>';
+          });
+        }
         subs.forEach(function (sub) {
           var sid = sub.id;
           var st = sub.textContent || sid;
@@ -290,6 +308,276 @@
     if (on) on.classList.add("on");
   }
 
+  /* ---------- Subsections (h3.index-sub + its .index-cards box, e.g. Factions → Draconic Kindred) ---------- */
+  var EMPTY_HTML = '<p class="index-empty">None filed here yet</p>';
+  function subsOf(sec) { return Array.prototype.filter.call(sec.children, function (c) { return c.matches("h3.index-sub"); }); }
+  function sectionOfId(id) { var n = id && document.getElementById(id); var sec = n && (n.matches("section.index-cat") ? n : n.closest("section.index-cat")); return sec || null; }
+  function setTarget(catId) {
+    Array.prototype.forEach.call(document.querySelectorAll(".ee-index-target"), function (n) { n.classList.remove("ee-index-target"); });
+    state.targetCat = catId || null;
+    var box = catId && cardsContainerFor(catId);
+    if (box) box.classList.add("ee-index-target");
+  }
+  function uniqueId(base) {
+    base = base || "section"; var id = base, n = 2;
+    while (document.getElementById(id)) { id = base + "-" + n; n++; }
+    return id;
+  }
+  function headingOn(h) {
+    h.setAttribute("contenteditable", "true");
+    h.setAttribute("spellcheck", "true");
+    h.classList.add("ee-index-heading");
+    h.setAttribute("data-ee-was", (h.textContent || "").replace(/\s+/g, " ").trim());
+    h.addEventListener("keydown", onHeadingKey);
+    h.addEventListener("blur", onHeadingBlur);
+  }
+  function addSubsection(secId, name) {
+    var sec = document.getElementById(secId);
+    name = String(name || "").replace(/\s+/g, " ").trim();
+    if (!sec || !sec.matches("section.index-cat") || !name) return null;
+    var id = uniqueId(slugify(name));
+    var h = document.createElement("h3"); h.className = "index-sub"; h.id = id; h.textContent = name;
+    var box = document.createElement("div"); box.className = "index-cards ee-index-drop"; box.innerHTML = EMPTY_HTML;
+    sec.appendChild(h); sec.appendChild(box);
+    headingOn(h);
+    rebuildTocFromDom();
+    setSelected(null);
+    setTarget(id);
+    markDirty();
+    barMsg("Added subsection \u201c" + name + "\u201d \u00b7 Add card puts new cards in it, or drag cards in \u00b7 Save to commit");
+    h.scrollIntoView({ block: "center" });
+    return id;
+  }
+  function moveSubsection(id, dir) {
+    var h = document.getElementById(id); if (!h) return;
+    var sec = h.closest("section.index-cat"), list = subsOf(sec), i = list.indexOf(h), j = i + dir;
+    if (i < 0 || j < 0 || j >= list.length) return;
+    var box = h.nextElementSibling && h.nextElementSibling.classList.contains("index-cards") ? h.nextElementSibling : null;
+    var other = list[j], oBox = other.nextElementSibling && other.nextElementSibling.classList.contains("index-cards") ? other.nextElementSibling : null;
+    if (dir < 0) { sec.insertBefore(h, other); if (box) sec.insertBefore(box, other); }
+    else { var after = (oBox || other).nextSibling; sec.insertBefore(h, after); if (box) sec.insertBefore(box, h.nextSibling); }
+    rebuildTocFromDom();
+    markDirty();
+  }
+  function deleteSubsection(id) {
+    var h = document.getElementById(id); if (!h) return false;
+    var box = h.nextElementSibling && h.nextElementSibling.classList.contains("index-cards") ? h.nextElementSibling : null;
+    var n = box ? box.querySelectorAll("a.index-card").length : 0;
+    if (n) { barMsg("\u201c" + h.textContent.trim() + "\u201d still has " + n + " card" + (n > 1 ? "s" : "") + ". Move them out first, then delete it.", "ee-bad-bar"); return false; }
+    if (!window.confirm("Delete the empty subsection \u201c" + h.textContent.trim() + "\u201d?")) return false;
+    if (state.targetCat === id) setTarget(null);
+    if (box) box.remove();
+    h.remove();
+    rebuildTocFromDom();
+    markDirty();
+    return true;
+  }
+  /* ---------- Deleting cards, subsections and sections (Devin) ---------- */
+  function fixEmptyBoxes() {
+    catSections().forEach(function (sec) {
+      Array.prototype.forEach.call(sec.querySelectorAll(".index-cards"), function (b) {
+        if (b.querySelector("a.index-card")) { Array.prototype.forEach.call(b.querySelectorAll("p.index-empty"), function (x) { x.remove(); }); return; }
+        if (!b.querySelector("p.index-empty")) b.insertAdjacentHTML("beforeend", EMPTY_HTML);
+      });
+    });
+  }
+  function headText(n) { return ((n && n.textContent) || "").replace(/\s+/g, " ").trim(); }
+  // "Factions › Draconic Kindred" / "Heroes" for the place a card (or box) sits.
+  function placeOf(node) {
+    var box = node.closest ? node.closest(".index-cards") : null, sec = node.closest ? node.closest("section.index-cat") : null;
+    var h = box && box.previousElementSibling && box.previousElementSibling.matches("h3.index-sub") ? box.previousElementSibling : null;
+    var s = headText(sec && sec.querySelector(":scope > h2"));
+    return h ? s + " \u203a " + headText(h) : s;
+  }
+  function placeId(node) {
+    var box = node.closest(".index-cards"), h = box && box.previousElementSibling && box.previousElementSibling.matches("h3.index-sub") ? box.previousElementSibling : null;
+    return h ? h.id : (node.closest("section.index-cat") || {}).id;
+  }
+  function ownersP(slugs) {
+    return E.getFile("edit/profiles.json").then(function (f) {
+      var o = {}; slugs.forEach(function (s) { var w = Media.ownersOf(f.text, s); if (w.length) o[s] = w; }); return o;
+    }, function () { return {}; });
+  }
+  function ownerLine(owners, names) {
+    var ks = Object.keys(owners); if (!ks.length) return "";
+    var cap = function (x) { return x.charAt(0).toUpperCase() + x.slice(1); };
+    return "<strong>" + ks.map(function (s) { return esc(names[s] || s) + " is " + esc(owners[s].map(cap).join(" and ")) + "\u2019s character"; }).join("; ") + ".</strong> Deleting the page also removes it from their editable pages.";
+  }
+  function plural(n, w) { return n + " " + w + (n === 1 ? "" : "s"); }
+  /* One commit: the Index as on screen (both copies) + the article deletions and every clean-up. */
+  function commitWithDeletes(o) {
+    var Ed = window.EloraeEditor;
+    return saveIndex({
+      message: o.message, done: o.done, force: true,
+      prepare: function (html) {
+        (o.slugs || []).forEach(function (s) { html = Media.unlinkArticle(html, s); });
+        if (!(o.slugs || []).length && !(o.anchors || []).length && !(o.sections || []).length) return Promise.resolve({ html: html });
+        barMsg((o.slugs || []).length ? "Deleting\u2026 (cleaning up links on other pages)" : "Saving\u2026", "ee-busy");
+        return Ed.planDelete({ slugs: o.slugs || [], indexText: html, sections: o.sections, anchors: o.anchors, moveTo: o.moveTo, fallback: o.fallback }).then(function (plan) {
+          state.lastPlan = plan;
+          return { html: html, files: plan.files.concat(plan.deletes) };
+        });
+      }
+    });
+  }
+  function deleteCardFlow(card) {
+    var Ed = window.EloraeEditor;
+    if (!card || !Ed || !Ed.deleteDialog || state.busy) return;
+    var slug = cardSlug(card), name = cardName(card), names = {}; names[slug] = name;
+    var copies = allCards().filter(function (c) { return cardSlug(c) === slug; }), where = placeOf(card), multi = copies.length > 1;
+    return ownersP([slug]).then(function (owners) {
+      return Ed.deleteDialog({
+        title: "Delete \u201c" + name + "\u201d?",
+        lines: [multi ? "This card is in " + copies.length + " places: " + copies.map(function (c) { return esc(placeOf(c)); }).join(", ") + "." : "", ownerLine(owners, names)].filter(Boolean),
+        groups: [
+          multi ? { name: "where", options: [{ value: "here", label: "Remove it from \u201c" + esc(where) + "\u201d only", checked: true }, { value: "all", label: "Delete it everywhere (all " + copies.length + " cards)" }] } : null,
+          { name: "article", showIf: multi ? { where: "all" } : null, options: [{ value: "keep", label: "Keep the article page (just unlist the card)", checked: true }, { value: "delete", label: "Also delete its article page (both copies) and the links to it on other pages" }] }
+        ].filter(Boolean),
+        ok: "Delete"
+      });
+    }).then(function (v) {
+      if (!v) return false;
+      var everywhere = !multi || v.where === "all", delArt = everywhere && v.article === "delete";
+      if (delArt) delete state.art[slug];
+      (everywhere ? copies : [card]).forEach(function (c) { c.remove(); });
+      setSelected(null); fixEmptyBoxes(); rebuildTocFromDom(); markDirty();
+      var what = everywhere ? "" : " from \u201c" + where + "\u201d";
+      if (!delArt) return saveIndex({ message: "Index: remove card \u201c" + name + "\u201d" + what + " [edit-mode]", done: "Removed \u201c" + name + "\u201d" + what + " (the article stays). " });
+      return commitWithDeletes({ slugs: [slug], message: "Delete \u201c" + name + "\u201d: card + article (articles/" + slug + ") + clean-up [edit-mode]", done: "Deleted \u201c" + name + "\u201d and its article. " });
+    });
+  }
+  function deleteSectionFlow(id) {
+    var Ed = window.EloraeEditor, el = document.getElementById(id);
+    if (!el || !Ed || !Ed.deleteDialog || state.busy) return;
+    var isSub = el.matches("h3.index-sub"), sec = el.closest("section.index-cat");
+    var box = isSub && el.nextElementSibling && el.nextElementSibling.classList.contains("index-cards") ? el.nextElementSibling : null;
+    var cards = Array.prototype.slice.call((isSub ? box : el) ? (isSub ? box : el).querySelectorAll("a.index-card") : []);
+    var label = isSub ? headText(el) : headText(el.querySelector(":scope > h2"));
+    if (isSub && !cards.length) return deleteSubsection(id);
+    closeSubs();
+    var removedIds = isSub ? [id] : [id].concat(subsOf(el).map(function (h) { return h.id; }));
+    // Where the cards can go: every other section / subsection.
+    var targets = [];
+    catSections().forEach(function (s) {
+      if (!isSub && s === el) return;
+      var sl = headText(s.querySelector(":scope > h2"));
+      targets.push({ value: s.id, label: sl });
+      subsOf(s).forEach(function (h) { if (h.id !== id) targets.push({ value: h.id, label: sl + " \u203a " + headText(h) }); });
+    });
+    if (isSub) targets.sort(function (a, b) { return (a.value === sec.id ? -1 : 0) - (b.value === sec.id ? -1 : 0); });
+    var slugs = [], names = {};
+    cards.forEach(function (c) { var s = cardSlug(c); if (s && slugs.indexOf(s) < 0) { slugs.push(s); names[s] = cardName(c); } });
+    var n = cards.length;
+    return ownersP(slugs).then(function (owners) {
+      return Ed.deleteDialog({
+        title: "Delete the " + (isSub ? "subsection" : "section") + " \u201c" + label + "\u201d?",
+        lines: [n ? "It has " + plural(n, "card") + (isSub ? "" : (removedIds.length > 1 ? " (in " + plural(removedIds.length - 1, "subsection") + " too)" : "")) + ". Choose what happens to them:" : "It has no cards.",
+          !isSub ? "Its heading also leaves the Categories lists on every article." : "",
+          ownerLine(owners, names) ? ownerLine(owners, names).replace("Deleting the page", "If you delete their pages, that") : ""].filter(Boolean),
+        groups: n ? [{ name: "cards", options: [{ value: "move", label: "Move the cards to another section", checked: true }, { value: "delete", label: "Delete the cards" }] }] : [],
+        selects: n && targets.length ? [{ name: "to", label: "Move to", options: targets, showIf: { cards: "move" } }] : [],
+        checks: n ? [{ name: "articles", label: "Also delete their article pages (" + slugs.length + ") and the links to them on other pages", showIf: { cards: "delete" } }] : [],
+        ok: "Delete " + (isSub ? "subsection" : "section")
+      });
+    }).then(function (v) {
+      if (!v) return false;
+      var moveTo = {}, del = [], fallback = {}, toLabel = "";
+      if (n && v.cards === "move") {
+        if (!v.to) { barMsg("Pick where the cards go.", "ee-bad-bar"); return false; }
+        var tb = cardsContainerFor(v.to);
+        toLabel = (targets.filter(function (t) { return t.value === v.to; })[0] || {}).label || v.to;
+        cards.forEach(function (c) {
+          var s = cardSlug(c);
+          if (tb && Array.prototype.some.call(tb.querySelectorAll("a.index-card"), function (x) { return x !== c && cardSlug(x) === s; })) { c.remove(); return; }
+          moveCardToCategory(c, v.to); moveTo[s] = v.to;
+        });
+      } else if (n) {
+        cards.forEach(function (c) { c.remove(); });
+        if (v.articles) { del = slugs; del.forEach(function (s) { delete state.art[s]; }); allCards().forEach(function (c) { if (del.indexOf(cardSlug(c)) >= 0) c.remove(); }); }
+        removedIds.forEach(function (r) { fallback[r] = isSub ? sec.id : ""; });
+      }
+      if (state.targetCat && removedIds.indexOf(state.targetCat) >= 0) setTarget(null);
+      if (isSub) { if (box) box.remove(); el.remove(); } else el.remove();
+      setSelected(null); fixEmptyBoxes(); rebuildTocFromDom(); markDirty(); closeSubs();
+      var kind = isSub ? "subsection" : "section";
+      var tail = !n ? "" : v.cards === "move" ? "; " + plural(n, "card") + " moved to \u201c" + toLabel + "\u201d" : "; " + plural(n, "card") + " deleted" + (del.length ? " with " + plural(del.length, "article") : "");
+      return commitWithDeletes({ slugs: del, sections: isSub ? [] : [id], anchors: removedIds, moveTo: moveTo, fallback: fallback,
+        message: "Index: delete " + kind + " \u201c" + label + "\u201d" + tail + " [edit-mode]", done: "Deleted the " + kind + " \u201c" + label + "\u201d" + tail + ". " });
+    });
+  }
+
+  function closeSubs() { var p = $("ee-idx-subs"); if (p) p.remove(); }
+  function positionSubs() {
+    var p = $("ee-idx-subs"), b = $("ee-bar"); if (!p) return;
+    var top = window.innerHeight;
+    if (b && b.getClientRects().length) top = b.getBoundingClientRect().top;
+    p.style.bottom = Math.max(8, Math.round(window.innerHeight - top + 10)) + "px";
+  }
+  function renderSubs(parent) {
+    var p = $("ee-idx-subs"); if (!p) return;
+    var secs = catSections();
+    if (!parent || !document.getElementById(parent)) parent = (secs[0] || {}).id;
+    p.setAttribute("data-parent", parent);
+    var sec = document.getElementById(parent), list = sec ? subsOf(sec) : [];
+    p.innerHTML = '<div class="ee-subs-row"><label class="ee-subs-l">Section <select id="ee-sub-parent" class="ee-field">' +
+      secs.map(function (s) { return '<option value="' + esc(s.id) + '"' + (s.id === parent ? " selected" : "") + '>' + esc(((s.querySelector(":scope > h2") || {}).textContent || s.id).trim()) + '</option>'; }).join("") +
+      '</select></label><input type="text" id="ee-sub-name" class="ee-field" placeholder="New subsection name" autocomplete="off" spellcheck="true">' +
+      '<button type="button" class="ee-btn ee-primary" id="ee-sub-add">Add</button><button type="button" class="ee-btn" id="ee-sub-close">Done</button></div>' +
+      '<div class="ee-subs-row ee-subs-sec"><button type="button" class="ee-btn ee-danger" id="ee-sec-del">Delete this section\u2026</button></div>' +
+      '<ul id="ee-sub-list">' + (list.length ? list.map(function (h, i) {
+        var box = h.nextElementSibling, n = box && box.classList.contains("index-cards") ? box.querySelectorAll("a.index-card").length : 0;
+        return '<li data-sub="' + esc(h.id) + '"><span class="ee-sub-name">' + esc(h.textContent.trim()) + '</span><span class="ee-sub-n">' + n + ' card' + (n === 1 ? "" : "s") + '</span>' +
+          '<button type="button" class="ee-btn" data-act="go" aria-label="Show it">Show</button>' +
+          '<button type="button" class="ee-btn" data-act="up" aria-label="Move up"' + (i === 0 ? " disabled" : "") + '>\u2191</button>' +
+          '<button type="button" class="ee-btn" data-act="down" aria-label="Move down"' + (i === list.length - 1 ? " disabled" : "") + '>\u2193</button>' +
+          '<button type="button" class="ee-btn" data-act="del" aria-label="Delete">\u2715</button></li>';
+      }).join("") : '<li class="ee-sub-none">No subsections in this section yet.</li>') + '</ul>' +
+      '<p class="ee-note">Rename a subsection by clicking its heading on the page.</p>';
+    $("ee-sub-parent").onchange = function () { renderSubs(this.value); positionSubs(); };
+    var add = function () {
+      var v = $("ee-sub-name").value;
+      if (!String(v || "").trim()) { $("ee-sub-name").focus(); return; }
+      addSubsection(p.getAttribute("data-parent"), v);
+      renderSubs(p.getAttribute("data-parent")); positionSubs();
+    };
+    $("ee-sub-add").onclick = add;
+    $("ee-sec-del").onclick = function () { deleteSectionFlow(p.getAttribute("data-parent")); };
+    $("ee-sub-name").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); add(); } };
+    $("ee-sub-close").onclick = function () { closeSubs(); barMsg(); };
+    Array.prototype.forEach.call(p.querySelectorAll("#ee-sub-list [data-act]"), function (btn) {
+      btn.onclick = function () {
+        var id = btn.closest("li").getAttribute("data-sub"), act = btn.getAttribute("data-act");
+        if (act === "up") moveSubsection(id, -1);
+        else if (act === "down") moveSubsection(id, 1);
+        else if (act === "del") { deleteSectionFlow(id); return; }
+        else if (act === "go") { var h = document.getElementById(id); if (h) h.scrollIntoView({ block: "center" }); setSelected(null); setTarget(id); }
+        renderSubs(p.getAttribute("data-parent")); positionSubs();
+      };
+    });
+  }
+  function openSubs() {
+    if (!state.active) return;
+    var p = $("ee-idx-subs");
+    if (!p) { p = document.createElement("div"); p.id = "ee-idx-subs"; p.setAttribute("role", "region"); p.setAttribute("aria-label", "Subsections"); p.setAttribute("data-ee-ui", "1"); document.body.appendChild(p); }
+    var from = state.targetCat || (state.selected && categoryOf(state.selected)) || (location.hash || "").slice(1);
+    var sec = sectionOfId(from);
+    renderSubs(sec ? sec.id : null);
+    positionSubs();
+  }
+  // Clicking an empty subsection (or the empty space of a section's box) makes it the target for Add card.
+  function onBoxClick(e) {
+    if (!state.active) return;
+    var t = e.target;
+    if (!t.closest || t.closest("a.index-card") || t.closest(".ee-index-heading") || t.closest("#ee-bar,#ee-idx-subs")) return;
+    var box = t.closest("main.index-flow .index-cards");
+    if (!box) return;
+    var prev = box.previousElementSibling, id = prev && prev.classList.contains("index-sub") ? prev.id : (box.closest("section.index-cat") || {}).id;
+    if (!id) return;
+    setSelected(null); setTarget(id);
+    var h = document.getElementById(id), name = h ? (h.querySelector("h2") || h).textContent.trim() : id;
+    barMsg("\u201c" + name + "\u201d selected \u00b7 Add card puts the new card here");
+  }
+
   function enableHeaderEdit() {
     Array.prototype.forEach.call(document.querySelectorAll("main.index-flow section.index-cat > h2, main.index-flow h3.index-sub"), function (h) {
       h.setAttribute("contenteditable", "true");
@@ -325,6 +613,7 @@
   }
 
   function clearDragMarks() {
+    document.documentElement.classList.remove("ee-idx-dragging");
     Array.prototype.forEach.call(document.querySelectorAll(".ee-index-dragover, .ee-index-dragging, .ee-index-before, .ee-index-after"), function (n) {
       n.classList.remove("ee-index-dragover", "ee-index-dragging", "ee-index-before", "ee-index-after");
     });
@@ -341,6 +630,7 @@
     e.dataTransfer.setData("text/ee-card-id", card.id);
     e.dataTransfer.effectAllowed = "move";
     card.classList.add("ee-index-dragging");
+    document.documentElement.classList.add("ee-idx-dragging");
   }
   function onDragEnd() { dragCard = null; scrollV = 0; clearDragMarks(); }
   // Where a drop at (x, y) lands: before/after the card under the pointer, or the end of a box.
@@ -459,7 +749,7 @@
      add some) and an empty Lore section. Both copies (articles/<slug>/index.html for the pretty
      URL and articles/<slug>.html) are written, like every other article. */
   var TEMPLATE_ARTICLE = "articles/aghor/index.html";
-  function articleFromTemplate(tpl, name, catId) {
+  function articleFromTemplate(tpl, name, catId, secId) {
     var title = esc(name), T = tpl;
     var root = M.parse(T);
     var hero = findSrc(root, function (n) { return n.tag === "section" && cls(n, "art-hero"); });
@@ -479,7 +769,8 @@
     // Category rail: highlight this card's category.
     T = T.replace(/(<nav class="art-index-panel"[\s\S]*?<\/nav>)/, function (nav) {
       nav = nav.replace(/<a class="on" href=/g, '<a class="" href=').replace(/class="toc-name on"/g, 'class="toc-name"').replace(/class="toc-cat open"/g, 'class="toc-cat"').replace(/ aria-expanded="true"/g, ' aria-expanded="false"');
-      return nav.replace(new RegExp('<a class="" href="/index/ancients/#' + catId.replace(/[^\w-]/g, "") + '"'), '<a class="on" href="/index/ancients/#' + esc(catId) + '"');
+      var railId = String(secId || catId);
+      return nav.replace(new RegExp('<a class="" href="/index/ancients/#' + railId.replace(/[^\w-]/g, "") + '"'), '<a class="on" href="/index/ancients/#' + esc(railId) + '"');
     });
     return T;
   }
@@ -499,10 +790,10 @@
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
-  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "idxart1"; })();
-  function newArticle(name, catId) {
+  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "arts1"; })();
+  function newArticle(name, catId, secId) {
     return E.getFile(TEMPLATE_ARTICLE).then(function (f) {
-      try { return articleFromTemplate(f.text, name, catId); } catch (e) { return articleFallback(name, catId); }
+      try { return articleFromTemplate(f.text, name, catId, secId); } catch (e) { return articleFallback(name, catId); }
     }, function () { return articleFallback(name, catId); });
   }
 
@@ -513,7 +804,7 @@
     name = String(name).replace(/\s+/g, " ").trim();
     if (!name) return;
     var slug = slugify(name);
-    var catId = (state.selected && categoryOf(state.selected)) ||
+    var catId = state.targetCat || (state.selected && categoryOf(state.selected)) ||
       ((location.hash || "").replace(/^#/, "")) ||
       (catSections()[0] && catSections()[0].id) || "ancients";
     if (!cardsContainerFor(catId)) {
@@ -534,7 +825,8 @@
                  E.getFile(artCopy).then(function () { return true; }, function (err) { if (err && err.status && err.status !== 404) throw err; return false; })])
     .then(function (ex) {
       if (ex[0] || ex[1]) { state.busy = false; barMsg("articles/" + slug + " already exists. Pick another name.", "ee-bad-bar"); return; }
-      return newArticle(name, catId).then(function (html) {
+      var secEl = sectionOfId(catId);
+      return newArticle(name, catId, secEl && secEl.id).then(function (html) {
         var box = cardsContainerFor(catId);
         Array.prototype.forEach.call(box.querySelectorAll("p.index-empty"), function (x) { x.remove(); });
         var a = document.createElement("a");
@@ -565,7 +857,7 @@
      runtime state (nav-fade, inline styles, flipped cards, image fallbacks, TOC
      highlight/pin state, editing classes) never reaches the file. */
   var M = window.EloraeSrcMap;
-  var RUNTIME_CLASS = /^(nav-fade[\w-]*|ee-index-[\w-]+|is-lore-flipped)$/;
+  var RUNTIME_CLASS = /^(nav-fade[\w-]*|ee-index-[\w-]+|is-lore-flipped)$/; // incl. ee-index-target / -drop
   function imgKey(src) {
     var s = String(src || "").trim().replace(/^https?:\/\/[^\/]+/i, "").replace(/^\/cdn-cgi\/image\/[^\/]+/i, "");
     try { s = decodeURI(s); } catch (e) {}
@@ -690,7 +982,7 @@
     opts = opts || {};
     if (state.busy) return Promise.resolve(false);
     if (state.artBusy) { barMsg("Still preparing an image… try Save again in a moment."); return Promise.resolve(false); }
-    if (!state.dirty && !opts.extra) { barMsg("No changes to save."); return Promise.resolve(false); }
+    if (!state.dirty && !opts.extra && !opts.force) { barMsg("No changes to save."); return Promise.resolve(false); }
     state.busy = true;
     barMsg(opts.extra ? "Creating…" : "Saving Index…", "ee-busy");
     var mp = P.mirrorPath ? P.mirrorPath(PATH) : null;
@@ -699,6 +991,9 @@
     var who = (state.profile && state.profile.person) || "devin";
     return E.getFile(PATH).then(function (f) {
       var html = buildIndexHtml(f.text);
+      return (opts.prepare ? opts.prepare(html) : Promise.resolve(null)).then(function (pr) {
+      if (pr && pr.html) html = pr.html;
+      if (pr && pr.files) opts.extra = (opts.extra || []).concat(pr.files);
       var catalogP = slugs.some(function (k) { return art[k].file; })
         ? E.getFile(Media.CATALOG).then(function (c) { return JSON.parse(c.text); }, function () { return { version: 1, media: {} }; })
         : Promise.resolve(null);
@@ -735,12 +1030,13 @@
           if (changed) { out.push({ path: PATH, text: html }); remembered.push({ path: PATH, text: html, base: f.text }); }
           // The other Index copy always gets the very same file (they must never drift apart).
           if (m && m.text !== html) { out.push({ path: mp, text: html }); remembered.push({ path: mp, text: html, base: m.text }); }
-          (opts.extra || []).forEach(function (x) { out.push({ path: x.path, text: x.text }); });
+          (opts.extra || []).forEach(function (x) { out.push(x.delete ? { path: x.path, delete: true } : { path: x.path, text: x.text }); });
           res[1].forEach(function (pair) { pair.forEach(function (x) { if (x) { out.push({ path: x.path, text: x.text }); remembered.push(x); } }); });
           out = out.concat(files);
           if (!out.length) return "none";
           return E.commitFiles(out, opts.message || (slugs.length ? "Index: card art + reorganize [edit-mode]" : "Index: reorganize cards [edit-mode]"), E.BRANCH);
         });
+      });
       });
     }).then(function (res) {
       state.busy = false;
@@ -792,6 +1088,8 @@
     document.addEventListener("drop", onDrop, true);
     document.addEventListener("click", onCardClick, true);
     document.addEventListener("click", onTocClick, true);
+    document.addEventListener("click", onBoxClick, true);
+    window.addEventListener("resize", positionSubs);
     window.addEventListener("beforeunload", onUnload);
     barMsg("Index organizer · drag cards between categories, or select + Categories");
     var g = $("ee-glyph");
@@ -811,7 +1109,11 @@
     document.removeEventListener("drop", onDrop, true);
     document.removeEventListener("click", onCardClick, true);
     document.removeEventListener("click", onTocClick, true);
+    document.removeEventListener("click", onBoxClick, true);
+    window.removeEventListener("resize", positionSubs);
     window.removeEventListener("beforeunload", onUnload);
+    closeSubs();
+    setTarget(null);
     disableHeaderEdit();
     disableDrag();
     setSelected(null);
@@ -842,7 +1144,9 @@
     stop: stop,
     cancel: cancelOrg,
     setProfile: setProfile,
-    active: function () { return state.active; }
+    active: function () { return state.active; },
+    addSubsection: addSubsection,
+    get lastPlan() { return state.lastPlan || null; }
   };
 
   // Editor may have resolved profile before this file loaded — refresh glyph.

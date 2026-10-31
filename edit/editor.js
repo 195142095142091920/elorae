@@ -361,6 +361,7 @@
         });
         setupTitles(mainEl);
         state.pending = {}; state.hero = null;
+        setupArts();
         state.railRestore = E.closePhoneRail ? E.closePhoneRail() : null;
         document.documentElement.classList.add("ee-editing", "ee-page-editing");
         // New lines become real paragraphs (body size), not bare divs.
@@ -458,8 +459,10 @@
     var shareBtn = (admin && V) ? '<button type="button" class="ee-btn" id="ee-share">Share</button>' : '';
     var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
     var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart" aria-label="New article">New<span class="ee-wide-only"> article</span></button>' : '';
+    var delBtn = admin && articleSlugOfPath() ? '<button type="button" class="ee-btn ee-danger" id="ee-delart" aria-label="Delete article">Del<span class="ee-wide-only">ete</span></button>' : '';
+    var artsBtn = state.arts ? '<button type="button" class="ee-btn" id="ee-arts-btn" aria-expanded="' + (state.arts.open ? "true" : "false") + '">Arts<span class="ee-wide-only"> (' + state.arts.list.length + ')</span></button>' : '';
     bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
-      artBtn + shareBtn + ownerBtn + newBtn +
+      artsBtn + artBtn + shareBtn + ownerBtn + newBtn + delBtn +
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-save">Save</button>', cls);
     $("ee-save").onclick = save;
@@ -468,13 +471,16 @@
       cancelEdit(); closeBar();
     };
     if ($("ee-art")) $("ee-art").onclick = openArtPanel;
+    if ($("ee-arts-btn")) $("ee-arts-btn").onclick = function () { if (state.arts) { state.arts.open = !state.arts.open; renderArts(); editBar(msg, cls); } };
     if ($("ee-share")) $("ee-share").onclick = openSharePanel;
     if ($("ee-owner")) $("ee-owner").onclick = openOwnerPanel;
+    if ($("ee-delart")) $("ee-delart").onclick = deleteArticleFlow;
     if ($("ee-newart")) $("ee-newart").onclick = function () {
       if (state.dirty && !window.confirm("You have unsaved changes on this page. Discard them and start a new article?")) return;
       openNewArticle();
     };
     ensureStyleBar();
+    if ($("ee-arts")) setTimeout(positionArts, 0);
   }
 
   /* ---------------- Styling toolbar (caret block) ---------------- */
@@ -1319,16 +1325,18 @@
     }
     var b = $("ee-body");
     b.innerHTML = '<p class="ee-k">' + esc(opts.title || "Art") + '</p>' +
-      '<form id="ee-pick-form" class="ee-gal-up">' +
-      '<p class="ee-sub">Upload new</p>' +
-      '<input type="file" id="ee-pick-file" class="ee-field" accept="image/png,image/jpeg,image/webp,image/gif">' +
-      '<p class="ee-note">' + esc(opts.note || "Nothing is published until you press Save.") + ' Big images are resized to ' + Media.MAX_EDGE + ' px on the long edge.</p>' +
-      '<p class="ee-err" id="ee-pick-err" hidden></p></form>' +
+      (opts.upload === false
+        ? '<p class="ee-note">' + esc(opts.noUploadNote || "Uploading new pictures needs Devin; pick one from the gallery.") + '</p><p class="ee-err" id="ee-pick-err" hidden></p>'
+        : '<form id="ee-pick-form" class="ee-gal-up">' +
+          '<p class="ee-sub">Upload new</p>' +
+          '<input type="file" id="ee-pick-file" class="ee-field" accept="image/png,image/jpeg,image/webp,image/gif">' +
+          '<p class="ee-note">' + esc(opts.note || "Nothing is published until you press Save.") + ' Big images are resized to ' + Media.MAX_EDGE + ' px on the long edge.</p>' +
+          '<p class="ee-err" id="ee-pick-err" hidden></p></form>') +
       '<p class="ee-sub">Or pick from the gallery</p>' +
       '<input type="search" id="ee-pick-search" class="ee-field" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
       '<div id="ee-pick-wrap"><p class="ee-note">Loading gallery…</p></div>';
     var fileIn = $("ee-pick-file");
-    fileIn.onchange = function () {
+    if (fileIn) fileIn.onchange = function () {
       var f = fileIn.files && fileIn.files[0];
       if (!f) return;
       var err = $("ee-pick-err"); err.hidden = true;
@@ -1338,7 +1346,7 @@
       });
     };
     loadCatalogForGallery().then(function (catalog) {
-      var all = Media.listVisible(catalog, "devin", true);
+      var all = Media.listVisible(catalog, opts.person || "devin", opts.person ? P.isAdmin(state.profile) : true);
       function grid(items) {
         if (!items.length) return '<p class="ee-note">No pictures yet.</p>';
         return '<div class="ee-gallery">' + items.map(function (m) {
@@ -1503,6 +1511,7 @@
     state.hero = null;
   }
   function applyCatalogToHero(entry) {
+    if (state.arts && state.arts.list.length) { artsReplaceMain({ src: gallerySrc(entry), alt: entry.title || "" }); closePanel(); editBar("Main art replaced \u00b7 Save to publish it, Cancel to keep the old art"); return; }
     if (!setHeroPreview(gallerySrc(entry), entry.title || "")) return;
     closePanel();
     editBar("Hero preview \u00b7 Save to publish it, Cancel to keep the old art");
@@ -1535,6 +1544,301 @@
     editBar("Image inserted \u00b7 Save to publish");
   }
 
+  /* ---------------- Hero art set (the article's art switcher) ----------------
+     Every article with a hero can hold several arts: the main one shows first (and is the Index
+     card art); the others are reached with the switcher (art-swap.js). Edited from the "Arts"
+     strip over the hero; written as the site's own switcher markup, in one commit with the
+     uploads. Players: their own pages, gallery pictures only (uploads go to assets/, Devin's). */
+  function artsAllowed() { return !!(Media && Media.heroParts && heroSection() && titlesAllowed() && state.base && state.base.text); }
+  function canUploadArt() { return !!(Media && P.canEdit(state.profile, Media.ASSET_DIR + "/x.webp") && P.canEdit(state.profile, Media.CATALOG)); }
+  function artSig(list, main) { return JSON.stringify([main, list.map(function (a) { return [a.src, a.alt, a.pending ? a.pending.key : ""]; })]); }
+  function setupArts() {
+    state.arts = null;
+    if (!artsAllowed()) return;
+    var parts = Media.heroParts(state.base.text);
+    if (!parts) return;
+    var list = parts.arts.map(function (a) { return { src: a.src, alt: a.alt, pos: a.pos, raw: a.raw, src0: a.src, alt0: a.alt, pending: null }; });
+    state.arts = { list: list, main: parts.main, shown: parts.main, sig0: artSig(list, parts.main), main0Key: list[parts.main] ? imgKey(list[parts.main].src) : null, open: false };
+  }
+  function artsDirty() { var A = state.arts; return !!A && artSig(A.list, A.main) !== A.sig0; }
+  function artUrl(a) { return a.pending ? a.pending.url : a.src; }
+  function closeArts() {
+    var b = $("ee-arts"); if (b) b.remove();
+    document.documentElement.classList.remove("ee-arts-on");
+    window.removeEventListener("resize", positionArts);
+    window.removeEventListener("scroll", positionArts);
+  }
+  // Docked just above the edit bar (always in view while the hero art is being edited).
+  function positionArts() {
+    var box = $("ee-arts");
+    if (!box) return;
+    var b = $("ee-bar"), sb = $("ee-stylebar"), top = window.innerHeight;
+    [b, sb].forEach(function (x) { if (x && x.getClientRects().length) { var r = x.getBoundingClientRect(); if (r.height && r.top < top && r.top > window.innerHeight / 2) top = r.top; } });
+    box.style.bottom = Math.max(8, Math.round(window.innerHeight - top + 10)) + "px";
+  }
+  function renderArts() {
+    var A = state.arts;
+    if (!A || !A.open || !state.editing) { closeArts(); return; }
+    var box = $("ee-arts");
+    if (!box) {
+      box = el("div", { id: "ee-arts", role: "region", "aria-label": "Arts", "data-ee-ui": "1" });
+      document.body.appendChild(box);
+      bindArtsBox(box);
+      window.addEventListener("resize", positionArts);
+      window.addEventListener("scroll", positionArts, { passive: true });
+    }
+    document.documentElement.classList.add("ee-arts-on");
+    var n = A.list.length;
+    box.innerHTML = '<div class="ee-arts-head"><span class="ee-arts-title">Arts \u00b7 ' + n + '</span>' +
+      '<span class="ee-arts-hint">' + (n > 1 ? "Main shows first and is the Index card art. Drag or use \u2039 \u203a to reorder." : "Add a second art to give this page an art switcher.") + '</span>' +
+      '<button type="button" class="ee-btn ee-primary" id="ee-arts-add">+ Add art</button>' +
+      '<button type="button" class="ee-btn" id="ee-arts-close">Done</button></div>' +
+      '<div class="ee-arts-list" role="list">' + A.list.map(function (a, i) {
+        var main = i === A.main;
+        return '<div class="ee-art-item' + (main ? " is-main" : "") + (i === A.shown ? " is-shown" : "") + '" role="listitem" draggable="true" data-i="' + i + '">' +
+          '<button type="button" class="ee-art-thumb" data-act="show" aria-label="Show ' + esc(a.alt || "art " + (i + 1)) + ' in the hero"><img alt="" draggable="false"></button>' +
+          (main ? '<span class="ee-art-badge">Main</span>' : '') +
+          '<input type="text" class="ee-field ee-art-cap" data-act="cap" value="' + esc(a.alt || "") + '" aria-label="Caption" placeholder="Caption" autocomplete="off" spellcheck="true">' +
+          '<div class="ee-art-row">' +
+          '<button type="button" class="ee-btn ee-art-left" data-act="left" aria-label="Move earlier"' + (i === 0 ? " disabled" : "") + '>\u2039</button>' +
+          '<button type="button" class="ee-btn ee-art-setmain" data-act="main" aria-pressed="' + (main ? "true" : "false") + '"' + (main ? " disabled" : "") + '>' + (main ? "Main" : "Set as main") + '</button>' +
+          '<button type="button" class="ee-btn ee-art-right" data-act="right" aria-label="Move later"' + (i === n - 1 ? " disabled" : "") + '>\u203a</button>' +
+          '<button type="button" class="ee-btn ee-art-del" data-act="del" aria-label="Remove ' + esc(a.alt || "this art") + '"' + (n < 2 ? " disabled" : "") + '>\u2715</button>' +
+          '</div></div>';
+      }).join("") + '</div>';
+    Array.prototype.forEach.call(box.querySelectorAll(".ee-art-item"), function (it) {
+      var a = A.list[+it.getAttribute("data-i")], im = it.querySelector(".ee-art-thumb img");
+      if (!a || !im) return;
+      var u = artUrl(a);
+      if (!a.pending && Media.thumbHtml && /^\/?assets\//.test(String(u).replace(/^\//, ""))) {
+        var m = /src="([^"]*)"/.exec(Media.thumbHtml(u));
+        im.onerror = function () { im.onerror = null; im.src = u; };
+        im.src = m ? m[1] : u;
+      } else im.src = u;
+    });
+    positionArts();
+  }
+  function artsChanged(msg) {
+    var A = state.arts;
+    if (A.shown >= A.list.length) A.shown = A.main;
+    previewArt(A.shown);
+    renderArts();
+    state.dirty = state.dirty || artsDirty();
+    if (msg) editBar(msg);
+  }
+  function previewArt(i) {
+    var A = state.arts, a = A && A.list[i];
+    if (!a) return;
+    var was = state.dirty;
+    setHeroPreview(a.pending ? null : a.src, a.alt || "", a.pending || null);
+    if (state.hero) state.hero.viaArts = true;
+    state.dirty = was;
+  }
+  function artsMove(i, j) {
+    var A = state.arts;
+    if (!A || i === j || i < 0 || j < 0 || i >= A.list.length || j >= A.list.length) return;
+    var mainIt = A.list[A.main], shownIt = A.list[A.shown];
+    var it = A.list.splice(i, 1)[0];
+    A.list.splice(j, 0, it);
+    A.main = A.list.indexOf(mainIt); A.shown = A.list.indexOf(shownIt);
+    artsChanged("Arts reordered \u00b7 Save to publish");
+  }
+  function artsSetMain(i) {
+    var A = state.arts; if (!A || !A.list[i]) return;
+    A.main = i; A.shown = i;
+    artsChanged("Main art set \u00b7 Save to publish");
+  }
+  function artsRemove(i) {
+    var A = state.arts; if (!A || A.list.length < 2 || !A.list[i]) return;
+    if (!window.confirm("Remove \u201c" + (A.list[i].alt || "this art") + "\u201d from this page's arts? (The picture stays in the gallery.)")) return;
+    var mainIt = A.list[A.main], shownIt = A.list[A.shown];
+    A.list.splice(i, 1);
+    A.main = A.list.indexOf(mainIt); if (A.main < 0) A.main = Math.min(i, A.list.length - 1);
+    A.shown = A.list.indexOf(shownIt); if (A.shown < 0) A.shown = A.main;
+    artsChanged(A.list.length > 1 ? "Art removed \u00b7 Save to publish" : "Art removed \u00b7 one art left, the switcher goes away when you Save");
+  }
+  function artsAdd(item) {
+    var A = state.arts; if (!A) return;
+    A.list.push(item);
+    if (!A.list[A.main] || A.list.length === 1) A.main = 0;
+    A.shown = A.list.length - 1;
+    A.open = true;
+    artsChanged("Added \u201c" + (item.alt || "art") + "\u201d \u00b7 Save to publish");
+  }
+  function artsReplaceMain(item) {
+    var A = state.arts; if (!A) return;
+    var cur = A.list[A.main];
+    if (!cur) { artsAdd({ src: item.src, alt: item.alt || "", pending: item.pending || null, pos: null, raw: null, src0: null, alt0: null }); return; }
+    cur.src = item.src; cur.pending = item.pending || null;
+    if (item.alt) cur.alt = item.alt;
+    cur.pos = null;
+    A.shown = A.main;
+    artsChanged();
+  }
+  function baseName(name) { return String(name || "").replace(/\.[^.\/]+$/, "").replace(/[_]+/g, " ").trim(); }
+  function artsAddDialog() {
+    var up = canUploadArt();
+    openArtPicker({
+      title: "Add art to this page", upload: up,
+      person: (state.profile && state.profile.person) || "devin",
+      note: "Added as the last art; captions can be changed in the Arts strip. Nothing is published until you press Save.",
+      noUploadNote: "Uploading new pictures needs Devin; you can add any picture from the gallery.",
+      onFile: function (f) {
+        var nm = baseName(f.name) || "Art";
+        return addPending(f, { title: nm, alt: nm, tags: ["art"], everyone: true }).then(function (pd) {
+          artsAdd({ src: null, alt: nm, pending: pd, pos: null, raw: null, src0: null, alt0: null });
+          return true;
+        }, function (e) { editBar(e.message || "That image could not be used.", "ee-bad-bar"); return false; });
+      },
+      onPick: function (entry) {
+        artsAdd({ src: gallerySrc(entry), alt: entry.title || baseName(String(entry.path).split("/").pop()), pending: null, pos: null, raw: null, src0: null, alt0: null });
+      }
+    });
+  }
+  function bindArtsBox(box) {
+    var drag = -1;
+    box.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("button");
+      if (!b || !box.contains(b)) return;
+      if (b.id === "ee-arts-add") { artsAddDialog(); return; }
+      if (b.id === "ee-arts-close") { state.arts.open = false; renderArts(); editBar(); return; }
+      var it = b.closest(".ee-art-item"); if (!it) return;
+      var i = +it.getAttribute("data-i"), act = b.getAttribute("data-act");
+      if (act === "show") { state.arts.shown = i; previewArt(i); renderArts(); }
+      else if (act === "left") artsMove(i, i - 1);
+      else if (act === "right") artsMove(i, i + 1);
+      else if (act === "main") artsSetMain(i);
+      else if (act === "del") artsRemove(i);
+      var again = box.querySelector('.ee-art-item[data-i="' + Math.max(0, act === "left" ? i - 1 : act === "right" ? i + 1 : i) + '"] [data-act="' + act + '"]');
+      if (again && !again.disabled && (act === "left" || act === "right")) again.focus();
+    });
+    box.addEventListener("input", function (e) {
+      var t = e.target;
+      if (!t.classList || !t.classList.contains("ee-art-cap")) return;
+      var it = t.closest(".ee-art-item"), i = +it.getAttribute("data-i"), a = state.arts.list[i];
+      if (!a) return;
+      a.alt = t.value.replace(/\s+/g, " ").trim();
+      if (state.arts.shown === i) { var h = heroImg(); if (h) h.setAttribute("alt", a.alt); if (state.hero) state.hero.alt = a.alt; }
+      state.dirty = state.dirty || artsDirty();
+    });
+    box.addEventListener("keydown", function (e) {
+      // Inside the strip the arrow keys move the caret / focus, never the page's switcher.
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") e.stopPropagation();
+      if (e.key === "Enter" && e.target.classList && e.target.classList.contains("ee-art-cap")) { e.preventDefault(); e.target.blur(); }
+    });
+    box.addEventListener("dragstart", function (e) {
+      var it = e.target.closest && e.target.closest(".ee-art-item");
+      if (!it || (e.target.closest && e.target.closest("input"))) return;
+      drag = +it.getAttribute("data-i");
+      it.classList.add("is-dragging");
+      try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", "ee-art-" + drag); } catch (x) {}
+    });
+    function mark(e) {
+      Array.prototype.forEach.call(box.querySelectorAll(".is-before,.is-after"), function (n) { n.classList.remove("is-before", "is-after"); });
+      var it = e.target.closest && e.target.closest(".ee-art-item");
+      if (!it) return null;
+      var r = it.getBoundingClientRect(), after = e.clientX > r.left + r.width / 2;
+      it.classList.add(after ? "is-after" : "is-before");
+      return { i: +it.getAttribute("data-i"), after: after };
+    }
+    box.addEventListener("dragover", function (e) { if (drag < 0) return; e.preventDefault(); mark(e); });
+    box.addEventListener("drop", function (e) {
+      if (drag < 0) return;
+      e.preventDefault();
+      var t = mark(e), from = drag; drag = -1;
+      if (!t) { renderArts(); return; }
+      var to = t.i + (t.after ? 1 : 0);
+      if (from < to) to--;
+      if (to === from) { renderArts(); return; }
+      artsMove(from, to);
+    });
+    box.addEventListener("dragend", function () { drag = -1; Array.prototype.forEach.call(box.querySelectorAll(".is-dragging,.is-before,.is-after"), function (n) { n.classList.remove("is-dragging", "is-before", "is-after"); }); });
+  }
+  /* After a save: the page's own switcher shows the saved set (new pictures from memory). */
+  function refreshHeroDom(text) {
+    var A = state.arts, hero = heroSection();
+    if (!A || !hero || !Media.heroParts) return;
+    var parts = Media.heroParts(text);
+    if (!parts) return;
+    var t = document.createElement("template");
+    t.innerHTML = text.slice(parts.section.start, parts.section.end);
+    var fresh = t.content.querySelector("section.art-hero");
+    if (!fresh) return;
+    hero.className = fresh.className;
+    var old = hero.querySelector(":scope > .art-swap"), nu = fresh.querySelector(":scope > .art-swap");
+    if (old) old.remove();
+    var blobs = {};
+    A.list.forEach(function (a) { if (a.blobUrl) blobs[imgKey(a.src)] = a.blobUrl; });
+    if (nu) {
+      Array.prototype.forEach.call(nu.querySelectorAll("button[data-src]"), function (b) {
+        var u = blobs[imgKey(b.getAttribute("data-src"))];
+        if (!u) return;
+        b.setAttribute("data-src", u);
+        var im = b.querySelector("img"); if (im) { im.removeAttribute("srcset"); im.setAttribute("src", u); }
+      });
+      hero.appendChild(nu);
+    }
+    var hi = heroImg(), m = A.list[A.main];
+    if (hi && m) {
+      hi.setAttribute("src", blobs[imgKey(m.src)] || m.src); hi.setAttribute("alt", m.alt || "");
+      hi.removeAttribute("srcset"); hi.removeAttribute("sizes");
+      if (blobs[imgKey(m.src)]) { hi.setAttribute("data-eimg-orig", m.src); hi.setAttribute("data-eimg-fell", "1"); }
+    }
+    if (nu) {
+      if (window.EloraeArtSwap) window.EloraeArtSwap.init();
+      else { var sc = document.createElement("script"); sc.src = "/art-swap.js?v=" + Media.ART_SWAP_V; document.body.appendChild(sc); }
+    } else if (window.EloraeArtSwap) window.EloraeArtSwap.init();
+  }
+
+  /* A renamed hero (or new main art): the name / art written elsewhere follows in the same
+     commit: the Index cards (every copy, both Index files) and their category-panel entries,
+     the category rail and "related" lists of the other articles, the search index entry, and
+     this page's <title>/og tags. Only files this profile may edit; the rest is reported. */
+  function renameInfo() {
+    var o = {};
+    (state.titles || []).forEach(function (t) {
+      var now = norm(t.el.textContent);
+      if (t.kind === "h1") { o.oldName = t.text; o.newName = now || t.text; }
+      if (t.kind === "epithet") { o.oldEpithet = t.text; o.newEpithet = now.replace(/\.\s*$/, ""); }
+    });
+    if (!o.oldName) { var h = document.querySelector(".art-title h1"); if (h) o.oldName = o.newName = norm(h.textContent); }
+    o.renamed = !!(o.oldName && o.newName && o.oldName !== o.newName);
+    o.epithet = o.oldEpithet != null && o.oldEpithet !== o.newEpithet;
+    return o;
+  }
+  function articleSlugOfPath() { return (/^articles\/([^\/]+?)(?:\/index)?\.html$/.exec(PATH) || [])[1] || null; }
+  function eachLimit(list, n, fn) {
+    var i = 0, out = [];
+    function next() { if (i >= list.length) return Promise.resolve(); var k = i++; return Promise.resolve(fn(list[k], k)).then(function (v) { out[k] = v; return next(); }); }
+    var workers = []; for (var w = 0; w < Math.min(n, list.length); w++) workers.push(next());
+    return Promise.all(workers).then(function () { return out; });
+  }
+  function syncOthers(ren, ref, skip) {
+    var slug = articleSlugOfPath(), files = [], skipped = 0;
+    if (!slug || !(ren.renamed || ren.newArt)) return Promise.resolve({ files: files, skipped: 0 });
+    var tasks = [];
+    if (ren.newArt || ren.renamed) tasks.push("search-index.js");
+    var listP = ren.renamed && E.listDir ? E.listDir("articles", ref).then(function (es) {
+      es.forEach(function (e) {
+        if (e.type === "file" && /\.html$/.test(e.name)) tasks.push(e.path);
+        else if (e.type === "dir") tasks.push(e.path + "/index.html");
+      });
+    }, function () {}) : Promise.resolve();
+    return listP.then(function () {
+      tasks = tasks.filter(function (p) { return skip.indexOf(p) < 0; });
+      var mine = tasks.filter(function (p) { return P.canEdit(state.profile, p); });
+      skipped = tasks.length - mine.length;
+      if (mine.length > 8) editBar("Saving\u2026 updating the name on " + mine.length + " pages", "ee-busy");
+      return eachLimit(mine, 6, function (p) {
+        return E.getFile(p, ref).then(function (f) {
+          var out = p === "search-index.js" ? Media.renameSearchEntry(f.text, slug, ren)
+            : (ren.renamed && f.text.indexOf(slug) >= 0 ? Media.renameArticleLinks(f.text, slug, ren.oldName, ren.newName) : f.text);
+          if (out !== f.text) files.push({ path: p, text: out, base: f.text });
+        }, function () {});
+      });
+    }).then(function () { return { files: files, skipped: skipped }; });
+  }
+
   /* Pending uploads: pasted / uploaded pictures show from memory (blob: URL) and are only
      committed, together with the page, when you press Save. */
   function addPending(file, meta) {
@@ -1565,7 +1869,8 @@
       if (pd) used.push({ pd: pd, img: im });
       else im.removeAttribute("data-ee-pending");
     });
-    if (state.hero && state.hero.pending) used.push({ pd: state.hero.pending, hero: true });
+    if (state.hero && state.hero.pending && !state.hero.viaArts) used.push({ pd: state.hero.pending, hero: true });
+    if (state.arts && artsDirty()) state.arts.list.forEach(function (a) { if (a.pending) used.push({ pd: a.pending, art: a }); });
     if (!used.length) return Promise.resolve([]);
     var who = (state.profile && state.profile.person) || "devin";
     return E.getFile(Media.CATALOG).then(function (f) { return JSON.parse(f.text); }, function () { return { version: 1, media: {} }; }).then(function (catalog) {
@@ -1595,12 +1900,16 @@
     var back = [];
     (prep.used || []).forEach(function (u) {
       if (u.hero) { state.hero.src = u.rel; return; }
+      if (u.art) { back.push([null, u.art, u.art.pending]); u.art.src = u.rel; u.art.pending = null; return; }
       back.push([u.img, u.img.getAttribute("src"), u.img.getAttribute("data-ee-pending")]);
       u.img.setAttribute("src", u.rel);
       u.img.removeAttribute("data-ee-pending");
     });
     return function () {
-      back.forEach(function (b) { b[0].setAttribute("src", b[1]); b[0].setAttribute("data-ee-pending", b[2]); });
+      back.forEach(function (b) {
+        if (!b[0]) { b[1].pending = b[2]; b[1].src = null; return; }
+        b[0].setAttribute("src", b[1]); b[0].setAttribute("data-ee-pending", b[2]);
+      });
     };
   }
 
@@ -1616,6 +1925,12 @@
     if (mode === "hero" && !heroImg() && !heroSection()) return fail("No hero on this page.");
     if (!file) return fail("No file chosen.");
     addPending(file, { title: title || file.name, alt: title, tags: tags, everyone: everyone }).then(function (pd) {
+      if (mode === "hero" && state.arts && state.arts.list.length) {
+        artsReplaceMain({ src: null, alt: title || null, pending: pd });
+        closePanel();
+        editBar("Main art replaced \u00b7 uploaded and published when you press Save");
+        return;
+      }
       if (mode === "hero") {
         setHeroPreview(null, title || null, pd);
         closePanel();
@@ -2020,6 +2335,7 @@
       t.el.removeAttribute("contenteditable"); t.el.removeAttribute("spellcheck"); t.el.classList.remove("ee-editable", "ee-title-edit");
     });
     state.titles = [];
+    closeArts();
     if (state.railRestore) { try { state.railRestore(); } catch (e) {} state.railRestore = null; }
     document.documentElement.classList.remove("ee-editing", "ee-page-editing");
     document.removeEventListener("keydown", onKey, true);
@@ -2044,6 +2360,7 @@
     restoreHero();
     dropPending();
     stopEditing();
+    state.arts = null;
     state.records = [];
     state.page = null;
   }
@@ -2137,7 +2454,7 @@
   }
   function imgKey(src) {
     var s = String(src || "").trim().replace(/^https?:\/\/[^\/]+/i, "").replace(/^\/cdn-cgi\/image\/[^\/]+/i, "");
-    try { s = decodeURI(s); } catch (e) {}
+    try { s = decodeURIComponent(s); } catch (e) { try { s = decodeURI(s); } catch (e2) {} }
     return s;
   }
   function findSrcMain(root) {
@@ -2387,7 +2704,7 @@
         "</main>\n" +
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=idxart1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=arts1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -2675,7 +2992,24 @@
       g = regionOf(function (T) { return titleRange(T, t.kind); }, base, escText(txt));
       if (g) { g.html = preserveEntities(g.html, g.base); regions.push(g); }
     });
-    if (state.hero && state.hero.src && !heroRange(base, "src")) {
+    var artsOn = !!(state.arts && artsDirty() && Media.heroParts(base));
+    if (state.arts) state.arts.outMain = null;
+    if (artsOn) {
+      var A = state.arts, parts = Media.heroParts(base);
+      var set = { main: A.main, arts: A.list.map(function (a) {
+        return { src: a.src, alt: a.alt, pos: a.pos, raw: a.raw, changed: !!a.raw && a.src !== a.src0, altChanged: a.alt !== a.alt0 };
+      }) };
+      var hh = Media.heroArtsHtml(parts, set);
+      [["head", hh.head], ["swap", hh.swap], ["script", hh.script]].forEach(function (k) {
+        var key = k[0];
+        var gg = regionOf(function (T) { var q = Media.heroParts(T); return q && q[key]; }, base, k[1]);
+        if (gg && gg.base !== gg.html) regions.push(gg);
+      });
+      A.outMain = set.arts[A.main] ? set.arts[A.main].src : null;
+    }
+    if (artsOn || (state.hero && state.hero.viaArts)) {
+      // The art set owns the hero picture (a "show" preview alone changes nothing).
+    } else if (state.hero && state.hero.src && !heroRange(base, "src")) {
       // The source hero has no picture yet: write <section class="art-hero"><img ...> in its open tag.
       var heroOpen = function (T) { var m = /<section\s+class="art-hero\b[^"]*"[^>]*>/i.exec(T); return m && { start: m.index, end: m.index + m[0].length }; };
       g = regionOf(heroOpen, base, "");
@@ -2751,15 +3085,20 @@
   /* New hero art on an article also goes on its Index card(s), when the card has no art yet or
      showed the old hero art (both Index copies, same commit). */
   var INDEX_FILES = ["index/ancients/index.html", "index/ancients.html"];
-  function cardArtFor(heroSrc, oldKey, ref) {
+  function cardArtFor(heroSrc, oldKey, ref, ren) {
     var slug = (/^articles\/([^\/]+?)(?:\/index)?\.html$/.exec(PATH) || [])[1];
-    if (!heroSrc || !slug || !Media || !Media.setCardArt || /^blob:/.test(heroSrc)) return Promise.resolve([]);
-    var asset = String(heroSrc).replace(/^(\.\.\/)+|^\//, "");
-    if (!/^assets\//.test(asset)) return Promise.resolve([]);
+    var renamed = !!(ren && (ren.renamed || ren.epithet) && Media && Media.renameIndexCards);
+    if (heroSrc && /^blob:/.test(heroSrc)) heroSrc = null;
+    var asset = heroSrc ? String(heroSrc).replace(/^(\.\.\/)+|^\//, "") : null;
+    if (asset && !/^assets\//.test(asset)) asset = null;
+    if ((!asset && !renamed) || !slug || !Media || !Media.setCardArt) return Promise.resolve([]);
     var files = INDEX_FILES.filter(function (p) { return P.canEdit(state.profile, p); });
+    if (files.length < INDEX_FILES.length) state.syncSkipped = (state.syncSkipped || 0) + (INDEX_FILES.length - files.length);
     return Promise.all(files.map(function (p) {
       return E.getFile(p, ref).then(function (f) {
-        var out = Media.setCardArt(f.text, slug, asset, function (old) { return !old || (oldKey && old === oldKey); });
+        var out = f.text;
+        if (asset) out = Media.setCardArt(out, slug, asset, function (old) { return !old || (oldKey && old === oldKey); });
+        if (renamed) out = Media.renameIndexCards(out, slug, ren.oldName, ren.newName || ren.oldName, ren.oldEpithet, ren.newEpithet);
         return out !== f.text ? { path: p, text: out, base: f.text } : null;
       }, function () { return null; });
     })).then(function (list) { return list.filter(Boolean); });
@@ -2784,13 +3123,33 @@
       try { r = buildOutput(latest); } finally { if (undoPending) undoPending(); }
       if (r.none) { editBar("No changes to save."); return null; }
       if (r.conflict) { var e = new Error(conflictMsg()); e.conflict = true; throw e; }
-      var heroSrc = state.hero && state.hero.src, oldHero = state.hero && state.hero.oldKey;
-      return Promise.all([mirrorFor(latestRef, r.edits ? null : r.regions), cardArtFor(heroSrc, oldHero, latestRef)]).then(function (both) {
+      var heroSrc = state.hero && !state.hero.viaArts ? state.hero.src : null, oldHero = state.hero && state.hero.oldKey;
+      var A = state.arts;
+      if (A && A.outMain && imgKey(A.outMain) !== A.main0Key) { heroSrc = A.outMain; oldHero = A.main0Key; }
+      else if (A && !heroSrc) oldHero = null;
+      var ren = renameInfo();
+      if (heroSrc && /^\/?assets\//.test(String(heroSrc).replace(/^\//, "")) && oldHero) { ren.oldArt = oldHero; ren.newArt = heroSrc; }
+      state.syncSkipped = 0;
+      var headFix = function (t) { return (ren.renamed || ren.epithet || ren.newArt) && Media.renameHead ? Media.renameHead(t, ren) : t; };
+      var railFix = function (t) { var sl = articleSlugOfPath(); return ren.renamed && sl ? Media.renameArticleLinks(t, sl, ren.oldName, ren.newName) : t; };
+      r.out = railFix(headFix(r.out));
+      return Promise.all([mirrorFor(latestRef, r.edits ? null : r.regions), cardArtFor(heroSrc, oldHero, latestRef, ren)]).then(function (both) {
+        var m = both[0];
+        if (m && !m.skipped) m.text = railFix(headFix(m.text));
+        var skip = [PATH].concat(m && m.path ? [m.path] : []).concat(INDEX_FILES);
+        return syncOthers(ren, latestRef, skip).then(function (others) {
+          state.syncSkipped += others.skipped;
+          return [m, both[1], others.files];
+        });
+      }).then(function (both) {
         var m = both[0];
         mirror = m; cards = both[1];
         var files = [{ path: PATH, text: r.out }];
         if (m && !m.skipped) files.push({ path: m.path, text: m.text });
         cards.forEach(function (c) { files.push({ path: c.path, text: c.text }); });
+        (both[2] || []).forEach(function (c) { files.push({ path: c.path, text: c.text }); });
+        if ((ren.renamed || heroSrc) && state.syncSkipped && !P.isAdmin(state.profile)) state.syncNote = " The Index card and other pages keep the old " + (ren.renamed ? "name" : "art") + " until Devin updates them.";
+        else state.syncNote = "";
         files = files.concat(prep.files);
         if (prep.used.length) msg = "Edit " + PATH + " via edit mode (+" + prep.used.length + " image" + (prep.used.length > 1 ? "s" : "") + ") [edit-mode]";
         var one = files.length === 1;
@@ -2833,15 +3192,18 @@
       // New pictures keep showing from memory until the site has them; the page (and the next
       // save) treats them as their real /assets/ files.
       (prep.used || []).forEach(function (u) {
+        if (u.art) { u.art.src = u.rel; u.art.blobUrl = u.pd && u.pd.url; u.art.pending = null; return; }
         var im = u.img || (u.hero && state.hero && state.hero.el);
         if (!im) return;
         im.removeAttribute("data-ee-pending");
         if (u.rel) { im.setAttribute("data-eimg-orig", u.rel); im.setAttribute("data-eimg-fell", "1"); }
       });
+      if (state.arts && artsDirty() && mode === "direct") { try { refreshHeroDom(done.r.out); } catch (eh) {} }
       state.hero = null; state.pending = {};
       stopEditing();
+      state.arts = null;
       state.page = null;
-      var note = mirror && mirror.skipped ? " The other copy (" + esc(mirror.path) + ") differs here and was left unchanged." : "";
+      var note = (mirror && mirror.skipped ? " The other copy (" + esc(mirror.path) + ") differs here and was left unchanged." : "") + esc(state.syncNote || "");
       var html;
       if (mode === "direct") {
         html = '<span class="ee-msg ee-good">Saved at ' + esc(new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) + '.' + note + '</span>';
@@ -2998,5 +3360,174 @@
   window.addEventListener("hashchange", onHash);
   profileReady.then(decideEditHash);
 
-  window.EloraeEditor = { openArtPicker: openArtPicker, sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash };
+  /* ---------------- Deleting (Devin only): articles, and what points at them ---------------- */
+  /* A small confirm dialog in the editor panel. o: { title, lines:[html], groups:[{ name, options:[{ value, label, checked }], showIf }],
+     selects:[{ name, label, options:[{ value, label }], showIf }], checks:[{ name, label, showIf }], ok }.
+     showIf: { name: value } (shown only while that choice is picked). Resolves the picked values, or null. */
+  function deleteDialog(o) {
+    return new Promise(function (resolve) {
+      openPanel();
+      var b = $("ee-body"), done = false;
+      var cond = function (x) { return x.showIf ? ' data-show-if="' + esc(JSON.stringify(x.showIf)) + '"' : ""; };
+      b.innerHTML = '<p class="ee-k">' + esc(o.title) + '</p>' + (o.lines || []).map(function (l) { return '<p class="ee-note">' + l + '</p>'; }).join("") +
+        (o.groups || []).map(function (g) {
+          return '<fieldset class="ee-del-group"' + cond(g) + '>' + g.options.map(function (op) {
+            return '<label class="ee-del-opt"><input type="radio" name="ee-del-' + esc(g.name) + '" value="' + esc(op.value) + '"' + (op.checked ? " checked" : "") + '> <span>' + op.label + '</span></label>';
+          }).join("") + '</fieldset>';
+        }).join("") +
+        (o.selects || []).map(function (s) {
+          return '<label class="ee-del-opt ee-del-sel"' + cond(s) + '><span>' + esc(s.label) + '</span> <select class="ee-field" id="ee-del-' + esc(s.name) + '">' +
+            s.options.map(function (op) { return '<option value="' + esc(op.value) + '">' + esc(op.label) + '</option>'; }).join("") + '</select></label>';
+        }).join("") +
+        (o.checks || []).map(function (c) {
+          return '<label class="ee-del-opt"' + cond(c) + '><input type="checkbox" id="ee-del-' + esc(c.name) + '"' + (c.checked ? " checked" : "") + '> <span>' + c.label + '</span></label>';
+        }).join("") +
+        '<p class="ee-note ee-del-restore">Everything stays in the site\u2019s history, so it can be restored.</p>' +
+        '<div class="ee-row"><button type="button" class="ee-btn" id="ee-del-cancel">Cancel</button><button type="button" class="ee-btn ee-primary ee-danger" id="ee-del-ok">' + esc(o.ok || "Delete") + '</button></div>';
+      var vals = function () {
+        var v = {};
+        (o.groups || []).forEach(function (g) { var r = b.querySelector('input[name="ee-del-' + g.name + '"]:checked'); v[g.name] = r ? r.value : null; });
+        (o.selects || []).forEach(function (s) { v[s.name] = $("ee-del-" + s.name).value; });
+        (o.checks || []).forEach(function (c) { v[c.name] = $("ee-del-" + c.name).checked; });
+        return v;
+      };
+      var refresh = function () {
+        var v = vals();
+        Array.prototype.forEach.call(b.querySelectorAll("[data-show-if]"), function (n) {
+          var c = JSON.parse(n.getAttribute("data-show-if")); n.hidden = !Object.keys(c).every(function (k) { return v[k] === c[k]; });
+        });
+      };
+      b.addEventListener("change", refresh); refresh();
+      var p = $("ee-panel");
+      var finish = function (val) {
+        if (done) return; done = true; obs.disconnect();
+        if (val) { var v = vals(); Array.prototype.forEach.call(b.querySelectorAll("[data-show-if]"), function (n) { if (n.hidden) { var i = n.querySelector("input,select"); if (i) v[(i.name || i.id).replace(/^ee-del-/, "")] = null; } }); val = v; }
+        closePanel(); resolve(val);
+      };
+      var obs = new MutationObserver(function () { if (p.hidden) finish(null); });
+      obs.observe(p, { attributes: true, attributeFilter: ["hidden"] });
+      $("ee-del-cancel").onclick = function () { finish(null); };
+      $("ee-del-ok").onclick = function () { finish(true); };
+      $("ee-del-ok").focus();
+    });
+  }
+
+  var DEL_SKIP = /^(?:edit|assets|tools|scripts|_verify|docs|saved|node_modules|foundry-welcome)\//;
+  function slugOfArticlePath(p) { return (/^articles\/([^\/]+?)(?:\/index)?\.html$/.exec(p) || [])[1] || null; }
+  /* Everything one commit needs to delete these articles (o.slugs, both copies each) and drop what points
+     at them: Index cards (both copies, unless o.indexText: the organizer builds those), other pages' rails,
+     related lists, mast marks and links (made plain text), search index, sitemap, players' editable lists,
+     visibility entries, and gallery entries of art no other page uses (the image files stay in assets/).
+     o.sections: removed top-level Index sections (their rail groups go everywhere); o.anchors: removed
+     Index anchors, o.moveTo { slug: anchor } (moved cards' articles link back there). */
+  function planDelete(o) {
+    if (!P.isAdmin(state.profile)) return Promise.reject(new Error("Only Devin can delete articles."));
+    var ref = o.ref, slugs = o.slugs || [], secs = o.sections || [], anchors = (o.anchors || []).concat(secs), moveTo = o.moveTo || {};
+    var gone = {}; slugs.forEach(function (s) { gone["articles/" + s + ".html"] = 1; gone["articles/" + s + "/index.html"] = 1; });
+    var out = { files: [], deletes: [], dropped: [], kept: [], names: {}, owners: {}, pages: 0 };
+    var finalText = {}, imgs = [];
+    return E.listTree(ref).then(function (all) {
+      var have = {}; all.forEach(function (p) { have[p] = 1; });
+      out.deletes = Object.keys(gone).filter(function (p) { return have[p]; }).map(function (p) { return { path: p, delete: true }; });
+      var pages = all.filter(function (p) { return /\.html$/.test(p) && !DEL_SKIP.test(p) && !gone[p]; });
+      var live = {};
+      var own = eachLimit(out.deletes, 4, function (d) {
+        return E.getFile(d.path, ref).then(function (f) {
+          Media.articleImages(f.text).forEach(function (k) { if (imgs.indexOf(k) < 0) imgs.push(k); });
+          var h = /<div class="art-title">\s*<h1>([\s\S]*?)<\/h1>/.exec(f.text), s = slugOfArticlePath(d.path);
+          if (h && !out.names[s]) out.names[s] = h[1].replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").trim();
+        }, function () {});
+      });
+      // What links here: read the built site (cheap), then the repo copy of just those pages.
+      var scan = eachLimit(pages, 8, function (p) {
+        return fetch("/" + p, { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { live[p] = t; }, function () { live[p] = null; });
+      });
+      return Promise.all([own, scan]).then(function () {
+        if (o.indexText) INDEX_FILES.forEach(function (p) { live[p] = o.indexText; });
+        var hits = pages.filter(function (p) {
+          if (o.indexText && INDEX_FILES.indexOf(p) >= 0) return false;
+          var t = live[p];
+          if (t == null) return true;
+          if (slugs.some(function (s) { return Media.linksTo(t, s); })) return true;
+          if (anchors.some(function (a) { return t.indexOf('#' + a + '"') >= 0; })) return true;
+          return !!moveTo[slugOfArticlePath(p)];
+        });
+        return eachLimit(hits, 6, function (p) {
+          return E.getFile(p, ref).then(function (f) {
+            var t = f.text, sl = slugOfArticlePath(p);
+            if (INDEX_FILES.indexOf(p) >= 0) t = Media.removeIndexCards(t, slugs);
+            slugs.forEach(function (s) { t = Media.unlinkArticle(t, s); });
+            secs.forEach(function (id) { t = Media.removeRailSection(t, id); });
+            var bk = Media.artBackOf(t), hash = bk && bk.indexOf("#") >= 0 ? bk.slice(bk.indexOf("#") + 1) : null;
+            if (sl && hash && anchors.indexOf(hash) >= 0) t = Media.setArtBack(t, "/index/ancients/" + (moveTo[sl] ? "#" + moveTo[sl] : (o.fallback && o.fallback[hash] ? "#" + o.fallback[hash] : "")));
+            finalText[p] = t;
+            if (t !== f.text) out.files.push({ path: p, text: t, base: f.text });
+          }, function () {});
+        }).then(function () {
+          pages.forEach(function (p) { if (!(p in finalText)) finalText[p] = live[p] || ""; });
+          out.pages = out.files.length;
+          // Data files.
+          var data = [["search-index.js", function (t) { slugs.forEach(function (s) { t = Media.removeSearchEntry(t, s); }); return t; }],
+            ["sitemap.xml", function (t) { slugs.forEach(function (s) { t = Media.removeSitemap(t, s); }); return t; }],
+            ["edit/profiles.json", function (t) { slugs.forEach(function (s) { var ow = Media.ownersOf(t, s); if (ow.length) out.owners[s] = ow; t = Media.pruneProfiles(t, s, out.names[s]); }); return t; }],
+            ["edit/visibility.json", function (t) { slugs.forEach(function (s) { t = Media.pruneVisibility(t, s); }); return t; }]];
+          if (imgs.length) {
+            imgs.forEach(function (k) {
+              var used = pages.some(function (p) { return Media.usesImage(finalText[p], k); });
+              (used ? out.kept : out.dropped).push(k);
+            });
+            if (out.dropped.length) data.push([Media.CATALOG, function (t) { return Media.pruneCatalog(t, out.dropped); }]);
+          }
+          return eachLimit(data.filter(function (d) { return have[d[0]]; }), 4, function (d) {
+            return E.getFile(d[0], ref).then(function (f) { var t = d[1](f.text); if (t !== f.text) out.files.push({ path: d[0], text: t, base: f.text }); }, function () {});
+          });
+        });
+      });
+    }).then(function () { return out; });
+  }
+
+  function deleteArticleFlow() {
+    var slug = articleSlugOfPath();
+    if (!slug || !P.isAdmin(state.profile) || state.busy) return;
+    if (state.dirty && !window.confirm("You have unsaved changes on this page. Discard them and delete the article?")) return;
+    var name = norm(((document.querySelector(".art-title h1") || {}).textContent) || slug);
+    editBar("Checking what links to \u201c" + name + "\u201d\u2026", "ee-busy");
+    Promise.all([
+      E.getFile(INDEX_FILES[0]).then(function (f) { return (f.text.match(new RegExp('<a\\b[^>]*class="index-card[^"]*"[^>]*href="/articles/' + slug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '/"', "g")) || []).length; }, function () { return 0; }),
+      E.getFile("edit/profiles.json").then(function (f) { return Media.ownersOf(f.text, slug); }, function () { return []; })
+    ]).then(function (r) {
+      var n = r[0], owners = r[1];
+      editBar();
+      return deleteDialog({
+        title: "Delete \u201c" + name + "\u201d?",
+        lines: ["Removes this article (both copies of the page)" + (n ? ", its " + (n > 1 ? n + " Index cards" : "Index card") : "") +
+          ", and the links to it on other pages (they become plain text), in one commit.",
+          owners.length ? "<strong>This is " + esc(owners.map(function (o) { return o.charAt(0).toUpperCase() + o.slice(1); }).join(" and ")) + "\u2019s character.</strong> They will no longer be able to edit it." : ""].filter(Boolean),
+        ok: "Delete article"
+      });
+    }).then(function (v) {
+      if (!v) { editBar(); return; }
+      state.busy = true;
+      editBar("Deleting\u2026", "ee-busy");
+      var ref;
+      return E.headSha(E.BRANCH).then(function (sha) { ref = sha; return planDelete({ slugs: [slug], ref: ref }); }).then(function (plan) {
+        var files = plan.files.concat(plan.deletes);
+        return E.commitFiles(files, "Delete article \u201c" + name + "\u201d (articles/" + slug + ") + clean up " + plan.pages + " page" + (plan.pages === 1 ? "" : "s") + " [edit-mode]", E.BRANCH, ref).then(function () { return plan; });
+      }).then(function (plan) {
+        state.busy = false;
+        var R = window.EloraeRecent;
+        if (R) R.remember(plan.files.filter(function (f) { return INDEX_FILES.indexOf(f.path) >= 0; }));
+        state.dirty = false;
+        var back = (document.querySelector("a.art-back") || {}).getAttribute ? document.querySelector("a.art-back").getAttribute("href") : "/index/ancients/";
+        editBar("Deleted \u201c" + name + "\u201d. " + "Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + ". Going to the Index\u2026", "ee-done");
+        window.EloraeEditor.lastDelete = plan;
+        setTimeout(function () { state.leaving = true; location.href = (back && /^\/index\//.test(back) ? back : "/index/ancients/"); }, 1200);
+      }).catch(function (err) {
+        state.busy = false;
+        editBar(err.message || "Delete failed.", "ee-bad-bar");
+      });
+    });
+  }
+
+  window.EloraeEditor = { openArtPicker: openArtPicker, sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash, deleteDialog: deleteDialog, planDelete: planDelete, deleteArticle: deleteArticleFlow };
 })();

@@ -60,7 +60,16 @@ class MockGitHub {
       if (method === "GET") {
         const ref = url.searchParams.get("ref") || "main";
         const text = this.file(fp, ref);
-        if (text == null) return json(404, { message: "Not Found" });
+        if (text == null) {
+          // Directory listing (disk + files added in commits).
+          const abs = path.join(this.root, fp), names = new Map();
+          if (fs.existsSync(abs) && fs.statSync(abs).isDirectory()) fs.readdirSync(abs, { withFileTypes: true }).forEach((d) => names.set(d.name, d.isDirectory() ? "dir" : "file"));
+          const c = this.commits[this.heads[ref] || ref];
+          if (c) Object.keys(c.files).forEach((k) => { if (c.files[k] === null && k.startsWith(fp + "/") && !k.slice(fp.length + 1).includes("/")) names.delete(k.slice(fp.length + 1)); });
+          if (c) Object.keys(c.files).forEach((k) => { if (c.files[k] !== null && k.startsWith(fp + "/")) { const rest = k.slice(fp.length + 1), nm = rest.split("/")[0]; if (!names.has(nm)) names.set(nm, rest.includes("/") ? "dir" : "file"); } });
+          if (!names.size) return json(404, { message: "Not Found" });
+          return json(200, [...names].map(([name, type]) => ({ name, path: fp + "/" + name, type, sha: "x", size: 0 })));
+        }
         const buf = Buffer.isBuffer(text) ? text : Buffer.from(text, "utf8");
         return json(200, { type: "file", path: fp, sha: blobSha(text), encoding: "base64", content: buf.toString("base64"), size: buf.length });
       }
@@ -84,13 +93,21 @@ class MockGitHub {
       if (this.heads[b]) return json(422, { message: "Reference already exists" });
       this.heads[b] = body.sha; return json(201, { ref: body.ref, object: { sha: body.sha } });
     }
+    if ((m = p.match(new RegExp("^" + R + "/git/trees/tree-of-([0-9a-f]+)$"))) && method === "GET") {
+      // Recursive tree: files on disk (minus .git / node_modules) + this commit's adds, minus its deletes.
+      const c = this.commits[m[1]], all = new Set(), root = this.root;
+      (function walk(d, rel) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { if (e.name === ".git" || e.name === "node_modules") continue; const r = rel ? rel + "/" + e.name : e.name; if (e.isDirectory()) walk(path.join(d, e.name), r); else all.add(r); } })(root, "");
+      if (c) for (const k of Object.keys(c.files)) { if (c.files[k] === null) all.delete(k); else all.add(k); }
+      this.treeReads = (this.treeReads || 0) + 1;
+      return json(200, { sha: "t", truncated: false, tree: [...all].sort().map((p2) => ({ path: p2, type: "blob", mode: "100644", sha: "x" })) });
+    }
     if ((m = p.match(new RegExp("^" + R + "/git/commits/([0-9a-f]+)$")))) return json(200, { sha: m[1], tree: { sha: "tree-of-" + m[1] } });
     if (p === R + "/git/blobs" && method === "POST") { const sha = crypto.randomBytes(20).toString("hex"); this.blobs[sha] = Buffer.from(body.content, "base64"); return json(201, { sha }); }
     if (p === R + "/git/trees" && method === "POST") { const sha = crypto.randomBytes(20).toString("hex"); this.trees[sha] = { base: body.base_tree, entries: body.tree }; return json(201, { sha }); }
     if (p === R + "/git/commits" && method === "POST") {
       const sha = crypto.randomBytes(20).toString("hex");
       this.commits[sha] = { branch: null, parent: body.parents[0], files: Object.assign({}, this.commits[body.parents[0]].files), message: body.message };
-      for (const e of this.trees[body.tree].entries) this.commits[sha].files[e.path] = this.blobs[e.sha];
+      for (const e of this.trees[body.tree].entries) this.commits[sha].files[e.path] = e.sha === null ? null : this.blobs[e.sha];
       return json(201, { sha, html_url: `https://github.com/${this.repo}/commit/${sha}` });
     }
     if ((m = p.match(new RegExp("^" + R + "/git/refs/heads/(.+)$"))) && method === "PATCH") {

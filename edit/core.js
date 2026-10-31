@@ -311,6 +311,17 @@
     });
   }
 
+  // Every file path at ref (one recursive tree read) -> [path].
+  function listTree(ref) {
+    return (ref && /^[0-9a-f]{40}$/.test(ref) ? Promise.resolve(ref) : headSha(ref || BRANCH)).then(function (sha) {
+      return api(repoPath("/git/commits/" + sha));
+    }).then(function (c) {
+      return api(repoPath("/git/trees/" + c.tree.sha + "?recursive=1"));
+    }).then(function (t) {
+      return (t.tree || []).filter(function (e) { return e.type === "blob"; }).map(function (e) { return e.path; });
+    });
+  }
+
   function putFile(path, text, sha, message, branch) {
     var body = { message: message, content: b64EncodeUtf8(text), branch: branch || BRANCH };
     if (sha) body.sha = sha;
@@ -332,11 +343,20 @@
       return api(repoPath("/git/commits/" + sha));
     }).then(function (c) {
       baseTree = c.tree.sha;
-      return Promise.all(files.map(function (f) {
+      // A few blobs at a time (a rename can touch every article; GitHub dislikes bursts).
+      var out = [], i = 0;
+      function one() {
+        if (i >= files.length) return Promise.resolve();
+        var k = i++, f = files[k];
+        // { path, delete: true } removes the file in the same commit.
+        if (f.delete) { out[k] = { path: f.path, mode: "100644", type: "blob", sha: null }; return one(); }
         var content = f.binary ? (f.contentBase64 || b64EncodeBytes(f.bytes)) : b64EncodeUtf8(f.text);
         return api(repoPath("/git/blobs"), { method: "POST", body: { content: content, encoding: "base64" } })
-          .then(function (b) { return { path: f.path, mode: "100644", type: "blob", sha: b.sha }; });
-      }));
+          .then(function (b) { out[k] = { path: f.path, mode: "100644", type: "blob", sha: b.sha }; return one(); });
+      }
+      var workers = [];
+      for (var w = 0; w < Math.min(6, files.length); w++) workers.push(one());
+      return Promise.all(workers).then(function () { return out; });
     }).then(function (tree) {
       return api(repoPath("/git/trees"), { method: "POST", body: { base_tree: baseTree, tree: tree } });
     }).then(function (t) {
@@ -408,7 +428,7 @@
     tokenKind: tokenKind, TOKEN_LINKS: TOKEN_LINKS, OWNER: owner,
     REPO: REPO, BRANCH: BRANCH, API: API, ROOT: ROOT,
     pagePath: pagePath, session: session, api: api, repoPath: repoPath,
-    getFile: getFile, listDir: listDir, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,
+    getFile: getFile, listDir: listDir, listTree: listTree, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,
     b64EncodeUtf8: b64EncodeUtf8, b64EncodeBytes: b64EncodeBytes, b64DecodeUtf8: b64DecodeUtf8,
     loginWho: function () { return readPhraseWho(); }
   };

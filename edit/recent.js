@@ -88,10 +88,16 @@
   function imgPath(src) {
     var s = String(src || "").trim().replace(/^https?:\/\/[^\/]+/i, "").replace(/^\/cdn-cgi\/image\/[^\/]+/i, "");
     try { s = decodeURI(s); } catch (e) {}
-    try { s = new URL(s, location.href).pathname; s = decodeURI(s); } catch (e2) {}
+    try { s = new URL(s, location.href).pathname; try { s = decodeURIComponent(s); } catch (e3) { s = decodeURI(s); } } catch (e2) {}
     return s.replace(/^\//, "");
   }
   var shownUrls = {};
+  function artSwapInit() {
+    if (!document.querySelector(".art-swap-thumbs button")) { if (window.EloraeArtSwap) window.EloraeArtSwap.init(); return; }
+    if (window.EloraeArtSwap) { window.EloraeArtSwap.init(); return; }
+    var v = (window.EloraeMedia && window.EloraeMedia.ART_SWAP_V) || "art9";
+    var sc = document.createElement("script"); sc.src = "/art-swap.js?v=" + v; document.body.appendChild(sc);
+  }
   function swapImages() {
     return loadImages().then(function (map) {
       var keys = Object.keys(map);
@@ -109,6 +115,13 @@
         im.removeAttribute("srcset"); im.removeAttribute("sizes");
         im.setAttribute("src", shownUrls[k]);
         n++;
+      });
+      // The art switcher's buttons point at the new pictures too.
+      Array.prototype.forEach.call(document.querySelectorAll(".art-swap-thumbs button[data-src]"), function (b) {
+        var k = imgPath(b.getAttribute("data-src"));
+        if (!map[k]) return;
+        if (!shownUrls[k]) shownUrls[k] = URL.createObjectURL(map[k]);
+        b.setAttribute("data-src", shownUrls[k]);
       });
       return n;
     });
@@ -214,8 +227,10 @@
   }
   function hero(lh, sh, fh) {
     var s = heroParts(sh), f = heroParts(fh), l = heroParts(lh), ok = true;
-    // Art added to (or removed from) a hero: rebuild the hero from the saved copy.
-    if (!s.img !== !f.img || !s.h1 !== !f.h1 || !s.ep !== !f.ep) { swapRegion(lh, sh, fh); return true; }
+    // Art added to (or removed from) a hero, or its art switcher changed: rebuild the hero
+    // from the saved copy (the switcher is set up again afterwards).
+    var sw = function (h) { var x = h.querySelector(".art-swap"); return (x ? x.outerHTML : "") + "|" + h.className; };
+    if (!s.img !== !f.img || !s.h1 !== !f.h1 || !s.ep !== !f.ep || sw(sh) !== sw(fh)) { swapRegion(lh, sh, fh); heroRebuilt = true; return true; }
     ["h1", "ep"].forEach(function (k) {
       if (!s[k] && !f[k]) return;
       if (!s[k] || !f[k] || !l[k]) { ok = false; return; }
@@ -255,8 +270,10 @@
     return ok;
   }
   // Returns true when everything that differs was put in place.
+  var heroRebuilt = false;
   function apply(sText, fText) {
     var S = parse(sText), F = parse(fText), ok = true, any = false, done = [];
+    heroRebuilt = false;
     REGIONS.forEach(function (sel) {
       var s = S.querySelector(sel), f = F.querySelector(sel);
       if (!s && !f) return;
@@ -267,6 +284,27 @@
       swapRegion(l, s, f);
       done.push({ s: s, f: f });
     });
+    // A renamed page: the category rail's names change in place (the rail keeps its scripts).
+    var sn = S.querySelector("#art-index"), fn = F.querySelector("#art-index"), ln = liveQ("#art-index");
+    if (sn && fn && sn.outerHTML !== fn.outerHTML) {
+      var sa = sn.querySelectorAll("a.toc-name"), fa = fn.querySelectorAll("a.toc-name"), la = ln ? ln.querySelectorAll("a.toc-name") : [];
+      if (sa.length === fa.length && la.length === sa.length) {
+        for (var q = 0; q < sa.length; q++) {
+          if (sa[q].textContent !== fa[q].textContent && sa[q].getAttribute("href") === la[q].getAttribute("href")) la[q].textContent = sa[q].textContent;
+          sa[q].textContent = ""; fa[q].textContent = "";
+        }
+      }
+    }
+    // A deleted character: its link leaves the mast's player marks.
+    var sm = S.querySelector(".mast .mark"), fm = F.querySelector(".mast .mark");
+    if (sm && fm && sm.outerHTML !== fm.outerHTML) {
+      Array.prototype.forEach.call(fm.querySelectorAll(".friend[data-owner]"), function (ff) {
+        var o = ff.getAttribute("data-owner"), ss = sm.querySelector('.friend[data-owner="' + o + '"]'), ll = document.querySelector('.mast .friend[data-owner="' + o + '"]');
+        if (!ll) return;
+        if (!ss) ll.remove(); else if (ss.innerHTML !== ff.innerHTML) ll.innerHTML = ss.innerHTML;
+      });
+      fm.innerHTML = sm.innerHTML;
+    }
     var sh = S.querySelector("section.art-hero"), fh = F.querySelector("section.art-hero");
     if (sh || fh) {
       var lh = liveQ("section.art-hero");
@@ -277,7 +315,16 @@
     if (!any) ok = blocks(S, F) && ok;
     if (S.title !== F.title) document.title = S.title;
     done.forEach(function (d) { blank(d.s); blank(d.f); });
-    [S, F].forEach(function (D) { var t = D.querySelector("title"); if (t) t.textContent = ""; });
+    [S, F].forEach(function (D) {
+      var t = D.querySelector("title"); if (t) t.textContent = "";
+      // Head metadata and the switcher's script line change nothing on the page itself.
+      Array.prototype.forEach.call(D.querySelectorAll("head meta[content]"), function (m) { m.setAttribute("content", ""); });
+      Array.prototype.forEach.call(D.querySelectorAll('script[src*="art-swap.js"]'), function (x) {
+        var nx = x.nextSibling; if (nx && nx.nodeType === 3 && nx.nodeValue === "\n") nx.remove();
+        x.remove();
+      });
+    });
+    if (heroRebuilt) setTimeout(artSwapInit, 0);
     return ok && S.documentElement.outerHTML === F.documentElement.outerHTML;
   }
 
