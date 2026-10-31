@@ -1277,6 +1277,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "saoirses-arlethian-tide": {
+      "path": "assets/saoirses-arlethian-tide.webp",
+      "title": "Saoirse's Arlethian Tide",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T16:31:32.251Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
