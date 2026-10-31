@@ -1237,6 +1237,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "the-glaurfeldt": {
+      "path": "assets/the-glaurfeldt.webp",
+      "title": "The Glaurfeldt",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T16:28:25.083Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
