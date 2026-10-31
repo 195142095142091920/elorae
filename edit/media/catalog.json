@@ -1177,6 +1177,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "the-six-kings": {
+      "path": "assets/the-six-kings.webp",
+      "title": "The Six Kings",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T16:21:44.089Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
