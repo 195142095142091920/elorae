@@ -5101,3 +5101,19 @@ body.article .art-sec > h3:first-child { margin-top: 0; }
 /* No page backdrop: the readability scrim behind .read (inset -340px) is invisible on black and only
    made the page scroll sideways; keep it inside the column. */
 body:not(:has(.journal-bg)) .journal-page .read::before, body.journal-page:not(:has(.journal-bg)) .read::before { left: 0; right: 0; }
+
+/* ---- nofade1: no fade on the left column's edge (user, 2026-10-31) ----
+   Removes the soft right-edge taper on the Index/article Categories rail (art77 + its
+   in-grid redraw) and on the Codex/Journal/lore Contents rail (art75). Panels stay solid. */
+@media (min-width: 801px) {
+  body.index-page aside.toc.index-toc::after,
+  body.article .art-index::after,
+  body.journal-page aside.toc::after,
+  body.book aside.toc::after,
+  body.lore-page aside.toc::after,
+  html.nav-fade-on body.index-page.index-toc-open main.index-flow.nav-fade::before {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+  }
+}
