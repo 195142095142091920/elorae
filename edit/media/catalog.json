@@ -1101,6 +1101,24 @@
         "sawyer"
       ],
       "everyone": true
+    },
+    "telorin-nelis": {
+      "path": "assets/telorin-nelis.webp",
+      "title": "Telorin Nelis",
+      "tags": [],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T05:58:49.458Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
