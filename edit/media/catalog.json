@@ -1257,6 +1257,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "yudais-flame": {
+      "path": "assets/yudais-flame.webp",
+      "title": "Yudai's Flame",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T16:29:35.626Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
