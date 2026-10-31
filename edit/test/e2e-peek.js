@@ -88,6 +88,34 @@ async function privacyTests(browser) {
   }
 }
 
+async function emptyFieldTests(browser) {
+  const raw = fs.readFileSync(path.join(ROOT, "articles/vaerek/index.html"), "utf8");
+  const rows = '<dt>Age</dt><dd></dd><dt>Race</dt><dd> <br> </dd><dt>Titles</dt><dd>&mdash;</dd><dt>Homeland</dt><dd>TBD</dd><dt>Relatives</dt><dd>?</dd>';
+  const doc1 = raw.replace("</dl></section>", rows + "</dl></section>");
+  const doc2 = raw.replace(/<dl class="art-dossier">[\s\S]*?<\/dl>/, '<dl class="art-dossier">' + rows + "</dl>");
+  if (doc1 === raw || doc2 === raw) { check("empty fields: fixture built", false); return; }
+  const ctx = await ctxFor(browser, "sawyer"); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(e.message));
+  await ctx.route(BASE + "articles/vaerek/", (r) => r.fulfill({ status: 200, contentType: "text/html", body: doc1 }));
+  await ctx.route(BASE + "articles/saoirse/", (r) => r.fulfill({ status: 200, contentType: "text/html", body: doc2.replace(/Vaerek Rathkin/g, "Saoirse") }));
+  await p.goto(BASE + "articles/vaerek/", { waitUntil: "load" });
+  const shown = () => p.evaluate(() => [...document.querySelectorAll("dl.art-dossier > dt")].filter((d) => d.getClientRects().length).map((d) => d.textContent).join("|"));
+  const v = await shown();
+  check("empty fields: viewers see only filled Dossier fields (blank, whitespace/<br>, —, TBD, ? are hidden) on any article", v === "Name|Pronunciation|Faction", v);
+  await p.evaluate(() => document.documentElement.classList.add("ee-editing"));
+  const e = await shown();
+  check("empty fields: edit mode shows every row", e === "Name|Pronunciation|Faction|Age|Race|Titles|Homeland|Relatives", e);
+  await p.evaluate(() => document.documentElement.classList.remove("ee-editing"));
+  await p.goto(BASE + "articles/saoirse/", { waitUntil: "load" });
+  const hid = await p.evaluate(() => getComputedStyle(document.getElementById("dossier")).display);
+  check("empty fields: a Dossier whose fields are all unfilled is hidden, heading too", hid === "none", hid);
+  await p.goto(BASE + "index/ancients/", { waitUntil: "load" });
+  await p.click(VA); await openP(p);
+  const s = await st(p);
+  check("empty fields: the peek uses the same rule", s.dl === "Pronunciation|Faction", s.dl);
+  check("empty fields: no page errors", errs.length === 0, errs.join(" | "));
+  await ctx.close();
+}
+
 async function phoneTests(browser) {
   const ctx = await ctxFor(browser, "sawyer", { width: 390, height: 844 }, { hasTouch: true, isMobile: true }); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(e.message));
   await p.goto(BASE + "index/ancients/", { waitUntil: "load" });
@@ -142,7 +170,7 @@ async function hoverTests(browser) {
   const srv = await serverForTests(); BASE = srv.base;
   const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ["--no-sandbox"] });
   try {
-    for (const [n, fn] of [["peek", peekTests], ["privacy", privacyTests], ["phone", phoneTests], ["hover", hoverTests]]) {
+    for (const [n, fn] of [["peek", peekTests], ["privacy", privacyTests], ["empty", emptyFieldTests], ["phone", phoneTests], ["hover", hoverTests]]) {
       try { await fn(browser); } catch (e) { check(n + " stage ran without exceptions", false, e.stack.split("\n").slice(0, 3).join(" ")); }
     }
   } finally { await browser.close(); srv.close(); }

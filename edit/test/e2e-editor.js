@@ -534,6 +534,13 @@ async function batch2Tests(browser, vpName) {
     await vp.click('#ee-tpl-menu [data-tpl=""]');
     const r3 = await vp.evaluate(() => { const dl = document.querySelector("main.art-body dl.art-dossier"); return dl.className + " " + [...dl.querySelectorAll(":scope > dt")].map((d) => d.textContent).join("|"); });
     check(`[${vpName}] template: None removes the empty template fields, keeps the filled ones`, r3 === "art-dossier Name|Pronunciation|Faction|Homeland|Titles", r3);
+    await vp.evaluate(() => { const dl = document.querySelector("main.art-body dl.art-dossier"); const dt = document.createElement("dt"); dt.textContent = "Zq Blank"; const dd = document.createElement("dd"); dd.textContent = "\u2014"; dl.append(dt, dd); });
+    await vp.unroute(BASE + "articles/vaerek/");
+    await vp.click("#ee-save");
+    await vp.waitForFunction(() => /Saved|failed|conflict/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+    const f3 = String(mock.file("articles/vaerek/index.html"));
+    const shown3 = await vp.evaluate(() => [...document.querySelectorAll("main.art-body dl.art-dossier > dt")].filter((d) => d.getClientRects().length).map((d) => d.textContent).join("|"));
+    check(`[${vpName}] empty fields: unfilled-row marks never reach the saved file; after Save the placeholder row is hidden again for viewing`, !/data-ee-empty/.test(f3) && f3.includes("<dt>Zq Blank</dt><dd>\u2014</dd>") && shown3 === "Name|Pronunciation|Faction|Homeland|Titles", JSON.stringify({ mark: /data-ee-empty/.test(f3), row: f3.includes("<dt>Zq Blank</dt>"), shown3 }));
     await vctx.close();
     // An article with no Dossier: the template creates one (after Description, before Lore); all-empty Dossier hidden for viewers.
     check(`[${vpName}] template: no page errors`, W.errs.length === 0, W.errs.join(" | "));

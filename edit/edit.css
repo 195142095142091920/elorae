@@ -587,7 +587,8 @@ html.ee-idx-dragging #ee-idx-subs, html.ee-idx-dragging #ee-bar { pointer-events
 .ee-tpl-pick { position: fixed; inset: 0; z-index: 9100; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,.55); }
 .ee-tpl-pick .ee-tpl-menu { position: static; width: min(320px, 100%); max-height: calc(100dvh - 48px); overflow: auto; }
 /* Empty Dossier fields while editing: a visible, clickable line to type into. */
-html.ee-editing body.article .art-dossier dd:empty { min-height: 1.45em; border-bottom: 1px dotted rgba(243,238,230,.22); }
+html.ee-editing body.article .art-dossier dd:empty,
+html.ee-editing body.article .art-dossier dd[data-ee-empty] { min-height: 1.45em; border-bottom: 1px dotted rgba(243,238,230,.22); }
 html.ee-editing body.article .art-dossier dd:empty::before { content: "\2014"; color: rgba(243,238,230,.22); }
 /* Mid widths (tablet / small laptop): the article bar has up to 9 buttons with Template; short labels
    and tighter gaps keep Save on screen. */

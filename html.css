@@ -5165,8 +5165,11 @@ html.ee-editing body.article > section.art-hero { position: relative !important;
    only ever see filled rows: an empty <dd> and its <dt> are hidden, and a Dossier with no filled
    row at all is hidden with its heading. The editor shows them all (html.ee-editing). */
 html:not(.ee-editing) body.article .art-dossier > dd:empty,
-html:not(.ee-editing) body.article .art-dossier > dt:has(+ dd:empty) { display: none; }
-html:not(.ee-editing) body.article .art-sec:has(> dl.art-dossier):not(:has(> dl.art-dossier > dd:not(:empty))) { display: none; }
+html:not(.ee-editing) body.article .art-dossier > dt:has(+ dd:empty),
+html:not(.ee-editing) body.article .art-dossier > [data-ee-empty] { display: none; }
+html:not(.ee-editing) body.article .art-sec:has(> dl.art-dossier):not(:has(> dl.art-dossier > dd:not(:empty):not([data-ee-empty]))) { display: none; }
+/* Every field, not only template rows: peek.js marks a row data-ee-empty when its value is blank,
+   whitespace / <br> only, or only a placeholder (—, -, ?, …, TBD, N/A). */
 
 /* ---- pk1: Index peek panel + hover link cards (peek.js) ---- */
 .peek {

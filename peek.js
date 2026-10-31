@@ -41,6 +41,22 @@
     } catch (e) { return null; }
   }
   function img(src, w) { return window.eloraeImg ? window.eloraeImg(src, w) : src; }
+  /* A Dossier value that is blank, only whitespace / line breaks, or only a placeholder mark
+     (—, -, ?, …, TBD, N/A) counts as not filled: hidden for viewers, skipped in peeks and cards. */
+  var PLACEHOLDER = /^(?:[-\u2010-\u2015?.\u2026_*]+|tbd|tba|n\/?a)$/i;
+  function blankValue(t) { t = norm(t); return !t || PLACEHOLDER.test(t); }
+  /* Mark unfilled rows on this page (data-ee-empty: the editor strips data-ee-* on save, so the
+     mark never reaches the file). html.css hides them for viewers; edit mode shows every row. */
+  function markDossier() {
+    Array.prototype.forEach.call(doc.querySelectorAll("dl.art-dossier > dd"), function (dd) {
+      var dt = dd.previousElementSibling;
+      var empty = blankValue(dd.textContent) && !dd.querySelector("img");
+      [dd, dt && dt.tagName === "DT" ? dt : null].forEach(function (n) {
+        if (!n) return;
+        if (empty) n.setAttribute("data-ee-empty", ""); else n.removeAttribute("data-ee-empty");
+      });
+    });
+  }
 
   /* ---- fetch + parse (shared cache) ---- */
   var cache = {};
@@ -76,7 +92,7 @@
       var dd = dt.nextElementSibling;
       if (!dd || dd.tagName !== "DD") return;
       var k = norm(dt.textContent), v = norm(dd.textContent);
-      if (k && v) fields.push([k, v]);
+      if (k && !blankValue(v)) fields.push([k, v]);
     });
     var para = "";
     if (main) {
@@ -97,7 +113,7 @@
       para: para
     };
   }
-  window.EloraePeek = { load: load, parse: parse, articleKey: articleKey };
+  window.EloraePeek = { load: load, parse: parse, articleKey: articleKey, blankValue: blankValue, markDossier: markDossier };
 
   var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   var finePointer = window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -299,6 +315,14 @@
     new MutationObserver(function () { if (editing()) hide(); }).observe(root, { attributes: true, attributeFilter: ["class"] });
   }
 
-  function init() { initPeek(); initHover(); }
+  function init() {
+    if (doc.querySelector("dl.art-dossier")) {
+      markDossier();
+      // Leaving edit mode (a save or Cancel rebuilt / changed the rows): mark again.
+      var wasEditing = editing();
+      new MutationObserver(function () { var e = editing(); if (wasEditing && !e) markDossier(); wasEditing = e; }).observe(root, { attributes: true, attributeFilter: ["class"] });
+    }
+    initPeek(); initHover();
+  }
   if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", init); else init();
 })();
