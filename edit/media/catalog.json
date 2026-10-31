@@ -1119,6 +1119,24 @@
         "jason"
       ],
       "everyone": true
+    },
+    "alaric-morn": {
+      "path": "assets/alaric-morn.webp",
+      "title": "Alaric Morn",
+      "tags": [],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T06:08:30.749Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
