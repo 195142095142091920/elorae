@@ -1317,6 +1317,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "curse-of-olesh-2": {
+      "path": "assets/curse-of-olesh.webp",
+      "title": "Curse of Olesh",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T18:54:29.289Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
