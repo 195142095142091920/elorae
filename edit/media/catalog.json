@@ -1337,6 +1337,46 @@
         "jason"
       ],
       "everyone": true
+    },
+    "heldranc-leaves-the-glaurfeldt": {
+      "path": "assets/heldranc-leaves-the-glaurfeldt.webp",
+      "title": "Heldranc Leaves the Glaurfeldt",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T19:56:59.627Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "heldranc-burns-the-kbas": {
+      "path": "assets/heldranc-burns-the-kbas.webp",
+      "title": "Heldranc Burns the K'bas",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T19:56:59.627Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
