@@ -479,6 +479,102 @@ async function batch2Tests(browser, vpName) {
     check(`[${vpName}] ${who}: article nav EDIT — no page errors`, W.errs.length === 0, W.errs.join(" | "));
     await ctx.close();
   }
+  // Top-nav GALLERY (Devin only, any page): opens the gallery manager without edit mode; a change is one catalog commit.
+  if (vpName === "desktop" || vpName === "phone") {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, VPS[vpName]); const page = await ctx.newPage(); const W = watch(page);
+    await page.goto(BASE + "journal/", { waitUntil: "load" });
+    await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    const order = await page.evaluate(() => { const g = document.getElementById("ee-gallery"); const p = g && g.previousElementSibling; return g ? (p && p.id) + ">" + g.textContent.trim() : "none"; });
+    check(`[${vpName}] gallery: GALLERY sits right after DASHBOARD in the top nav`, /^ee-dash>Gallery$/i.test(order), order);
+    await page.click("#ee-gallery");
+    await page.waitForSelector("#ee-galm-wrap .ee-gal-item", { timeout: 10000 });
+    const g = await page.evaluate(() => { const b = document.querySelector("#ee-panel .ee-box").getBoundingClientRect(); return { editing: document.documentElement.classList.contains("ee-editing"), n: document.querySelectorAll("#ee-galm-wrap .ee-gal-item").length, l: Math.round(b.left), r: Math.round(innerWidth - b.right), t: Math.round(b.top), bt: Math.round(innerHeight - b.bottom) }; });
+    check(`[${vpName}] gallery: manager opens centred, inside the screen, without edit mode`, !g.editing && g.n > 5 && Math.abs(g.l - g.r) <= 2 && g.t >= 0 && g.bt >= 0, JSON.stringify(g));
+    await page.click("#ee-galm-wrap .ee-gal-item"); await page.waitForSelector("#ee-galm-title");
+    const id = await page.evaluate(() => document.querySelector("#ee-galm-wrap .ee-gal-item.ee-on").getAttribute("data-gal-id"));
+    await page.fill("#ee-galm-title", "Zg Renamed Art"); await page.fill("#ee-galm-tags", "zg, test");
+    mock.log.length = 0;
+    await page.click("#ee-galm-save"); await page.waitForTimeout(1500);
+    const cat = JSON.parse(String(mock.file("edit/media/catalog.json")));
+    const commits = mock.log.filter((e) => e.committed);
+    check(`[${vpName}] gallery: rename + tags saved as one catalog commit`, commits.length === 1 && cat.media[id] && cat.media[id].title === "Zg Renamed Art" && cat.media[id].tags.join(",") === "zg,test" && /Saved at/.test(await page.textContent("#ee-galm-msg")), JSON.stringify({ commits: commits.length, e: cat.media[id] }));
+    check(`[${vpName}] gallery: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+    const ctx2 = await ctxFor(browser, newMock(), VPS[vpName], "sawyer"); const p2 = await ctx2.newPage();
+    await p2.goto(BASE + "articles/vaerek/", { waitUntil: "load" });
+    await p2.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    check(`[${vpName}] gallery: players get no GALLERY link`, !(await p2.$("#ee-gallery")));
+    await ctx2.close();
+  }
+  // Rename -> every Index card of the article (both copies) + its Categories entries, same commit; a
+  // card that already said something else is corrected too; a stale Index organizer tab can't revert it.
+  if (vpName === "desktop") {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const W = { errs: [] };
+    for (const f of ["index/ancients/index.html", "index/ancients.html"]) mock.setUpstream(f, String(mock.file(f)).replace(/<span>Vaerek Rathkin<\/span>/g, "<span>Vaerek Stale</span>"));
+    const org = await ctx.newPage(); org.on("pageerror", (e) => W.errs.push(e.message));
+    await org.goto(BASE + "index/ancients/", { waitUntil: "load" });
+    await org.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    await org.evaluate(() => window.EloraeEditor.tryEnterEdit()); await org.waitForSelector("#ee-idx-save");
+    const page = await ctx.newPage(); page.on("pageerror", (e) => W.errs.push(e.message));
+    await openEdit(page, "articles/vaerek/");
+    await caretIn(page, ".art-title h1", 1.0); await page.keyboard.type(" Zn");
+    await caretIn(page, ".art-title .art-epithet", 1.0); await page.keyboard.type(" Zp");
+    mock.log.length = 0;
+    await page.click("#ee-save"); await page.waitForTimeout(2500);
+    const commits = mock.log.filter((e) => e.committed);
+    const a = String(mock.file("index/ancients/index.html")), b = String(mock.file("index/ancients.html"));
+    const nCards = (a.match(/<span>Vaerek Rathkin Zn<\/span>/g) || []).length, nToc = (a.match(/>Vaerek Rathkin Zn<\/a>/g) || []).length;
+    const ep = (a.match(/data-epithet="Wreathbound Ranger Zp"/g) || []).length;
+    check(`[${vpName}] rename: both Index copies' cards + Categories entries take the new name/epithet in the same commit`,
+      commits.length === 1 && commits[0].committed.paths.includes("index/ancients.html") && nCards === 2 && nToc === 2 && ep === 2 && a === b && !a.includes("Vaerek Stale"),
+      JSON.stringify({ commits: commits.length, nCards, nToc, ep, same: a === b, stale: a.includes("Vaerek Stale") }));
+    await org.evaluate(() => { const h = document.querySelector("#divines > h2"); h.focus(); h.textContent = "Divines Zt"; h.blur(); });
+    await org.click("#ee-idx-save"); await org.waitForTimeout(2500);
+    const c = String(mock.file("index/ancients/index.html"));
+    check(`[${vpName}] rename: an Index organizer opened before the rename does not revert it on Save`, c.includes("Divines Zt") && (c.match(/<span>Vaerek Rathkin Zn<\/span>/g) || []).length === 2 && (c.match(/data-epithet="Wreathbound Ranger Zp"/g) || []).length === 2 && !c.includes("Vaerek Stale"), JSON.stringify({ zt: c.includes("Divines Zt"), stale: c.includes("Vaerek Stale"), bar: (await org.textContent("#ee-bar")).slice(0, 80) }));
+    check(`[${vpName}] rename tests: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // Save races: someone pushes to main between our read and our write (GitHub: 409 stale sha /
+  // 422 "Update is not a fast forward"). Saves re-read main, re-apply, retry; only a lasting race errors.
+  if (vpName === "desktop") {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+    let races = 0;
+    const raceOn = (file, times) => { races = 0; mock.hooks.before = (e) => {
+      const write = (e.method === "PATCH" && /\/git\/refs\/heads\/main$/.test(e.path)) || (e.method === "PUT" && /\/contents\//.test(e.path) && (!e.body || !e.body.branch || e.body.branch === "main"));
+      if (write && races < times) { races++; mock.setUpstream(file, String(mock.file(file)).replace("</body>", "<!-- upstream " + races + " -->\n</body>")); }
+      return null;
+    }; };
+    // Index organizer
+    const idx = "index/ancients/index.html";
+    await page.goto(BASE + "index/ancients/", { waitUntil: "load" });
+    await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    await page.evaluate(() => window.EloraeEditor.tryEnterEdit()); await page.waitForSelector("#ee-idx-save");
+    await page.evaluate(() => { const h = document.querySelector("#divines > h2"); h.focus(); h.textContent = "Divines Zr"; h.blur(); });
+    raceOn(idx, 1);
+    await page.click("#ee-idx-save"); await page.waitForTimeout(4000);
+    let a = String(mock.file(idx)), b = String(mock.file("index/ancients.html"));
+    check(`[${vpName}] race: Index save retried on the new main — both changes kept, copies identical`, races === 1 && a.includes("Divines Zr") && a.includes("<!-- upstream 1 -->") && a === b, JSON.stringify({ races, zr: a.includes("Divines Zr"), up: a.includes("upstream 1"), same: a === b, bar: (await page.textContent("#ee-bar")).slice(0, 80) }));
+    await page.evaluate(() => { const h = document.querySelector("#divines > h2"); h.focus(); h.textContent = "Divines Zs"; h.blur(); });
+    raceOn(idx, 99);
+    await page.click("#ee-idx-save"); await page.waitForTimeout(9000);
+    const barT = await page.textContent("#ee-bar");
+    check(`[${vpName}] race: a lasting race gives a plain message and keeps the unsaved edit`, /Someone else saved at the same time/.test(barT) && races === 4 && (await page.evaluate(() => document.querySelector("#divines > h2").textContent)) === "Divines Zs" && !String(mock.file(idx)).includes("Divines Zs"), JSON.stringify({ races, bar: barT.slice(0, 120) }));
+    mock.hooks.before = null;
+    await page.evaluate(() => { try { window.EloraeIndexOrg.cancel && window.EloraeIndexOrg.cancel(); } catch (e) {} });
+    // Article editor (one file -> contents PUT with a stale sha -> 409)
+    const art = "articles/vaerek/index.html";
+    page._answer = true;
+    await openEdit(page, "articles/vaerek/");
+    await caretIn(page, LORE, 1.0); await page.keyboard.type(" Zrace");
+    raceOn(art, 2);
+    await page.click("#ee-save"); await page.waitForTimeout(6500);
+    a = String(mock.file(art));
+    check(`[${vpName}] race: article save retried twice on the new main — edit and the other save both kept`, races === 2 && a.includes(" Zrace") && a.includes("<!-- upstream 2 -->") && /Saved at/.test(await page.textContent("#ee-bar")), JSON.stringify({ races, z: a.includes(" Zrace"), bar: (await page.textContent("#ee-bar")).slice(0, 100) }));
+    mock.hooks.before = null;
+    check(`[${vpName}] race tests: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
   {
     const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1 });
     await ctx.route((u) => !u.href.startsWith(BASE) && !u.href.startsWith("data:"), (r) => r.abort());

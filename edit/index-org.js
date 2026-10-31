@@ -95,7 +95,7 @@
     }
     b.className = cls || "";
     b.innerHTML =
-      '<span class="ee-msg">' + esc(msg || "Index organizer · drag cards or select + Categories") + '</span>' +
+      '<span class="ee-msg" title="' + esc(msg || "") + '">' + esc(msg || "Index organizer · drag cards or select + Categories") + '</span>' +
       '<button type="button" class="ee-btn" id="ee-idx-add">Add card</button>' +
       '<button type="button" class="ee-btn" id="ee-idx-subs-btn" aria-expanded="' + ($("ee-idx-subs") ? "true" : "false") + '">Sub<span class="ee-wide-only">section</span></button>' +
       '<button type="button" class="ee-btn" id="ee-idx-art" title="Art for the selected card (or drop an image file on a card)">Art</button>' +
@@ -409,11 +409,11 @@
     var Ed = window.EloraeEditor;
     return saveIndex({
       message: o.message, done: o.done, force: true,
-      prepare: function (html) {
+      prepare: function (html, ref) {
         (o.slugs || []).forEach(function (s) { html = Media.unlinkArticle(html, s); });
         if (!(o.slugs || []).length && !(o.anchors || []).length && !(o.sections || []).length) return Promise.resolve({ html: html });
         barMsg((o.slugs || []).length ? "Deleting\u2026 (cleaning up links on other pages)" : "Saving\u2026", "ee-busy");
-        return Ed.planDelete({ slugs: o.slugs || [], indexText: html, sections: o.sections, anchors: o.anchors, moveTo: o.moveTo, fallback: o.fallback }).then(function (plan) {
+        return Ed.planDelete({ ref: ref, slugs: o.slugs || [], indexText: html, sections: o.sections, anchors: o.anchors, moveTo: o.moveTo, fallback: o.fallback }).then(function (plan) {
           state.lastPlan = plan;
           return { html: html, files: plan.files.concat(plan.deletes) };
         });
@@ -790,7 +790,7 @@
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
-  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "navedit1"; })();
+  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "edsave1"; })();
   function newArticle(name, catId, secId) {
     return E.getFile(TEMPLATE_ARTICLE).then(function (f) {
       try { return articleFromTemplate(f.text, name, catId, secId); } catch (e) { return articleFallback(name, catId); }
@@ -857,7 +857,7 @@
      runtime state (nav-fade, inline styles, flipped cards, image fallbacks, TOC
      highlight/pin state, editing classes) never reaches the file. */
   var M = window.EloraeSrcMap;
-  var RUNTIME_CLASS = /^(nav-fade[\w-]*|ee-index-[\w-]+|is-lore-flipped)$/; // incl. ee-index-target / -drop
+  var RUNTIME_CLASS = /^(nav-fade[\w-]*|ee-index-[\w-]+|is-lore-flipped|ix-hide)$/; // incl. ee-index-target / -drop
   function imgKey(src) {
     var s = String(src || "").trim().replace(/^https?:\/\/[^\/]+/i, "").replace(/^\/cdn-cgi\/image\/[^\/]+/i, "");
     try { s = decodeURI(s); } catch (e) {}
@@ -976,6 +976,21 @@
     if (want.join("\n") !== got.join("\n")) throw new Error("Safety check failed (the saved Index would not match the cards on screen). Nothing was saved.");
   }
   function isTwin(a, b) { return a === b; }
+  /* The organizer writes the cards as they are on screen. A card's name/epithet the organizer did
+     not touch (same as when it opened) keeps what main says now, so an article rename saved
+     meanwhile (another tab, a player PR merged) is never reverted by an Index save. */
+  function keepSavedNames(html, fresh) {
+    if (!Media || !Media.cardNames || !snapshot || !snapshot.names) return html;
+    var now = Media.cardNames(fresh), shown = Media.cardNames(html);
+    Object.keys(now).forEach(function (k) {
+      var was = snapshot.names[k], cur = shown[k], up = now[k];
+      if (!was || !cur || !up) return;
+      var nameOk = cur.name === was.name && up.name && up.name !== cur.name;
+      var epOk = cur.ep === was.ep && up.ep !== cur.ep;
+      if (nameOk || epOk) html = Media.renameIndexCards(html, k, cur.name, nameOk ? up.name : cur.name, cur.ep, epOk ? up.ep : cur.ep, true);
+    });
+    return html;
+  }
   /* One commit for everything: both Index copies, new card articles (opts.extra), new art
      (image + catalog) and the articles' hero art. Resolves false when nothing was saved. */
   function saveIndex(opts) {
@@ -989,13 +1004,20 @@
     var art = state.art, slugs = Object.keys(art);
     var remembered = [], images = [], assetFor = {};
     var who = (state.profile && state.profile.person) || "devin";
-    return E.getFile(PATH).then(function (f) {
-      var html = buildIndexHtml(f.text);
-      return (opts.prepare ? opts.prepare(html) : Promise.resolve(null)).then(function (pr) {
+    /* One try = read the latest main, rebuild both Index copies from it plus what is on screen,
+       commit with that commit as parent. If someone else pushed in between, GitHub refuses the
+       ref update and E.retrySave runs the try again on the new main (up to 3 more times). */
+    var attemptOnce = function () {
+    remembered = []; images = []; assetFor = {};
+    var extra = (opts.extra || []).map(function (x) { return Object.assign({}, x); });
+    var ref;
+    return E.headSha(E.BRANCH).then(function (sha) { ref = sha; return E.getFile(PATH, ref); }).then(function (f) {
+      var html = keepSavedNames(buildIndexHtml(f.text), f.text);
+      return (opts.prepare ? opts.prepare(html, ref) : Promise.resolve(null)).then(function (pr) {
       if (pr && pr.html) html = pr.html;
-      if (pr && pr.files) opts.extra = (opts.extra || []).concat(pr.files);
+      if (pr && pr.files) extra = extra.concat(pr.files);
       var catalogP = slugs.some(function (k) { return art[k].file; })
-        ? E.getFile(Media.CATALOG).then(function (c) { return JSON.parse(c.text); }, function () { return { version: 1, media: {} }; })
+        ? E.getFile(Media.CATALOG, ref).then(function (c) { return JSON.parse(c.text); }, function () { return { version: 1, media: {} }; })
         : Promise.resolve(null);
       return catalogP.then(function (catalog) {
         var files = [];
@@ -1014,15 +1036,15 @@
         var arts = slugs.filter(function (k) { return art[k].hero; }).map(function (k) {
           var paths = ["articles/" + k + "/index.html", "articles/" + k + ".html"];
           return Promise.all(paths.map(function (p) {
-            var made = (opts.extra || []).filter(function (x) { return x.path === p; })[0];
+            var made = extra.filter(function (x) { return x.path === p; })[0];
             if (made) { made.text = Media.setHeroArt(made.text, assetFor[k], art[k].name) || made.text; return null; }
-            return E.getFile(p).then(function (af) {
+            return E.getFile(p, ref).then(function (af) {
               var out = Media.setHeroArt(af.text, assetFor[k], art[k].name);
               return out && out !== af.text ? { path: p, text: out, base: af.text } : null;
             }, function () { return null; });
           }));
         });
-        var mirrorP = mp ? E.getFile(mp).then(function (m) { return m; }, function () { return null; }) : Promise.resolve(null);
+        var mirrorP = mp ? E.getFile(mp, ref).then(function (m) { return m; }, function () { return null; }) : Promise.resolve(null);
         return Promise.all([mirrorP, Promise.all(arts)]).then(function (res) {
           var m = res[0];
           var changed = html !== f.text;
@@ -1030,15 +1052,17 @@
           if (changed) { out.push({ path: PATH, text: html }); remembered.push({ path: PATH, text: html, base: f.text }); }
           // The other Index copy always gets the very same file (they must never drift apart).
           if (m && m.text !== html) { out.push({ path: mp, text: html }); remembered.push({ path: mp, text: html, base: m.text }); }
-          (opts.extra || []).forEach(function (x) { out.push(x.delete ? { path: x.path, delete: true } : { path: x.path, text: x.text }); });
+          extra.forEach(function (x) { out.push(x.delete ? { path: x.path, delete: true } : { path: x.path, text: x.text }); });
           res[1].forEach(function (pair) { pair.forEach(function (x) { if (x) { out.push({ path: x.path, text: x.text }); remembered.push(x); } }); });
           out = out.concat(files);
           if (!out.length) return "none";
-          return E.commitFiles(out, opts.message || (slugs.length ? "Index: card art + reorganize [edit-mode]" : "Index: reorganize cards [edit-mode]"), E.BRANCH);
+          return E.commitFiles(out, opts.message || (slugs.length ? "Index: card art + reorganize [edit-mode]" : "Index: reorganize cards [edit-mode]"), E.BRANCH, ref);
         });
       });
       });
-    }).then(function (res) {
+    });
+    };
+    return E.retrySave(attemptOnce, function (n) { barMsg("Someone else saved at the same time \u2014 retrying (" + n + "/3)\u2026", "ee-busy"); }).then(function (res) {
       state.busy = false;
       if (res === "none") { state.dirty = false; barMsg("No changes to save."); return false; }
       state.dirty = false;
@@ -1074,6 +1098,7 @@
       main: document.querySelector("main.index-flow").innerHTML,
       toc: document.querySelector("#index-toc-panel").innerHTML
     };
+    snapshot.names = Media && Media.cardNames ? Media.cardNames(snapshot.main) : null;
     state.active = true;
     state.dirty = false;
     rememberStart();

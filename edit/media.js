@@ -356,20 +356,40 @@
     return tag + card.slice(open[0].length);
   }
   function epAttr(v) { return String(v).replace(/&/g, "&amp;").replace(/"/g, "&quot;"); }
-  function renameIndexCards(text, slug, oldName, newName, oldEp, newEp) {
-    var ids = [], epi = newEp != null && oldEp !== newEp;
+  /* force (every admin save of the article): the cards always end up showing the article's own
+     name and epithet, whatever they said before (an earlier save that never reached the Index, a
+     card typed differently, quotes ' vs \u2019 …). */
+  function renameIndexCards(text, slug, oldName, newName, oldEp, newEp, force) {
+    var ids = [], epi = newEp != null && (force || oldEp !== newEp);
+    var same = function (t) { return force || decText(t) === oldName; };
     text = text.replace(/<a\b[^>]*\bclass="index-card\b[^"]*"[^>]*>[\s\S]*?<\/a>/g, function (card) {
       var h = /\shref="([^"]*)"/.exec(card);
       if (!h || articleSlug(h[1]) !== slug) return card;
       var id = /\sid="([^"]*)"/.exec(card); if (id) ids.push(id[1]);
-      if (oldName !== newName) card = card.replace(/<span>([^<]*)<\/span>/, function (m, t) { return decText(t) === oldName ? "<span>" + escTextHtml(newName) + "</span>" : m; });
-      if (epi) card = setCardEpithet(card, newEp);
+      if (newName && (force || oldName !== newName)) card = card.replace(/<span>([^<]*)<\/span>/, function (m, t) { return same(t) && decText(t) !== newName ? "<span>" + escTextHtml(newName) + "</span>" : m; });
+      if (epi) {
+        var cur = (/^<a\b[^>]*\sdata-epithet="([^"]*)"/.exec(card) || [])[1];
+        var want = String(newEp).replace(/\s+/g, " ").trim().replace(/\.$/, "");
+        if (decText(cur || "") !== want) card = setCardEpithet(card, newEp);
+      }
       return card;
     });
-    if (ids.length && oldName !== newName) text = text.replace(/(<a class="toc-name[^"]*" href="#)([^"]+)(">)([^<]*)(<\/a>)/g, function (m, a, id, b, t, c) {
-      return ids.indexOf(id) >= 0 && decText(t) === oldName ? a + id + b + escTextHtml(newName) + c : m;
+    if (ids.length && newName && (force || oldName !== newName)) text = text.replace(/(<a class="toc-name[^"]*" href="#)([^"]+)(">)([^<]*)(<\/a>)/g, function (m, a, id, b, t, c) {
+      return ids.indexOf(id) >= 0 && same(t) && decText(t) !== newName ? a + id + b + escTextHtml(newName) + c : m;
     });
     return text;
+  }
+  /* slug -> { name, ep } for every Index card in an Index source (first card of a slug wins). */
+  function cardNames(text) {
+    var out = {};
+    String(text).replace(/<a\b[^>]*\bclass="index-card\b[^"]*"[^>]*>[\s\S]*?<\/a>/g, function (card) {
+      var h = /\shref="([^"]*)"/.exec(card), k = h && articleSlug(h[1]);
+      if (!k || out[k]) return card;
+      var sp = /<span>([^<]*)<\/span>/.exec(card), ep = /^<a\b[^>]*\sdata-epithet="([^"]*)"/.exec(card);
+      out[k] = { name: sp ? decText(sp[1]) : null, ep: ep ? decText(ep[1]) : "" };
+      return card;
+    });
+    return out;
   }
   /* Article sources: the category rail (toc-name links) and "related" lists naming <slug>. */
   function renameArticleLinks(text, slug, oldName, newName) {
@@ -655,7 +675,10 @@
     var everyone = opts.everyone !== false;
     var allowed = Array.isArray(opts.allowed) ? opts.allowed.slice() : PEOPLE.slice();
     if (allowed.indexOf("devin") < 0) allowed.unshift("devin");
+    // Removed from the gallery (gallery manager): an assets/ file listed in catalog.hidden is not re-seeded.
+    var hidden = {}; ((catalog && catalog.hidden) || []).forEach(function (x) { hidden[x] = 1; });
     (paths || []).forEach(function (path) {
+      if (hidden[path]) return;
       path = String(path || "");
       if (!isAssetImagePath(path)) { skipped++; return; }
       if (usedPaths[path]) { skipped++; return; }
@@ -688,7 +711,7 @@
     setHeroArt: setHeroArt,
     heroArtKey: heroArtKey,
     heroParts: heroParts,
-    renameIndexCards: renameIndexCards,
+    renameIndexCards: renameIndexCards, cardNames: cardNames,
     setCardEpithet: setCardEpithet,
     linksTo: linksTo, unlinkArticle: unlinkArticle, removeIndexCards: removeIndexCards, removeRailSection: removeRailSection,
     setArtBack: setArtBack, artBackOf: artBackOf, removeSearchEntry: removeSearchEntry, removeSitemap: removeSitemap,

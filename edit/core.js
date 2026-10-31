@@ -367,6 +367,35 @@
     });
   }
 
+  /* Save races. GitHub refuses a ref update that is not a fast-forward (422 "Update is not a fast
+     forward") or a contents write whose sha is stale (409), when someone else (another tab, a
+     player, a deploy push) saved to main in between. retrySave(fn) runs fn(attempt) again —
+     fn must re-read the latest main itself and re-apply the user's change on top — up to 3 more
+     times with backoff; only then does it fail, with err.race and a plain message. The edits on
+     screen are never touched by this. */
+  var RACE_MSG = "Someone else saved at the same time \u2014 try Save again. Your changes are still here.";
+  function isRace(err) {
+    if (!err || err.conflict) return false;
+    var m = String(err.message || "");
+    return err.status === 409 || /not a fast.?forward/i.test(m) ||
+      (err.status === 422 && /fast.?forward|reference update|does not match|is at [0-9a-f]|sha/i.test(m));
+  }
+  function retrySave(fn, onRetry) {
+    var delays = [700, 1600, 3200];
+    function go(n) {
+      return Promise.resolve().then(function () { return fn(n); }).catch(function (err) {
+        if (!isRace(err)) throw err;
+        if (n < delays.length) {
+          if (onRetry) { try { onRetry(n + 1); } catch (e0) {} }
+          return new Promise(function (r) { setTimeout(r, delays[n] + Math.floor(Math.random() * 400)); }).then(function () { return go(n + 1); });
+        }
+        var e = new Error(RACE_MSG); e.race = true; e.status = err.status; e.cause = err;
+        throw e;
+      });
+    }
+    return go(0);
+  }
+
   function loadJSON(path) {
     // Prefer the authoritative copy on GitHub (fresh); fall back to the deployed copy.
     var s = session.get();
@@ -428,7 +457,7 @@
     tokenKind: tokenKind, TOKEN_LINKS: TOKEN_LINKS, OWNER: owner,
     REPO: REPO, BRANCH: BRANCH, API: API, ROOT: ROOT,
     pagePath: pagePath, session: session, api: api, repoPath: repoPath,
-    getFile: getFile, listDir: listDir, listTree: listTree, putFile: putFile, headSha: headSha, commitFiles: commitFiles, loadJSON: loadJSON, loadScript: loadScript,
+    getFile: getFile, listDir: listDir, listTree: listTree, putFile: putFile, headSha: headSha, commitFiles: commitFiles, isRace: isRace, retrySave: retrySave, RACE_MSG: RACE_MSG, loadJSON: loadJSON, loadScript: loadScript,
     b64EncodeUtf8: b64EncodeUtf8, b64EncodeBytes: b64EncodeBytes, b64DecodeUtf8: b64DecodeUtf8,
     loginWho: function () { return readPhraseWho(); }
   };

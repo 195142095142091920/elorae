@@ -399,7 +399,7 @@ async function signInViaPanel(page, token) {
       await page.waitForSelector("#ee-bar.ee-bad-bar", { timeout: 10000 });
       await page.waitForTimeout(300);
       const t2 = await page.textContent("#ee-bar");
-      check("conflict (409/422 from GitHub): clear message", /changed this part of the page/.test(t2), t2.trim().slice(0, 100));
+      check("conflict (409/422 from GitHub): retried, then the plain race message; edit kept", /Someone else saved at the same time/.test(t2) && /try Save again/.test(t2), t2.trim().slice(0, 100));
       mock.hooks.before = null;
       // (c) Full-page model: ANY upstream change inside the page body is a conflict (never
       //     overwritten); a change outside main (head/title) is merged — see e2e-editor.js.

@@ -1029,7 +1029,7 @@
 
   function jsonDoc(o) { var c = JSON.parse(JSON.stringify(o)); delete c.__sha; return JSON.stringify(c, null, 2) + "\n"; }
   function commitMsg(files, message) {
-    return E.commitFiles(files, message + " [edit-mode]", E.BRANCH);
+    return E.retrySave(function () { return E.commitFiles(files, message + " [edit-mode]", E.BRANCH); });
   }
   function nameOfPerson(man, p) { return (man.people[p] && man.people[p].name) || p; }
 
@@ -1368,15 +1368,17 @@
     b.innerHTML = '<p class="ee-k">' + esc(opts.title || "Art") + '</p>' +
       (opts.upload === false
         ? '<p class="ee-note">' + esc(opts.noUploadNote || "Uploading new pictures needs Devin; pick one from the gallery.") + '</p><p class="ee-err" id="ee-pick-err" hidden></p>'
-        : '<form id="ee-pick-form" class="ee-gal-up">' +
+        : '<form id="ee-pick-form" class="ee-gal-up ee-gal-first">' +
           '<p class="ee-sub">Upload new</p>' +
-          '<input type="file" id="ee-pick-file" class="ee-field" accept="image/png,image/jpeg,image/webp,image/gif">' +
-          '<p class="ee-note">' + esc(opts.note || "Nothing is published until you press Save.") + ' Big images are resized to ' + Media.MAX_EDGE + ' px on the long edge.</p>' +
+          fileButton("ee-pick-file") +
+          '<p class="ee-note">' + esc(opts.note || "Nothing is published until you press Save.") + '</p>' +
+          '<p class="ee-note">Big images are resized to ' + Media.MAX_EDGE + ' px on the long edge.</p>' +
           '<p class="ee-err" id="ee-pick-err" hidden></p></form>') +
-      '<p class="ee-sub">Or pick from the gallery</p>' +
-      '<input type="search" id="ee-pick-search" class="ee-field" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
+      '<div class="ee-gal-head"><p class="ee-sub">Or pick from the gallery</p>' +
+      '<input type="search" id="ee-pick-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false"></div>' +
       '<div id="ee-pick-wrap"><p class="ee-note">Loading gallery…</p></div>';
     var fileIn = $("ee-pick-file");
+    bindFileButton(fileIn);
     if (fileIn) fileIn.onchange = function () {
       var f = fileIn.files && fileIn.files[0];
       if (!f) return;
@@ -1400,6 +1402,7 @@
       function draw(items) {
         var w = $("ee-pick-wrap"); if (!w) return;
         w.innerHTML = grid(items);
+        thumbFallback(w, catalog);
         Array.prototype.forEach.call(w.querySelectorAll("[data-pick-id]"), function (btn) {
           btn.onclick = function () {
             var entry = catalog.media[btn.getAttribute("data-pick-id")];
@@ -1415,6 +1418,181 @@
         var t = String(q.value || "").trim().toLowerCase();
         draw(all.filter(function (m) { return !t || [m.id, m.title, m.path].concat(m.tags || []).join(" ").toLowerCase().indexOf(t) >= 0; }));
       };
+    });
+  }
+
+  /* Gallery manager (top-nav GALLERY, Devin only, any page, no edit mode): browse and search the
+     art catalog, upload new art, rename, retag, set who may use it, remove it from the gallery.
+     Every change is one commit of edit/media/catalog.json (+ the image for an upload), made on a
+     fresh copy of the catalog and retried automatically when someone else saved meanwhile. */
+  function openGalleryManager() {
+    return profileReady.then(function () {
+      if (!Media || !state.profile || !P.isAdmin(state.profile)) return false;
+      openPanel();
+      var p = $("ee-panel");
+      p.classList.add("ee-gal-mode");
+      var box = p.querySelector(".ee-box");
+      if (box) { box.classList.add("ee-wide"); box.setAttribute("aria-label", "Gallery"); }
+      var b = $("ee-body");
+      b.innerHTML = '<p class="ee-k">Gallery</p><p class="ee-note">Loading gallery\u2026</p>';
+      var catalog = null, q = "", sel = null, busy = false;
+      function freshCatalog() {
+        return E.getFile(Media.CATALOG).then(function (f) { return JSON.parse(f.text); }, function (err) { if (err && err.status === 404) return { version: 1, media: {} }; throw err; });
+      }
+      function commitCatalog(change, message, extraFiles) {
+        return E.retrySave(function () {
+          return freshCatalog().then(function (fresh) {
+            var out = change(fresh);
+            var files = [{ path: Media.CATALOG, text: JSON.stringify(out.catalog || out, null, 2) + "\n" }].concat(out.files || extraFiles || []);
+            return E.commitFiles(files, message + " [edit-mode]", E.BRANCH).then(function () { return out.catalog || out; });
+          });
+        }, function (n) { say("Someone else saved at the same time \u2014 retrying (" + n + "/3)\u2026"); });
+      }
+      function say(m, bad) { var e = $("ee-galm-msg"); if (e) { e.textContent = m || ""; e.className = "ee-note" + (bad ? " ee-err" : ""); } }
+      function people() { return Media.PEOPLE.filter(function (x) { return x !== "devin"; }); }
+      function detailHtml(m) {
+        if (!m) return '<p class="ee-note">Pick a picture to rename it, change its tags or who can use it, or remove it.</p>';
+        var thumb = '<img src="' + esc(gallerySrc(m)) + '" alt="">';
+        return '<div class="ee-galm-pic">' + thumb + '</div>' +
+          '<p class="ee-sub">Title</p><input type="text" id="ee-galm-title" class="ee-field" value="' + esc(m.title || "") + '" autocomplete="off">' +
+          '<p class="ee-sub">Tags</p><input type="text" id="ee-galm-tags" class="ee-field" value="' + esc((m.tags || []).join(", ")) + '" placeholder="comma-separated" autocomplete="off">' +
+          '<p class="ee-sub">Who can use it in the editor</p>' +
+          '<div class="ee-galm-who"><label class="ee-check"><input type="checkbox" id="ee-galm-everyone"' + (m.everyone ? " checked" : "") + '> Everyone</label>' +
+          people().map(function (x) { return '<label class="ee-check"><input type="checkbox" data-galm-who="' + esc(x) + '"' + ((m.allowed || []).indexOf(x) >= 0 ? " checked" : "") + (m.everyone ? " disabled" : "") + '> ' + esc(x.charAt(0).toUpperCase() + x.slice(1)) + '</label>'; }).join("") + '</div>' +
+          '<p class="ee-note">' + esc(m.path) + '</p>' +
+          '<div class="ee-row"><button type="button" class="ee-btn ee-primary" id="ee-galm-save">Save</button>' +
+          '<button type="button" class="ee-btn ee-danger" id="ee-galm-remove">Remove from gallery</button></div>';
+      }
+      function list() {
+        var all = Media.listVisible(catalog, "devin", true);
+        return all.filter(function (m) { return !q || [m.id, m.title, m.path].concat(m.tags || []).join(" ").toLowerCase().indexOf(q) >= 0; });
+      }
+      function drawGrid() {
+        var w = $("ee-galm-wrap"); if (!w) return;
+        var items = list();
+        w.innerHTML = items.length ? '<div class="ee-gallery">' + items.map(function (m) {
+          var thumb = window.eloraeImg
+            ? window.eloraeImg.html(E.ROOT + m.path, { sizes: "(max-width: 800px) 180px, 240px", min: 160, max: 640, fallback: 320, lazy: true }, 'alt=""')
+            : '<img src="' + esc(gallerySrc(m)) + '" alt="" loading="lazy">';
+          return '<button type="button" class="ee-gal-item' + (sel === m.id ? " ee-on" : "") + '" data-gal-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' + thumb + '<span>' + esc(m.title || m.id) + '</span></button>';
+        }).join("") + '</div>' : '<p class="ee-note">' + (q ? "No matches." : "The gallery is empty. Upload the first picture above.") + '</p>';
+        thumbFallback(w, catalog);
+        Array.prototype.forEach.call(w.querySelectorAll("[data-gal-id]"), function (btn) {
+          btn.onclick = function () {
+            sel = btn.getAttribute("data-gal-id"); drawGrid(); drawDetail();
+            if (window.matchMedia && matchMedia("(max-width: 800px)").matches) { var d = $("ee-galm-detail"); if (d) d.scrollIntoView({ block: "start", behavior: "smooth" }); }
+          };
+        });
+      }
+      function drawDetail() {
+        var d = $("ee-galm-detail"); if (!d) return;
+        var m = sel && catalog.media[sel] ? Object.assign({ id: sel }, catalog.media[sel]) : null;
+        d.innerHTML = detailHtml(m);
+        if (!m) return;
+        var ev = $("ee-galm-everyone");
+        ev.onchange = function () { Array.prototype.forEach.call(d.querySelectorAll("[data-galm-who]"), function (c) { c.disabled = ev.checked; }); };
+        $("ee-galm-save").onclick = function () {
+          if (busy) return; busy = true; say("Saving\u2026");
+          var id = m.id, shown = catalog.media[id];
+          var patch = { title: $("ee-galm-title").value.trim() || shown.title, tags: $("ee-galm-tags").value.split(",").map(function (t) { return t.trim(); }).filter(Boolean),
+            everyone: ev.checked, allowed: Array.prototype.filter.call(d.querySelectorAll("[data-galm-who]"), function (c) { return c.checked; }).map(function (c) { return c.getAttribute("data-galm-who"); }) };
+          commitCatalog(function (fresh) {
+            fresh.media = fresh.media || {};
+            if (!fresh.media[id]) fresh.media[id] = JSON.parse(JSON.stringify(shown)); // a picture only seeded from assets/
+            return Media.setVisibility(fresh, id, patch);
+          }, "Media: update " + id + " via gallery").then(function (next) {
+            busy = false; catalog = mergeSeeded(next); say("Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + "."); drawGrid(); drawDetail();
+          }, function (err) { busy = false; say(err.message || "Save failed. Nothing was saved.", true); });
+        };
+        $("ee-galm-remove").onclick = function () {
+          if (busy) return;
+          if (!window.confirm("Remove \u201c" + (m.title || m.id) + "\u201d from the gallery? Pages that already show it keep it; the image file stays in assets/.")) return;
+          busy = true; say("Removing\u2026");
+          var id = m.id;
+          commitCatalog(function (fresh) {
+            fresh.media = fresh.media || {};
+            delete fresh.media[id];
+            fresh.hidden = (fresh.hidden || []).filter(function (x) { return x !== m.path; }).concat([m.path]); // keep a seeded assets/ file from coming back
+            return fresh;
+          }, "Media: remove " + id + " from the gallery").then(function (next) {
+            busy = false; sel = null; catalog = mergeSeeded(next); say("Removed."); drawGrid(); drawDetail();
+          }, function (err) { busy = false; say(err.message || "Remove failed. Nothing was changed.", true); });
+        };
+      }
+      var assetPaths = [];
+      function mergeSeeded(cat) {
+        var hide = (cat && cat.hidden) || [];
+        var paths = assetPaths.filter(function (x) { return hide.indexOf(x) < 0; });
+        return paths.length ? Media.seedFromAssetPaths(cat, paths, { everyone: true, tags: ["site", "seed"] }).catalog : cat;
+      }
+      var assetsP = (E.listDir ? E.listDir(Media.ASSET_DIR) : Promise.resolve([])).then(function (es) { return es.filter(function (e) { return e.type === "file"; }).map(function (e) { return e.path; }); }, function () { return []; });
+      return Promise.all([freshCatalog().catch(function () { return { version: 1, media: {} }; }), assetsP]).then(function (r) {
+        assetPaths = r[1]; catalog = mergeSeeded(r[0]);
+        b.innerHTML = '<p class="ee-k">Gallery</p>' +
+          '<form id="ee-galm-up" class="ee-gal-up ee-gal-first"><p class="ee-sub">Add art</p>' +
+          '<div class="ee-galm-uprow">' + fileButton("ee-galm-file") +
+          '<input type="text" id="ee-galm-newtitle" class="ee-field" placeholder="Title (optional)" autocomplete="off">' +
+          '<input type="text" id="ee-galm-newtags" class="ee-field" placeholder="Tags (comma-separated)" autocomplete="off">' +
+          '<label class="ee-check"><input type="checkbox" id="ee-galm-neweveryone" checked> Everyone can use it</label>' +
+          '<button type="submit" class="ee-btn ee-primary" id="ee-galm-upload">Upload</button></div>' +
+          '<p class="ee-note">Goes to assets/ and the gallery right away (one commit). Big images are resized to ' + Media.MAX_EDGE + ' px on the long edge.</p></form>' +
+          '<div class="ee-gal-head"><p class="ee-sub">All art</p><input type="search" id="ee-galm-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false"></div>' +
+          '<p class="ee-note" id="ee-galm-msg" role="status"></p>' +
+          '<div class="ee-galm-cols"><div id="ee-galm-wrap"></div><div id="ee-galm-detail" class="ee-galm-detail"></div></div>';
+        bindFileButton($("ee-galm-file"));
+        $("ee-galm-search").oninput = function () { q = String(this.value || "").trim().toLowerCase(); drawGrid(); };
+        $("ee-galm-up").onsubmit = function (e) {
+          e.preventDefault();
+          var fi = $("ee-galm-file"), file = fi.files && fi.files[0];
+          if (!file) { say("Choose an image first.", true); return; }
+          if (busy) return; busy = true; say("Uploading\u2026");
+          var title = $("ee-galm-newtitle").value.trim(), tags = $("ee-galm-newtags").value.split(",").map(function (t) { return t.trim(); }).filter(Boolean), every = $("ee-galm-neweveryone").checked;
+          Media.validateFile(file).then(function (info) {
+            var newId = null;
+            return commitCatalog(function (fresh) {
+              var prep = Media.prepareUpload(fresh, info, { title: title || info.name, tags: tags, owner: "devin", uploadedBy: "devin", everyone: every, allowed: every ? Media.PEOPLE.slice() : ["devin"] });
+              newId = prep.id;
+              return { catalog: prep.catalog, files: [prep.files[1]] };
+            }, "Media: upload via gallery").then(function (next) { return { next: next, id: newId }; });
+          }).then(function (r) {
+            busy = false; catalog = mergeSeeded(r.next); sel = r.id; fi.value = ""; fi.dispatchEvent(new Event("change"));
+            $("ee-galm-newtitle").value = ""; $("ee-galm-newtags").value = "";
+            say("Uploaded. It shows on the site in about a minute."); drawGrid(); drawDetail();
+          }, function (err) { busy = false; say(err.message || "Upload failed. Nothing was saved.", true); });
+        };
+        drawGrid(); drawDetail();
+        return true;
+      });
+    });
+  }
+
+  /* Styled file picker (no raw "Choose file / No file chosen"): the real input stays in the form,
+     visually hidden; the label is the button and shows the chosen file's name. */
+  function fileButton(id) {
+    return '<label class="ee-file"><input type="file" id="' + id + '" accept="image/png,image/jpeg,image/webp,image/gif">' +
+      '<span class="ee-file-btn">Choose image</span><span class="ee-file-name" data-file-name>No image chosen</span></label>';
+  }
+  function bindFileButton(input) {
+    if (!input) return;
+    input.addEventListener("change", function () {
+      var n = input.parentNode && input.parentNode.querySelector("[data-file-name]");
+      if (n) n.textContent = input.files && input.files[0] ? input.files[0].name : "No image chosen";
+    });
+  }
+  /* A picture uploaded a moment ago is in the repo but not on the site until it rebuilds (~1 min),
+     so its thumbnail 404s: fall back to the repo's raw file, then to a quiet placeholder. */
+  function thumbFallback(root, catalog) {
+    Array.prototype.forEach.call(root.querySelectorAll(".ee-gal-item img"), function (im) {
+      var btn = im.closest(".ee-gal-item"), id = btn && (btn.getAttribute("data-pick-id") || btn.getAttribute("data-gal-id"));
+      var entry = id && catalog && catalog.media && catalog.media[id];
+      function fail() {
+        if (!entry || im.getAttribute("data-ee-raw")) { btn.classList.add("ee-gal-missing"); return; }
+        im.setAttribute("data-ee-raw", "1");
+        im.removeAttribute("srcset");
+        im.src = "https://raw.githubusercontent.com/" + E.REPO + "/" + E.BRANCH + "/" + entry.path.split("/").map(encodeURIComponent).join("/");
+      }
+      im.addEventListener("error", fail);
+      if (im.complete && im.naturalWidth === 0 && im.getAttribute("src")) fail();
     });
   }
 
@@ -1471,11 +1649,11 @@
         : '') +
       '<p class="ee-note">Nothing is published until you press Save.</p>' +
       '<label class="ee-gal-search-label" for="ee-gal-search">Search</label>' +
-      '<input type="search" id="ee-gal-search" class="ee-field" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
+      '<input type="search" id="ee-gal-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
       '<div id="ee-gal-wrap">' + gridHtml(allItems) + '</div>' +
       '<form id="ee-art-form" class="ee-gal-up">' +
       '<p class="ee-sub">Upload new</p>' +
-      '<input type="file" id="ee-art-file" class="ee-field" accept="image/png,image/jpeg,image/webp,image/gif">' +
+      fileButton("ee-art-file") +
       '<input type="text" id="ee-art-title" class="ee-field" placeholder="Title (optional)" autocomplete="off">' +
       '<input type="text" id="ee-art-tags" class="ee-field" placeholder="Tags (comma-separated)" autocomplete="off">' +
       '<label class="ee-check"><input type="checkbox" id="ee-art-everyone" checked> Everyone can use in the editor</label>' +
@@ -1494,6 +1672,8 @@
       replaceHeroImage(act);
     };
     bindThumbs(b);
+    thumbFallback(b, catalog);
+    bindFileButton($("ee-art-file"));
     var search = $("ee-gal-search");
     if (search) {
       search.oninput = function () {
@@ -1503,6 +1683,7 @@
         if (!wrap) return;
         wrap.innerHTML = gridHtml(filtered);
         bindThumbs(wrap);
+        thumbFallback(wrap, catalog);
       };
       setTimeout(function () { try { search.focus(); } catch (e) {} }, 30);
     }
@@ -2745,13 +2926,13 @@
         "</main>\n" +
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=navedit1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=edsave1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
         { path: pretty, text: body }
       ];
-      return E.commitFiles(files, "Edit: new article " + artSlug + " [edit-mode]", E.BRANCH).then(function () {
+      return E.retrySave(function () { return E.commitFiles(files, "Edit: new article " + artSlug + " [edit-mode]", E.BRANCH); }).then(function () {
         var prettyUrl = "/articles/" + artSlug + "/";
         var htmlUrl = "/articles/" + artSlug + ".html";
         var maxMs = 180000;
@@ -3128,7 +3309,8 @@
   var INDEX_FILES = ["index/ancients/index.html", "index/ancients.html"];
   function cardArtFor(heroSrc, oldKey, ref, ren) {
     var slug = (/^articles\/([^\/]+?)(?:\/index)?\.html$/.exec(PATH) || [])[1];
-    var renamed = !!(ren && (ren.renamed || ren.epithet) && Media && Media.renameIndexCards);
+    /* Every save (not only a rename): the article's cards always show its current name/epithet. */
+    var renamed = !!(ren && ren.newName && Media && Media.renameIndexCards);
     if (heroSrc && /^blob:/.test(heroSrc)) heroSrc = null;
     var asset = heroSrc ? String(heroSrc).replace(/^(\.\.\/)+|^\//, "") : null;
     if (asset && !/^assets\//.test(asset)) asset = null;
@@ -3139,7 +3321,7 @@
       return E.getFile(p, ref).then(function (f) {
         var out = f.text;
         if (asset) out = Media.setCardArt(out, slug, asset, function (old) { return !old || (oldKey && old === oldKey); });
-        if (renamed) out = Media.renameIndexCards(out, slug, ren.oldName, ren.newName || ren.oldName, ren.oldEpithet, ren.newEpithet);
+        if (renamed) out = Media.renameIndexCards(out, slug, ren.oldName, ren.newName || ren.oldName, ren.oldEpithet, ren.newEpithet, true);
         return out !== f.text ? { path: p, text: out, base: f.text } : null;
       }, function () { return null; });
     })).then(function (list) { return list.filter(Boolean); });
@@ -3153,11 +3335,11 @@
     var s = E.session.get();
     editBar("Saving\u2026", "ee-busy");
     var latestRef, branch, prep = { files: [], used: [] }, undoPending = null, mirror = null, baseText = null, cards = [];
-    var p = preparePending().then(function (pp) {
-      if (pp && pp.files) prep = pp;
-      return E.headSha(E.BRANCH);
-    }).then(function (sha) { latestRef = sha; return E.getFile(PATH, sha); });
-    p.then(function (latest) {
+    var p = preparePending().then(function (pp) { if (pp && pp.files) prep = pp; });
+    /* One try: read the latest main, re-apply the edits on top of it (buildOutput merges the
+       edited regions into whatever is there now), commit with that commit as parent. A save
+       that races another push is re-run from here (E.retrySave), never dropped. */
+    var attempt = function (latest) {
       var r;
       if (prep.used.length) undoPending = applyPending(prep);
       baseText = latest.text;
@@ -3209,6 +3391,11 @@
             } }).then(function (pull) { return { res: res, r: r, pull: pull, multi: !one }; }, function (err) { return { res: res, r: r, pullErr: err, multi: !one }; });
           });
       });
+    };
+    p.then(function () {
+      return E.retrySave(function () {
+        return E.headSha(E.BRANCH).then(function (sha) { latestRef = sha; return E.getFile(PATH, sha); }).then(attempt);
+      }, function (n) { editBar("Someone else saved at the same time \u2014 retrying (" + n + "/3)\u2026", "ee-busy"); });
     }).then(function (done) {
       if (!done) return;
       var commitUrl = done.multi ? (done.res && done.res.html_url) : (done.res && done.res.commit && done.res.commit.html_url);
@@ -3257,7 +3444,8 @@
       $("ee-x").onclick = closeBar;
     }).catch(function (err) {
       var m;
-      if (err.conflict || err.status === 409 || (err.status === 422 && /sha|match|fast.forward/i.test(err.message))) m = conflictMsg();
+      if (err.race) m = E.RACE_MSG;
+      else if (err.conflict || err.status === 409 || (err.status === 422 && /sha|match|fast.forward/i.test(err.message))) m = conflictMsg();
       else if (err.status === 401) m = "Your session expired, so nothing was saved. Keep this tab open, enter again (Edit, then Enter), then press Save again.";
       else if (err.status === 403 || err.status === 404) m = "GitHub refused the save (" + err.status + "): the token may lack Contents write access" + (mode === "pr" ? " or Pull requests access" : "") + ". Nothing was saved.";
       else m = err.message || "Save failed. Nothing was saved.";
@@ -3551,10 +3739,12 @@
       state.busy = true;
       editBar("Deleting\u2026", "ee-busy");
       var ref;
-      return E.headSha(E.BRANCH).then(function (sha) { ref = sha; return planDelete({ slugs: [slug], ref: ref }); }).then(function (plan) {
-        var files = plan.files.concat(plan.deletes);
-        return E.commitFiles(files, "Delete article \u201c" + name + "\u201d (articles/" + slug + ") + clean up " + plan.pages + " page" + (plan.pages === 1 ? "" : "s") + " [edit-mode]", E.BRANCH, ref).then(function () { return plan; });
-      }).then(function (plan) {
+      return E.retrySave(function () {
+        return E.headSha(E.BRANCH).then(function (sha) { ref = sha; return planDelete({ slugs: [slug], ref: ref }); }).then(function (plan) {
+          var files = plan.files.concat(plan.deletes);
+          return E.commitFiles(files, "Delete article \u201c" + name + "\u201d (articles/" + slug + ") + clean up " + plan.pages + " page" + (plan.pages === 1 ? "" : "s") + " [edit-mode]", E.BRANCH, ref).then(function () { return plan; });
+        });
+      }, function (n) { editBar("Someone else saved at the same time \u2014 retrying (" + n + "/3)\u2026", "ee-busy"); }).then(function (plan) {
         state.busy = false;
         var R = window.EloraeRecent;
         if (R) R.remember(plan.files.filter(function (f) { return INDEX_FILES.indexOf(f.path) >= 0; }));
@@ -3570,5 +3760,5 @@
     });
   }
 
-  window.EloraeEditor = { openArtPicker: openArtPicker, sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash, deleteDialog: deleteDialog, planDelete: planDelete, deleteArticle: deleteArticleFlow };
+  window.EloraeEditor = { openGalleryManager: openGalleryManager, openArtPicker: openArtPicker, sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash, deleteDialog: deleteDialog, planDelete: planDelete, deleteArticle: deleteArticleFlow };
 })();

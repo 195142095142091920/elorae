@@ -116,8 +116,10 @@
   }
 
   function commit(files, message) {
-    return E.commitFiles(files, message + " [edit-mode]", E.BRANCH).catch(function (err) {
-      if (err.status === 422 || err.status === 409) { var e = new Error("Someone else just changed the site. Reloaded the latest; please try again."); e.reload = true; throw e; }
+    // A push to main in between (not a fast-forward) is retried on the latest main (E.retrySave).
+    var go = function () { return E.commitFiles(files, message + " [edit-mode]", E.BRANCH); };
+    return (E.retrySave ? E.retrySave(go) : go()).catch(function (err) {
+      if (err.race || err.status === 422 || err.status === 409) { var e = new Error("Someone else saved at the same time \u2014 reloaded the latest; please try again."); e.reload = true; throw e; }
       throw err;
     });
   }

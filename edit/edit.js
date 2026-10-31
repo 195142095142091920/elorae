@@ -95,8 +95,8 @@
     var s = readSession();
     var isAdmin = !!(s && (s.role === "admin" || s.person === "devin"));
     var existing = document.getElementById("ee-dash");
-    if (!isAdmin) { if (existing) existing.remove(); return; }
-    if (existing) return;
+    if (!isAdmin) { if (existing) existing.remove(); var gl = document.getElementById("ee-gallery"); if (gl) gl.remove(); return; }
+    if (existing) { if (!document.getElementById("ee-gallery")) gallery(existing.parentNode, existing); return; }
     var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
     if (!mark) return;
     var a = document.createElement("a");
@@ -112,6 +112,29 @@
       document.head.appendChild(st);
     }
     mark.insertBefore(a, mark.firstChild);
+    gallery(mark, a);
+  }
+  /* GALLERY link (admin only, every page), right after DASHBOARD: opens the gallery manager
+     (editor.js openGalleryManager) without entering edit mode. Same styling as DASHBOARD. */
+  function gallery(mark, dashEl) {
+    if (document.getElementById("ee-gallery") || document.body.classList.contains("login-page")) return;
+    var g = document.createElement("a");
+    g.id = "ee-gallery";
+    g.className = "ee-dash ee-gallery-link";
+    g.href = "#gallery";
+    g.textContent = "Gallery";
+    g.setAttribute("aria-label", "Open the art gallery");
+    g.addEventListener("click", function (e) {
+      e.preventDefault();
+      start();
+      var n = 0, t = setInterval(function () {
+        n++;
+        var Ed = window.EloraeEditor;
+        if (Ed && Ed.openGalleryManager) { clearInterval(t); Ed.openGalleryManager(); }
+        else if (n > 100) clearInterval(t);
+      }, 50);
+    });
+    if (dashEl && dashEl.nextSibling) mark.insertBefore(g, dashEl.nextSibling); else mark.appendChild(g);
   }
 
 
@@ -188,7 +211,7 @@
       document.head.appendChild(st);
     }
     /* Place Edit after Dashboard if present, else at start of mark. */
-    var dashEl = document.getElementById("ee-dash");
+    var dashEl = document.getElementById("ee-gallery") || document.getElementById("ee-dash");
     if (dashEl && dashEl.nextSibling) mark.insertBefore(a, dashEl.nextSibling);
     else if (dashEl) mark.appendChild(a);
     else mark.insertBefore(a, mark.firstChild);
