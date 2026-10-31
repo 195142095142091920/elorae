@@ -42,19 +42,6 @@
       "keys": {},
       "openKey": null
     },
-    "curse-of-olesh": {
-      "title": "Curse of Olesh",
-      "owner": "devin",
-      "path": "articles/curse-of-olesh.html",
-      "status": "plaintext",
-      "everyone": false,
-      "allowed": [
-        "devin"
-      ],
-      "epoch": 0,
-      "keys": {},
-      "openKey": null
-    },
     "cursed-of-olesh": {
       "title": "Cursed of Olesh",
       "owner": "devin",
