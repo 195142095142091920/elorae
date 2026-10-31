@@ -1197,6 +1197,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "minashi": {
+      "path": "assets/minashi.webp",
+      "title": "Minashi",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T16:26:33.076Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
