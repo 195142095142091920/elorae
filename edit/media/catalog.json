@@ -1137,6 +1137,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "olesh": {
+      "path": "assets/olesh.webp",
+      "title": "Olesh",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T15:52:46.322Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
