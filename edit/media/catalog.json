@@ -1217,6 +1217,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "the-starry-kingdom": {
+      "path": "assets/the-starry-kingdom.webp",
+      "title": "The Starry Kingdom",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T16:27:02.146Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
