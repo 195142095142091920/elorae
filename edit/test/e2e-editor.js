@@ -441,8 +441,55 @@ async function batch2Tests(browser, vpName) {
     await page2.goto(BASE + "articles/aghor/", { waitUntil: "load" });
     await page2.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 }).catch(() => {});
     await page2.waitForTimeout(300);
-    check(`[${vpName}] player: no Edit on someone else's article`, !(await page2.$("#ee-glyph")) && !(await page2.evaluate(() => window.EloraeEditor.tryEnterEdit())));
+    check(`[${vpName}] player: no Edit on someone else's article`, !(await page2.$("#ee-glyph")) && !(await page2.$("#ee-edit")) && !(await page2.evaluate(() => window.EloraeEditor.tryEnterEdit())));
     check(`[${vpName}] player tests: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  // Article pages: no floating EDIT on the hero art; the top-nav EDIT opens the editor (Devin, and a
+  // player on his own article); in edit mode the bars never cover the hero. Other pages keep the glyph.
+  for (const who of ["devin", "sawyer"]) {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, vp, who); const page = await ctx.newPage(); const W = watch(page);
+    await page.goto(BASE + "articles/vaerek/", { waitUntil: "load" });
+    await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    await page.waitForTimeout(300);
+    const v = await page.evaluate(() => { const a = document.getElementById("ee-edit"); const r = a && a.getBoundingClientRect(); return { glyph: !!document.getElementById("ee-glyph"), inMast: !!(a && a.closest(".mast")), shown: !!(r && r.width > 0 && r.height > 0) }; });
+    check(`[${vpName}] ${who}: article has no floating EDIT; top-nav EDIT shown`, !v.glyph && v.inMast && v.shown, JSON.stringify(v));
+    await page.click("#ee-edit");
+    let ok = true; try { await page.waitForSelector("#ee-save", { timeout: 10000 }); } catch (e) { ok = false; }
+    await page.waitForTimeout(400);
+    const e = await page.evaluate(() => {
+      const h = document.querySelector("section.art-hero").getBoundingClientRect();
+      const tops = ["ee-bar", "ee-stylebar"].map((id) => document.getElementById(id)).filter(Boolean).map((x) => x.getBoundingClientRect().top);
+      const t = document.querySelector(".art-title").getBoundingClientRect();
+      return { arts: !!document.getElementById("ee-arts-btn"), heroBottom: Math.round(h.bottom), titleBottom: Math.round(t.bottom), barTop: Math.round(Math.min.apply(null, tops)), glyph: !!document.getElementById("ee-glyph") };
+    });
+    check(`[${vpName}] ${who}: top-nav EDIT opens the editor with the Arts panel button`, ok && e.arts && !e.glyph, JSON.stringify(e));
+    check(`[${vpName}] ${who}: edit mode — the edit/style bars start below the hero (name, epithet, Arts not covered)`, e.heroBottom <= e.barTop + 1 && e.titleBottom <= e.barTop + 1, JSON.stringify(e));
+    await page.click("#ee-edit"); await page.waitForTimeout(200);
+    check(`[${vpName}] ${who}: top-nav EDIT while editing keeps the edit bar`, !!(await page.$("#ee-save")));
+    await page.click("#ee-cancel").catch(() => {}); await page.waitForTimeout(300);
+    const after = await page.evaluate(() => ({ dock: document.documentElement.style.getPropertyValue("--ee-dock"), h: Math.round(document.querySelector("section.art-hero").getBoundingClientRect().height), vh: innerHeight }));
+    check(`[${vpName}] ${who}: after Cancel the hero is full height again`, !after.dock && Math.abs(after.h - after.vh) <= 1, JSON.stringify(after));
+    if (who === "devin") {
+      await page.goto(BASE + "journal/", { waitUntil: "load" });
+      await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+      await page.waitForTimeout(300);
+      check(`[${vpName}] devin: non-article pages keep their EDIT (journal)`, !!(await page.$("#ee-glyph")) && !!(await page.$("#ee-edit")));
+    }
+    check(`[${vpName}] ${who}: article nav EDIT — no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+  }
+  {
+    const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1 });
+    await ctx.route((u) => !u.href.startsWith(BASE) && !u.href.startsWith("data:"), (r) => r.abort());
+    await ctx.addInitScript(`try{localStorage.setItem("elorae-login","jack");document.cookie="elorae-login=jack;path=/";}catch(e){}`);
+    const page = await ctx.newPage();
+    await page.goto(BASE + "articles/vaerek/", { waitUntil: "load" }); await page.waitForTimeout(400);
+    const src0 = await page.evaluate(() => document.querySelector("section.art-hero > img, section.art-hero img").currentSrc);
+    const nb = await page.$(".art-swap .art-next");
+    if (nb) { await page.click(".art-swap .art-next", { force: vpName !== "phone" }); await page.waitForTimeout(600); }
+    const r = await page.evaluate(() => ({ src: document.querySelector("section.art-hero > img, section.art-hero img").currentSrc, edit: !!document.getElementById("ee-edit") || !!document.getElementById("ee-glyph") }));
+    check(`[${vpName}] viewer: no EDIT anywhere on the article; Arts arrows still switch the art`, !!nb && r.src !== src0 && !r.edit, JSON.stringify({ src0: src0.slice(-40), src: r.src.slice(-40), edit: r.edit }));
     await ctx.close();
   }
   // 4/5. Gallery Insert goes at the caret; pasted pictures wait for Save and go in one commit.

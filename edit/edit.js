@@ -123,7 +123,10 @@
     } catch (e) { return false; }
   }
 
-  /* On-page Edit for signed-in Devin (owner). No #edit URL typing or re-phrase required. */
+  /* On-page Edit in the top nav. Signed-in Devin (owner) gets it on every page from here, with no
+     #edit URL typing or re-phrase. On article pages the editor (editor.js) also adds it for a player
+     who may edit that article (EloraeEditNav.add) — it replaces the floating EDIT glyph there, which
+     sat on the hero art over the Arts arrows. */
   function editAffordance() {
     var existing = document.getElementById("ee-edit");
     if (document.body.classList.contains("login-page")) {
@@ -135,8 +138,13 @@
       var s = readSession();
       allow = !!(s && (s.role === "admin" || s.person === "devin"));
     }
-    if (!allow) { if (existing) existing.remove(); return; }
-    if (existing) return;
+    if (!allow) { if (existing && !existing.hasAttribute("data-ee-by-editor")) existing.remove(); return; }
+    if (existing) { existing.removeAttribute("data-ee-by-editor"); return; }
+    navButton();
+  }
+  function navButton() {
+    var existing = document.getElementById("ee-edit");
+    if (existing) return existing;
     var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
     if (!mark) return;
     var a = document.createElement("a");
@@ -184,7 +192,20 @@
     if (dashEl && dashEl.nextSibling) mark.insertBefore(a, dashEl.nextSibling);
     else if (dashEl) mark.appendChild(a);
     else mark.insertBefore(a, mark.firstChild);
+    return a;
   }
+  window.EloraeEditNav = {
+    add: function () {
+      var had = document.getElementById("ee-edit");
+      var a = navButton();
+      if (a && !had) a.setAttribute("data-ee-by-editor", "");
+      return a;
+    },
+    remove: function () {
+      var a = document.getElementById("ee-edit");
+      if (a && a.hasAttribute("data-ee-by-editor")) a.remove();
+    }
+  };
 
   function init() {
     /* Login page: core.js is already loaded for Connect; do not boot editor.js here —

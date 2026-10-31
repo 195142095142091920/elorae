@@ -47,6 +47,9 @@
 }
 #ee-glyph:hover, #ee-glyph:focus-visible { color: #f3eee6; outline: none; }
 html.ee-editing #ee-glyph { display: none; }
+/* Article edit mode: the hero ends where the fixed edit bar + style bar begin (--ee-dock, set by
+   editor.js), so the name, epithet and Arts arrows are never under them. */
+html.ee-editing body.article .art-hero { height: calc(100svh - var(--ee-dock, 0px)) !important; max-height: calc(100svh - var(--ee-dock, 0px)) !important; }
 
 #ee-bar {
   position: fixed; z-index: 9060; box-sizing: border-box; display: flex; align-items: center; gap: 22px;

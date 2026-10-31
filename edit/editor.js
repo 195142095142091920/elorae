@@ -291,6 +291,14 @@
     var textOk = !!(E.session.get() && state.profile && P.canEdit(state.profile, PATH) && (findLiveMain() || liveBlocks().length));
     var indexOk = !!(E.session.get() && isIndexOrganizePage());
     var ok = textOk || indexOk;
+    /* Article pages: no floating EDIT on the hero art (it sat on the Arts arrows); the top-nav
+       EDIT opens the editor instead (edit.js EloraeEditNav; its click runs tryEnterEdit). */
+    var NavE = window.EloraeEditNav;
+    if (NavE && document.body.classList.contains("article")) {
+      if (g) g.remove();
+      if (ok) NavE.add(); else NavE.remove();
+      return;
+    }
     if (!ok) { if (g) g.remove(); return; }
     if (g) return;
     g = el("button", { id: "ee-glyph", type: "button", "aria-label": "Edit this page" }, "Edit");
@@ -302,6 +310,38 @@
       startEdit();
     };
     document.body.appendChild(g);
+  }
+
+  /* Article pages in edit mode: the edit bar + style bar are fixed at the bottom of the screen and
+     used to sit on the hero (name, epithet, Arts arrows). --ee-dock = how much of the viewport bottom
+     they take; edit.css shortens the hero by that much, so nothing in it is covered. */
+  var dockRO = null, dockSeen = [], dockMax = 0;
+  function dockSync() {
+    var root = document.documentElement;
+    if (!document.body || !document.body.classList.contains("article") || !root.classList.contains("ee-editing")) {
+      dockMax = 0;
+      if (root.style.getPropertyValue("--ee-dock")) root.style.removeProperty("--ee-dock");
+      return;
+    }
+    var top = window.innerHeight;
+    ["ee-bar", "ee-stylebar"].forEach(function (id) {
+      var e = $(id);
+      if (!e) return;
+      if (dockRO && dockSeen.indexOf(e) < 0) { dockSeen.push(e); dockRO.observe(e); }
+      var r = e.getBoundingClientRect();
+      if (r.height > 0 && getComputedStyle(e).position === "fixed") top = Math.min(top, r.top);
+    });
+    // Only grows during one edit session (a bar message changing height must not make the page jump).
+    dockMax = Math.max(dockMax, Math.round(window.innerHeight - top));
+    var v = dockMax + "px";
+    if (root.style.getPropertyValue("--ee-dock") !== v) root.style.setProperty("--ee-dock", v);
+  }
+  if (document.body && document.body.classList.contains("article")) {
+    if (window.ResizeObserver) dockRO = new ResizeObserver(function () { dockSync(); });
+    new MutationObserver(function () { dockSeen = dockSeen.filter(function (e) { return e.isConnected; }); dockSync(); })
+      .observe(document.body, { childList: true });
+    new MutationObserver(dockSync).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    window.addEventListener("resize", function () { dockMax = 0; dockSync(); });
   }
 
   /* ---------------- Edit mode ---------------- */
@@ -646,6 +686,7 @@
     } else {
       b.style.bottom = "72px";
     }
+    dockSync();
   }
   function selectionEditable() {
     var sel = window.getSelection && window.getSelection();
@@ -2704,7 +2745,7 @@
         "</main>\n" +
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=arts1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=navedit1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },

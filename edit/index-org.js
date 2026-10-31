@@ -790,7 +790,7 @@
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
-  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "arts1"; })();
+  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "navedit1"; })();
   function newArticle(name, catId, secId) {
     return E.getFile(TEMPLATE_ARTICLE).then(function (f) {
       try { return articleFromTemplate(f.text, name, catId, secId); } catch (e) { return articleFallback(name, catId); }

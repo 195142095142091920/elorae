@@ -59,6 +59,8 @@ async function ctxFor(browser, mock, opts = {}) {
   return ctx;
 }
 const sessionInit = (token, login, extra = {}) => `try{sessionStorage.setItem("elorae-edit-session", ${JSON.stringify(JSON.stringify(Object.assign({ token, login, remember: false }, extra)))})}catch(e){}`;
+// The page's EDIT control: the floating glyph, or on article pages the top-nav EDIT (the glyph is gone there).
+const EDIT_SEL = "#ee-glyph, body.article #ee-edit";
 const loginInit = (who) => `try{localStorage.setItem("elorae-login", ${JSON.stringify(who)})}catch(e){}`;
 
 async function caretEnd(page, sel) {
@@ -192,7 +194,7 @@ async function signInViaPanel(page, token) {
       const page2 = await ctx.newPage();
       await page2.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
       await waitEditor(page2);
-      check("remembered: EDIT button appears on his own article without #edit", !!(await page2.$("#ee-glyph")));
+      check("remembered: EDIT button appears on his own article without #edit", !!(await page2.$(EDIT_SEL)));
       // token revoked/expired -> friendly prompt, token forgotten
       delete mock.tokens["ghp_test_sawyer"];
       await page2.reload({ waitUntil: "networkidle" });
@@ -201,7 +203,7 @@ async function signInViaPanel(page, token) {
       await page2.waitForSelector("#ee-panel:not([hidden]) #ee-token", { timeout: 10000 });
       const exp = await page2.textContent("#ee-body");
       const gone = await page2.evaluate(() => !localStorage.getItem("elorae-edit-session") && !sessionStorage.getItem("elorae-edit-session"));
-      const glyphLeft = !!(await page2.$("#ee-glyph"));
+      const glyphLeft = !!(await page2.$(EDIT_SEL));
       check("expired token: paste-only reconnect prompt, no EDIT, rejected token forgotten", /existing GitHub token|expired/i.test(exp) && !glyphLeft && gone, exp.replace(/\s+/g, " ").trim().slice(0, 90) + ` gone=${gone} glyph=${glyphLeft}`);
       await page2.screenshot({ path: `${SHOTS}/expired-desktop.png` });
       mock.tokens["ghp_test_sawyer"] = "sawyer-gh";
@@ -236,7 +238,7 @@ async function signInViaPanel(page, token) {
       const t = await page.textContent("#ee-body");
       await page.click("#ee-panel .ee-close");
       await page.waitForTimeout(300);
-      const g = await page.$("#ee-glyph");
+      const g = await page.$(EDIT_SEL);
       const forced = await page.evaluate(() => { window.EloraeEditor.startEdit(); return document.querySelectorAll("[contenteditable]").length; });
       check("viewer: signed in, no EDIT glyph, cannot enter edit mode", /View only/.test(t) && !g && forced === 0, t.replace(/\s+/g, " ").slice(0, 120));
       check("viewer: no DASHBOARD link", !(await page.$("#ee-dash")));
@@ -252,14 +254,14 @@ async function signInViaPanel(page, token) {
       const page = await ctx.newPage();
       await page.goto(BASE + "codex/lore.html", { waitUntil: "networkidle" });
       await waitEditor(page);
-      check("articles editor: no EDIT glyph on codex/lore.html", !(await page.$("#ee-glyph")));
+      check("articles editor: no EDIT glyph on codex/lore.html", !(await page.$(EDIT_SEL)));
       await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
       await waitEditor(page);
-      await page.waitForSelector("#ee-glyph", { timeout: 5000 });
+      await page.waitForSelector(EDIT_SEL, { timeout: 5000 });
       check("articles editor: EDIT glyph on articles/vaerek.html", true);
 
       await page.screenshot({ path: `${SHOTS}/glyph-desktop.png` });
-      await page.click("#ee-glyph");
+      await page.click(EDIT_SEL);
       await page.waitForSelector("#ee-save");
       const nEditable = await page.evaluate(() => document.querySelectorAll(".ee-editable").length);
       const navEditable = await page.evaluate(() => document.querySelectorAll(".mast [contenteditable], nav [contenteditable], aside [contenteditable], #related [contenteditable], h2[contenteditable], h1[contenteditable]:not(.art-title h1)").length);
@@ -296,7 +298,7 @@ async function signInViaPanel(page, token) {
       // Editing a block that contains character references keeps them (minimal diff).
       mock.log.length = 0;
       await page.click("#ee-x");
-      await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+      await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
       await caretEnd(page, 'main.art-body #lore p.art-life:nth-of-type(2)'); await page.keyboard.type(" X.");
       await page.click("#ee-save"); await page.waitForSelector("#ee-bar.ee-done", { timeout: 10000 });
       const prevOut = out, out3 = String(mock.file(vaerekPath));
@@ -306,7 +308,7 @@ async function signInViaPanel(page, token) {
       // Sanitizer: hostile markup in an edited block.
       mock.log.length = 0;
       await page.click("#ee-x");
-      await page.click("#ee-glyph");
+      await page.click(EDIT_SEL);
       await page.waitForSelector("#ee-save");
       await page.evaluate(() => {
         const p = document.querySelector("main.art-body #lore p.art-life:nth-of-type(4)");
@@ -335,7 +337,7 @@ async function signInViaPanel(page, token) {
         const page = await ctx.newPage();
         await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
         await waitEditor(page);
-        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
         const t = await page.evaluate(() => ({
           h1: !!(document.querySelector(".art-title h1[contenteditable=true]")),
           ep: !!(document.querySelector(".art-title .art-epithet[contenteditable=true]"))
@@ -349,7 +351,7 @@ async function signInViaPanel(page, token) {
         const page = await ctx.newPage();
         await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
         await waitEditor(page);
-        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
         await page.evaluate(() => { const h = document.querySelector(".art-title .art-epithet"); h.focus(); const r = document.createRange(); r.selectNodeContents(h); r.collapse(false); getSelection().removeAllRanges(); getSelection().addRange(r); });
         await page.keyboard.type(" Zq.");
         await page.click("#ee-save"); await page.waitForTimeout(1500);
@@ -380,7 +382,7 @@ async function signInViaPanel(page, token) {
       await waitEditor(page);
       const target = 'main.art-body #lore p.art-life:nth-of-type(2)';
       // (a) someone else edited the SAME block meanwhile -> refuse, no PUT
-      await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+      await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
       await caretEnd(page, target); await page.keyboard.type(" Mine.");
       const blocks = S.sourceBlocks(vaerekSrc);
       const pIdx = blocks.findIndex((b) => b.inner.startsWith("The bastard son"));
@@ -421,10 +423,10 @@ async function signInViaPanel(page, token) {
       const page = await ctx.newPage();
       await page.goto(BASE + "articles/saoirse.html", { waitUntil: "networkidle" });
       await waitEditor(page);
-      check("sawyer: no EDIT glyph on articles/saoirse.html", !(await page.$("#ee-glyph")));
+      check("sawyer: no EDIT glyph on articles/saoirse.html", !(await page.$(EDIT_SEL)));
       await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
       await waitEditor(page);
-      await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+      await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
       await page.click("main.art-body .art-dossier dd:nth-of-type(2)"); await page.keyboard.press("End"); await page.keyboard.type(" (test)");
       await page.click("#ee-save");
       await page.waitForSelector("#ee-bar.ee-done", { timeout: 10000 });
@@ -456,7 +458,7 @@ async function signInViaPanel(page, token) {
         for (const p of refused) {
           await page.goto(BASE + p, { waitUntil: "networkidle" });
           await waitEditor(page);
-          const r = await page.evaluate(() => { window.EloraeEditor.startEdit(); return { glyph: !!document.getElementById("ee-glyph"), ce: document.querySelectorAll("[contenteditable]").length }; });
+          const r = await page.evaluate(() => { window.EloraeEditor.startEdit(); return { glyph: !!document.querySelector("#ee-glyph, body.article #ee-edit"), ce: document.querySelectorAll("[contenteditable]").length }; });
           await page.waitForTimeout(150);
           check(`ceiling: ${login} refused on ${p} (no EDIT, edit mode won't start)`, !r.glyph && r.ce === 0 && !mock.log.some((e) => e.path.includes("/contents/" + p)), JSON.stringify(r));
         }
@@ -464,7 +466,7 @@ async function signInViaPanel(page, token) {
         await waitEditor(page);
         await page.waitForTimeout(500);
         // #edit with a connected session now enters edit mode directly (no panel).
-        const g = !!(await page.$("#ee-glyph")) || !!(await page.$("#ee-save"));
+        const g = !!(await page.$(EDIT_SEL)) || !!(await page.$("#ee-save"));
         const body = await page.$("#ee-body");
         const note = body ? await body.textContent() : "";
         check(`ceiling: ${login} still gets EDIT on ${allowed}`, g, (note || (await page.evaluate(() => (document.getElementById("ee-bar") || {}).textContent || ""))).replace(/\s+/g, " ").slice(0, 160));
@@ -485,9 +487,9 @@ async function signInViaPanel(page, token) {
       const page = await ctx.newPage();
       await page.goto(BASE + vaerekPath, { waitUntil: "networkidle" });
       await waitEditor(page);
-      await page.waitForSelector("#ee-glyph");
+      await page.waitForSelector(EDIT_SEL);
       await page.screenshot({ path: `${SHOTS}/glyph-phone.png` });
-      await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+      await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
       const r = await page.evaluate(() => { const b = document.querySelector("#ee-bar").getBoundingClientRect(); return { l: b.left, r: b.right, bottom: b.bottom, w: innerWidth, h: innerHeight }; });
       await page.screenshot({ path: `${SHOTS}/editing-phone.png` });
       check("phone: Save/Cancel bar docked full-width at bottom", r.l === 0 && Math.abs(r.r - r.w) < 1 && Math.abs(r.bottom - r.h) < 1, JSON.stringify(r));
@@ -505,7 +507,7 @@ async function signInViaPanel(page, token) {
       for (const path of ["codex/lore.html", "journal.html", "atlas.html", "journal/iii-xxx.html", "players/devin.html"]) {
         await page.goto(BASE + path, { waitUntil: "networkidle" });
         await waitEditor(page);
-        const g = await page.$("#ee-glyph");
+        const g = await page.$(EDIT_SEL);
         check(`admin site-wide: EDIT glyph on ${path}`, !!g);
       }
       await ctx.close();
@@ -613,7 +615,7 @@ async function signInViaPanel(page, token) {
         const page = await ctx.newPage();
         await page.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
         await waitEditor(page);
-        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
         check("admin edit bar: Share + Owner buttons", !!(await page.$("#ee-share")) && !!(await page.$("#ee-owner")));
         await page.click("#ee-owner");
         await page.waitForSelector("#ee-owner-select");
@@ -633,7 +635,7 @@ async function signInViaPanel(page, token) {
         const page = await ctx.newPage();
         await page.goto(BASE + "articles/yena.html", { waitUntil: "networkidle" });
         await waitEditor(page);
-        await page.click("#ee-glyph"); await page.waitForSelector("#ee-share");
+        await page.click(EDIT_SEL); await page.waitForSelector("#ee-share");
         await page.click("#ee-share");
         await page.waitForFunction(() => /share/i.test((document.getElementById("ee-body") || {}).innerText || "") && !/Loading/i.test((document.getElementById("ee-body") || {}).innerText || ""), null, { timeout: 15000 });
         const txt = await page.textContent("#ee-body");
@@ -648,7 +650,7 @@ async function signInViaPanel(page, token) {
         await page.click("#ee-share-back").catch(() => {});
         await page.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
         await waitEditor(page);
-        await page.click("#ee-glyph"); await page.waitForSelector("#ee-share");
+        await page.click(EDIT_SEL); await page.waitForSelector("#ee-share");
         await page.click("#ee-share");
         await page.waitForFunction(() => /not a secret|visibility\.json/i.test((document.getElementById("ee-body") || {}).innerText || ""), null, { timeout: 15000 });
         check("share panel: non-secret article explains no toggles", /not a secret/i.test(await page.textContent("#ee-body")));
@@ -660,7 +662,7 @@ async function signInViaPanel(page, token) {
         const page = await ctx.newPage();
         await page.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
         await waitEditor(page);
-        await page.click("#ee-glyph"); await page.waitForSelector("#ee-save");
+        await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
         check("player: no Share/Owner buttons", !(await page.$("#ee-share")) && !(await page.$("#ee-owner")));
         await ctx.close();
       }
