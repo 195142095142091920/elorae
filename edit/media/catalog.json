@@ -1297,6 +1297,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "the-kbas-forest": {
+      "path": "assets/the-kbas-forest.webp",
+      "title": "The K'bas Forest",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-10-31T16:34:53.997Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   }
 }
