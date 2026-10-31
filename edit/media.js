@@ -700,7 +700,31 @@
     return { catalog: next, added: added, skipped: skipped };
   }
 
+  /* Article templates (World Anvil-style presets). Each adds these empty info fields to the
+     article's Dossier (dl.art-dossier) after the fields it already has; the chosen type is kept as
+     a class on the dl (tpl-<id>). Empty fields never show to viewers (html.css tpl1). */
+  var ART_TEMPLATES = [
+    { id: "faction", label: "Faction", fields: ["Founded", "Leadership", "Aliases"] },
+    { id: "city", label: "Location (City)", fields: ["Continent", "Region", "Founded", "Government", "Aliases"] },
+    { id: "region", label: "Location (Region)", fields: ["Continent", "Settled", "Aliases"] },
+    { id: "people", label: "People", fields: ["Homeland", "Age", "Race", "Titles", "Relatives", "Affiliation"] },
+    { id: "conflict", label: "Conflict", fields: ["Status", "Aliases"] },
+    { id: "item", label: "Item", fields: ["Owners", "Origin"] },
+    { id: "race", label: "Race", fields: ["Land of Origin", "Aliases"] }
+  ];
+  function artTemplate(id) { for (var i = 0; i < ART_TEMPLATES.length; i++) if (ART_TEMPLATES[i].id === id) return ART_TEMPLATES[i]; return null; }
+  function escT(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  /* Dossier section for a new article: Name (filled) + the template's empty fields. */
+  function templateDossierHtml(id, name) {
+    var t = artTemplate(id);
+    if (!t) return "";
+    var rows = "<dt>Name</dt><dd>" + escT(name) + "</dd>";
+    t.fields.forEach(function (f) { if (f.toLowerCase() !== "name") rows += "<dt>" + escT(f) + "</dt><dd></dd>"; });
+    return '<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier tpl-' + t.id + '">' + rows + "</dl></section>";
+  }
+
   return {
+    ART_TEMPLATES: ART_TEMPLATES, artTemplate: artTemplate, templateDossierHtml: templateDossierHtml,
     CATALOG: CATALOG,
     ASSET_DIR: ASSET_DIR,
     MAX_BYTES: MAX_BYTES,

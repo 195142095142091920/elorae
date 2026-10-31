@@ -479,6 +479,81 @@ async function batch2Tests(browser, vpName) {
     check(`[${vpName}] ${who}: article nav EDIT — no page errors`, W.errs.length === 0, W.errs.join(" | "));
     await ctx.close();
   }
+  // Article templates: Template on the edit bar adds the type's empty Dossier rows after the existing
+  // ones (no duplicate labels), remembers the type (tpl-<id> on the dl), switching keeps filled rows and
+  // drops the old type's empty ones; viewers never see empty rows. Players on their own character too.
+  if (vpName === "desktop" || vpName === "phone") {
+    const mock = newMock(); const ctx = await ctxFor(browser, mock, VPS[vpName]); const page = await ctx.newPage(); const W = watch(page);
+    {
+      const sctx = await ctxFor(browser, newMock(), VPS[vpName], "sawyer"); const sp = await sctx.newPage();
+      await sp.goto(BASE + "articles/vaerek/", { waitUntil: "load" });
+      await sp.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+      await sp.click("#ee-edit"); await sp.waitForSelector("#ee-tpl"); await sp.click("#ee-tpl"); await sp.click('#ee-tpl-menu [data-tpl="race"]');
+      const sr = await sp.evaluate(() => [...document.querySelectorAll("main.art-body dl.art-dossier > dt")].map((d) => d.textContent).join("|"));
+      check(`[${vpName}] template: a player can use templates on their own character (Race adds Land of Origin, Aliases)`, sr === "Name|Pronunciation|Faction|Land of Origin|Aliases", sr);
+      await sp.goto(BASE + "articles/cressana/", { waitUntil: "load" });
+      await sp.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+      check(`[${vpName}] template: no Edit / Template on someone else's article for a player`, !(await sp.$("#ee-edit")) && !(await sp.$("#ee-tpl")));
+      await sctx.close();
+    }
+    await page.goto(BASE + "articles/vaerek/", { waitUntil: "load" });
+    await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    await page.click("#ee-edit"); await page.waitForSelector("#ee-tpl");
+    await page.click("#ee-tpl"); await page.waitForSelector("#ee-tpl-menu");
+    const menu = await page.evaluate(() => { const m = document.getElementById("ee-tpl-menu").getBoundingClientRect(); return { items: [...document.querySelectorAll("#ee-tpl-menu [data-tpl]")].map((b) => b.textContent + (b.classList.contains("ee-on") ? "*" : "")).join("|"), inside: m.left >= 0 && m.right <= innerWidth && m.top >= 0 && m.bottom <= innerHeight }; });
+    check(`[${vpName}] template: Template menu on the edit bar lists None + the 7 types, None selected, on screen `, menu.items === "None*|Faction|Location (City)|Location (Region)|People|Conflict|Item|Race" && menu.inside, JSON.stringify(menu));
+    await page.click('#ee-tpl-menu [data-tpl="people"]');
+    const rows = () => page.evaluate(() => { const dl = document.querySelector("main.art-body dl.art-dossier"); return { cls: dl.className, rows: [...dl.querySelectorAll(":scope > dt")].map((d) => d.textContent + "=" + d.nextElementSibling.textContent.trim()) }; });
+    const r1 = await rows();
+    check(`[${vpName}] template: People adds its empty fields after the existing ones, in order`, r1.cls === "art-dossier tpl-people" && r1.rows.join("|") === "Name=Vaerek Rathkin|Pronunciation=(VAIR-ek RATH-kin)|Faction=Draconic Kindred|Homeland=|Age=|Race=|Titles=|Relatives=|Affiliation=", JSON.stringify(r1));
+    // Fill two of them, then switch to Faction: filled rows stay, still-empty People rows go.
+    await page.evaluate(() => { const dl = document.querySelector("main.art-body dl.art-dossier"); const dd = (l) => [...dl.querySelectorAll("dt")].find((d) => d.textContent === l).nextElementSibling; dd("Homeland").textContent = "Morath"; dd("Age").innerHTML = "<br>"; dd("Titles").textContent = "Wreathbound"; });
+    await page.click("#ee-tpl"); await page.click('#ee-tpl-menu [data-tpl="faction"]');
+    const r2 = await rows();
+    check(`[${vpName}] template: switching to Faction keeps filled rows, drops the old type's empty ones, adds Founded/Leadership/Aliases`, r2.cls === "art-dossier tpl-faction" && r2.rows.join("|") === "Name=Vaerek Rathkin|Pronunciation=(VAIR-ek RATH-kin)|Faction=Draconic Kindred|Homeland=Morath|Titles=Wreathbound|Founded=|Leadership=|Aliases=", JSON.stringify(r2));
+    await page.click("#ee-tpl"); await page.click('#ee-tpl-menu [data-tpl="people"]');
+    mock.log.length = 0;
+    await page.click("#ee-save");
+    await page.waitForFunction(() => /Saved|failed|conflict/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+    const f1 = String(mock.file("articles/vaerek/index.html")), f2 = String(mock.file("articles/vaerek.html"));
+    const want = '<dl class="art-dossier tpl-people"><dt>Name</dt><dd>Vaerek Rathkin</dd><dt>Pronunciation</dt><dd>(VAIR-ek RATH-kin)</dd><dt>Faction</dt><dd><a href="/index/ancients/#kindred">Draconic Kindred</a></dd><dt>Homeland</dt><dd>Morath</dd><dt>Titles</dt><dd>Wreathbound</dd><dt>Age</dt><dd></dd><dt>Race</dt><dd></dd><dt>Relatives</dt><dd></dd><dt>Affiliation</dt><dd></dd></dl>';
+    const commits = mock.log.filter((e) => e.committed);
+    check(`[${vpName}] template: Save writes the type + rows into both copies (one commit), emptied fields saved empty, no editor residue`, commits.length === 1 && f1.includes(want) && f2.includes(want) && !/contenteditable|data-ee-|ee-tpl/.test(f1.replace(/<script[\s\S]*?<\/script>/g, "")), JSON.stringify({ c: commits.length, f1: f1.includes(want), f2: f2.includes(want), dl: (f1.match(/<dl class="art-dossier[\s\S]*?<\/dl>/) || ["none"])[0], res: (f1.replace(/<script[\s\S]*?<\/script>/g, "").match(/.{40}(contenteditable|data-ee-|ee-tpl).{40}/) || [""])[0] }));
+    // Viewer: empty rows hidden, filled ones shown; the editor shows the type as selected next time.
+    const vctx = await ctxFor(browser, mock, VPS[vpName]); const vp = await vctx.newPage();
+    await vp.route(BASE + "articles/vaerek/", (r) => r.fulfill({ status: 200, contentType: "text/html", body: f1 }));
+    await vp.goto(BASE + "articles/vaerek/", { waitUntil: "load" });
+    const seen = await vp.evaluate(() => [...document.querySelectorAll("main.art-body dl.art-dossier > dt")].filter((d) => d.getClientRects().length).map((d) => d.textContent).join("|"));
+    check(`[${vpName}] template: viewers see only filled fields`, seen === "Name|Pronunciation|Faction|Homeland|Titles", seen);
+    await vp.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    await vp.click("#ee-edit"); await vp.waitForSelector("#ee-tpl"); await vp.click("#ee-tpl");
+    const sel = await vp.evaluate(() => { const on = document.querySelector("#ee-tpl-menu .ee-on"); return on && on.textContent; });
+    const allShown = await vp.evaluate(() => [...document.querySelectorAll("main.art-body dl.art-dossier > dt")].filter((d) => d.getClientRects().length).length);
+    check(`[${vpName}] template: next edit shows People selected and every field (empty ones too) to fill`, sel === "People" && allShown === 9, JSON.stringify({ sel, allShown }));
+    // None: the still-empty People fields go again.
+    await vp.click('#ee-tpl-menu [data-tpl=""]');
+    const r3 = await vp.evaluate(() => { const dl = document.querySelector("main.art-body dl.art-dossier"); return dl.className + " " + [...dl.querySelectorAll(":scope > dt")].map((d) => d.textContent).join("|"); });
+    check(`[${vpName}] template: None removes the empty template fields, keeps the filled ones`, r3 === "art-dossier Name|Pronunciation|Faction|Homeland|Titles", r3);
+    await vctx.close();
+    // An article with no Dossier: the template creates one (after Description, before Lore); all-empty Dossier hidden for viewers.
+    check(`[${vpName}] template: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+    await ctx.close();
+    const dctx = await ctxFor(browser, mock, VPS[vpName]); const dp = await dctx.newPage(); const W2 = watch(dp);
+    await dp.goto(BASE + "articles/cressana/", { waitUntil: "load" });
+    await dp.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
+    await dp.click("#ee-edit"); await dp.waitForSelector("#ee-tpl"); await dp.click("#ee-tpl"); await dp.click('#ee-tpl-menu [data-tpl="item"]');
+    mock.log.length = 0;
+    await dp.click("#ee-save");
+    await dp.waitForFunction(() => /Saved|failed|conflict/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+    const c1 = String(mock.file("articles/cressana/index.html"));
+    check(`[${vpName}] template: Devin on an article with no Dossier: Item creates one before Lore`, c1.includes('<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier tpl-item"><dt>Owners</dt><dd></dd><dt>Origin</dt><dd></dd></dl></section>') && c1.indexOf('id="dossier"') < c1.indexOf('id="lore"'), (c1.match(/<main[\s\S]{0,300}/) || [""])[0]);
+    await dp.route(BASE + "articles/cressana/", (r) => r.fulfill({ status: 200, contentType: "text/html", body: c1 }));
+    await dp.goto(BASE + "articles/cressana/", { waitUntil: "load" });
+    const hid = await dp.evaluate(() => { const s = document.getElementById("dossier"); return s && getComputedStyle(s).display; });
+    check(`[${vpName}] template: a Dossier with only empty fields is hidden from viewers (heading too)`, hid === "none", hid);
+    check(`[${vpName}] template (Devin): no page errors`, W2.errs.length === 0, W2.errs.join(" | "));
+    await dctx.close();
+  }
   // Top-nav GALLERY (Devin only, any page): opens the gallery manager without edit mode; a change is one catalog commit.
   if (vpName === "desktop" || vpName === "phone") {
     const mock = newMock(); const ctx = await ctxFor(browser, mock, VPS[vpName]); const page = await ctx.newPage(); const W = watch(page);
@@ -977,12 +1052,16 @@ async function indexArtTests(browser, vpName) {
   await page.evaluate(() => document.querySelector("#locations a.index-card, #locations ~ .index-cards a.index-card").click());
   page._answer = "Zq Test Card";
   await page.click("#ee-idx-add");
+  await page.waitForSelector("#ee-tpl-pick [data-tpl]", { timeout: 5000 });
+  const pickItems = await page.evaluate(() => [...document.querySelectorAll("#ee-tpl-pick [data-tpl]")].map((b) => b.textContent).join("|"));
+  await page.click('#ee-tpl-pick [data-tpl="people"]');
   await page.waitForFunction(() => /Added|failed|exists/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
   const bar1 = (await page.textContent("#ee-bar")).trim();
   const A1 = T("articles/zq-test-card/index.html"), A2 = T("articles/zq-test-card.html");
   const i1 = T(IDX);
   check(`[${vpName}] index: Add card → card + both article copies in one commit, message "Added … Saved at"`, /Added “Zq Test Card”\. Saved at \d/.test(bar1) && A1 && A1 === A2 && i1 && i1 === T(IDX2) && (i1.match(/href="\/articles\/zq-test-card\/"/g) || []).length === 1, bar1.slice(0, 80));
   check(`[${vpName}] index: new article is a current article page (name, empty hero, Lore, current scripts)`, A1 && /<title>Zq Test Card - Elorae<\/title>/.test(A1) && /<section class="art-hero no-art"><div class="art-title"><h1>Zq Test Card<\/h1>/.test(A1) && /<p class="art-life"><\/p>/.test(A1) && !/Aghor, Ancient|og:image/.test(A1) && /edit\/edit\.js\?v=/.test(A1) && /art-back" href="\/index\/ancients\/#locations"/.test(A1) && !/\.\.\//.test(A1), A1 ? A1.length + " bytes" : "missing");
+  check(`[${vpName}] index: Add card asks for a template; People gives the new article a Dossier with Name + the People fields, empty`, pickItems === "None|Faction|Location (City)|Location (Region)|People|Conflict|Item|Race" && A1 && A1.includes('<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier tpl-people"><dt>Name</dt><dd>Zq Test Card</dd><dt>Homeland</dt><dd></dd><dt>Age</dt><dd></dd><dt>Race</dt><dd></dd><dt>Titles</dt><dd></dd><dt>Relatives</dt><dd></dd><dt>Affiliation</dt><dd></dd></dl></section>\n<section class="art-sec" id="lore">'), pickItems);
   const cardSec = await page.evaluate(() => { const a = document.querySelector('a.index-card[href="/articles/zq-test-card/"]'); return a && a.closest("section.index-cat").id; });
   check(`[${vpName}] index: the new card sits in the section that was selected`, cardSec === "locations", cardSec);
   // 2. Many drags: reorder, across sections, onto itself, back and forth.
@@ -1201,7 +1280,7 @@ async function deleteTests(browser, vpName) {
   // 6. Subsection with a new card → delete the cards and their articles.
   await page.click("#ee-idx-subs-btn").catch(() => {}); if (!(await page.$("#ee-sub-parent"))) await page.click("#ee-idx-subs-btn");
   await page.selectOption("#ee-sub-parent", "factions"); await page.fill("#ee-sub-name", "Zq Temp"); await page.click("#ee-sub-add");
-  page._answer = "Zq Gone"; await page.click("#ee-idx-add");
+  page._answer = "Zq Gone"; await page.click("#ee-idx-add"); await page.click('#ee-tpl-pick [data-tpl=""]');
   await page.waitForFunction(() => /Added|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
   const made = !!T("articles/zq-gone/index.html");
   if (!(await page.$("#ee-sub-parent"))) await page.click("#ee-idx-subs-btn");
@@ -1294,7 +1373,7 @@ async function subsecTests(browser, vpName) {
   check(`[${vpName}] subsection: Add puts an empty subsection (heading + empty box) at the end of the chosen section, listed in Categories and the panel`, d1 && d1.last === "factions" && /index-sub/.test(d1.cls) && d1.empty && d1.toc && d1.list.includes("zq-order") && d1.list.includes("kindred"), JSON.stringify(d1));
   // 2. Add card in it (the new subsection is the Add-card target).
   page._answer = "Zq Member";
-  await page.click("#ee-idx-add");
+  await page.click("#ee-idx-add"); await page.click('#ee-tpl-pick [data-tpl=""]');
   await page.waitForFunction(() => /Added|failed|exists/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
   const b2 = await bar(), i2 = T(IDX), a2 = T("articles/zq-member/index.html") || "";
   check(`[${vpName}] subsection: Add card goes into it; saved Index has the site's subsection markup; both copies identical`, /Added “Zq Member”/.test(b2) && i2 === T(IDX2) && i2.includes('<h3 class="index-sub" id="zq-order">Zq Order</h3><div class="index-cards"><a class="index-card no-art" id="zq-order-zq-member" href="/articles/zq-member/"><span>Zq Member</span></a></div></section>') && i2.includes('<a class="toc-sub" href="#zq-order">Zq Order</a><a class="toc-name" href="#zq-order-zq-member">Zq Member</a>') && !ART.test(i2.replace(/<script[\s\S]*?<\/script>/g, "")), b2.slice(0, 60));

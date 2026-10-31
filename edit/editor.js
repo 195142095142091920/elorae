@@ -500,9 +500,10 @@
     var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
     var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart" aria-label="New article">New<span class="ee-wide-only"> article</span></button>' : '';
     var delBtn = admin && articleSlugOfPath() ? '<button type="button" class="ee-btn ee-danger" id="ee-delart" aria-label="Delete article">Del<span class="ee-wide-only">ete</span></button>' : '';
+    var tplBtn = templatesAllowed() ? '<button type="button" class="ee-btn" id="ee-tpl" aria-haspopup="menu" aria-expanded="false" title="Article template">Template</button>' : '';
     var artsBtn = state.arts ? '<button type="button" class="ee-btn" id="ee-arts-btn" aria-expanded="' + (state.arts.open ? "true" : "false") + '">Arts<span class="ee-wide-only"> (' + state.arts.list.length + ')</span></button>' : '';
     bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
-      artsBtn + artBtn + shareBtn + ownerBtn + newBtn + delBtn +
+      tplBtn + artsBtn + artBtn + shareBtn + ownerBtn + newBtn + delBtn +
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-save">Save</button>', cls);
     $("ee-save").onclick = save;
@@ -511,6 +512,7 @@
       cancelEdit(); closeBar();
     };
     if ($("ee-art")) $("ee-art").onclick = openArtPanel;
+    if ($("ee-tpl")) $("ee-tpl").onclick = function (e) { e.stopPropagation(); toggleTemplateMenu(); };
     if ($("ee-arts-btn")) $("ee-arts-btn").onclick = function () { if (state.arts) { state.arts.open = !state.arts.open; renderArts(); editBar(msg, cls); } };
     if ($("ee-share")) $("ee-share").onclick = openSharePanel;
     if ($("ee-owner")) $("ee-owner").onclick = openOwnerPanel;
@@ -521,6 +523,103 @@
     };
     ensureStyleBar();
     if ($("ee-arts")) setTimeout(positionArts, 0);
+  }
+
+  /* ---------------- Article templates (Dossier presets) ----------------
+     Template on the edit bar: None or one of Media.ART_TEMPLATES. Choosing one adds its fields as
+     empty Dossier rows (after the rows already there; a label that is already there is not added
+     twice) and keeps the type as a tpl-<id> class on dl.art-dossier, so it shows as selected next
+     time. Switching never deletes a filled row: it only drops the old type's rows that are still
+     empty and adds the new type's missing ones. The rows are ordinary <dt>/<dd> page content, saved
+     with the body (both copies); empty ones are hidden from viewers by html.css (tpl1). */
+  function templatesAllowed() {
+    return !!(Media && Media.ART_TEMPLATES && state.editing && state.page && state.page.el && state.page.el.matches("main.art-body"));
+  }
+  function dossierEl() { return state.page && state.page.el.querySelector("dl.art-dossier"); }
+  function currentTemplate() {
+    var dl = dossierEl(), m = dl && /(?:^|\s)tpl-([\w-]+)/.exec(dl.className);
+    return m && Media.artTemplate(m[1]) ? m[1] : "";
+  }
+  function ddEmpty(dd) { return !!dd && !norm(dd.textContent) && !dd.querySelector("img"); }
+  function closeTemplateMenu() {
+    var m = $("ee-tpl-menu"); if (m) m.remove();
+    var b = $("ee-tpl"); if (b) b.setAttribute("aria-expanded", "false");
+    document.removeEventListener("mousedown", tplOutside, true);
+  }
+  function tplOutside(e) { if (!e.target.closest("#ee-tpl-menu, #ee-tpl")) closeTemplateMenu(); }
+  function toggleTemplateMenu() {
+    if ($("ee-tpl-menu")) { closeTemplateMenu(); return; }
+    var btn = $("ee-tpl"); if (!btn) return;
+    var cur = currentTemplate();
+    var items = [{ id: "", label: "None" }].concat(Media.ART_TEMPLATES);
+    var menu = el("div", { id: "ee-tpl-menu", "class": "ee-tpl-menu", role: "menu", "data-ee-ui": "1" },
+      '<div class="ee-tpl-head">Template</div>' + items.map(function (t) {
+        return '<button type="button" role="menuitemradio" aria-checked="' + (t.id === cur) + '" class="ee-tpl-item' + (t.id === cur ? " ee-on" : "") + '" data-tpl="' + esc(t.id) + '">' + esc(t.label) + "</button>";
+      }).join(""));
+    document.body.appendChild(menu);
+    var r = btn.getBoundingClientRect(), mw = menu.offsetWidth, mh = menu.offsetHeight;
+    var left = Math.max(8, Math.min(window.innerWidth - mw - 8, r.left + r.width / 2 - mw / 2));
+    var top = r.top - mh - 8; if (top < 8) top = Math.min(window.innerHeight - mh - 8, r.bottom + 8);
+    menu.style.left = Math.round(left) + "px"; menu.style.top = Math.round(top) + "px";
+    btn.setAttribute("aria-expanded", "true");
+    menu.addEventListener("click", function (e) {
+      var it = e.target.closest("[data-tpl]"); if (!it) return;
+      closeTemplateMenu();
+      applyTemplate(it.getAttribute("data-tpl"));
+    });
+    setTimeout(function () { document.addEventListener("mousedown", tplOutside, true); }, 0);
+  }
+  function applyTemplate(type) {
+    if (!templatesAllowed()) return;
+    var main = state.page.el, cur = currentTemplate();
+    var nt = type ? Media.artTemplate(type) : null;
+    if (type && !nt) return;
+    if ((type || "") === cur) { editBar(nt ? "Template: " + nt.label : "No template"); return; }
+    var ot = cur ? Media.artTemplate(cur) : null;
+    var lc = function (x) { return norm(x).toLowerCase(); };
+    var oldF = (ot ? ot.fields : []).map(lc), newF = (nt ? nt.fields : []).map(lc);
+    var dl = dossierEl(), sec;
+    if (!dl) {
+      if (!nt) return;
+      sec = document.createElement("section");
+      sec.className = "art-sec"; sec.id = "dossier";
+      sec.innerHTML = "<h2>Dossier</h2>";
+      dl = document.createElement("dl"); dl.className = "art-dossier";
+      sec.appendChild(dl);
+      var desc = main.querySelector(":scope > #description");
+      if (desc) desc.after(sec); else main.insertBefore(sec, main.firstElementChild);
+    }
+    // Drop the old type's rows that are still empty (and not part of the new type).
+    Array.prototype.slice.call(dl.querySelectorAll(":scope > dt")).forEach(function (dt) {
+      var dd = dt.nextElementSibling;
+      if (!dd || dd.tagName !== "DD") return;
+      var l = lc(dt.textContent);
+      if (oldF.indexOf(l) >= 0 && newF.indexOf(l) < 0 && ddEmpty(dd)) { dt.remove(); dd.remove(); }
+    });
+    // Add the new type's missing rows, in its order, after what is there.
+    var have = {};
+    Array.prototype.forEach.call(dl.querySelectorAll(":scope > dt"), function (dt) { have[lc(dt.textContent)] = 1; });
+    var added = 0;
+    (nt ? nt.fields : []).forEach(function (f) {
+      if (have[lc(f)]) return;
+      var dt = document.createElement("dt"); dt.textContent = f;
+      var dd = document.createElement("dd");
+      dl.appendChild(dt); dl.appendChild(dd); added++;
+    });
+    Array.prototype.slice.call(dl.classList).forEach(function (c) { if (/^tpl-/.test(c)) dl.classList.remove(c); });
+    if (nt) dl.classList.add("tpl-" + nt.id);
+    // A Dossier the template itself created goes again when nothing is left in it.
+    var box = dl.closest("section.art-sec");
+    if (!dl.querySelector("dt") && box && box.id === "dossier" && !(pageSrc().map && pageSrc().map.get(box))) box.remove();
+    state.dirty = true;
+    editBar(nt ? "Template: " + nt.label + (added ? " \u00b7 " + added + " field" + (added > 1 ? "s" : "") + " added" : "") + " \u00b7 Save to publish" : "No template \u00b7 empty fields removed \u00b7 Save to publish");
+    var first = nt && Array.prototype.filter.call(dl.querySelectorAll(":scope > dd"), ddEmpty)[0];
+    if (first) { try { first.scrollIntoView({ block: "center" }); } catch (e) {} }
+  }
+  // Before save: a field emptied while editing (often a lone <br>) is saved truly empty, so viewers never see it.
+  function tidyDossier() {
+    var dl = dossierEl(); if (!dl) return;
+    Array.prototype.forEach.call(dl.querySelectorAll(":scope > dd"), function (dd) { if (ddEmpty(dd) && dd.innerHTML !== "") dd.innerHTML = ""; });
   }
 
   /* ---------------- Styling toolbar (caret block) ---------------- */
@@ -2539,6 +2638,7 @@
     window.removeEventListener("beforeunload", onBeforeUnload);
   }
   function stopEditing() {
+    closeTemplateMenu();
     if (state.page && state.page.el) {
       var mainEl = state.page.el;
       mainEl.removeAttribute("contenteditable");
@@ -2881,7 +2981,7 @@
       }
       if (!sn && (ch.matches(PAGE_LOCK_SEL) || ch.matches(INJECTED_SEL))) return;
       var tag = ch.tagName.toLowerCase();
-      out += (NEW_BLOCK[tag] ? "\n" : "") + emitNew(ch);
+      out += (NEW_BLOCK[tag] && tag !== "dt" && tag !== "dd" ? "\n" : "") + emitNew(ch); // Dossier rows stay on the dl's line, like the site's
     });
     orphans(kids.length);
     out += T.slice(kids.length ? kids[kids.length - 1].end : s.openEnd, s.closeStart);
@@ -2913,7 +3013,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=wide1\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=aov1\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=tpl1\">\n" +
         "<script src=\"/rail-toggle.js?v=nfs1\"></script>\n" +
         "<script src=\"/skip-link.js?v=fs12\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
@@ -2926,7 +3026,7 @@
         "</main>\n" +
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=edsave1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=tpl1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -3202,6 +3302,7 @@
       var PS = pageSrc();
       var mainEl = state.page.el;
       Array.prototype.forEach.call(mainEl.querySelectorAll(".art-title .art-epithet"), noEndPeriod);
+      tidyDossier();
       var baseInner = PS.text.slice(PS.node.openEnd, PS.node.closeStart);
       var html = serializePageMain();
       if (html !== baseInner) regions.push({ locate: function (T) { var r = sourceMainRange(T); return r && { start: r.start, end: r.end }; }, base: baseInner, html: html });

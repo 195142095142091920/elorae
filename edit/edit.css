@@ -561,3 +561,38 @@ html.ee-idx-dragging #ee-idx-subs, html.ee-idx-dragging #ee-bar { pointer-events
   #ee-panel.ee-gal-mode #ee-galm-wrap, #ee-panel.ee-gal-mode .ee-galm-detail { overflow: visible; padding-right: 0; }
   #ee-panel.ee-gal-mode .ee-galm-detail { border-left: 0; padding-left: 0; border-top: 1px solid rgba(243,238,230,.08); margin-top: 16px; padding-top: 4px; }
 }
+
+/* ---- tpl1: article Template menu (edit bar) + Add-card template chooser (Index organizer) ---- */
+.ee-tpl-menu {
+  position: fixed; z-index: 9100; box-sizing: border-box; min-width: 200px; padding: 10px 0;
+  display: flex; flex-direction: column;
+  background: rgba(11,11,11,.98); border: 1px solid rgba(243,238,230,.12);
+  box-shadow: 0 18px 48px rgba(0,0,0,.6);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; text-shadow: none;
+}
+.ee-tpl-head {
+  padding: 2px 18px 10px; margin-bottom: 4px; border-bottom: 1px solid rgba(243,238,230,.08);
+  font-size: calc((10px) * var(--fs,1.2075)); letter-spacing: .22em; text-transform: uppercase; color: #8f8a82;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ee-tpl-item, .ee-tpl-cancel {
+  display: block; width: 100%; box-sizing: border-box; margin: 0; padding: 8px 18px; text-align: left;
+  background: none; border: 0; border-radius: 0; cursor: pointer; white-space: nowrap;
+  font-family: inherit; font-size: calc((11px) * var(--fs,1.2075)); letter-spacing: .16em; text-transform: uppercase; color: #b7b0a4;
+}
+.ee-tpl-item:hover, .ee-tpl-item:focus-visible, .ee-tpl-cancel:hover, .ee-tpl-cancel:focus-visible { color: #f3eee6; background: rgba(243,238,230,.05); outline: none; }
+.ee-tpl-item.ee-on { color: #f3eee6; }
+.ee-tpl-item.ee-on::after { content: ""; display: inline-block; width: 5px; height: 5px; margin-left: 10px; vertical-align: middle; border-radius: 50%; background: #f3eee6; }
+.ee-tpl-cancel { margin-top: 4px; border-top: 1px solid rgba(243,238,230,.08); padding-top: 10px; color: #8f8a82; }
+.ee-tpl-pick { position: fixed; inset: 0; z-index: 9100; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,0,.55); }
+.ee-tpl-pick .ee-tpl-menu { position: static; width: min(320px, 100%); max-height: calc(100dvh - 48px); overflow: auto; }
+/* Empty Dossier fields while editing: a visible, clickable line to type into. */
+html.ee-editing body.article .art-dossier dd:empty { min-height: 1.45em; border-bottom: 1px dotted rgba(243,238,230,.22); }
+html.ee-editing body.article .art-dossier dd:empty::before { content: "\2014"; color: rgba(243,238,230,.22); }
+/* Mid widths (tablet / small laptop): the article bar has up to 9 buttons with Template; short labels
+   and tighter gaps keep Save on screen. */
+@media (min-width: 801px) and (max-width: 1180px) {
+  #ee-bar { gap: 16px; }
+  #ee-bar .ee-btn { letter-spacing: .14em; }
+  #ee-bar .ee-wide-only { display: none; }
+}

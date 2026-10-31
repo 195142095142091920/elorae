@@ -5159,3 +5159,11 @@ html.ee-editing body.article > section.art-hero { position: relative !important;
   html.ee-editing body.article > section.art-hero .art-swap { animation: none; }
 }
 @keyframes aov1-cover { from { visibility: visible; } to { visibility: hidden; } }
+
+/* ---- tpl1: article template fields (2026-10-31) ----
+   Template presets add empty Dossier rows (<dt>Label</dt><dd></dd>) for the author to fill. Viewers
+   only ever see filled rows: an empty <dd> and its <dt> are hidden, and a Dossier with no filled
+   row at all is hidden with its heading. The editor shows them all (html.ee-editing). */
+html:not(.ee-editing) body.article .art-dossier > dd:empty,
+html:not(.ee-editing) body.article .art-dossier > dt:has(+ dd:empty) { display: none; }
+html:not(.ee-editing) body.article .art-sec:has(> dl.art-dossier):not(:has(> dl.art-dossier > dd:not(:empty))) { display: none; }

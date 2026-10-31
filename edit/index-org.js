@@ -749,14 +749,15 @@
      add some) and an empty Lore section. Both copies (articles/<slug>/index.html for the pretty
      URL and articles/<slug>.html) are written, like every other article. */
   var TEMPLATE_ARTICLE = "articles/aghor/index.html";
-  function articleFromTemplate(tpl, name, catId, secId) {
+  function articleFromTemplate(tpl, name, catId, secId, artTpl) {
     var title = esc(name), T = tpl;
     var root = M.parse(T);
     var hero = findSrc(root, function (n) { return n.tag === "section" && cls(n, "art-hero"); });
     var main = findSrc(root, function (n) { return n.tag === "main" && cls(n, "art-body"); });
     var head = findSrc(root, function (n) { return n.tag === "head"; });
     if (!hero || !main || !head || main.start < hero.end) throw new Error("template");
-    var mainOut = T.slice(main.start, main.openEnd) + '\n<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n' + T.slice(main.closeStart, main.end);
+    var dossier = artTpl && Media && Media.templateDossierHtml ? Media.templateDossierHtml(artTpl, name) : "";
+    var mainOut = T.slice(main.start, main.openEnd) + (dossier ? "\n" + dossier : "") + '\n<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n' + T.slice(main.closeStart, main.end);
     var heroOut = '<section class="art-hero no-art"><div class="art-title"><h1>' + title + '</h1><p class="art-epithet"></p></div></section>';
     T = T.slice(0, hero.start) + heroOut + T.slice(hero.end, main.start) + mainOut + T.slice(main.end);
     var headEnd = T.indexOf("</head>");
@@ -774,27 +775,52 @@
     });
     return T;
   }
-  function articleFallback(name, catId) {
+  function articleFallback(name, catId, artTpl) {
+    var dossier = artTpl && Media && Media.templateDossierHtml ? Media.templateDossierHtml(artTpl, name) + "\n" : "";
     var title = esc(name);
     return '<!doctype html>\n<html lang="en">\n<head>\n<script src="/session-gate.js?v=jason-ghost"><\/script>\n\n<meta charset="utf-8">\n' +
       '<script src="/img.js?v=img-resize"><\/script>\n<script src="/cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>' + title + ' - Elorae</title>\n' +
-      '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=wide1">\n<link rel="stylesheet" href="/html.css?v=aov1">\n' +
+      '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=wide1">\n<link rel="stylesheet" href="/html.css?v=tpl1">\n' +
       '<script src="/rail-toggle.js?v=nfs1"><\/script>\n<script src="/skip-link.js?v=fs12"><\/script>\n<link rel="icon" href="/favicon.svg">\n</head>\n<body class="article">\n' +
       '<div class="mast"><header class="topbar"><span class="mark"></span><form action="/search/"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="/atlas/">Atlas</a><a class="" href="/codex/lore/">Codex</a><a class="active" href="/index/ancients/">Index</a><a class="" href="/journal/">Journal</a></nav></header></div>\n' +
       '<a class="art-back" href="/index/ancients/#' + esc(catId) + '">Index</a>\n' +
       '<section class="art-hero no-art"><div class="art-title"><h1>' + title + '</h1><p class="art-epithet"></p></div></section>\n' +
-      '<main class="art-body">\n<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n</main>\n' +
+      '<main class="art-body">\n' + dossier + '<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n</main>\n' +
       '<script src="/search.js?v=fs12"><\/script><script src="/login.js?v=jason-ghost"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=art87"><\/script>\n' +
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
-  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "edsave1"; })();
-  function newArticle(name, catId, secId) {
+  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "tpl1"; })();
+  function newArticle(name, catId, secId, artTpl) {
     return E.getFile(TEMPLATE_ARTICLE).then(function (f) {
-      try { return articleFromTemplate(f.text, name, catId, secId); } catch (e) { return articleFallback(name, catId); }
-    }, function () { return articleFallback(name, catId); });
+      try { return articleFromTemplate(f.text, name, catId, secId, artTpl); } catch (e) { return articleFallback(name, catId, artTpl); }
+    }, function () { return articleFallback(name, catId, artTpl); });
+  }
+  /* Add card: after the name, pick the new article's template (None or a type from
+     Media.ART_TEMPLATES); the article then starts with that type's Dossier fields, empty. */
+  function chooseTemplate(name) {
+    var list = (Media && Media.ART_TEMPLATES) || [];
+    if (!list.length) return Promise.resolve("");
+    return new Promise(function (resolve) {
+      var old = $("ee-tpl-pick"); if (old) old.remove();
+      var box = document.createElement("div");
+      box.id = "ee-tpl-pick"; box.className = "ee-tpl-pick"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Template");
+      box.innerHTML = '<div class="ee-tpl-menu ee-tpl-pop"><div class="ee-tpl-head">Template for \u201c' + esc(name) + '\u201d</div>' +
+        [{ id: "", label: "None" }].concat(list).map(function (t) {
+          return '<button type="button" class="ee-tpl-item" data-tpl="' + esc(t.id) + '">' + esc(t.label) + "</button>";
+        }).join("") + '<button type="button" class="ee-tpl-cancel" data-tpl-cancel="1">Cancel</button></div>';
+      document.body.appendChild(box);
+      function done(v) { box.remove(); document.removeEventListener("keydown", onKey, true); resolve(v); }
+      function onKey(e) { if (e.key === "Escape") { e.preventDefault(); done(null); } }
+      document.addEventListener("keydown", onKey, true);
+      box.addEventListener("click", function (e) {
+        if (e.target === box || e.target.closest("[data-tpl-cancel]")) { done(null); return; }
+        var it = e.target.closest("[data-tpl]"); if (it) done(it.getAttribute("data-tpl"));
+      });
+      var first = box.querySelector("[data-tpl]"); if (first) first.focus();
+    });
   }
 
   function addCardPrompt() {
@@ -803,6 +829,10 @@
     if (name == null) return;
     name = String(name).replace(/\s+/g, " ").trim();
     if (!name) return;
+    chooseTemplate(name).then(function (artTpl) { if (artTpl != null) addCardNamed(name, artTpl); });
+  }
+  function addCardNamed(name, artTpl) {
+    if (state.busy) return;
     var slug = slugify(name);
     var catId = state.targetCat || (state.selected && categoryOf(state.selected)) ||
       ((location.hash || "").replace(/^#/, "")) ||
@@ -826,7 +856,7 @@
     .then(function (ex) {
       if (ex[0] || ex[1]) { state.busy = false; barMsg("articles/" + slug + " already exists. Pick another name.", "ee-bad-bar"); return; }
       var secEl = sectionOfId(catId);
-      return newArticle(name, catId, secEl && secEl.id).then(function (html) {
+      return newArticle(name, catId, secEl && secEl.id, artTpl).then(function (html) {
         var box = cardsContainerFor(catId);
         Array.prototype.forEach.call(box.querySelectorAll("p.index-empty"), function (x) { x.remove(); });
         var a = document.createElement("a");
