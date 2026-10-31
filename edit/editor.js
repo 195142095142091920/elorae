@@ -1254,8 +1254,8 @@
     commitMsg([{ path: "edit/profiles.json", text: jsonDoc(next) }], "Profiles: set owner of " + PATH + (login ? " to " + login : " to none") + " via edit mode")
       .then(function () {
         closePanel();
-        if (state.editing) editBar("Owner updated · live in about 1–2 minutes", "ee-done");
-        else doneBar("Owner updated · live in about 1–2 minutes");
+        if (state.editing) editBar("Owner updated. Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + ".", "ee-done");
+        else doneBar("Owner updated. Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + ".");
       })
       .catch(function (e) { fail(e.message || "Save failed."); });
   }
@@ -1294,6 +1294,81 @@
     });
   }
 
+  /* Art picker for other tools (the Index organizer's card art): the gallery to pick from, plus
+     upload. opts: { title, note, onPick(entry), onFile(file) -> Promise<bool> }. */
+  function loadCatalogForGallery() {
+    var catP = E.getFile(Media.CATALOG).then(function (f) { return JSON.parse(f.text); }, function () { return { version: 1, media: {} }; });
+    var assetsP = (E.listDir ? E.listDir(Media.ASSET_DIR) : Promise.reject(new Error("no listDir"))).then(function (entries) {
+      return entries.filter(function (e) { return e.type === "file"; }).map(function (e) { return e.path; });
+    }, function () { return []; });
+    return Promise.all([catP, assetsP]).then(function (pair) {
+      var cat = pair[0];
+      if (pair[1] && pair[1].length) cat = Media.seedFromAssetPaths(cat, pair[1], { everyone: true, tags: ["site", "seed"] }).catalog;
+      return cat;
+    });
+  }
+  function openArtPicker(opts) {
+    if (!Media) return;
+    opts = opts || {};
+    openPanel();
+    var p = $("ee-panel");
+    if (p) {
+      p.classList.add("ee-gal-mode");
+      var box = p.querySelector(".ee-box");
+      if (box) { box.classList.add("ee-wide"); box.setAttribute("aria-label", opts.title || "Art"); }
+    }
+    var b = $("ee-body");
+    b.innerHTML = '<p class="ee-k">' + esc(opts.title || "Art") + '</p>' +
+      '<form id="ee-pick-form" class="ee-gal-up">' +
+      '<p class="ee-sub">Upload new</p>' +
+      '<input type="file" id="ee-pick-file" class="ee-field" accept="image/png,image/jpeg,image/webp,image/gif">' +
+      '<p class="ee-note">' + esc(opts.note || "Nothing is published until you press Save.") + ' Big images are resized to ' + Media.MAX_EDGE + ' px on the long edge.</p>' +
+      '<p class="ee-err" id="ee-pick-err" hidden></p></form>' +
+      '<p class="ee-sub">Or pick from the gallery</p>' +
+      '<input type="search" id="ee-pick-search" class="ee-field" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
+      '<div id="ee-pick-wrap"><p class="ee-note">Loading gallery…</p></div>';
+    var fileIn = $("ee-pick-file");
+    fileIn.onchange = function () {
+      var f = fileIn.files && fileIn.files[0];
+      if (!f) return;
+      var err = $("ee-pick-err"); err.hidden = true;
+      Promise.resolve(opts.onFile ? opts.onFile(f) : true).then(function (ok) {
+        if (ok === false) { err.textContent = "That image could not be used (see the bar below)."; err.hidden = false; return; }
+        closePanel();
+      });
+    };
+    loadCatalogForGallery().then(function (catalog) {
+      var all = Media.listVisible(catalog, "devin", true);
+      function grid(items) {
+        if (!items.length) return '<p class="ee-note">No pictures yet.</p>';
+        return '<div class="ee-gallery">' + items.map(function (m) {
+          var thumb = window.eloraeImg
+            ? window.eloraeImg.html(E.ROOT + m.path, { sizes: "(max-width: 800px) 180px, 240px", min: 160, max: 640, fallback: 320, lazy: true }, 'alt=""')
+            : '<img src="' + esc(gallerySrc(m)) + '" alt="" loading="lazy">';
+          return '<button type="button" class="ee-gal-item" data-pick-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' + thumb + '<span>' + esc(m.title || m.id) + '</span></button>';
+        }).join("") + '</div>';
+      }
+      function draw(items) {
+        var w = $("ee-pick-wrap"); if (!w) return;
+        w.innerHTML = grid(items);
+        Array.prototype.forEach.call(w.querySelectorAll("[data-pick-id]"), function (btn) {
+          btn.onclick = function () {
+            var entry = catalog.media[btn.getAttribute("data-pick-id")];
+            if (!entry) return;
+            closePanel();
+            if (opts.onPick) opts.onPick(entry);
+          };
+        });
+      }
+      draw(all);
+      var q = $("ee-pick-search");
+      if (q) q.oninput = function () {
+        var t = String(q.value || "").trim().toLowerCase();
+        draw(all.filter(function (m) { return !t || [m.id, m.title, m.path].concat(m.tags || []).join(" ").toLowerCase().indexOf(t) >= 0; }));
+      };
+    });
+  }
+
   function gallerySrc(entry) {
     // Root-absolute (like the site's own /assets/ URLs), so both copies of a page agree.
     return new URL(E.ROOT).pathname + entry.path;
@@ -1303,7 +1378,7 @@
     var b = $("ee-body");
     if (!b) return;
     var allItems = Media.listVisible(catalog, "devin", true);
-    var hasHero = !!document.querySelector(".art-hero img");
+    var hasHero = !!document.querySelector(".art-hero img, section.art-hero");
     var act = hasHero ? (state.galAct || "hero") : "insert";
     function matchItem(m, q) {
       if (!q) return true;
@@ -1387,12 +1462,23 @@
   /* Hero art: a gallery pick (or a new upload) only previews on the page; it is written
      with the rest of the page when you press Save, and Cancel puts the old art back. */
   function heroImg() { return document.querySelector(".art-hero img"); }
+  function heroSection() { var h = document.querySelector("section.art-hero"); return h && !h.closest("#ee-panel,#ee-bar") ? h : null; }
   function setHeroPreview(src, alt, pending) {
-    var hero = heroImg();
-    if (!hero) return false;
+    var hero = heroImg(), created = false;
+    if (!hero) {
+      // A page without hero art yet ("no-art" hero, e.g. a new card's article): add one.
+      var sec = heroSection();
+      if (!sec) return false;
+      hero = document.createElement("img");
+      hero.setAttribute("alt", alt || "");
+      sec.insertBefore(hero, sec.firstChild);
+      sec.classList.remove("no-art");
+      created = true;
+    }
     if (!state.hero) {
-      state.hero = { el: hero, orig: {} };
+      state.hero = { el: hero, orig: {}, created: created };
       ["src", "srcset", "sizes", "alt"].forEach(function (a) { state.hero.orig[a] = hero.getAttribute(a); });
+      state.hero.oldKey = created ? null : imgKey(hero.getAttribute("data-eimg-orig") || hero.getAttribute("src"));
     }
     state.hero.src = src; state.hero.alt = alt || null; state.hero.pending = pending || null;
     hero.removeAttribute("srcset"); hero.removeAttribute("sizes");
@@ -1404,6 +1490,13 @@
   function restoreHero() {
     var h = state.hero;
     if (!h) return;
+    if (h.created) {
+      var sec = h.el.closest("section.art-hero");
+      h.el.remove();
+      if (sec) sec.classList.add("no-art");
+      state.hero = null;
+      return;
+    }
     ["src", "srcset", "sizes", "alt"].forEach(function (a) {
       if (h.orig[a] == null) h.el.removeAttribute(a); else h.el.setAttribute(a, h.orig[a]);
     });
@@ -1488,6 +1581,7 @@
           bins.push(prep.files[1]);
           u.rel = gallerySrc(prep.entry);
           u.entry = prep.entry;
+          u.blob = info.blob || u.pd.file;
         });
       });
       return seq.then(function () {
@@ -1519,7 +1613,7 @@
     var title = ($("ee-art-title").value || "").trim();
     var tags = ($("ee-art-tags").value || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
     var everyone = $("ee-art-everyone").checked;
-    if (mode === "hero" && !heroImg()) return fail("No hero image on this page.");
+    if (mode === "hero" && !heroImg() && !heroSection()) return fail("No hero on this page.");
     if (!file) return fail("No file chosen.");
     addPending(file, { title: title || file.name, alt: title, tags: tags, everyone: everyone }).then(function (pd) {
       if (mode === "hero") {
@@ -2293,7 +2387,7 @@
         "</main>\n" +
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/edit/edit.js?v=recent1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=idxart1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -2581,7 +2675,16 @@
       g = regionOf(function (T) { return titleRange(T, t.kind); }, base, escText(txt));
       if (g) { g.html = preserveEntities(g.html, g.base); regions.push(g); }
     });
-    if (state.hero && state.hero.src) {
+    if (state.hero && state.hero.src && !heroRange(base, "src")) {
+      // The source hero has no picture yet: write <section class="art-hero"><img ...> in its open tag.
+      var heroOpen = function (T) { var m = /<section\s+class="art-hero\b[^"]*"[^>]*>/i.exec(T); return m && { start: m.index, end: m.index + m[0].length }; };
+      g = regionOf(heroOpen, base, "");
+      if (g) {
+        g.html = g.base.replace(/(\sclass\s*=\s*")([^"]*)(")/i, function (m0, a, c, b) { return a + c.split(/\s+/).filter(function (k) { return k && k !== "no-art"; }).join(" ") + b; }) +
+          '<img src="' + state.hero.src.replace(/"/g, "%22") + '" alt="' + String(state.hero.alt || "").replace(/"/g, "") + '">';
+        regions.push(g);
+      }
+    } else if (state.hero && state.hero.src) {
       g = regionOf(function (T) { return heroRange(T, "src"); }, base, state.hero.src.replace(/"/g, "%22"));
       if (g && g.base !== g.html) regions.push(g);
       if (state.hero.alt) {
@@ -2645,6 +2748,23 @@
     }, function () { return null; });
   }
 
+  /* New hero art on an article also goes on its Index card(s), when the card has no art yet or
+     showed the old hero art (both Index copies, same commit). */
+  var INDEX_FILES = ["index/ancients/index.html", "index/ancients.html"];
+  function cardArtFor(heroSrc, oldKey, ref) {
+    var slug = (/^articles\/([^\/]+?)(?:\/index)?\.html$/.exec(PATH) || [])[1];
+    if (!heroSrc || !slug || !Media || !Media.setCardArt || /^blob:/.test(heroSrc)) return Promise.resolve([]);
+    var asset = String(heroSrc).replace(/^(\.\.\/)+|^\//, "");
+    if (!/^assets\//.test(asset)) return Promise.resolve([]);
+    var files = INDEX_FILES.filter(function (p) { return P.canEdit(state.profile, p); });
+    return Promise.all(files.map(function (p) {
+      return E.getFile(p, ref).then(function (f) {
+        var out = Media.setCardArt(f.text, slug, asset, function (old) { return !old || (oldKey && old === oldKey); });
+        return out !== f.text ? { path: p, text: out, base: f.text } : null;
+      }, function () { return null; });
+    })).then(function (list) { return list.filter(Boolean); });
+  }
+
   function save() {
     if (!state.editing || state.busy) return;
     state.busy = true;
@@ -2652,7 +2772,7 @@
     var msg = "Edit " + PATH + " via edit mode [edit-mode]";
     var s = E.session.get();
     editBar("Saving\u2026", "ee-busy");
-    var latestRef, branch, prep = { files: [], used: [] }, undoPending = null, mirror = null, baseText = null;
+    var latestRef, branch, prep = { files: [], used: [] }, undoPending = null, mirror = null, baseText = null, cards = [];
     var p = preparePending().then(function (pp) {
       if (pp && pp.files) prep = pp;
       return E.headSha(E.BRANCH);
@@ -2664,10 +2784,13 @@
       try { r = buildOutput(latest); } finally { if (undoPending) undoPending(); }
       if (r.none) { editBar("No changes to save."); return null; }
       if (r.conflict) { var e = new Error(conflictMsg()); e.conflict = true; throw e; }
-      return mirrorFor(latestRef, r.edits ? null : r.regions).then(function (m) {
-        mirror = m;
+      var heroSrc = state.hero && state.hero.src, oldHero = state.hero && state.hero.oldKey;
+      return Promise.all([mirrorFor(latestRef, r.edits ? null : r.regions), cardArtFor(heroSrc, oldHero, latestRef)]).then(function (both) {
+        var m = both[0];
+        mirror = m; cards = both[1];
         var files = [{ path: PATH, text: r.out }];
         if (m && !m.skipped) files.push({ path: m.path, text: m.text });
+        cards.forEach(function (c) { files.push({ path: c.path, text: c.text }); });
         files = files.concat(prep.files);
         if (prep.used.length) msg = "Edit " + PATH + " via edit mode (+" + prep.used.length + " image" + (prep.used.length > 1 ? "s" : "") + ") [edit-mode]";
         var one = files.length === 1;
@@ -2691,7 +2814,11 @@
       var commitUrl = done.multi ? (done.res && done.res.html_url) : (done.res && done.res.commit && done.res.commit.html_url);
       if (mode === "direct") {
         // A reload before the site rebuilds shows this saved copy (this browser only, recent.js).
-        if (R) R.remember([{ path: PATH, text: done.r.out, base: baseText }].concat(mirror && !mirror.skipped ? [{ path: mirror.path, text: mirror.text, base: mirror.base }] : []));
+        if (R) {
+          R.remember([{ path: PATH, text: done.r.out, base: baseText }].concat(mirror && !mirror.skipped ? [{ path: mirror.path, text: mirror.text, base: mirror.base }] : [], cards));
+          var imgs = (prep.used || []).filter(function (u) { return u.entry && u.blob; }).map(function (u) { return { path: u.entry.path, blob: u.blob }; });
+          if (imgs.length && R.rememberImages) R.rememberImages(imgs);
+        }
         state.base = {
           sha: done.multi ? null : done.res.content.sha,
           text: done.r.out,
@@ -2703,7 +2830,14 @@
         }
       }
       state.records.forEach(function (rec) { rec.original = rec.el.innerHTML; });
-      (prep.used || []).forEach(function (u) { if (u.img) u.img.removeAttribute("data-ee-pending"); });
+      // New pictures keep showing from memory until the site has them; the page (and the next
+      // save) treats them as their real /assets/ files.
+      (prep.used || []).forEach(function (u) {
+        var im = u.img || (u.hero && state.hero && state.hero.el);
+        if (!im) return;
+        im.removeAttribute("data-ee-pending");
+        if (u.rel) { im.setAttribute("data-eimg-orig", u.rel); im.setAttribute("data-eimg-fell", "1"); }
+      });
       state.hero = null; state.pending = {};
       stopEditing();
       state.page = null;
@@ -2864,5 +2998,5 @@
   window.addEventListener("hashchange", onHash);
   profileReady.then(decideEditHash);
 
-  window.EloraeEditor = { sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash };
+  window.EloraeEditor = { openArtPicker: openArtPicker, sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash };
 })();

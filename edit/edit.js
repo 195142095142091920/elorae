@@ -62,7 +62,7 @@
     try {
       var raw = localStorage.getItem(RECENT);
       if (!raw) return;
-      if (!readSession()) { localStorage.removeItem(RECENT); return; }
+      if (!readSession()) { localStorage.removeItem(RECENT); try { indexedDB.deleteDatabase("elorae-edit-recent-img"); } catch (e1) {} return; }
       var o = JSON.parse(raw), p = decodeURIComponent(location.pathname).replace(/^\//, ""), m;
       if (p === "" || /\/$/.test(p)) p += "index.html";
       else if (!/\.[a-z0-9]+$/i.test(p)) p += ".html";

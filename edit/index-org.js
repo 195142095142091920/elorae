@@ -11,7 +11,8 @@
     selected: null,
     busy: false,
     dirty: false,
-    profile: null
+    profile: null,
+    art: {}
   };
 
   function $(id) { return document.getElementById(id); }
@@ -83,10 +84,6 @@
   }
 
   function barMsg(msg, cls) {
-    var Ed = window.EloraeEditor;
-    if (Ed && typeof Ed.openPanel === "function" && $( "ee-bar")) {
-      /* reuse editor bar chrome if present */
-    }
     var b = $("ee-bar");
     if (!b) {
       b = document.createElement("div");
@@ -99,14 +96,87 @@
     b.innerHTML =
       '<span class="ee-msg">' + esc(msg || "Index organizer · drag cards or select + Categories") + '</span>' +
       '<button type="button" class="ee-btn" id="ee-idx-add">Add card</button>' +
+      '<button type="button" class="ee-btn" id="ee-idx-art" title="Art for the selected card (or drop an image file on a card)">Art</button>' +
       '<button type="button" class="ee-btn" id="ee-idx-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-idx-save">Save</button>';
-    $("ee-idx-save").onclick = saveIndex;
+    $("ee-idx-save").onclick = function () { saveIndex(); };
     $("ee-idx-cancel").onclick = function () {
       if (state.dirty && !window.confirm("Discard your unsaved changes to the Index?")) return;
       cancelOrg();
     };
     $("ee-idx-add").onclick = addCardPrompt;
+    $("ee-idx-art").onclick = openCardArt;
+    if (state.busy) Array.prototype.forEach.call(b.querySelectorAll("button"), function (x) { x.disabled = true; });
+  }
+  function savedAt() { return "Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + "."; }
+  function doneMsg(msg) {
+    barMsg(msg, "ee-done");
+  }
+  function cardName(card) { return ((card.querySelector("span") || {}).textContent || card.id || "card").replace(/\s+/g, " ").trim(); }
+  function cardSlug(card) { return Media && Media.articleSlug ? Media.articleSlug(card.getAttribute("href")) : null; }
+
+  /* ---------- Card art ---------- */
+  // state.art[slug] = { name, file?, info?, url?, asset?, hero }: shown on the card at once (from
+  // memory for a new upload), written with the Index save: image + catalog + both Index copies +
+  // the card's article (hero art, both copies).
+  var Media = window.EloraeMedia;
+  function previewOnCard(card, src) {
+    var img = card.querySelector("img");
+    if (!img) { img = document.createElement("img"); img.setAttribute("alt", ""); img.setAttribute("decoding", "async"); card.appendChild(img); }
+    img.removeAttribute("srcset"); img.removeAttribute("sizes");
+    img.setAttribute("src", src);
+    img.setAttribute("data-ee-art", "1");
+    card.classList.remove("no-art");
+  }
+  function setArtFile(card, file) {
+    var slug = cardSlug(card);
+    if (!slug) { barMsg("This card has no article to give art to.", "ee-bad-bar"); return Promise.resolve(false); }
+    if (!Media) { barMsg("Media helpers not loaded.", "ee-bad-bar"); return Promise.resolve(false); }
+    state.artBusy = (state.artBusy || 0) + 1;
+    barMsg("Preparing “" + cardName(card) + "” art…", "ee-busy");
+    return Media.validateFile(file).then(function (info) {
+      var old = state.art[slug];
+      if (old && old.url) { try { URL.revokeObjectURL(old.url); } catch (e) {} }
+      var url = URL.createObjectURL(info.blob || file);
+      state.art[slug] = { name: cardName(card), file: file, info: info, url: url, hero: true };
+      allCards().forEach(function (c) { if (cardSlug(c) === slug) previewOnCard(c, url); });
+      state.artBusy--;
+      markDirty();
+      barMsg("Art for “" + cardName(card) + "” ready (" + Math.round(info.bytes.length / 1024) + " KB" + (info.resized ? ", resized to " + info.width + "×" + info.height : "") + ") · Save to publish");
+      return true;
+    }, function (err) {
+      state.artBusy--;
+      barMsg(err.message || "Could not use that image.", "ee-bad-bar");
+      return false;
+    });
+  }
+  function setArtAsset(card, entry) {
+    var slug = cardSlug(card);
+    if (!slug) return;
+    var old = state.art[slug];
+    if (old && old.url) { try { URL.revokeObjectURL(old.url); } catch (e) {} }
+    state.art[slug] = { name: cardName(card), asset: entry.path, title: entry.title, hero: true };
+    allCards().forEach(function (c) { if (cardSlug(c) === slug) previewOnCard(c, "/" + entry.path); });
+    markDirty();
+    barMsg("Art for “" + cardName(card) + "”: " + (entry.title || entry.path) + " · Save to publish");
+  }
+  function openCardArt() {
+    var card = state.selected;
+    if (!card) { barMsg("Select a card first (click it), then Art. Or drop an image file on a card."); return; }
+    var Ed = window.EloraeEditor;
+    if (Ed && Ed.openArtPicker) {
+      Ed.openArtPicker({
+        title: "Art for “" + cardName(card) + "”",
+        note: "Shown on the card and as its article's hero. Nothing is published until you press Save.",
+        onFile: function (f) { return setArtFile(card, f); },
+        onPick: function (entry) { setArtAsset(card, entry); }
+      });
+      return;
+    }
+    var inp = document.createElement("input");
+    inp.type = "file"; inp.accept = "image/png,image/jpeg,image/webp,image/gif";
+    inp.onchange = function () { if (inp.files[0]) setArtFile(card, inp.files[0]); };
+    inp.click();
   }
 
   function enableDrag() {
@@ -141,14 +211,17 @@
     // Better: derive slug from href
     var hm = /\/articles\/([^\/?#]+?)(?:\.html|\/)?(?:[?#]|$)/.exec(card.getAttribute("href") || "");
     if (hm) slug = hm[1];
-    var oldId = card.id;
+    var oldId = card.id, oldParent = card.parentNode, oldNext = card.nextElementSibling;
+    if (beforeCard === card) return;
     card.id = catId + "-" + slug;
     if (beforeCard && beforeCard.parentNode === box) box.insertBefore(card, beforeCard);
     else box.appendChild(card);
+    if (oldParent === card.parentNode && oldNext === card.nextElementSibling && oldId === card.id) return;
     // If old container emptied, restore empty note
     catSections().forEach(function (sec) {
       Array.prototype.forEach.call(sec.querySelectorAll(".index-cards"), function (b) {
-        if (!b.querySelector("a.index-card") && !b.querySelector("p.index-empty")) {
+        if (b.querySelector("a.index-card")) { Array.prototype.forEach.call(b.querySelectorAll("p.index-empty"), function (x) { x.remove(); }); return; }
+        if (!b.querySelector("p.index-empty")) {
           var p = document.createElement("p");
           p.className = "index-empty";
           p.textContent = "None filed here yet";
@@ -157,8 +230,7 @@
       });
     });
     rebuildTocFromDom();
-    if (oldId !== card.id) markDirty();
-    else markDirty();
+    markDirty();
   }
 
   function rebuildTocFromDom() {
@@ -252,50 +324,92 @@
     markDirty();
   }
 
+  function clearDragMarks() {
+    Array.prototype.forEach.call(document.querySelectorAll(".ee-index-dragover, .ee-index-dragging, .ee-index-before, .ee-index-after"), function (n) {
+      n.classList.remove("ee-index-dragover", "ee-index-dragging", "ee-index-before", "ee-index-after");
+    });
+  }
+  var dragCard = null;
+  function hasFiles(e) { var t = e.dataTransfer && e.dataTransfer.types; return !!t && Array.prototype.indexOf.call(t, "Files") >= 0; }
   function onDragStart(e) {
+    if (!state.active) return;
     var card = e.target.closest && e.target.closest("a.index-card");
-    if (!card || !state.active) return;
+    if (!card || !cardsRoot().contains(card) || state.busy) { if (state.active) e.preventDefault(); return; }
     stripLore(card);
     setSelected(card);
+    dragCard = card;
     e.dataTransfer.setData("text/ee-card-id", card.id);
     e.dataTransfer.effectAllowed = "move";
     card.classList.add("ee-index-dragging");
   }
-  function onDragEnd(e) {
-    var card = e.target.closest && e.target.closest("a.index-card");
-    if (card) card.classList.remove("ee-index-dragging");
-    Array.prototype.forEach.call(document.querySelectorAll(".ee-index-dragover"), function (n) { n.classList.remove("ee-index-dragover"); });
+  function onDragEnd() { dragCard = null; scrollV = 0; clearDragMarks(); }
+  // Where a drop at (x, y) lands: before/after the card under the pointer, or the end of a box.
+  function dropTarget(e) {
+    var t = e.target.nodeType === 1 ? e.target : e.target.parentElement;
+    var card = t && t.closest && t.closest("a.index-card");
+    var box = card ? card.parentElement : (t && t.closest && t.closest(".index-cards"));
+    if (!box || !box.classList.contains("index-cards") || !cardsRoot().contains(box)) return null;
+    var after = false;
+    if (card) {
+      var r = card.getBoundingClientRect();
+      var next = card.nextElementSibling, sameRow = next && Math.abs(next.getBoundingClientRect().top - r.top) < 4;
+      var prev = card.previousElementSibling, rowish = sameRow || (prev && Math.abs(prev.getBoundingClientRect().top - r.top) < 4);
+      after = rowish ? e.clientX > r.left + r.width / 2 : e.clientY > r.top + r.height / 2;
+    }
+    return { box: box, card: card, after: after };
+  }
+  // Scroll the page while a card is held near the top or bottom edge (long Index, far sections).
+  var scrollT = 0, scrollV = 0;
+  function edgeScroll(y) {
+    var top = 140, bottom = window.innerHeight - 70;
+    scrollV = y < top ? -Math.ceil((top - y) / 6) : y > bottom ? Math.ceil((y - bottom) / 4) : 0;
+    if (scrollV && !scrollT) scrollT = setInterval(function () {
+      if (!scrollV || !dragCard) { clearInterval(scrollT); scrollT = 0; return; }
+      window.scrollBy(0, scrollV);
+    }, 16);
   }
   function onDragOver(e) {
     if (!state.active) return;
-    var box = e.target.closest && e.target.closest(".index-cards");
-    var card = e.target.closest && e.target.closest("a.index-card");
-    if (!box && !card) return;
+    // Never let the browser handle a drop while organizing (it would open the link or file).
     e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    Array.prototype.forEach.call(document.querySelectorAll(".ee-index-dragover"), function (n) { n.classList.remove("ee-index-dragover"); });
-    (box || card).classList.add("ee-index-dragover");
+    if (dragCard) edgeScroll(e.clientY);
+    var files = hasFiles(e);
+    if (e.dataTransfer) e.dataTransfer.dropEffect = files || dragCard ? (files ? "copy" : "move") : "none";
+    Array.prototype.forEach.call(document.querySelectorAll(".ee-index-dragover, .ee-index-before, .ee-index-after"), function (n) { n.classList.remove("ee-index-dragover", "ee-index-before", "ee-index-after"); });
+    var d = dropTarget(e);
+    if (!d) return;
+    if (files) { if (d.card) d.card.classList.add("ee-index-dragover"); return; }
+    if (!dragCard) return;
+    if (d.card && d.card !== dragCard) d.card.classList.add(d.after ? "ee-index-after" : "ee-index-before");
+    else if (!d.card) d.box.classList.add("ee-index-dragover");
   }
   function onDrop(e) {
     if (!state.active) return;
-    var id = e.dataTransfer.getData("text/ee-card-id");
-    var card = id && document.getElementById(id);
-    if (!card) return;
     e.preventDefault();
-    var before = e.target.closest && e.target.closest("a.index-card");
-    if (before === card) before = before.nextElementSibling;
-    var box = (before && before.parentElement) || (e.target.closest && e.target.closest(".index-cards"));
-    if (!box) return;
-    var catId = null;
+    e.stopPropagation();
+    var d = dropTarget(e);
+    if (hasFiles(e)) {
+      var f = e.dataTransfer.files && e.dataTransfer.files[0];
+      clearDragMarks();
+      if (!d || !d.card) { barMsg("Drop the image on the card it is for."); return; }
+      if (f) { setSelected(d.card); setArtFile(d.card, f); }
+      return;
+    }
+    var id = e.dataTransfer.getData("text/ee-card-id");
+    var card = dragCard || (id && document.getElementById(id));
+    dragCard = null; scrollV = 0;
+    clearDragMarks();
+    if (!card || !d) return;
+    if (d.card === card) return; // dropped on itself: stays where it was
+    var before = d.card ? (d.after ? d.card.nextElementSibling : d.card) : null;
+    if (before === card) return; // already right there
+    while (before && !(before.matches && before.matches("a.index-card"))) before = before.nextElementSibling;
+    var catId = null, box = d.box;
     var prev = box.previousElementSibling;
     if (prev && prev.classList.contains("index-sub")) catId = prev.id;
-    else {
-      var sec = box.closest("section.index-cat");
-      catId = sec && sec.id;
-    }
+    else { var sec = box.closest("section.index-cat"); catId = sec && sec.id; }
     if (!catId) return;
-    moveCardToCategory(card, catId, before && before.classList && before.classList.contains("index-card") ? before : null);
-    Array.prototype.forEach.call(document.querySelectorAll(".ee-index-dragover"), function (n) { n.classList.remove("ee-index-dragover"); });
+    moveCardToCategory(card, catId, before);
   }
 
   function onCardClick(e) {
@@ -340,44 +454,60 @@
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function articleTemplate(name, slug, catId) {
-    var title = name;
-    var vEdit = "recent1";
-    // Minimal article; art-index stub — Category rail still works for chrome.
-    return '<!doctype html>\n<html lang="en">\n<head>\n' +
-      '<script src="../session-gate.js?v=guest-browse"><\/script>\n\n' +
-      '<meta charset="utf-8">\n' +
-      '<script src="/img.js?v=img-resize"><\/script>\n' +
-      '<script src="../cats-rail-boot.js?v=art74"><\/script>\n' +
-      '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n' +
-      '<title>' + esc(title) + ' - Elorae</title>\n' +
-      '<link rel="stylesheet" href="/styles.css?v=wide1">\n' +
-      '<link rel="stylesheet" href="/html.css?v=nojr1">\n' +
-      '<script src="../rail-toggle.js?v=nojr1"><\/script>\n' +
-      '<script src="../skip-link.js?v=fs12"><\/script>\n' +
-      '<link rel="icon" href="/favicon.svg">\n' +
-      '</head>\n<body class="article">\n' +
-      '<div class="mast"><header class="topbar"><span class="mark"><span class="friend" data-owner="jack"><a href="/articles/galand-helviath/">Galand</a></span><span class="friend" data-owner="jon"><a href="/articles/telorin/">Telorin</a><a href="/articles/silar-scorria/">Silar</a></span><span class="friend" data-owner="julie"><a href="/articles/saoirse/">Saoirse</a></span><span class="friend" data-owner="sawyer"><a href="/articles/vaerek/">Vaerek</a></span><span class="friend" data-owner="sylum"><a href="/articles/alaric/">Alaric</a></span><a href="/login/">Elorae</a></span><form action="/search/"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="/atlas/">Atlas</a><a class="" href="/codex/lore/">Codex</a><a class="active" href="/index/ancients/">Index</a><a class="" href="/journal/">Journal</a></nav></header></div>\n' +
-      '<nav id="section-bar"><button type="button" class="sec-toggle" data-sec-for="art-index" aria-controls="art-index-panel" aria-expanded="false">Categories</button></nav>\n' +
-      '<aside class="art-index" id="art-index"><button type="button" class="art-index-cue" aria-controls="art-index-panel" aria-expanded="false" aria-label="Index categories"><svg viewBox="0 0 6 10" aria-hidden="true"><polyline points="1,1 5,5 1,9" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg></button><nav class="art-index-panel" id="art-index-panel" aria-label="Index categories"><h3>Categories</h3><p class="ee-note" style="font-size:calc((12px) * var(--fs,1.2075));color:#8f8a82;margin:12px 0">See the <a href="/index/ancients/#' + esc(catId) + '">Index</a> for the full list.</p></nav></aside>\n' +
+  /* New article for a new card: built from a current article on the site (its chrome, scripts and
+     their versions), with this card's name, an empty hero ("no-art", gets the card's art when you
+     add some) and an empty Lore section. Both copies (articles/<slug>/index.html for the pretty
+     URL and articles/<slug>.html) are written, like every other article. */
+  var TEMPLATE_ARTICLE = "articles/aghor/index.html";
+  function articleFromTemplate(tpl, name, catId) {
+    var title = esc(name), T = tpl;
+    var root = M.parse(T);
+    var hero = findSrc(root, function (n) { return n.tag === "section" && cls(n, "art-hero"); });
+    var main = findSrc(root, function (n) { return n.tag === "main" && cls(n, "art-body"); });
+    var head = findSrc(root, function (n) { return n.tag === "head"; });
+    if (!hero || !main || !head || main.start < hero.end) throw new Error("template");
+    var mainOut = T.slice(main.start, main.openEnd) + '\n<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n' + T.slice(main.closeStart, main.end);
+    var heroOut = '<section class="art-hero no-art"><div class="art-title"><h1>' + title + '</h1><p class="art-epithet"></p></div></section>';
+    T = T.slice(0, hero.start) + heroOut + T.slice(hero.end, main.start) + mainOut + T.slice(main.end);
+    var headEnd = T.indexOf("</head>");
+    var headTxt = T.slice(0, headEnd)
+      .replace(/<title>[\s\S]*?<\/title>/i, "<title>" + title + " - Elorae</title>")
+      .replace(/\n?<meta\s+(?:name="(?:description|twitter:[^"]*)"|property="og:[^"]*")[^>]*>/gi, "")
+      .replace(/(<title>[^<]*<\/title>)/i, '$1\n<meta name="description" content="' + title + '">');
+    T = headTxt + T.slice(headEnd);
+    T = T.replace(/(<a class="art-back" href=")[^"]*(")/, "$1/index/ancients/#" + esc(catId) + "$2");
+    // Category rail: highlight this card's category.
+    T = T.replace(/(<nav class="art-index-panel"[\s\S]*?<\/nav>)/, function (nav) {
+      nav = nav.replace(/<a class="on" href=/g, '<a class="" href=').replace(/class="toc-name on"/g, 'class="toc-name"').replace(/class="toc-cat open"/g, 'class="toc-cat"').replace(/ aria-expanded="true"/g, ' aria-expanded="false"');
+      return nav.replace(new RegExp('<a class="" href="/index/ancients/#' + catId.replace(/[^\w-]/g, "") + '"'), '<a class="on" href="/index/ancients/#' + esc(catId) + '"');
+    });
+    return T;
+  }
+  function articleFallback(name, catId) {
+    var title = esc(name);
+    return '<!doctype html>\n<html lang="en">\n<head>\n<script src="/session-gate.js?v=jason-ghost"><\/script>\n\n<meta charset="utf-8">\n' +
+      '<script src="/img.js?v=img-resize"><\/script>\n<script src="/cats-rail-boot.js?v=art74"><\/script>\n' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>' + title + ' - Elorae</title>\n' +
+      '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=wide1">\n<link rel="stylesheet" href="/html.css?v=nojr1">\n' +
+      '<script src="/rail-toggle.js?v=nojr1"><\/script>\n<script src="/skip-link.js?v=fs12"><\/script>\n<link rel="icon" href="/favicon.svg">\n</head>\n<body class="article">\n' +
+      '<div class="mast"><header class="topbar"><span class="mark"></span><form action="/search/"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="/atlas/">Atlas</a><a class="" href="/codex/lore/">Codex</a><a class="active" href="/index/ancients/">Index</a><a class="" href="/journal/">Journal</a></nav></header></div>\n' +
       '<a class="art-back" href="/index/ancients/#' + esc(catId) + '">Index</a>\n' +
-      '<!-- Chosen background art: swap the img src below to change it. -->\n' +
-      '<section class="art-hero no-art"><div class="art-title"><h1>' + esc(title) + '</h1><p class="art-epithet"></p></div></section>\n' +
-      '<main class="art-body">\n' +
-      '<section class="art-sec" id="dossier"><h2>Dossier</h2><dl class="art-dossier"><dt>Name</dt><dd>' + esc(title) + '</dd></dl></section>\n' +
-      '<section class="art-sec" id="description"><h2>Description</h2><p class="art-line"></p></section>\n' +
-      '</main>\n' +
-      '<script src="../search.js?v=fs12"><\/script><script src="../login.js?v=login-elorae-18px"><\/script><script src="../player-mark.js?v=pretty-urls"><\/script>\n' +
-      '<canvas id="friend-glow"></canvas>\n' +
-      '<script src="../glow.js?v=nt32-ambient"><\/script>\n' +
-      '<script src="../art-index.js?v=art87"><\/script>\n' +
-      '<script src="../article-siblings.js?v=fs12"><\/script>\n' +
-      '<script src="../related-articles.js?v=editor-batch2"><\/script>\n' +
-      '<script src="../edit/edit.js?v=' + vEdit + '" defer><\/script>\n' +
-      '</body>\n</html>\n';
+      '<section class="art-hero no-art"><div class="art-title"><h1>' + title + '</h1><p class="art-epithet"></p></div></section>\n' +
+      '<main class="art-body">\n<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n</main>\n' +
+      '<script src="/search.js?v=fs12"><\/script><script src="/login.js?v=jason-ghost"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
+      '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=art87"><\/script>\n' +
+      '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
+      '<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
+  }
+  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "idxart1"; })();
+  function newArticle(name, catId) {
+    return E.getFile(TEMPLATE_ARTICLE).then(function (f) {
+      try { return articleFromTemplate(f.text, name, catId); } catch (e) { return articleFallback(name, catId); }
+    }, function () { return articleFallback(name, catId); });
   }
 
   function addCardPrompt() {
+    if (state.busy) return;
     var name = window.prompt("New card name");
     if (name == null) return;
     name = String(name).replace(/\s+/g, " ").trim();
@@ -392,51 +522,38 @@
       if (maybe && maybe.classList.contains("index-card")) catId = categoryOf(maybe);
       if (!cardsContainerFor(catId)) catId = catSections()[0].id;
     }
-    var artPath = "articles/" + slug + ".html";
-    // Ensure unique slug
-    var n = 2, base = slug;
-    while (document.querySelector('a.index-card[href$="/' + slug + '.html"]') || document.getElementById(catId + "-" + slug)) {
-      slug = base + "-" + n; n++;
-      artPath = "articles/" + slug + ".html";
+    function taken(sl) {
+      return allCards().some(function (c) { return cardSlug(c) === sl; }) || !!document.getElementById(catId + "-" + sl);
     }
+    var n = 2, base = slug;
+    while (taken(slug)) { slug = base + "-" + n; n++; }
+    var artPath = "articles/" + slug + "/index.html", artCopy = "articles/" + slug + ".html";
     barMsg("Creating “" + name + "”…", "ee-busy");
     state.busy = true;
-    E.getFile(artPath).then(function () {
-      state.busy = false;
-      barMsg("articles/" + slug + ".html already exists. Pick another name.", "ee-bad-bar");
-    }, function (err) {
-      if (err && err.status && err.status !== 404) throw err;
-      var box = cardsContainerFor(catId);
-      var empty = box.querySelector("p.index-empty");
-      if (empty) empty.remove();
-      var a = document.createElement("a");
-      a.className = "index-card no-art";
-      a.id = catId + "-" + slug;
-      a.href = "/" + artPath.replace(/\.html$/, "/");
-      a.innerHTML = "<span>" + esc(name) + "</span>";
-      a.setAttribute("draggable", "true");
-      a.classList.add("ee-index-draggable");
-      box.appendChild(a);
-      setSelected(a);
-      rebuildTocFromDom();
-      var files = [
-        { path: artPath, text: articleTemplate(name, slug, catId) }
-      ];
-      // Also persist index in same commit
-      return serializeIndex().then(function (r) {
-        files.push({ path: PATH, text: r.html });
-        return E.commitFiles(files, "Index: add card “" + name + "” + scaffold " + artPath + " [edit-mode]", E.BRANCH).then(function () {
-          if (window.EloraeRecent) window.EloraeRecent.remember([{ path: PATH, text: r.html, base: r.text }]);
-        });
-      }).then(function () {
+    Promise.all([E.getFile(artPath).then(function () { return true; }, function (err) { if (err && err.status && err.status !== 404) throw err; return false; }),
+                 E.getFile(artCopy).then(function () { return true; }, function (err) { if (err && err.status && err.status !== 404) throw err; return false; })])
+    .then(function (ex) {
+      if (ex[0] || ex[1]) { state.busy = false; barMsg("articles/" + slug + " already exists. Pick another name.", "ee-bad-bar"); return; }
+      return newArticle(name, catId).then(function (html) {
+        var box = cardsContainerFor(catId);
+        Array.prototype.forEach.call(box.querySelectorAll("p.index-empty"), function (x) { x.remove(); });
+        var a = document.createElement("a");
+        a.className = "index-card no-art";
+        a.id = catId + "-" + slug;
+        a.href = "/articles/" + slug + "/";
+        a.innerHTML = "<span>" + esc(name) + "</span>";
+        a.setAttribute("draggable", "true");
+        a.classList.add("ee-index-draggable");
+        box.appendChild(a);
+        setSelected(a);
+        rebuildTocFromDom();
+        state.dirty = true;
         state.busy = false;
-        state.dirty = false;
-        barMsg("Added “" + name + "” · live in about 1–2 minutes", "ee-done");
-        var b = $("ee-bar");
-        if (b && !b.querySelector("#ee-x")) {
-          b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
-          $("ee-x").onclick = function () { barMsg("Index organizer"); };
-        }
+        // One commit: the card (with any other Index changes so far) + both article copies.
+        return saveIndex({ extra: [{ path: artPath, text: html }, { path: artCopy, text: html }], newSlug: slug,
+          message: "Index: add card “" + name + "” + articles/" + slug + " [edit-mode]", done: "Added “" + name + "”. " }).then(function (ok) {
+          if (ok === false) { a.remove(); rebuildTocFromDom(); setSelected(null); }
+        });
       });
     }).catch(function (err) {
       state.busy = false;
@@ -462,6 +579,12 @@
         if (kc.length) n.setAttribute("class", kc.join(" ")); else if (!n.matches("a")) n.removeAttribute("class"); else n.setAttribute("class", "");
       }
       if (n.matches("a.index-card")) n.removeAttribute("aria-expanded");
+      if (n.tagName === "IMG" && /^blob:/.test(n.getAttribute("src") || "")) {
+        // A picture shown from memory: its real file, or nothing (card art is written separately).
+        var real = n.getAttribute("data-eimg-orig");
+        if (!real) { n.remove(); return; }
+        n.setAttribute("src", real); n.removeAttribute("srcset"); n.removeAttribute("sizes");
+      }
       if (n.tagName === "IMG" && mode === "canon") {
         n.setAttribute("src", imgKey(n.getAttribute("data-eimg-orig") || n.getAttribute("src")));
         n.removeAttribute("srcset"); n.removeAttribute("sizes");
@@ -552,42 +675,96 @@
     return out;
   }
 
-  function serializeIndex() {
-    return E.getFile(PATH).then(function (f) {
-      return { text: f.text, html: buildIndexHtml(f.text) };
-    });
+  // Every card exactly once, in the order shown (guards against lost or doubled cards).
+  function cardHrefs(root) { return Array.prototype.map.call(root.querySelectorAll("a.index-card"), function (a) { return a.getAttribute("href"); }); }
+  function checkCards(html) {
+    var d = new DOMParser().parseFromString(html, "text/html");
+    var main = d.querySelector("main.index-flow");
+    var want = cardHrefs(cardsRoot()), got = main ? cardHrefs(main) : [];
+    if (want.join("\n") !== got.join("\n")) throw new Error("Safety check failed (the saved Index would not match the cards on screen). Nothing was saved.");
   }
-
-  function saveIndex() {
-    if (state.busy) return;
+  function isTwin(a, b) { return a === b; }
+  /* One commit for everything: both Index copies, new card articles (opts.extra), new art
+     (image + catalog) and the articles' hero art. Resolves false when nothing was saved. */
+  function saveIndex(opts) {
+    opts = opts || {};
+    if (state.busy) return Promise.resolve(false);
+    if (state.artBusy) { barMsg("Still preparing an image… try Save again in a moment."); return Promise.resolve(false); }
+    if (!state.dirty && !opts.extra) { barMsg("No changes to save."); return Promise.resolve(false); }
     state.busy = true;
-    if (!state.dirty) { state.busy = false; barMsg("No changes to save."); return; }
-    barMsg("Saving Index…", "ee-busy");
-    serializeIndex().then(function (r) {
-      if (r.html === r.text) return "none";
-      // The page's other copy (x.html <-> x/index.html) gets the same result when identical.
-      var mp = P.mirrorPath ? P.mirrorPath(PATH) : null;
-      var mirror = mp ? E.getFile(mp).then(function (m) { return m.text === r.text ? { path: mp, text: r.html } : null; }, function () { return null; }) : Promise.resolve(null);
-      return mirror.then(function (m) {
-        return E.commitFiles([{ path: PATH, text: r.html }].concat(m ? [m] : []), "Index: reorganize cards [edit-mode]", E.BRANCH).then(function (res) {
-          var R = window.EloraeRecent;
-          if (R) R.remember([{ path: PATH, text: r.html, base: r.text }].concat(m ? [{ path: m.path, text: m.text, base: r.text }] : []));
-          return res;
+    barMsg(opts.extra ? "Creating…" : "Saving Index…", "ee-busy");
+    var mp = P.mirrorPath ? P.mirrorPath(PATH) : null;
+    var art = state.art, slugs = Object.keys(art);
+    var remembered = [], images = [], assetFor = {};
+    var who = (state.profile && state.profile.person) || "devin";
+    return E.getFile(PATH).then(function (f) {
+      var html = buildIndexHtml(f.text);
+      var catalogP = slugs.some(function (k) { return art[k].file; })
+        ? E.getFile(Media.CATALOG).then(function (c) { return JSON.parse(c.text); }, function () { return { version: 1, media: {} }; })
+        : Promise.resolve(null);
+      return catalogP.then(function (catalog) {
+        var files = [];
+        slugs.forEach(function (k) {
+          var a = art[k];
+          if (a.asset) { assetFor[k] = a.asset; return; }
+          var prep = Media.prepareUpload(catalog, a.info, { title: a.name, tags: ["card"], owner: who, uploadedBy: who, everyone: true, allowed: Media.PEOPLE.slice() });
+          catalog = prep.catalog;
+          files.push(prep.files[1]);
+          assetFor[k] = prep.entry.path;
+          images.push({ path: prep.entry.path, blob: a.info.blob || a.file });
+        });
+        if (catalog) files.unshift({ path: Media.CATALOG, text: JSON.stringify(catalog, null, 2) + "\n" });
+        slugs.forEach(function (k) { html = Media.setCardArt(html, k, assetFor[k]); });
+        checkCards(html);
+        var arts = slugs.filter(function (k) { return art[k].hero; }).map(function (k) {
+          var paths = ["articles/" + k + "/index.html", "articles/" + k + ".html"];
+          return Promise.all(paths.map(function (p) {
+            var made = (opts.extra || []).filter(function (x) { return x.path === p; })[0];
+            if (made) { made.text = Media.setHeroArt(made.text, assetFor[k], art[k].name) || made.text; return null; }
+            return E.getFile(p).then(function (af) {
+              var out = Media.setHeroArt(af.text, assetFor[k], art[k].name);
+              return out && out !== af.text ? { path: p, text: out, base: af.text } : null;
+            }, function () { return null; });
+          }));
+        });
+        var mirrorP = mp ? E.getFile(mp).then(function (m) { return m; }, function () { return null; }) : Promise.resolve(null);
+        return Promise.all([mirrorP, Promise.all(arts)]).then(function (res) {
+          var m = res[0];
+          var changed = html !== f.text;
+          var out = [];
+          if (changed) { out.push({ path: PATH, text: html }); remembered.push({ path: PATH, text: html, base: f.text }); }
+          // The other Index copy always gets the very same file (they must never drift apart).
+          if (m && m.text !== html) { out.push({ path: mp, text: html }); remembered.push({ path: mp, text: html, base: m.text }); }
+          (opts.extra || []).forEach(function (x) { out.push({ path: x.path, text: x.text }); });
+          res[1].forEach(function (pair) { pair.forEach(function (x) { if (x) { out.push({ path: x.path, text: x.text }); remembered.push(x); } }); });
+          out = out.concat(files);
+          if (!out.length) return "none";
+          return E.commitFiles(out, opts.message || (slugs.length ? "Index: card art + reorganize [edit-mode]" : "Index: reorganize cards [edit-mode]"), E.BRANCH);
         });
       });
     }).then(function (res) {
       state.busy = false;
-      if (res === "none") { state.dirty = false; barMsg("No changes to save."); return; }
+      if (res === "none") { state.dirty = false; barMsg("No changes to save."); return false; }
       state.dirty = false;
-      barMsg("Index saved · live in about 1–2 minutes", "ee-done");
-      var b = $("ee-bar");
-      if (b && !b.querySelector("#ee-x")) {
-        b.insertAdjacentHTML("beforeend", '<button type="button" class="ee-btn" id="ee-x">Close</button>');
-        $("ee-x").onclick = function () { barMsg("Index organizer"); };
-      }
+      // The new art is not on the site until it rebuilds: keep showing it from memory, but make
+      // the page (and the next save) treat it as its real /assets/ file.
+      allCards().forEach(function (c) {
+        var im = c.querySelector("img[data-ee-art]"), k = cardSlug(c);
+        if (!im) return;
+        im.removeAttribute("data-ee-art");
+        var path = assetFor[k];
+        if (path) { im.setAttribute("data-eimg-orig", "/" + path); im.setAttribute("data-eimg-fell", "1"); }
+      });
+      state.art = {};
+      var R = window.EloraeRecent;
+      if (R) { R.remember(remembered); if (images.length && R.rememberImages) R.rememberImages(images); }
+      rememberStart();
+      doneMsg((opts.done || "") + savedAt());
+      return true;
     }).catch(function (err) {
       state.busy = false;
       barMsg(err.message || "Save failed.", "ee-bad-bar");
+      return false;
     });
   }
 
@@ -648,6 +825,8 @@
   }
 
   function cancelOrg() {
+    Object.keys(state.art || {}).forEach(function (k) { if (state.art[k].url) try { URL.revokeObjectURL(state.art[k].url); } catch (e) {} });
+    state.art = {};
     if (snapshot) {
       document.querySelector("main.index-flow").innerHTML = snapshot.main;
       document.querySelector("#index-toc-panel").innerHTML = snapshot.toc;

@@ -21,7 +21,7 @@ const PROFILES = { repo: REPO, profiles: {
 const results = [];
 function check(name, ok, detail) { results.push({ name, ok: !!ok, detail }); console.log((ok ? "PASS " : "FAIL ") + name + (detail ? "  — " + detail : "")); }
 function newMock() { return new MockGitHub({ repo: REPO, root: ROOT, tokens: { "ghp_test_devin": "devin-gh", "ghp_test_sawyer": "sawyer-gh" }, overrides: { "edit/profiles.json": JSON.stringify(PROFILES, null, 2) } }); }
-const VPS = { desktop: { width: 1366, height: 860 }, phone: { width: 390, height: 844 } };
+const VPS = { desktop: { width: 1366, height: 860 }, phone: { width: 390, height: 844 }, tablet: { width: 820, height: 1180 } };
 let BASE;
 
 async function ctxFor(browser, mock, vp, who) {
@@ -729,6 +729,244 @@ async function recentTests(browser, vpName) {
   }
 }
 
+// Index: add a card, drag cards around many times (within and across sections), give cards art
+// by uploading (big PNGs are resized), replace art, pick from the gallery, save, reload, edit
+// again, and give an article hero art from the article. Both Index copies must stay identical.
+const zlib = require("zlib");
+function makePng(w, h, seed) {
+  // Stored (uncompressed) RGB PNG with noise over a gradient: big on disk, like exported art.
+  let x = seed >>> 0 || 1; const rnd = () => (x = (x * 1664525 + 1013904223) >>> 0) >>> 24;
+  const row = 1 + w * 3, raw = Buffer.alloc(row * h);
+  for (let y = 0; y < h; y++) { raw[y * row] = 0; for (let i = 0; i < w; i++) { const o = y * row + 1 + i * 3; raw[o] = (i * 255 / w + rnd() / 3) & 255; raw[o + 1] = (y * 255 / h + rnd() / 3) & 255; raw[o + 2] = rnd(); } }
+  const crc = (b) => { let c, t = []; for (let n = 0; n < 256; n++) { c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } c = 0xffffffff; for (const v of b) c = t[(c ^ v) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const chunk = (type, data) => { const l = Buffer.alloc(4); l.writeUInt32BE(data.length); const td = Buffer.concat([Buffer.from(type), data]); const c = Buffer.alloc(4); c.writeUInt32BE(crc(td)); return Buffer.concat([l, td, c]); };
+  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4); ihdr[8] = 8; ihdr[9] = 2;
+  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk("IHDR", ihdr), chunk("IDAT", zlib.deflateSync(raw, { level: 0 })), chunk("IEND", Buffer.alloc(0))]);
+}
+function webpSize(buf) {
+  const b = Buffer.from(buf);
+  if (b.toString("ascii", 0, 4) !== "RIFF" || b.toString("ascii", 8, 12) !== "WEBP") return null;
+  const t = b.toString("ascii", 12, 16);
+  if (t === "VP8X") return { w: 1 + b.readUIntLE(24, 3), h: 1 + b.readUIntLE(27, 3) };
+  if (t === "VP8 ") return { w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff };
+  if (t === "VP8L") { const v = b.readUInt32LE(21); return { w: (v & 0x3fff) + 1, h: ((v >> 14) & 0x3fff) + 1 }; }
+  return null;
+}
+async function indexArtTests(browser, vpName) {
+  const vp = VPS[vpName];
+  const DIR = path.join(OUT, "art"); fs.mkdirSync(DIR, { recursive: true });
+  const BIG = path.join(DIR, "big-art.png"), BIG2 = path.join(DIR, "wide-art.png"), SMALL = path.join(DIR, "small-art.png");
+  if (!fs.existsSync(BIG)) { fs.writeFileSync(BIG, makePng(1800, 1700, 7)); fs.writeFileSync(BIG2, makePng(3000, 1000, 9)); fs.writeFileSync(SMALL, makePng(600, 400, 3)); }
+  const IDX = "index/ancients/index.html", IDX2 = "index/ancients.html";
+  const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
+  const T = (p) => { const v = mock.file(p); return v == null ? null : String(v); };
+  async function startOrg() {
+    await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile && window.EloraeIndexOrg, null, { timeout: 15000 });
+    await page.evaluate(() => window.EloraeEditor.tryEnterEdit()); await page.waitForSelector("#ee-idx-save", { timeout: 15000 }); await page.waitForTimeout(300);
+  }
+  const domState = () => page.evaluate(() => {
+    const secs = {};
+    document.querySelectorAll("main.index-flow .index-cards").forEach((b, i) => {
+      const sec = b.closest("section.index-cat"), sub = b.previousElementSibling && b.previousElementSibling.classList.contains("index-sub") ? b.previousElementSibling.id : "";
+      secs[(sec && sec.id) + (sub ? "/" + sub : "") + "#" + i] = [...b.querySelectorAll(":scope > a.index-card")].map((a) => a.getAttribute("href"));
+    });
+    const all = [...document.querySelectorAll("main.index-flow a.index-card")].map((a) => a.getAttribute("href"));
+    return { secs, all, stuck: document.querySelectorAll(".ee-index-dragging,.ee-index-dragover,.ee-index-before,.ee-index-after").length, url: location.href };
+  });
+  const savedState = (text) => page.evaluate((t) => {
+    const d = new DOMParser().parseFromString(t, "text/html"), secs = {};
+    d.querySelectorAll("main.index-flow .index-cards").forEach((b, i) => {
+      const sec = b.closest("section.index-cat"), sub = b.previousElementSibling && b.previousElementSibling.classList.contains("index-sub") ? b.previousElementSibling.id : "";
+      secs[(sec && sec.id) + (sub ? "/" + sub : "") + "#" + i] = [...b.querySelectorAll(":scope > a.index-card")].map((a) => a.getAttribute("href"));
+    });
+    return { secs, all: [...d.querySelectorAll("main.index-flow a.index-card")].map((a) => a.getAttribute("href")) };
+  }, text);
+  // Real mouse drag when both cards fit on screen; otherwise the same drag events dispatched
+  // directly (a held drag scrolls the page near the edges; the test checks that separately).
+  async function drag(srcHref, dstHref, side) {
+    const far = await page.evaluate(([a, b]) => {
+      const r1 = document.querySelector(`main.index-flow a.index-card[href="${a}"]`).getBoundingClientRect();
+      const r2 = document.querySelector(`main.index-flow a.index-card[href="${b}"]`).getBoundingClientRect();
+      return Math.max(r1.bottom, r2.bottom) - Math.min(r1.top, r2.top) > innerHeight - 220;
+    }, [srcHref, dstHref]);
+    if (far) {
+      await page.evaluate(([a, b, side]) => {
+        const src = document.querySelector(`main.index-flow a.index-card[href="${a}"]`), dst = document.querySelector(`main.index-flow a.index-card[href="${b}"]`);
+        const dt = new DataTransfer();
+        src.dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true, dataTransfer: dt }));
+        dst.scrollIntoView({ block: "center" });
+        const r = dst.getBoundingClientRect(), x = side === "after" ? r.left + r.width * 0.85 : r.left + r.width * 0.15, y = r.top + r.height * (side === "after" ? 0.75 : 0.25);
+        const t = document.elementFromPoint(x, y) || dst;
+        t.dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: dt, clientX: x, clientY: y }));
+        t.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: dt, clientX: x, clientY: y }));
+        src.dispatchEvent(new DragEvent("dragend", { bubbles: true, dataTransfer: dt }));
+      }, [srcHref, dstHref, side]);
+      await page.waitForTimeout(60);
+      return;
+    }
+    const src = await page.$(`main.index-flow a.index-card[href="${srcHref}"]`);
+    const dst = await page.$(`main.index-flow a.index-card[href="${dstHref}"]`);
+    await dst.scrollIntoViewIfNeeded();
+    const bb = await dst.boundingBox();
+    const tp = { x: side === "after" ? bb.width * 0.85 : bb.width * 0.15, y: bb.height * (side === "after" ? 0.75 : 0.25) };
+    await page.dragAndDrop(`main.index-flow a.index-card[href="${srcHref}"]`, `main.index-flow a.index-card[href="${dstHref}"]`, { targetPosition: tp, force: true });
+    await page.waitForTimeout(80);
+  }
+  // Some characters are listed in two sections on purpose, so "every card once" means: the same
+  // cards as at the start (plus the new one), nothing lost, nothing doubled.
+  let baseCards = null;
+  const bag = (a) => JSON.stringify([...a].sort());
+  const uniq = (a) => bag(a) === baseCards;
+  const sameOrder = (a, b) => JSON.stringify(Object.values(a)) === JSON.stringify(Object.values(b));
+  const ART = /draggable|contenteditable|ee-index|data-ee-|data-eimg|blob:|is-lore-flipped|aria-expanded="false" href/;
+
+  await page.goto(BASE + "index/ancients/", { waitUntil: "load" });
+  await startOrg();
+  const s0 = await domState();
+  baseCards = bag(s0.all.concat("/articles/zq-test-card/"));
+  // 1. Add a card in Locations (select a Locations card first).
+  await page.evaluate(() => document.querySelector("#locations a.index-card, #locations ~ .index-cards a.index-card").click());
+  page._answer = "Zq Test Card";
+  await page.click("#ee-idx-add");
+  await page.waitForFunction(() => /Added|failed|exists/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+  const bar1 = (await page.textContent("#ee-bar")).trim();
+  const A1 = T("articles/zq-test-card/index.html"), A2 = T("articles/zq-test-card.html");
+  const i1 = T(IDX);
+  check(`[${vpName}] index: Add card → card + both article copies in one commit, message "Added … Saved at"`, /Added “Zq Test Card”\. Saved at \d/.test(bar1) && A1 && A1 === A2 && i1 && i1 === T(IDX2) && (i1.match(/href="\/articles\/zq-test-card\/"/g) || []).length === 1, bar1.slice(0, 80));
+  check(`[${vpName}] index: new article is a current article page (name, empty hero, Lore, current scripts)`, A1 && /<title>Zq Test Card - Elorae<\/title>/.test(A1) && /<section class="art-hero no-art"><div class="art-title"><h1>Zq Test Card<\/h1>/.test(A1) && /<p class="art-life"><\/p>/.test(A1) && !/Aghor, Ancient|og:image/.test(A1) && /edit\/edit\.js\?v=/.test(A1) && /art-back" href="\/index\/ancients\/#locations"/.test(A1) && !/\.\.\//.test(A1), A1 ? A1.length + " bytes" : "missing");
+  const cardSec = await page.evaluate(() => { const a = document.querySelector('a.index-card[href="/articles/zq-test-card/"]'); return a && a.closest("section.index-cat").id; });
+  check(`[${vpName}] index: the new card sits in the section that was selected`, cardSec === "locations", cardSec);
+  // 2. Many drags: reorder, across sections, onto itself, back and forth.
+  const NEW = "/articles/zq-test-card/";
+  const firstIn = (sel) => page.evaluate((s) => { const a = document.querySelector(s); return a && a.getAttribute("href"); }, sel);
+  const lastIn = (sel) => page.evaluate((s) => { const a = [...document.querySelectorAll(s)].pop(); return a && a.getAttribute("href"); }, sel);
+  const locFirst = await firstIn("#locations a.index-card");
+  await drag(NEW, locFirst, "before");
+  const d1 = await domState();
+  check(`[${vpName}] drag: reorder within a section (drop on the left half → before)`, (await firstIn("#locations a.index-card")) === NEW && d1.stuck === 0, d1.stuck + " marks");
+  const divA = await firstIn("#demonic a.index-card");
+  await drag(NEW, divA, "after");
+  const afterDiv = await page.evaluate((n) => { const a = document.querySelector(`a.index-card[href="${n}"]`); const p = a.previousElementSibling; return { sec: a.closest("section.index-cat").id, prev: p && p.getAttribute("href"), id: a.id }; }, NEW);
+  check(`[${vpName}] drag: move to another section (drop on the right half → after), id follows the section`, afterDiv.sec === "demonic" && afterDiv.prev === divA && afterDiv.id === "demonic-zq-test-card", JSON.stringify(afterDiv));
+  const before = await domState();
+  await drag(NEW, NEW, "after");
+  const self = await domState();
+  check(`[${vpName}] drag: dropping a card on itself changes nothing`, sameOrder(before.secs, self.secs));
+  const AG = "/articles/aghor/";
+  const locLast = await lastIn("#locations a.index-card");
+  await drag(AG, locLast, "after");
+  check(`[${vpName}] drag: Aghor to the end of Locations`, (await lastIn("#locations a.index-card")) === AG);
+  const ancFirst = await firstIn("#ancients a.index-card");
+  await drag(AG, ancFirst, "before");
+  check(`[${vpName}] drag: and back to the front of Ancients`, (await firstIn("#ancients a.index-card")) === AG);
+  for (let k = 0; k < 6; k++) {
+    const st = await domState();
+    const hrefs = st.all.filter((h) => h !== NEW);
+    const a = hrefs[(k * 7 + 3) % hrefs.length], b = hrefs[(k * 11 + 17) % hrefs.length];
+    if (a !== b) await drag(a, b, k % 2 ? "after" : "before");
+  }
+  // Holding a dragged card near the bottom edge scrolls the page (to reach far sections).
+  const scrolled = await page.evaluate(async () => {
+    window.scrollTo(0, 0);
+    const src = document.querySelector("main.index-flow a.index-card"), dt = new DataTransfer();
+    src.dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true, dataTransfer: dt }));
+    const y0 = scrollY;
+    for (let i = 0; i < 20; i++) { document.elementFromPoint(innerWidth / 2, innerHeight - 10).dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: dt, clientX: innerWidth / 2, clientY: innerHeight - 10 })); await new Promise((r) => setTimeout(r, 25)); }
+    const y1 = scrollY;
+    src.dispatchEvent(new DragEvent("dragend", { bubbles: true, dataTransfer: dt }));
+    await new Promise((r) => setTimeout(r, 60));
+    const y2 = scrollY; await new Promise((r) => setTimeout(r, 100));
+    return { y0, y1, stopped: scrollY === y2 };
+  });
+  check(`[${vpName}] drag: holding a card near the bottom edge scrolls the page, and stops on release`, scrolled.y1 > scrolled.y0 + 100 && scrolled.stopped, JSON.stringify(scrolled));
+  const s2 = await domState();
+  check(`[${vpName}] drag: after ${10} moves every card is still there exactly once, no stuck drag marks, no navigation`, s2.all.length === s0.all.length + 1 && uniq(s2.all) && s2.stuck === 0 && s2.url === s0.url, `${s0.all.length}→${s2.all.length} cards, ${s2.stuck} marks, uniq ${uniq(s2.all)} dups ${s2.all.filter((h, i) => s2.all.indexOf(h) !== i)}, url ${s2.url}`);
+  const hover = await page.evaluate(() => { const a = document.querySelector("main.index-flow a.index-card"); a.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })); return new Promise((r) => setTimeout(() => r(!!document.querySelector(".is-lore-flipped")), 600)); });
+  await page.click(`main.index-flow a.index-card[href="${AG}"]`);
+  await page.waitForTimeout(300);
+  check(`[${vpName}] edit mode: no hover preview, clicking a card selects it (no navigation)`, !hover && page.url() === s0.url && await page.evaluate((h) => document.querySelector(`a.index-card[href="${h}"]`).classList.contains("ee-index-selected"), AG));
+  await page.click("#ee-idx-save");
+  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+  const i2 = T(IDX), sv = await savedState(i2);
+  check(`[${vpName}] save after drags: order saved exactly as on screen, every card once, both copies identical, no runtime artifacts`, sameOrder(sv.secs, s2.secs) && uniq(sv.all) && i2 === T(IDX2) && !ART.test(i2.replace(/<script[\s\S]*?<\/script>/g, "")), (i2.match(ART) || [""])[0] + " same " + sameOrder(sv.secs, s2.secs) + " uniq " + uniq(sv.all) + " copies " + (i2 === T(IDX2)));
+  // 3. Art: upload a big PNG on the new card, replace Aghor's art with a wide one, gallery pick for a third.
+  async function artFile(href, file) {
+    await page.click(`main.index-flow a.index-card[href="${href}"]`);
+    await page.click("#ee-idx-art");
+    await page.waitForSelector("#ee-pick-file", { timeout: 10000 });
+    await page.setInputFiles("#ee-pick-file", file);
+    await page.waitForFunction(() => /ready|could not|over 5 MB/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
+    return (await page.textContent("#ee-bar")).trim();
+  }
+  const b1 = await artFile(NEW, BIG);
+  const b2 = await artFile(AG, BIG2);
+  const third = await page.evaluate(() => [...document.querySelectorAll("main.index-flow a.index-card")].map((a) => a.getAttribute("href")).filter((h) => h !== "/articles/aghor/" && h !== "/articles/zq-test-card/")[2]);
+  await page.click(`main.index-flow a.index-card[href="${third}"]`);
+  await page.click("#ee-idx-art");
+  await page.waitForSelector("#ee-pick-wrap .ee-gal-item", { timeout: 10000 });
+  const pickPath = await page.evaluate(() => { const b = document.querySelector("#ee-pick-wrap .ee-gal-item"); const id = b.getAttribute("data-pick-id"); b.click(); return id; });
+  await page.waitForTimeout(200);
+  const prev = await page.evaluate((hs) => hs.map((h) => { const a = document.querySelector(`a.index-card[href="${h}"]`); const im = a.querySelector("img"); return { noArt: a.classList.contains("no-art"), src: im && im.getAttribute("src"), ok: im && im.complete && im.naturalWidth > 0 }; }), [NEW, AG, third]);
+  check(`[${vpName}] art: uploads show on their cards at once (from memory), big files resized`, /resized to 2400×\d+|ready \(\d+ KB/.test(b1) && /resized to 2400×800/.test(b2) && prev[0].src.startsWith("blob:") && !prev[0].noArt && prev[0].ok && prev[1].src.startsWith("blob:") && prev[1].ok, b1 + " | " + b2);
+  const cardEl = await page.$(`main.index-flow a.index-card[href="${NEW}"]`);
+  await cardEl.scrollIntoViewIfNeeded(); await page.click(`main.index-flow a.index-card[href="${NEW}"]`); await page.waitForTimeout(200);
+  if (vpName === "desktop") { fs.mkdirSync("/workspace/shots", { recursive: true }); await page.screenshot({ path: "/workspace/shots/index-card-art-test.png" }); }
+  await page.click("#ee-idx-save");
+  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
+  const i3 = T(IDX), cat = JSON.parse(T("edit/media/catalog.json"));
+  const entries = Object.values(cat.media).filter((m) => /zq-test-card|aghor\.webp/i.test(m.path));
+  const newImg = entries.map((m) => m.path).find((p) => /zq-test-card/.test(p)), agImg = entries.map((m) => m.path).find((p) => /^assets\/aghor/.test(p));
+  const nb = newImg && mock.file(newImg), ab = agImg && mock.file(agImg);
+  const ns = nb && webpSize(nb), as = ab && webpSize(ab);
+  check(`[${vpName}] art save: images committed resized as WebP (≤2400 px, well under 5 MB)`, ns && as && Math.max(ns.w, ns.h) <= 2400 && as.w === 2400 && as.h === 800 && nb.length < 5e6 && ab.length < 5e6, `${newImg} ${ns && ns.w + "x" + ns.h} ${nb && Math.round(nb.length / 1024)}KB; ${agImg} ${as && as.w + "x" + as.h} ${ab && Math.round(ab.length / 1024)}KB (picked 9 MB PNGs)`);
+  const cardHtml = (t, h) => { const m = new RegExp('<a class="index-card[^"]*"[^>]*href="' + h.replace(/\//g, "\\/") + '"[^>]*>[\\s\\S]*?<\\/a>').exec(t); return m && m[0]; };
+  const c1 = cardHtml(i3, NEW), c2 = cardHtml(i3, AG), c3 = cardHtml(i3, third);
+  const pickEntry = cat.media[pickPath];
+  check(`[${vpName}] art save: cards get site-style art markup (Cloudflare srcset), no-art dropped; replaced and gallery art too`, c1 && !/no-art/.test(c1) && c1.includes("/cdn-cgi/image/width=640,") && c1.includes(newImg) && c2 && c2.includes(agImg) && !c2.includes("Aghor.png") && c3 && pickEntry && c3.includes(encodeURI(pickEntry.path).replace(/%20/g, "%20")) || false, [c1, c2].map((x) => x && x.slice(0, 120)).join(" | "));
+  check(`[${vpName}] art save: both Index copies identical, every card once, no blob:/runtime artifacts`, i3 === T(IDX2) && uniq((await savedState(i3)).all) && !ART.test(i3.replace(/<script[\s\S]*?<\/script>/g, "")), (i3.match(ART) || [""])[0]);
+  const h1 = T("articles/zq-test-card/index.html"), h2 = T("articles/zq-test-card.html"), g1 = T("articles/aghor/index.html"), g2 = T("articles/aghor.html");
+  check(`[${vpName}] art save: the articles' hero art follows (both copies)`, h1 === h2 && /<section class="art-hero"><img src="\/assets\/zq-test-card[^"]*" alt="Zq Test Card">/.test(h1) && g1 && g1.includes('<img src="/' + agImg + '" alt="Aghor"') && g1 === g2, (h1 || "").match(/<section class="art-hero[^>]*>.{0,80}/) + "");
+  const after = await page.evaluate((h) => { const im = document.querySelector(`a.index-card[href="${h}"] img`); return { src: im.getAttribute("src"), orig: im.getAttribute("data-eimg-orig"), ok: im.naturalWidth > 0 }; }, NEW);
+  check(`[${vpName}] after save the new art keeps showing (from memory until the site has it)`, after.src.startsWith("blob:") && after.orig === "/" + newImg && after.ok, JSON.stringify(after));
+  // 4. Reload before the site rebuilds: order + art come from the kept copy (art from this browser).
+  await page.reload({ waitUntil: "load" });
+  await page.waitForFunction(() => window.EloraeRecent, null, { timeout: 15000 });
+  const rst = await page.evaluate(() => window.EloraeRecent.ready.then(() => JSON.stringify(window.EloraeRecent.status)));
+  await page.waitForTimeout(400);
+  const r1 = await domState();
+  const rimg = await page.evaluate((h) => { const im = document.querySelector(`a.index-card[href="${h}"] img`); return im && { src: im.getAttribute("src"), ok: im.complete && im.naturalWidth > 0 }; }, NEW);
+  check(`[${vpName}] reload: saved order and new art show before the site rebuilds`, /"shown"/.test(rst) && sameOrder(r1.secs, (await savedState(i3)).secs) && rimg && rimg.src.startsWith("blob:") && rimg.ok, rst + " " + JSON.stringify(rimg));
+  // 5. Organize again after the reload: one more move, save; art markup kept, nothing doubled.
+  await startOrg();
+  const st5 = await domState();
+  await drag(NEW, st5.all.filter((h) => h !== NEW)[0], "before");
+  await page.click("#ee-idx-save");
+  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+  const i4 = T(IDX), sv4 = await savedState(i4), c4 = cardHtml(i4, NEW);
+  check(`[${vpName}] organize again after reload: saved, art markup unchanged, every card once, copies identical`, i4 !== i3 && uniq(sv4.all) && sv4.all.length === s2.all.length && c4 && c4.includes(newImg) && !/blob:/.test(i4) && i4 === T(IDX2), (await page.textContent("#ee-bar")).trim().slice(0, 60));
+  check(`[${vpName}] index art: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+  // 6. From the article: hero art on a "no-art" article → its Index card gets it too.
+  const SH = "articles/shune-s-basin/";
+  if (fs.existsSync(path.join(ROOT, SH, "index.html"))) {
+    await openEdit(page, SH);
+    await page.click("#ee-art"); await page.waitForSelector("#ee-art-file", { timeout: 10000 });
+    const radio = await page.$('input[name="ee-gal-act"][value="hero"]');
+    if (radio) await radio.check();
+    await page.setInputFiles("#ee-art-file", SMALL);
+    await page.fill("#ee-art-title", "Shune Test Art");
+    await page.click("#ee-art-up"); await page.waitForTimeout(500);
+    const shown = await page.evaluate(() => { const im = document.querySelector(".art-hero img"); return im && im.getAttribute("src").startsWith("blob:") && !document.querySelector(".art-hero").classList.contains("no-art"); });
+    await page.click("#ee-save");
+    await page.waitForFunction(() => /Saved at|failed|refused/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
+    const sa = T(SH + "index.html"), sb = T("articles/shune-s-basin.html"), si = T(IDX);
+    const sc = cardHtml(si, "/articles/shune-s-basin/");
+    check(`[${vpName}] article: hero art added to a no-art hero (preview, both copies saved)`, shown && sa === sb && /<section class="art-hero"><img src="\/assets\/shune-test-art[^"]*" alt="Shune Test Art">/.test(sa), (sa.match(/<section class="art-hero[^>]*>.{0,90}/) || [""])[0]);
+    check(`[${vpName}] article: its Index card gets the same art (both Index copies)`, sc && !/no-art/.test(sc) && /shune-test-art/.test(sc) && si === T(IDX2), sc && sc.slice(0, 140));
+    check(`[${vpName}] article hero art: no page errors`, W.errs.length === 0, W.errs.join(" | "));
+  }
+  await ctx.close();
+}
+
 (async () => {
   const srv = await serverForTests();
   BASE = srv.base;
@@ -737,9 +975,10 @@ async function recentTests(browser, vpName) {
   const counts = {};
   const only = process.env.ONLY || "";
   try {
-    for (const vpName of ["desktop", "phone"]) {
-      for (const [name, fn] of [["size", sizeTests], ["diff", (b, v) => diffTests(b, v, counts[v] = {})], ["flow", flowTests], ["batch2", batch2Tests], ["align", alignTests], ["recent", recentTests]]) {
+    for (const vpName of ["desktop", "phone", "tablet"]) {
+      for (const [name, fn] of [["size", sizeTests], ["diff", (b, v) => diffTests(b, v, counts[v] = {})], ["flow", flowTests], ["batch2", batch2Tests], ["align", alignTests], ["recent", recentTests], ["indexart", indexArtTests]]) {
         if (only && only.split(",").indexOf(name) < 0) continue;
+        if (vpName === "tablet" && name !== "indexart") continue; // tablet: Index cards + art flow only
         try { await fn(browser, vpName); } catch (e) { check(`[${vpName}] ${name} stage ran without exceptions`, false, e.stack.split("\n").slice(0, 3).join(" ")); }
       }
     }

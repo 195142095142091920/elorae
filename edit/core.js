@@ -230,7 +230,7 @@
       /* Drop tokens only — permanent linked flag stays so Connect is not re-prompted. */
       try { sessionStorage.removeItem(KEY); localStorage.removeItem(KEY); } catch (e) {}
       /* Signing out also forgets any just-saved page copies kept for instant reloads (recent.js). */
-      try { localStorage.removeItem("elorae-edit-recent"); } catch (e2) {}
+      try { localStorage.removeItem("elorae-edit-recent"); if (window.indexedDB) indexedDB.deleteDatabase("elorae-edit-recent-img"); } catch (e2) {}
     },
     wasLinked: wasLinked,
     markLinked: markLinked,

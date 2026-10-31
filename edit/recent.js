@@ -39,7 +39,80 @@
     try { who = String((E && E.loginWho && E.loginWho()) || "").toLowerCase(); } catch (e2) {}
     return { login: login, who: who };
   }
-  function clear() { try { localStorage.removeItem(KEY); } catch (e) {} }
+  function clear() { try { localStorage.removeItem(KEY); } catch (e) {} clearImages(); }
+
+  /* Pictures uploaded with a save: kept as files in this browser (IndexedDB, too big for
+     localStorage) for the same 3 minutes, and shown in place of their /assets/ URLs until the
+     site has them. */
+  var DB = "elorae-edit-recent-img";
+  function idb() {
+    return new Promise(function (res, rej) {
+      if (!window.indexedDB) return rej(new Error("no idb"));
+      var r = indexedDB.open(DB, 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore("img"); };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+  }
+  function clearImages() { try { if (window.indexedDB) indexedDB.deleteDatabase(DB); } catch (e) {} }
+  function rememberImages(list) {
+    var id = me();
+    if (!id.login || !list || !list.length) return Promise.resolve();
+    return idb().then(function (db) {
+      return new Promise(function (res) {
+        var tx = db.transaction("img", "readwrite"), st = tx.objectStore("img");
+        list.forEach(function (x) { if (x && x.path && x.blob) st.put({ blob: x.blob, at: Date.now(), login: id.login, who: id.who }, x.path); });
+        tx.oncomplete = tx.onerror = tx.onabort = function () { db.close(); res(); };
+      });
+    }).catch(function () {});
+  }
+  function loadImages() {
+    var id = me();
+    if (!id.login || !window.indexedDB) return Promise.resolve({});
+    return idb().then(function (db) {
+      return new Promise(function (res) {
+        var out = {}, tx = db.transaction("img", "readwrite"), st = tx.objectStore("img"), now = Date.now();
+        var cur = st.openCursor();
+        cur.onsuccess = function () {
+          var c = cur.result;
+          if (!c) return;
+          var v = c.value;
+          if (!v || v.login !== id.login || v.who !== id.who || !(now - v.at < TTL)) c.delete();
+          else out[c.key] = v.blob;
+          c.continue();
+        };
+        tx.oncomplete = tx.onerror = tx.onabort = function () { db.close(); res(out); };
+      });
+    }).catch(function () { return {}; });
+  }
+  function imgPath(src) {
+    var s = String(src || "").trim().replace(/^https?:\/\/[^\/]+/i, "").replace(/^\/cdn-cgi\/image\/[^\/]+/i, "");
+    try { s = decodeURI(s); } catch (e) {}
+    try { s = new URL(s, location.href).pathname; s = decodeURI(s); } catch (e2) {}
+    return s.replace(/^\//, "");
+  }
+  var shownUrls = {};
+  function swapImages() {
+    return loadImages().then(function (map) {
+      var keys = Object.keys(map);
+      if (!keys.length) return 0;
+      var n = 0;
+      Array.prototype.forEach.call(document.querySelectorAll("img"), function (im) {
+        if (im.closest("#ee-panel")) return;
+        var orig = im.getAttribute("data-eimg-orig") || im.getAttribute("src");
+        if (/^blob:/.test(orig || "")) return;
+        var k = imgPath(orig);
+        if (!map[k]) return;
+        if (!shownUrls[k]) shownUrls[k] = URL.createObjectURL(map[k]);
+        im.setAttribute("data-eimg-orig", "/" + k);
+        im.setAttribute("data-eimg-fell", "1");
+        im.removeAttribute("srcset"); im.removeAttribute("sizes");
+        im.setAttribute("src", shownUrls[k]);
+        n++;
+      });
+      return n;
+    });
+  }
   function read() {
     var o = null;
     try { o = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { o = null; }
@@ -141,6 +214,8 @@
   }
   function hero(lh, sh, fh) {
     var s = heroParts(sh), f = heroParts(fh), l = heroParts(lh), ok = true;
+    // Art added to (or removed from) a hero: rebuild the hero from the saved copy.
+    if (!s.img !== !f.img || !s.h1 !== !f.h1 || !s.ep !== !f.ep) { swapRegion(lh, sh, fh); return true; }
     ["h1", "ep"].forEach(function (k) {
       if (!s[k] && !f[k]) return;
       if (!s[k] || !f[k] || !l[k]) { ok = false; return; }
@@ -231,10 +306,12 @@
           var full = false;
           try { full = apply(c.e.text, text); } catch (e) { full = false; }
           status[path] = full ? "shown" : "partial";
+          var swapped = swapImages().catch(function () {});
           try { window.dispatchEvent(new CustomEvent("elorae-content-swapped", { detail: { path: path, recent: true } })); } catch (e2) {}
           if (window.gwLightboxMark) try { window.gwLightboxMark(); } catch (e3) {}
           poll(path, c, cands);
-          return status[path];
+          var st = status[path];
+          return swapped.then(function () { return st; });
         }
       }
       drop(cands.map(function (x) { return x.path; }));
@@ -274,5 +351,5 @@
     var p = current();
     if (has(p)) R.ready = check(p);
   });
-  var R = window.EloraeRecent = { ready: ready, remember: remember, check: check, blocked: blocked, clear: clear, has: has, hash: hash, KEY: KEY, status: status };
+  var R = window.EloraeRecent = { ready: ready, remember: remember, rememberImages: rememberImages, swapImages: swapImages, check: check, blocked: blocked, clear: clear, has: has, hash: hash, KEY: KEY, status: status };
 })();

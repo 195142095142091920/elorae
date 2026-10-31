@@ -393,3 +393,8 @@ html.ee-page-editing main.ee-page .ee-locked {
 .ee-pt-24, html body .ee-pt-24.ee-pt-24.ee-pt-24 { font-size: calc((24pt) * var(--fs,1.2075)); }
 html body .ee-serif.ee-serif.ee-serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif; }
 html body .ee-sans.ee-sans.ee-sans { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+/* Index organizer: where a dragged card will land */
+html.ee-index-org a.index-card.ee-index-before { box-shadow: -3px 0 0 0 rgba(243,238,230,.85); }
+html.ee-index-org a.index-card.ee-index-after { box-shadow: 3px 0 0 0 rgba(243,238,230,.85); }
+html.ee-index-org a.index-card img { pointer-events: none; -webkit-user-drag: none; }
