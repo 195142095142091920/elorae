@@ -1101,26 +1101,6 @@
         "sawyer"
       ],
       "everyone": true
-    },
-    "zz-live-check": {
-      "path": "assets/zz-live-check.png",
-      "title": "Zz Live Check",
-      "tags": [
-        "card"
-      ],
-      "uploadedBy": "devin",
-      "date": "2026-10-31T04:08:52.652Z",
-      "owner": "devin",
-      "allowed": [
-        "devin",
-        "jack",
-        "jon",
-        "julie",
-        "sawyer",
-        "sylum",
-        "jason"
-      ],
-      "everyone": true
     }
   }
 }
