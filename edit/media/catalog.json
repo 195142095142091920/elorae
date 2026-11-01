@@ -1457,6 +1457,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "filibeth-in-the-kbas": {
+      "path": "assets/filibeth-in-the-kbas.webp",
+      "title": "Filibeth in the K'bas",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-01T03:41:48.216Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
