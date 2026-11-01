@@ -1437,6 +1437,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "the-starry-kingdom-2": {
+      "path": "assets/the-starry-kingdom-2.webp",
+      "title": "The Starry Kingdom",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-01T01:54:51.176Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
