@@ -1517,6 +1517,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "asenia": {
+      "path": "assets/asenia.webp",
+      "title": "Asenia",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-01T21:13:45.570Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
