@@ -1557,6 +1557,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "balamad": {
+      "path": "assets/balamad.jpg",
+      "title": "Balamad",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-01T23:24:00.733Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
