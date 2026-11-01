@@ -1397,6 +1397,46 @@
         "jason"
       ],
       "everyone": true
+    },
+    "alaric-morn-2": {
+      "path": "assets/alaric-morn-2.webp",
+      "title": "Alaric Morn",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-01T00:43:07.501Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "alaric-morn-ii": {
+      "path": "assets/alaric-morn-ii.webp",
+      "title": "Alaric Morn II",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-01T00:43:07.501Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
