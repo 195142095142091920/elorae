@@ -1497,6 +1497,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "ara-tess": {
+      "path": "assets/ara-tess.webp",
+      "title": "Ara Tess",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-01T20:18:39.412Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
