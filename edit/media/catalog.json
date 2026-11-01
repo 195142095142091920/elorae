@@ -1537,6 +1537,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "astar": {
+      "path": "assets/astar.jpg",
+      "title": "Astar",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-01T22:18:23.901Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
