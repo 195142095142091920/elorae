@@ -1657,6 +1657,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "fell": {
+      "path": "assets/fell.webp",
+      "title": "Fell",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-02T04:38:41.355Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
