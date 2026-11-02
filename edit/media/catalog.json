@@ -1597,6 +1597,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "etyana": {
+      "path": "assets/etyana.webp",
+      "title": "Etyana",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-02T04:19:27.480Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
