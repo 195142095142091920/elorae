@@ -1637,6 +1637,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "eshrag-2": {
+      "path": "assets/eshrag-2.webp",
+      "title": "Eshrag",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-02T04:23:21.360Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
