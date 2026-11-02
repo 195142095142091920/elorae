@@ -1617,6 +1617,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "eshrag": {
+      "path": "assets/eshrag.webp",
+      "title": "Eshrag",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-02T04:19:56.829Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
