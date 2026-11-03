@@ -5257,3 +5257,31 @@ body.article section.art-hero > img.art-fit-on:focus-visible { outline: 1px soli
 @media (prefers-reduced-motion: reduce) {
   body.article section.art-hero > img.art-fit-anim { transition: none; }
 }
+
+/* tt1: the name / epithet travel from the art into the top of the text panel (title-travel.js). */
+body.article main.art-body > .art-tt { margin: 0 0 44px; transform-origin: 0 0; pointer-events: none; user-select: none; -webkit-user-select: none; position: relative; z-index: 3; }
+body.article main.art-body > .art-tt p { margin: 0; }
+html.tt-on:not(.tt-reduce) body.article > section.art-hero > .art-title { opacity: 0; }
+html.tt-on:not(.tt-reduce):not(.tt-sda) body.article main.art-body > .art-tt { will-change: transform; }
+@supports (animation-timeline: scroll()) {
+  /* Base = the start pose, so the copy still sits on the hero title if the scroll timeline is
+     momentarily inactive (page not scrollable yet while gated content loads). */
+  html.tt-on.tt-sda body.article main.art-body > .art-tt {
+    transform: translate(var(--tt-dx, 0px), var(--tt-dy, 0px)) scale(var(--tt-k, 1));
+    animation: tt-travel linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0px var(--tt-r, 200px);
+  }
+  html.tt-on.tt-reduce body.article > section.art-hero > .art-title {
+    animation: tt-fade linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0px var(--tt-fade, 48px);
+  }
+}
+html.tt-measure body.article main.art-body > .art-tt { animation: none !important; transform: none !important; }
+html.ee-editing body.article main.art-body > .art-tt { display: none !important; }
+@keyframes tt-travel {
+  from { transform: translate(var(--tt-dx, 0px), var(--tt-dy, 0px)) scale(var(--tt-k, 1)); }
+  to { transform: none; }
+}
+@keyframes tt-fade { from { opacity: 1; } to { opacity: 0; } }

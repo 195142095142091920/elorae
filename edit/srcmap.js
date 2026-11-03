@@ -132,6 +132,7 @@
     if ({ nav: 1, aside: 1, script: 1, style: 1, form: 1, button: 1, header: 1, details: 1, summary: 1, template: 1, svg: 1, canvas: 1, iframe: 1 }[n.tag]) return true;
     if (n.id === "related" || n.id === "section-bar") return true;
     if (c.indexOf("toc") >= 0 || c.indexOf("art-related") >= 0 || c.indexOf("art-rel-head") >= 0 || c.indexOf("art-swap") >= 0) return true;
+    if (c.indexOf("art-tt") >= 0) return true; // tt1: the travelling title copy (title-travel.js) is runtime only
     return false;
   }
   function hasBlockDescendant(n, A) {
