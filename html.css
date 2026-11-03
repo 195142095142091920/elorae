@@ -5314,3 +5314,11 @@ html:not(.ee-page-editing) figcaption:empty { display: none; }
 @media (min-width: 801px) {
   body.article { overflow-x: clip; }
 }
+
+/* fig1: more air around the pictures on the Atlas and Codex pages (LegendKeeper imagery):
+   about 1.2em above the picture and below its caption, in the text's own size so it scales with --fs. */
+body:has(#section-bar > a[href^="/atlas/"]) main.read figure,
+body:has(#section-bar > a[href^="/codex/"]) main.read figure {
+  margin-top: 1.2em;
+  margin-bottom: 1.2em;
+}
