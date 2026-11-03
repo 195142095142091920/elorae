@@ -1,7 +1,7 @@
 .journal-read .codex-h {
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
   font-weight: 400;
-  font-size: calc((28px) * var(--fs,1.2075));
+  font-size: calc((28px) * var(--fs,1.5094));
   letter-spacing: 0.04em;
   color: #f3eee6;
   margin: 8px 0 22px;
@@ -23,7 +23,7 @@
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
   font-weight: 400;
   font-style: italic;
-  font-size: calc((26px) * var(--fs,1.2075));
+  font-size: calc((26px) * var(--fs,1.5094));
   letter-spacing: 0.02em;
   color: #f3eee6;
   margin: 96px 0 8px;
@@ -46,7 +46,7 @@ body.lore-page .journal-read > .codex-title:first-child {
 .journal-read .codex-h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
-  font-size: calc((12px) * var(--fs,1.2075));
+  font-size: calc((12px) * var(--fs,1.5094));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #cfc6b8;
@@ -54,7 +54,7 @@ body.lore-page .journal-read > .codex-title:first-child {
 }
 .journal-read .codex-by {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.2075));
+  font-size: calc((11px) * var(--fs,1.5094));
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #9a948a;
@@ -79,7 +79,7 @@ body.lore-page .journal-read > .codex-title:first-child {
 .journal-read .codex-quote p {
   font-family: "Iowan Old Style", Palatino, serif;
   font-style: normal;
-  font-size: calc((20px) * var(--fs,1.2075));
+  font-size: calc((20px) * var(--fs,1.5094));
   line-height: 1.7;
   color: #ece6db;
   margin: 0;
@@ -89,20 +89,20 @@ body.lore-page .journal-read > .codex-title:first-child {
   margin-top: 12px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
-  font-size: calc((11px) * var(--fs,1.2075));
+  font-size: calc((11px) * var(--fs,1.5094));
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #9a948a;
 }
 .journal-read p {
-  font-size: calc((18px) * var(--fs,1.2075));
+  font-size: calc((18px) * var(--fs,1.5094));
   font-style: normal;
   line-height: 1.72;
   color: #e8e2d8;
 }
 .journal-read .codex-cap {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.2075));
+  font-size: calc((12px) * var(--fs,1.5094));
   letter-spacing: 0.08em;
   font-style: italic;
   color: #9a948a;
@@ -116,7 +116,7 @@ body.lore-page .journal-read > .codex-title:first-child {
 .journal-read .codex-toc li {
   font-family: "Iowan Old Style", Palatino, serif;
   font-style: normal;
-  font-size: calc((16px) * var(--fs,1.2075));
+  font-size: calc((16px) * var(--fs,1.5094));
   line-height: 1.7;
   color: #d8d1c6;
   padding: 4px 0;
@@ -171,7 +171,7 @@ body.lore-page::before {
   margin: 0 0 18px;
   flex: 0 0 auto;
   font-family: "Iowan Old Style", Palatino, serif;
-  font-size: calc((24px) * var(--fs,1.2075));
+  font-size: calc((24px) * var(--fs,1.5094));
   letter-spacing: 0.06em;
   text-transform: none;
   color: #f3eee6;
@@ -187,7 +187,7 @@ body.lore-page::before {
 .lore-rail .codex-toc li {
   font-family: "Iowan Old Style", Palatino, serif;
   font-style: normal;
-  font-size: calc((15px) * var(--fs,1.2075));
+  font-size: calc((15px) * var(--fs,1.5094));
   line-height: 1.45;
   color: #d2cbc0;
   padding: 7px 0;
@@ -224,7 +224,7 @@ body.lore-page .journal-read {
 }
 .journal-read .codex-table th {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.2075));
+  font-size: calc((11px) * var(--fs,1.5094));
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #9a948a;
@@ -233,19 +233,19 @@ body.lore-page .journal-read {
 }
 .journal-read .codex-table td {
   font-family: "Iowan Old Style", Palatino, serif;
-  font-size: calc((16px) * var(--fs,1.2075));
+  font-size: calc((16px) * var(--fs,1.5094));
   color: #e8e2d8;
   border-bottom: 1px solid rgba(243,238,230,0.08);
 }
 .journal-read .codex-school {
   margin: 0 0 22px;
-  font-size: calc((17px) * var(--fs,1.2075));
+  font-size: calc((17px) * var(--fs,1.5094));
   line-height: 1.6;
 }
 .journal-read .codex-school span {
   font-family: "Iowan Old Style", Palatino, serif;
   font-style: italic;
-  font-size: calc((20px) * var(--fs,1.2075));
+  font-size: calc((20px) * var(--fs,1.5094));
   color: #f3eee6;
 }
 .journal-read .codex-school em {
@@ -253,7 +253,7 @@ body.lore-page .journal-read {
   margin-top: 6px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: italic;
-  font-size: calc((12px) * var(--fs,1.2075));
+  font-size: calc((12px) * var(--fs,1.5094));
   letter-spacing: 0.06em;
   color: #9a948a;
 }
@@ -266,7 +266,7 @@ body.lore-page .journal-read {
 }
 .chapter-tabs a {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.2075));
+  font-size: calc((11px) * var(--fs,1.5094));
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #8f8a82;
@@ -303,13 +303,13 @@ body.lore-page .journal-read {
     background: #070707;
     color: #f3eee6;
     font-family: "Iowan Old Style", Palatino, serif;
-    font-size: calc((20px) * var(--fs,1.2075));
+    font-size: calc((20px) * var(--fs,1.5094));
     letter-spacing: 0.04em;
   }
   .lore-toc-toggle::after {
     content: "+";
     margin-left: 10px;
-    font-size: calc((16px) * var(--fs,1.2075));
+    font-size: calc((16px) * var(--fs,1.5094));
     color: #9a948a;
   }
   .lore-rail.open .lore-toc-toggle::after { content: "\2013"; }
@@ -329,7 +329,7 @@ body.lore-page .journal-read {
     max-height: none;
   }
   .lore-rail .codex-toc li {
-    font-size: calc((16px) * var(--fs,1.2075));
+    font-size: calc((16px) * var(--fs,1.5094));
     padding: 9px 0;
   }
   body.lore-page .journal-read {

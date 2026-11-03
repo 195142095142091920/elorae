@@ -112,8 +112,10 @@ async function sizeTests(browser, vpName) {
   await pick(page, "#ee-size", "12");
   const i12 = await info(page);
   check(`[${vpName}] caret Size 12: paragraph not duplicated`, i12.text === text0 && i12.spans === 0, `len ${text0.length}→${i12.text.length}`);
-  // Body text is 14pt on desktop and 12pt (16px) on phones.
-  check(`[${vpName}] caret Size 12: class on the paragraph, 16px font, line box follows`, /\bee-pt-12\b/.test(i12.cls) && Math.abs(i12.fs - 16) < 0.1 && (i0.fs > 16.5 ? i12.h < i0.h : i12.h <= i0.h), `fs ${i0.fs}→${i12.fs} h ${i0.h}→${i12.h}`);
+  // Body text is 14pt on desktop and 12pt on phones; every size is scaled by the site text scale --fs (fs125: 1.5094).
+  const FSV = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--fs")) || 1);
+  const px12 = 16 * FSV;
+  check(`[${vpName}] caret Size 12: class on the paragraph, 12pt (16px × --fs) font, line box follows`, /\bee-pt-12\b/.test(i12.cls) && Math.abs(i12.fs - px12) < 0.1 && (i0.fs > px12 + 0.5 ? i12.h < i0.h : i12.h <= i0.h), `--fs ${FSV} fs ${i0.fs}→${i12.fs} (want ${px12.toFixed(2)}) h ${i0.h}→${i12.h}`);
   await caretIn(page, LORE, 0.6); await pick(page, "#ee-size", "24");
   const i24 = await info(page);
   await caretIn(page, LORE, 0.5); await pick(page, "#ee-size", "12");

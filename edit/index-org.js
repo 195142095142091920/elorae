@@ -792,15 +792,15 @@
     return '<!doctype html>\n<html lang="en">\n<head>\n<script src="/session-gate.js?v=jason-ghost"><\/script>\n<script src="/back-scroll.js?v=bs1"><\/script>\n\n<meta charset="utf-8">\n' +
       '<script src="/img.js?v=img-resize"><\/script>\n<script src="/cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>' + title + ' - Elorae</title>\n' +
-      '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=wide1">\n<link rel="stylesheet" href="/html.css?v=ic1">\n' +
-      '<script src="/rail-toggle.js?v=nfs1"><\/script>\n<script src="/skip-link.js?v=fs12"><\/script>\n<link rel="icon" href="/favicon.svg">\n</head>\n<body class="article">\n' +
+      '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=fs125">\n<link rel="stylesheet" href="/html.css?v=fs125">\n' +
+      '<script src="/rail-toggle.js?v=nfs1"><\/script>\n<script src="/skip-link.js?v=fs125"><\/script>\n<link rel="icon" href="/favicon.svg">\n</head>\n<body class="article">\n' +
       '<div class="mast"><header class="topbar"><span class="mark"></span><form action="/search/"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="/atlas/">Atlas</a><a class="" href="/codex/lore/">Codex</a><a class="active" href="/index/ancients/">Index</a><a class="" href="/journal/">Journal</a></nav></header></div>\n' +
       '<a class="art-back" href="/index/ancients/#' + esc(catId) + '">Index</a>\n' +
       '<section class="art-hero no-art"><div class="art-title"><h1>' + title + '</h1><p class="art-epithet"></p></div></section>\n' +
       '<main class="art-body">\n' + dossier + '<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n</main>\n' +
-      '<script src="/search.js?v=vt1"><\/script><script src="/login.js?v=vt1"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
+      '<script src="/search.js?v=fs125"><\/script><script src="/login.js?v=vt1"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=rd1"><\/script>\n<script src="/rail-sections.js?v=vt1"><\/script>\n' +
-      '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
+      '<script src="/article-siblings.js?v=fs125"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="/peek.js?v=vt1" defer><\/script>\n<script src="/art-fit.js?v=af1" defer><\/script>\n<script src="/title-travel.js?v=tt1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
   var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "pf1"; })();

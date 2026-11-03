@@ -1,6 +1,6 @@
-/* Site-wide text scale (font test: 1.05 x 1.15): every font-size is calc(... * var(--fs)). Set 1 to undo. */
-:root { --fs: 1.2075; }
-html { font-size: calc(100% * var(--fs, 1.2075)); }
+/* Site-wide text scale: 1.2075 x 1.25 (the 125%-zoom look) = 1.5094. Every font-size is calc(... * var(--fs)). Set 1 to undo. */
+:root { --fs: 1.5094; }
+html { font-size: calc(100% * var(--fs,1.5094)); }
 :root {
   --bg: #070707;
   --ink: #f3eee6;
@@ -50,7 +50,7 @@ body::after {
   padding: 22px var(--pad);
   letter-spacing: 0.28em;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.2075));
+  font-size: calc((11px) * var(--fs,1.5094));
   text-transform: uppercase;
   color: #e8e2d8;
   background: var(--bg);
@@ -73,7 +73,7 @@ body::after {
   gap: 16px;
   padding: 0 var(--pad) 16px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.2075));
+  font-size: calc((11px) * var(--fs,1.5094));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #8f8a82;
@@ -89,7 +89,7 @@ body::after {
   .chapter-tabs,
   .atlas-tabs,
   .nav-menu a {
-    font-size: calc((14.3px) * var(--fs,1.2075));
+    font-size: calc((14.3px) * var(--fs,1.5094));
   }
 }
 
@@ -127,7 +127,7 @@ body::after {
   z-index: 6;
   text-align: center;
   font-weight: 400;
-  font-size: calc((clamp(28px, 3.4vw, 44px)) * var(--fs,1.2075));
+  font-size: calc((clamp(28px, 3.4vw, 44px)) * var(--fs,1.5094));
   letter-spacing: 0.34em;
   text-transform: uppercase;
   color: #f4efe6;
@@ -145,7 +145,7 @@ body::after {
   align-items: center;
   gap: 18px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((13px) * var(--fs,1.2075));
+  font-size: calc((13px) * var(--fs,1.5094));
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: #fff;
@@ -182,7 +182,7 @@ body::after {
   left: 14px;
   bottom: 12px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.2075));
+  font-size: calc((11px) * var(--fs,1.5094));
   letter-spacing: 0.16em;
   text-transform: uppercase;
   opacity: 0;
@@ -205,7 +205,7 @@ body::after {
   height: 48px;
   display: grid;
   place-items: center;
-  font-size: calc((36px) * var(--fs,1.2075));
+  font-size: calc((36px) * var(--fs,1.5094));
   color: #efe8dc;
   opacity: 0.4;
 }
@@ -228,7 +228,7 @@ body::after {
   background: none;
   color: #cfc6b8;
   font: inherit;
-  font-size: calc((12px) * var(--fs,1.2075));
+  font-size: calc((12px) * var(--fs,1.5094));
   line-height: 1.3;
   cursor: pointer;
   flex: 0 0 auto;
@@ -267,7 +267,7 @@ body::after {
 }
 .lore p {
   line-height: 1.55;
-  font-size: calc((16px) * var(--fs,1.2075));
+  font-size: calc((16px) * var(--fs,1.5094));
   color: #e7dfd3;
   text-shadow:
     0 1px 2px rgba(0,0,0,0.85),
@@ -277,7 +277,7 @@ body::after {
 .lore p + p { margin-top: 12px; }
 .lore .say {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.2075));
+  font-size: calc((12px) * var(--fs,1.5094));
   letter-spacing: 0.06em;
   color: #b7b0a4;
 }
@@ -319,8 +319,8 @@ body::after {
   border-bottom: 1px solid #1c1c1c;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-.index-name { font-size: calc((13px) * var(--fs,1.2075)); letter-spacing: 0.08em; text-transform: uppercase; }
-.index-cap { font-size: calc((13px) * var(--fs,1.2075)); color: #8f8a82; }
+.index-name { font-size: calc((13px) * var(--fs,1.5094)); letter-spacing: 0.08em; text-transform: uppercase; }
+.index-cap { font-size: calc((13px) * var(--fs,1.5094)); color: #8f8a82; }
 
 .atlas-page {
   position: relative;
@@ -423,7 +423,7 @@ body::after {
   gap: 4px 8px;
   padding: 4px var(--pad) 18px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((11px) * var(--fs,1.2075));
+  font-size: calc((11px) * var(--fs,1.5094));
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #b7b0a4;
@@ -463,14 +463,14 @@ body::after {
 .journal-read h2 {
   text-align: center;
   font-weight: 400;
-  font-size: calc((26px) * var(--fs,1.2075));
+  font-size: calc((26px) * var(--fs,1.5094));
   letter-spacing: 0.03em;
   margin-bottom: 28px;
   padding-bottom: 18px;
   border-bottom: 1px solid rgba(243,238,230,0.12);
 }
 .journal-read p {
-  font-size: calc((18px) * var(--fs,1.2075));
+  font-size: calc((18px) * var(--fs,1.5094));
   line-height: 1.75;
   color: #f0e9de;
   margin: 0 0 18px;
@@ -487,7 +487,7 @@ body::after {
   margin-top: 8px;
   text-align: center;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.2075));
+  font-size: calc((12px) * var(--fs,1.5094));
   color: #b7b0a4;
 }
 
@@ -495,7 +495,7 @@ body::after {
   padding: 12px 4px;
   color: #8f8a82;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((12px) * var(--fs,1.2075));
+  font-size: calc((12px) * var(--fs,1.5094));
   letter-spacing: .14em;
   text-transform: uppercase;
 }
@@ -508,13 +508,13 @@ body::after {
   .filters { gap: 12px; }
   .subbar { gap: 10px; letter-spacing: 0.12em; padding-bottom: 12px; }
   .cover-mark { top: max(22px, calc(env(safe-area-inset-top) + 8px)); letter-spacing: 0.22em; }
-  .cover-nav { gap: 10px; font-size: calc((11px) * var(--fs,1.2075)); letter-spacing: 0.16em; bottom: max(22px, calc(env(safe-area-inset-bottom) + 8px)); }
+  .cover-nav { gap: 10px; font-size: calc((11px) * var(--fs,1.5094)); letter-spacing: 0.16em; bottom: max(22px, calc(env(safe-area-inset-bottom) + 8px)); }
 
 
 
 
   .more{
-    font-size: calc((11px) * var(--fs,1.2075));
+    font-size: calc((11px) * var(--fs,1.5094));
     line-height: 1.35;
     letter-spacing: 0.04em;
     min-height: 32px;
@@ -546,7 +546,7 @@ body::after {
     top: 34%;
     width: 72px;
     height: 140px;
-    font-size: calc((36px) * var(--fs,1.2075));
+    font-size: calc((36px) * var(--fs,1.5094));
     pointer-events: auto;
   }
   .arrow.prev { left: 0; }

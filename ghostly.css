@@ -16,33 +16,33 @@ body.gw-page main.read .gw-banner img {
 body.gw-page main.read > h1.gw-title {
   position: relative; margin: -72px 0 40px; padding: 0; border: 0;
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  font-size: calc((34px) * var(--fs,1.2075)); line-height: 1.2; font-weight: 400; letter-spacing: 0.01em;
+  font-size: calc((34px) * var(--fs,1.5094)); line-height: 1.2; font-weight: 400; letter-spacing: 0.01em;
   text-align: left; color: #f3eee6; text-shadow: 0 2px 18px rgba(0,0,0,.9);
 }
 body.gw-page main.read > h1[id] {
   margin: 0 0 6px; padding: 0; border: 0; text-align: left;
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  font-size: calc((30px) * var(--fs,1.2075)); line-height: 1.2; font-weight: 600; letter-spacing: 0.01em; color: #f3eee6;
+  font-size: calc((30px) * var(--fs,1.5094)); line-height: 1.2; font-weight: 600; letter-spacing: 0.01em; color: #f3eee6;
   scroll-margin-top: 116px;
 }
 body.gw-page main.read > h1[id] strong { font-weight: inherit; }
 body.gw-page main.read h3 {
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  font-size: calc((20px) * var(--fs,1.2075)); line-height: 1.3; font-weight: 600; letter-spacing: 0; text-transform: none;
+  font-size: calc((20px) * var(--fs,1.5094)); line-height: 1.3; font-weight: 600; letter-spacing: 0; text-transform: none;
   color: #ece6db; margin: 14px 0 4px;
 }
 body.gw-page main.read h3 strong { font-weight: inherit; }
 body.gw-page main.read h4 {
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  font-size: calc((17px) * var(--fs,1.2075)); line-height: 1.45; font-weight: 600; color: #cfc6b8; margin: 4px 0 14px;
+  font-size: calc((17px) * var(--fs,1.5094)); line-height: 1.45; font-weight: 600; color: #cfc6b8; margin: 4px 0 14px;
 }
 body.gw-page main.read h5 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((14px) * var(--fs,1.2075)); line-height: 1.5; font-weight: 600; letter-spacing: 0.04em; color: #b9b1a5; margin: 2px 0 10px;
+  font-size: calc((14px) * var(--fs,1.5094)); line-height: 1.5; font-weight: 600; letter-spacing: 0.04em; color: #b9b1a5; margin: 2px 0 10px;
 }
 body.gw-page main.read h6 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: calc((13px) * var(--fs,1.2075)); line-height: 1.5; font-weight: 600; letter-spacing: 0.02em; color: #cfc6b8;
+  font-size: calc((13px) * var(--fs,1.5094)); line-height: 1.5; font-weight: 600; letter-spacing: 0.02em; color: #cfc6b8;
   margin: 10px 0 0; text-transform: none;
 }
 body.gw-page main.read blockquote {
@@ -50,7 +50,7 @@ body.gw-page main.read blockquote {
 }
 body.gw-page main.read blockquote h5 {
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  font-size: calc((17px) * var(--fs,1.2075)); line-height: 1.6; font-weight: 600; letter-spacing: 0; color: #e6dfd3; margin: 0;
+  font-size: calc((17px) * var(--fs,1.5094)); line-height: 1.6; font-weight: 600; letter-spacing: 0; color: #e6dfd3; margin: 0;
 }
 body.gw-page main.read hr {
   border: 0; border-top: 1px solid rgba(243,238,230,0.16); margin: 36px 0; height: 0;
@@ -59,16 +59,16 @@ body.gw-page main.read figure.gw-fig { margin: 22px 0; }
 body.gw-page main.read figure.gw-fig img { display: block; width: 100%; height: auto; border-radius: 8px; }
 body.gw-page main.read ul { margin: 10px 0 22px; padding-left: 1.3em; list-style: disc; }
 body.gw-page main.read li {
-  font-size: calc((18px) * var(--fs,1.2075)); line-height: 1.7; color: #f0e9de; margin: 0 0 8px;
+  font-size: calc((18px) * var(--fs,1.5094)); line-height: 1.7; color: #f0e9de; margin: 0 0 8px;
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", serif;
 }
 body.gw-page main.read li::marker { color: #8f8a82; }
 body.gw-page main.read > p { margin: 0 0 16px; }
 @media (max-width: 800px) {
   body.gw-page main.read .gw-banner { height: 180px; margin-left: -22px; margin-right: -22px; margin-bottom: 24px; }
-  body.gw-page main.read > h1.gw-title { font-size: calc((26px) * var(--fs,1.2075)); margin: -48px 0 28px; }
-  body.gw-page main.read > h1[id] { font-size: calc((26px) * var(--fs,1.2075)); scroll-margin-top: 170px; }
-  body.gw-page main.read li { font-size: calc((17px) * var(--fs,1.2075)); }
+  body.gw-page main.read > h1.gw-title { font-size: calc((26px) * var(--fs,1.5094)); margin: -48px 0 28px; }
+  body.gw-page main.read > h1[id] { font-size: calc((26px) * var(--fs,1.5094)); scroll-margin-top: 170px; }
+  body.gw-page main.read li { font-size: calc((17px) * var(--fs,1.5094)); }
 }
 /* Phone: six tabs do not fit the one-row secondary bar, so the row scrolls sideways
    (same height and type as every other #section-bar); ghostly.js centres the active tab. */
@@ -95,5 +95,5 @@ main.read.gw img.gw-zoomable:focus-visible { outline: 1px solid rgba(243,238,230
 main.read.gw img[data-gwm]:not([src]){background:rgba(243,238,230,.035)}
 /* Phone: the Chapters drop lists three groups; keep their small labels (Journals, tab name). */
 @media (max-width: 800px) {
-  body.gw-page .toc-drop > .toc-list > h3.toc-more { display: block; margin: 16px 0 6px !important; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: calc((10px) * var(--fs,1.2075)); font-weight: 400; letter-spacing: .22em; text-transform: uppercase; color: #8f8a82; }
+  body.gw-page .toc-drop > .toc-list > h3.toc-more { display: block; margin: 16px 0 6px !important; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: calc((10px) * var(--fs,1.5094)); font-weight: 400; letter-spacing: .22em; text-transform: uppercase; color: #8f8a82; }
 }
