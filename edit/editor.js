@@ -424,6 +424,7 @@
         addDirtyListeners();
         state.editing = true;
         editBar();
+        dossierTools();
         ensureStyleBar();
         return;
       }
@@ -578,16 +579,10 @@
     var ot = cur ? Media.artTemplate(cur) : null;
     var lc = function (x) { return norm(x).toLowerCase(); };
     var oldF = (ot ? ot.fields : []).map(lc), newF = (nt ? nt.fields : []).map(lc);
-    var dl = dossierEl(), sec;
+    var dl = dossierEl();
     if (!dl) {
-      if (!nt) return;
-      sec = document.createElement("section");
-      sec.className = "art-sec"; sec.id = "dossier";
-      sec.innerHTML = "<h2>Dossier</h2>";
-      dl = document.createElement("dl"); dl.className = "art-dossier";
-      sec.appendChild(dl);
-      var desc = main.querySelector(":scope > #description");
-      if (desc) desc.after(sec); else main.insertBefore(sec, main.firstElementChild);
+      if (!nt) { editBar("No template \u00b7 use + Add dossier to start one"); return; }
+      dl = ensureDossier();
     }
     // Drop the old type's rows that are still empty (and not part of the new type).
     Array.prototype.slice.call(dl.querySelectorAll(":scope > dt")).forEach(function (dt) {
@@ -615,11 +610,92 @@
     editBar(nt ? "Template: " + nt.label + (added ? " \u00b7 " + added + " field" + (added > 1 ? "s" : "") + " added" : "") + " \u00b7 Save to publish" : "No template \u00b7 empty fields removed \u00b7 Save to publish");
     var first = nt && Array.prototype.filter.call(dl.querySelectorAll(":scope > dd"), ddEmpty)[0];
     if (first) { try { first.scrollIntoView({ block: "center" }); } catch (e) {} }
+    dossierTools();
+  }
+  /* dos1: a Dossier can be started on any article, and any field added, not only via a template.
+     The page gets a "+ Add dossier" control where the Dossier goes (after Description, before
+     the rest) when there is none, and "+ Add field" under an existing one. Both are editor UI
+     (data-ee-ui: never saved). Enter in a field name moves to its value; Enter in a value starts
+     the next field (Shift+Enter: a line break inside the value). Rows left with no name and no
+     value are dropped on Save; a Dossier started in this session and left empty goes too. */
+  function ensureDossier() {
+    var dl = dossierEl(); if (dl) return dl;
+    var main = state.page.el;
+    var sec = document.createElement("section");
+    sec.className = "art-sec"; sec.id = "dossier";
+    sec.innerHTML = "<h2>Dossier</h2>";
+    dl = document.createElement("dl"); dl.className = "art-dossier";
+    sec.appendChild(dl);
+    var desc = main.querySelector(":scope > #description");
+    if (desc) desc.after(sec); else main.insertBefore(sec, main.firstElementChild);
+    return dl;
+  }
+  function removeDossierTools() {
+    Array.prototype.forEach.call(document.querySelectorAll(".ee-dossier-tools"), function (n) { n.remove(); });
+  }
+  function caretAt(node) {
+    try {
+      var r = document.createRange(); r.selectNodeContents(node); r.collapse(false);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      if (state.page && state.page.el.focus) state.page.el.focus({ preventScroll: true });
+      sel.removeAllRanges(); sel.addRange(r);
+    } catch (e) {}
+  }
+  function addDossierField(after) {
+    if (!templatesAllowed()) return null;
+    var had = !!dossierEl();
+    var dl = ensureDossier();
+    var dt = document.createElement("dt"), dd = document.createElement("dd");
+    if (after && after.parentNode === dl) { after.after(dt); dt.after(dd); } else { dl.appendChild(dt); dl.appendChild(dd); }
+    state.dirty = true;
+    dossierTools();
+    caretAt(dt);
+    try { dt.scrollIntoView({ block: "nearest" }); } catch (e) {}
+    editBar((had ? "Field added" : "Dossier added") + " \u00b7 type the field name, Enter, then its value \u00b7 Save to publish");
+    return dt;
+  }
+  function dossierTools() {
+    removeDossierTools();
+    if (!templatesAllowed()) return;
+    var main = state.page.el, dl = dossierEl();
+    var box = el("div", { "class": "ee-dossier-tools", "data-ee-ui": "1", contenteditable: "false" },
+      '<button type="button" class="ee-dos-add" data-ee-dos="1">' + (dl ? "+ Add field" : "+ Add dossier") + "</button>");
+    if (dl) dl.after(box);
+    else {
+      var desc = main.querySelector(":scope > #description");
+      if (desc) desc.after(box); else main.insertBefore(box, main.firstElementChild);
+    }
+    box.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    box.addEventListener("click", function (e) {
+      if (!e.target.closest("[data-ee-dos]")) return;
+      e.preventDefault(); e.stopPropagation();
+      addDossierField();
+    });
+  }
+  // Enter inside the Dossier (onKey): name -> its value; value -> a new field after it.
+  function dossierEnter(e) {
+    var n = selNode(), cell = n && n.closest && n.closest("main.art-body dl.art-dossier > dt, main.art-body dl.art-dossier > dd");
+    if (!cell || !templatesAllowed()) return false;
+    if (cell.tagName === "DT") {
+      var dd = cell.nextElementSibling;
+      if (!dd || dd.tagName !== "DD") { dd = document.createElement("dd"); cell.after(dd); }
+      caretAt(dd); return true;
+    }
+    if (e.shiftKey) return false;
+    addDossierField(cell);
+    return true;
   }
   // Before save: a field emptied while editing (often a lone <br>) is saved truly empty, so viewers never see it.
   function tidyDossier() {
     var dl = dossierEl(); if (!dl) return;
     Array.prototype.forEach.call(dl.querySelectorAll(":scope > dd"), function (dd) { if (ddEmpty(dd) && dd.innerHTML !== "") dd.innerHTML = ""; });
+    Array.prototype.forEach.call(dl.querySelectorAll(":scope > dt"), function (dt) {
+      if (!norm(dt.textContent) && dt.innerHTML !== "") dt.innerHTML = "";
+      var dd = dt.nextElementSibling;
+      if (!norm(dt.textContent) && (!dd || dd.tagName !== "DD" || ddEmpty(dd))) { if (dd && dd.tagName === "DD") dd.remove(); dt.remove(); }
+    });
+    var box = dl.closest("section.art-sec");
+    if (!dl.querySelector("dt, dd") && box && box.id === "dossier" && !(pageSrc().map && pageSrc().map.get(box))) box.remove();
   }
 
   /* ---------------- Styling toolbar (caret block) ---------------- */
@@ -2275,6 +2351,7 @@
       e.preventDefault();
       // Name/epithet stay single-line (site header).
       if (isTitleField(e.target) || isTitleField(selNode())) return;
+      if (state.page && dossierEnter(e)) return;
       if (!e.shiftKey && state.page && enterParagraph()) return;
       document.execCommand("insertLineBreak");
     }
@@ -2639,6 +2716,7 @@
   }
   function stopEditing() {
     closeTemplateMenu();
+    removeDossierTools();
     if (state.page && state.page.el) {
       var mainEl = state.page.el;
       mainEl.removeAttribute("contenteditable");
@@ -3027,7 +3105,7 @@
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
         "<script src=\"/peek.js?v=bs1\" defer></script>\n" +
-        "<script src=\"/edit/edit.js?v=bs1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=dos1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },

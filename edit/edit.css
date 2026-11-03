@@ -597,3 +597,15 @@ html.ee-editing body.article .art-dossier dd:empty::before { content: "\2014"; c
   #ee-bar .ee-btn { letter-spacing: .14em; }
   #ee-bar .ee-wide-only { display: none; }
 }
+
+/* dos1: start a Dossier / add a field in edit mode (editor UI, never saved). */
+html.ee-editing body.article .ee-dossier-tools { margin: 6px 0 18px; user-select: none; -webkit-user-select: none; }
+html.ee-editing body.article #description + .ee-dossier-tools { margin-top: 10px; }
+html.ee-editing body.article .ee-dos-add {
+  appearance: none; background: none; border: 1px dashed rgba(243,238,230,.22); border-radius: 0;
+  color: #8f8a82; font: inherit; font-size: 13px; letter-spacing: .04em; padding: 6px 12px; cursor: pointer;
+}
+html.ee-editing body.article .ee-dos-add:hover,
+html.ee-editing body.article .ee-dos-add:focus-visible { color: #f3eee6; border-color: rgba(243,238,230,.45); outline: none; }
+html.ee-editing body.article .art-dossier > dt:empty { min-height: 1.45em; min-width: 6em; border-bottom: 1px dotted rgba(243,238,230,.22); }
+html.ee-editing body.article .art-dossier > dt:empty::before { content: "Field name"; color: rgba(243,238,230,.28); font-style: italic; }
