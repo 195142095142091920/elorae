@@ -154,3 +154,100 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
   window.EloraeRailSections = { prep: prepAll, build: build, railKey: railKey, sync: syncArticleRail, toggle: function (box) { var r = box && box.querySelector(".toc-row"); if (r) toggle(prep(r)); } };
 })();
+
+/* re1 (2026-11-03; was ix1 in index/index-scroll.js): empty sections are hidden for everyone but
+   Devin, on the Index and in every article-page rail, by one rule. A section / subsection with
+   nothing this viewer can see (after the private / owner gating in html.css, so a group holding
+   only someone else's private entries counts as empty) is hidden, with its Categories entry; a
+   section whose subsections are all empty goes too. Devin, the Index organizer and edit mode see
+   every section. The Index counts its visible cards; an article page, which has no cards, counts the
+   rail entries, which are the Index's cards with the same privacy marks (rd2 keeps them in sync).
+   Recomputed on sign-in/out (body class), organizer / edit mode, card or rail changes. */
+(function () {
+  "use strict";
+  var HIDE = "ix-hide";
+  if (!document.getElementById("ix-hide-style")) {
+    var st = document.createElement("style"); st.id = "ix-hide-style";
+    st.textContent = "." + HIDE + "{display:none!important}";
+    document.head.appendChild(st);
+  }
+  function seesAll() {
+    return document.body.classList.contains("login-devin") || document.documentElement.classList.contains("ee-index-org") || document.documentElement.classList.contains("ee-editing");
+  }
+  // The rule, shared: sections [{ n, nodes, groups: [{ n, nodes }] }] -> nodes to hide.
+  function emptyRule(secs) {
+    var hide = [];
+    secs.forEach(function (s) {
+      if (!s.n) { hide.push.apply(hide, s.nodes); return; }
+      s.groups.forEach(function (g) { if (!g.n) hide.push.apply(hide, g.nodes); });
+      hide.push.apply(hide, s.extra || []);
+    });
+    return hide;
+  }
+  function esc(id) { return window.CSS && CSS.escape ? CSS.escape(id) : id; }
+  // Index: count the cards a viewer can see.
+  function indexSpec(main, toc) {
+    function tocFor(id) {
+      if (!toc) return null;
+      var a = toc.querySelector('a[href="#' + esc(id) + '"]');
+      return a ? (a.closest(".toc-group") || a.closest(".toc-cat")) : null;
+    }
+    function visible(card) { return card.getClientRects().length > 0; }
+    return Array.prototype.map.call(main.querySelectorAll("section.index-cat"), function (sec) {
+      var total = 0, groups = [], cur = null, extra = [];
+      Array.prototype.forEach.call(sec.children, function (ch) {
+        if (ch.matches("h3.index-sub")) { cur = { h: ch, boxes: [], n: 0 }; groups.push(cur); return; }
+        if (ch.matches(".index-cards")) {
+          var n = Array.prototype.filter.call(ch.querySelectorAll("a.index-card"), visible).length;
+          total += n;
+          if (cur) { cur.boxes.push(ch); cur.n += n; }
+          else if (!n && groups.length === 0 && sec.querySelector("h3.index-sub")) extra.push(ch); // empty lead-in box above subsections
+        }
+      });
+      var t = tocFor(sec.id);
+      return {
+        n: total, nodes: [sec].concat(t ? [t] : []), extra: extra,
+        groups: groups.map(function (g) { var gt = g.h.id && tocFor(g.h.id); return { n: g.n, nodes: [g.h].concat(g.boxes, gt ? [gt] : []) }; })
+      };
+    });
+  }
+  // Article rail: count the entries a viewer can see (hidden by their own privacy mark).
+  function railSpec(panel) {
+    function seen(a) { return getComputedStyle(a).display !== "none"; }
+    return Array.prototype.map.call(panel.querySelectorAll(":scope > .toc-cat"), function (cat) {
+      var nest = cat.querySelector(":scope > .toc-nest"), total = 0, groups = [];
+      if (nest) Array.prototype.forEach.call(nest.children, function (ch) {
+        if (ch.matches(".toc-group")) {
+          var n = Array.prototype.filter.call(ch.querySelectorAll("a.toc-name"), seen).length;
+          total += n; groups.push({ n: n, nodes: [ch] });
+        } else if (ch.matches("a.toc-name") && seen(ch)) total++;
+      });
+      return { n: total, nodes: [cat], groups: groups };
+    });
+  }
+  var busy = false;
+  function run() {
+    busy = true;
+    try {
+      Array.prototype.forEach.call(document.querySelectorAll("." + HIDE), function (n) { n.classList.remove(HIDE); });
+      if (seesAll()) return;
+      var main = document.querySelector("main.index-flow"), specs = [];
+      if (main) specs = indexSpec(main, document.getElementById("index-toc-panel"));
+      else { var panel = document.getElementById("art-index-panel"); if (panel) specs = railSpec(panel); }
+      emptyRule(specs).forEach(function (n) { n.classList.add(HIDE); });
+    } finally { setTimeout(function () { busy = false; }, 0); }
+  }
+  var queued = false;
+  function soon() { if (queued || busy) return; queued = true; requestAnimationFrame(function () { queued = false; run(); }); }
+  if (!document.querySelector("main.index-flow") && !document.getElementById("art-index-panel")) return;
+  run();
+  window.addEventListener("load", soon);
+  new MutationObserver(soon).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  var modeKey = function () { var c = document.documentElement.classList; return c.contains("ee-index-org") + "|" + c.contains("ee-editing"); }, lastMode = modeKey();
+  new MutationObserver(function () { var m = modeKey(); if (m !== lastMode) { lastMode = m; soon(); } }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  var watchEl = document.querySelector("main.index-flow") || document.getElementById("art-index-panel");
+  new MutationObserver(function () { if (!busy) soon(); }).observe(watchEl, { childList: true, subtree: true });
+  document.addEventListener("elorae-rail-synced", soon);
+  window.addEventListener("elorae-edit-session", soon);
+  window.EloraeEmptySections = { run: run, rule: emptyRule };
+})();

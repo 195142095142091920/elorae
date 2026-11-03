@@ -121,11 +121,36 @@ async function sync(browser) {
   }
   await ctx.close();
 }
+
+async function emptyMatch(browser) {
+  const list = (p, sel) => p.evaluate((sel) => {
+    const panel = document.querySelector(sel); const shown = (e) => getComputedStyle(e).display !== "none";
+    const key = (h) => h.replace(/^\/index\/ancients\//, "");
+    return [...panel.querySelectorAll(":scope > .toc-cat")].filter(shown).map((c) => key(c.querySelector(".toc-row > a").getAttribute("href")) + "[" + [...c.querySelectorAll(".toc-group")].filter(shown).map((g) => key((g.querySelector(".toc-sub") || {}).getAttribute ? g.querySelector(".toc-sub").getAttribute("href") : "?")).join(",") + "]").join(" ");
+  }, sel);
+  const seen = {};
+  for (const who of ["guest", "sawyer", "jack", "devin"]) {
+    const ctx = await ctxFor(browser, who, false, true); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(e.message));
+    await p.goto(BASE + "index/ancients/", { waitUntil: "load" }); await p.waitForTimeout(500);
+    const ix = await list(p, "#index-toc-panel");
+    const bad = [];
+    for (const a of ["vaerek", "aghor", "ara-tess", "cressana"]) {
+      await p.goto(BASE + "articles/" + a + "/", { waitUntil: "load" }); await p.waitForTimeout(500);
+      if (await p.evaluate(() => !document.getElementById("art-index-panel"))) continue;
+      const ar = await list(p, "#art-index-panel");
+      if (ar !== ix) bad.push(a + ": " + ar);
+    }
+    seen[who] = ix;
+    check(`rail empty (${who}): article rails hide / show exactly the Index's sections and subsections`, !bad.length && !errs.length, "index: " + ix + (bad.length ? " | " + bad.join(" | ") : "") + errs.join("|"));
+    await ctx.close();
+  }
+  check("rail empty: Devin sees more sections than a Guest (empty ones are not hidden for Devin)", seen.devin.split(" ").length > seen.guest.split(" ").length, JSON.stringify(seen));
+}
 (async () => {
   const srv = await serverForTests(); BASE = srv.base;
   const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ["--no-sandbox"] });
   try {
-    for (const [n, fn] of [["matrix", matrix], ["details", details], ["sync", sync]]) {
+    for (const [n, fn] of [["matrix", matrix], ["details", details], ["sync", sync], ["empty", emptyMatch]]) {
       try { await fn(browser); } catch (e) { check(n + " stage ran without exceptions", false, e.stack.split("\n").slice(0, 3).join(" ")); }
     }
   } finally { await browser.close(); srv.close(); }
