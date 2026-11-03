@@ -1075,14 +1075,20 @@ async function indexArtTests(browser, vpName) {
   const NEW = "/articles/zq-test-card/";
   const firstIn = (sel) => page.evaluate((s) => { const a = document.querySelector(s); return a && a.getAttribute("href"); }, sel);
   const lastIn = (sel) => page.evaluate((s) => { const a = [...document.querySelectorAll(s)].pop(); return a && a.getAttribute("href"); }, sel);
+  // ia1: order inside a section is automatic (A to Z, leading "The" ignored); drags only move between sections.
+  const azIn = (sel) => page.evaluate((s) => { const k = (t) => t.replace(/\s+/g, " ").trim().replace(/^the\s+/i, ""); const n = [...document.querySelectorAll(s)].map((a) => k(a.querySelector("span").textContent)); return n.every((x, i) => !i || n[i - 1].localeCompare(x, "en", { sensitivity: "base", numeric: true }) <= 0); }, sel);
+  const locOrder = await page.evaluate(() => [...document.querySelectorAll("#locations a.index-card")].map((a) => a.getAttribute("href")).join(","));
   const locFirst = await firstIn("#locations a.index-card");
   await drag(NEW, locFirst, "before");
   const d1 = await domState();
-  check(`[${vpName}] drag: reorder within a section (drop on the left half → before)`, (await firstIn("#locations a.index-card")) === NEW && d1.stuck === 0, d1.stuck + " marks first " + (await firstIn("#locations a.index-card")) + " was " + locFirst);
+  const locOrder2 = await page.evaluate(() => [...document.querySelectorAll("#locations a.index-card")].map((a) => a.getAttribute("href")).join(","));
+  check(`[${vpName}] drag: within a section does not reorder (A to Z kept) and says why`, locOrder2 === locOrder && await azIn("#locations a.index-card") && d1.stuck === 0 && /sort A\u2013Z/.test(await page.textContent("#ee-bar")), d1.stuck + " marks " + (await page.textContent("#ee-bar")).slice(0, 80));
+  const hint = await page.evaluate(() => getComputedStyle(document.getElementById("ee-bar"), "::before").content);
+  check(`[${vpName}] organizer: a small hint says cards sort A\u2013Z automatically`, /sort A.Z .*automatically/.test(hint), hint);
   const divA = await firstIn("#demonic a.index-card");
-  await drag(NEW, divA, "after");
-  const afterDiv = await page.evaluate((n) => { const a = document.querySelector(`a.index-card[href="${n}"]`); const p = a.previousElementSibling; return { sec: a.closest("section.index-cat").id, prev: p && p.getAttribute("href"), id: a.id }; }, NEW);
-  check(`[${vpName}] drag: move to another section (drop on the right half → after), id follows the section`, afterDiv.sec === "demonic" && afterDiv.prev === divA && afterDiv.id === "demonic-zq-test-card", JSON.stringify(afterDiv));
+  await drag(NEW, divA, "before");
+  const afterDiv = await page.evaluate((n) => { const a = document.querySelector(`a.index-card[href="${n}"]`); return { sec: a.closest("section.index-cat").id, id: a.id, last: [...a.parentElement.querySelectorAll("a.index-card")].pop() === a }; }, NEW);
+  check(`[${vpName}] drag: move to another section lands in its A to Z place (Zq… last), id follows the section`, afterDiv.sec === "demonic" && afterDiv.last && afterDiv.id === "demonic-zq-test-card" && await azIn("#demonic a.index-card"), JSON.stringify(afterDiv));
   const before = await domState();
   await drag(NEW, NEW, "after");
   const self = await domState();
@@ -1090,10 +1096,10 @@ async function indexArtTests(browser, vpName) {
   const AG = "/articles/aghor/";
   const locLast = await lastIn("#locations a.index-card");
   await drag(AG, locLast, "after");
-  check(`[${vpName}] drag: Aghor to the end of Locations`, (await lastIn("#locations a.index-card")) === AG);
-  const ancFirst = await firstIn("#ancients a.index-card");
-  await drag(AG, ancFirst, "before");
-  check(`[${vpName}] drag: and back to the front of Ancients`, (await firstIn("#ancients a.index-card")) === AG);
+  check(`[${vpName}] drag: Aghor into Locations goes to its A to Z place (first), not where it was dropped`, (await firstIn("#locations a.index-card")) === AG && await azIn("#locations a.index-card"));
+  const ancLast = await lastIn("#ancients a.index-card");
+  await drag(AG, ancLast, "after");
+  check(`[${vpName}] drag: and back into Ancients, again A to Z (first)`, (await firstIn("#ancients a.index-card")) === AG && await azIn("#ancients a.index-card"));
   for (let k = 0; k < 6; k++) {
     const st = await domState();
     const hrefs = st.all.filter((h) => h !== NEW);
@@ -1398,7 +1404,7 @@ async function subsecTests(browser, vpName) {
     src.dispatchEvent(new DragEvent("dragend", { bubbles: true, dataTransfer: dt }));
   });
   const d3 = await page.evaluate(() => [...document.querySelectorAll("#zq-order + .index-cards > a.index-card")].map((a) => a.id));
-  check(`[${vpName}] subsection: drag a card into it (id follows the subsection)`, JSON.stringify(d3) === JSON.stringify(["zq-order-zq-member", "zq-order-aghor"]), JSON.stringify(d3));
+  check(`[${vpName}] subsection: drag a card into it (id follows the subsection)`, JSON.stringify(d3) === JSON.stringify(["zq-order-aghor", "zq-order-zq-member"]) /* ia1: A to Z */, JSON.stringify(d3));
   // 4. A second subsection, moved above the first with ↑; save → empty subsection markup.
   await addSub("factions", "Zq Guild");
   await page.click('#ee-sub-list li[data-sub="zq-guild"] [data-act="up"]');

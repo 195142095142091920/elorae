@@ -463,6 +463,9 @@ html.ee-page-editing .art-swap { display: none !important; }
 #ee-idx-subs li .ee-btn { letter-spacing: .08em; min-width: 26px; }
 #ee-idx-subs .ee-btn[disabled] { opacity: .35; cursor: default; }
 #ee-idx-subs .ee-note { margin: 8px 0 0; color: rgba(243,238,230,.5); font-size: 12px; }
+/* ia1: order inside a category is automatic (A to Z), said once, small, above the organizer bar. */
+html.ee-index-org #ee-bar::before { content: "Cards sort A\2013 Z by name automatically \00B7  drag a card onto another category to move it"; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 6px; box-sizing: border-box; width: max-content; max-width: 100%; padding: 4px 10px; background: rgba(11,11,11,.92); border-radius: 3px; font-size: 11px; letter-spacing: .05em; color: #8f8a82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+@media (max-width: 800px) { html.ee-index-org #ee-bar::before { content: "Cards sort A\2013 Z automatically \00B7  drag to another category to move"; } }
 html.ee-index-org main.index-flow .index-cards.ee-index-target { outline: 1px dashed rgba(243,238,230,.55); outline-offset: 6px; }
 html.ee-idx-dragging #ee-idx-subs, html.ee-idx-dragging #ee-bar { pointer-events: none; opacity: .35; }
 

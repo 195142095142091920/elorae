@@ -207,6 +207,18 @@
     Array.prototype.forEach.call(document.querySelectorAll(".ee-index-drop"), function (b) { b.classList.remove("ee-index-drop", "ee-index-dragover"); });
   }
 
+  /* ia1: cards in a box always stay A to Z by name (ignoring a leading "The"), same rule as
+     Media.sortIndex, which every save also applies to the file. */
+  var SORT_HINT = "Cards sort A\u2013Z by name automatically \u00b7 drag a card onto another category to move it";
+  function sortBox(box) {
+    if (!box || !Media || !Media.compareNames) return;
+    var cards = Array.prototype.filter.call(box.children, function (c) { return c.matches("a.index-card"); });
+    var sorted = cards.map(function (c, i) { return { c: c, i: i }; }).sort(function (a, b) { return Media.compareNames(cardName(a.c), cardName(b.c)) || a.i - b.i; });
+    if (sorted.every(function (x, i) { return x.i === i; })) return false;
+    var anchor = cards[cards.length - 1].nextSibling;
+    sorted.forEach(function (x) { box.insertBefore(x.c, anchor); });
+    return true;
+  }
   function moveCardToCategory(card, catId, beforeCard) {
     if (!card || !catId) return;
     var box = cardsContainerFor(catId);
@@ -223,8 +235,9 @@
     var oldId = card.id, oldParent = card.parentNode, oldNext = card.nextElementSibling;
     if (beforeCard === card) return;
     card.id = catId + "-" + slug;
-    if (beforeCard && beforeCard.parentNode === box) box.insertBefore(card, beforeCard);
-    else box.appendChild(card);
+    if (oldParent === box) return; // ia1: no reordering inside a category (order is A to Z)
+    box.appendChild(card);
+    sortBox(box);
     if (oldParent === card.parentNode && oldNext === card.nextElementSibling && oldId === card.id) return;
     // If old container emptied, restore empty note
     catSections().forEach(function (sec) {
@@ -670,8 +683,8 @@
     if (!d) return;
     if (files) { if (d.card) d.card.classList.add("ee-index-dragover"); return; }
     if (!dragCard) return;
-    if (d.card && d.card !== dragCard) d.card.classList.add(d.after ? "ee-index-after" : "ee-index-before");
-    else if (!d.card) d.box.classList.add("ee-index-dragover");
+    // ia1: order inside a category is automatic, so a drop only ever means "into this category".
+    if (d.box !== dragCard.parentNode) d.box.classList.add("ee-index-dragover");
   }
   function onDrop(e) {
     if (!state.active) return;
@@ -690,16 +703,13 @@
     dragCard = null; scrollV = 0;
     clearDragMarks();
     if (!card || !d) return;
-    if (d.card === card) return; // dropped on itself: stays where it was
-    var before = d.card ? (d.after ? d.card.nextElementSibling : d.card) : null;
-    if (before === card) return; // already right there
-    while (before && !(before.matches && before.matches("a.index-card"))) before = before.nextElementSibling;
+    if (d.box === card.parentNode) { barMsg(SORT_HINT); return; } // ia1: same category, order is A to Z
     var catId = null, box = d.box;
     var prev = box.previousElementSibling;
     if (prev && prev.classList.contains("index-sub")) catId = prev.id;
     else { var sec = box.closest("section.index-cat"); catId = sec && sec.id; }
     if (!catId) return;
-    moveCardToCategory(card, catId, before);
+    moveCardToCategory(card, catId);
   }
 
   function onCardClick(e) {
@@ -792,7 +802,7 @@
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="/peek.js?v=bs1" defer><\/script>\n<script src="/art-fit.js?v=af1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
-  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "af1"; })();
+  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "ia1"; })();
   function newArticle(name, catId, secId, artTpl) {
     return E.getFile(TEMPLATE_ARTICLE).then(function (f) {
       try { return articleFromTemplate(f.text, name, catId, secId, artTpl); } catch (e) { return articleFallback(name, catId, artTpl); }
@@ -867,6 +877,7 @@
         a.setAttribute("draggable", "true");
         a.classList.add("ee-index-draggable");
         box.appendChild(a);
+        sortBox(box);
         setSelected(a);
         rebuildTocFromDom();
         state.dirty = true;
@@ -1002,7 +1013,7 @@
   function checkCards(html) {
     var d = new DOMParser().parseFromString(html, "text/html");
     var main = d.querySelector("main.index-flow");
-    var want = cardHrefs(cardsRoot()), got = main ? cardHrefs(main) : [];
+    var want = cardHrefs(cardsRoot()).sort(), got = (main ? cardHrefs(main) : []).sort(); // ia1: the file may be in A to Z order
     if (want.join("\n") !== got.join("\n")) throw new Error("Safety check failed (the saved Index would not match the cards on screen). Nothing was saved.");
   }
   function isTwin(a, b) { return a === b; }
@@ -1062,6 +1073,7 @@
         });
         if (catalog) files.unshift({ path: Media.CATALOG, text: JSON.stringify(catalog, null, 2) + "\n" });
         slugs.forEach(function (k) { html = Media.setCardArt(html, k, assetFor[k]); });
+        if (Media.sortIndex) html = Media.sortIndex(html); // ia1: A to Z in every section, same save
         checkCards(html);
         var arts = slugs.filter(function (k) { return art[k].hero; }).map(function (k) {
           var paths = ["articles/" + k + "/index.html", "articles/" + k + ".html"];
@@ -1146,6 +1158,7 @@
     document.addEventListener("click", onBoxClick, true);
     window.addEventListener("resize", positionSubs);
     window.addEventListener("beforeunload", onUnload);
+    if (Array.prototype.map.call(document.querySelectorAll("main.index-flow .index-cards"), sortBox).some(Boolean)) rebuildTocFromDom();
     barMsg("Index organizer · drag cards between categories, or select + Categories");
     var g = $("ee-glyph");
     if (g) g.style.display = "none";

@@ -3106,7 +3106,7 @@
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
         "<script src=\"/peek.js?v=bs1\" defer></script>\n" +
         "<script src=\"/art-fit.js?v=af1\" defer></script>\n" +
-        "<script src=\"/edit/edit.js?v=af1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=ia1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
@@ -3503,6 +3503,7 @@
         var out = f.text;
         if (asset) out = Media.setCardArt(out, slug, asset, function (old) { return !old || (oldKey && old === oldKey); });
         if (renamed) out = Media.renameIndexCards(out, slug, ren.oldName, ren.newName || ren.oldName, ren.oldEpithet, ren.newEpithet, true);
+        if (Media.sortIndex) out = Media.sortIndex(out); // ia1: a renamed card moves to its A to Z place in the same save
         return out !== f.text ? { path: p, text: out, base: f.text } : null;
       }, function () { return null; });
     })).then(function (list) { return list.filter(Boolean); });
@@ -3865,7 +3866,7 @@
         return eachLimit(hits, 6, function (p) {
           return E.getFile(p, ref).then(function (f) {
             var t = f.text, sl = slugOfArticlePath(p);
-            if (INDEX_FILES.indexOf(p) >= 0) t = Media.removeIndexCards(t, slugs);
+            if (INDEX_FILES.indexOf(p) >= 0) { t = Media.removeIndexCards(t, slugs); if (Media.sortIndex) t = Media.sortIndex(t); }
             slugs.forEach(function (s) { t = Media.unlinkArticle(t, s); });
             secs.forEach(function (id) { t = Media.removeRailSection(t, id); });
             var bk = Media.artBackOf(t), hash = bk && bk.indexOf("#") >= 0 ? bk.slice(bk.indexOf("#") + 1) : null;

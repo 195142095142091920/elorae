@@ -379,6 +379,38 @@
     });
     return text;
   }
+  /* ia1 (2026-11-03): every Index section's cards, and its Categories rail list, stay A to Z by
+     name, ignoring a leading "The" (case and accents ignored, numbers in number order). Order is
+     automatic: every Index write (organizer, New article, hero rename sync, card art) runs
+     sortIndex on the text, so a card added, moved or renamed lands in its place in the same save.
+     Sorts each run of consecutive cards (one .index-cards box) and each run of consecutive rail
+     entries (one section's or subsection's list); nothing else in the file moves. */
+  function sortKey(name) { return decText(String(name == null ? "" : name).replace(/<[^>]*>/g, "")).replace(/\s+/g, " ").trim().replace(/^the\s+/i, ""); }
+  function compareNames(a, b) { return sortKey(a).localeCompare(sortKey(b), "en", { sensitivity: "base", numeric: true }); }
+  function sortRuns(text, re, nameOf) {
+    var out = "", last = 0, run = [], m;
+    function flush() {
+      if (!run.length) return;
+      var sorted = run.map(function (r, i) { return { r: r, i: i, k: nameOf(r.html) }; })
+        .sort(function (a, b) { return compareNames(a.k, b.k) || a.i - b.i; });
+      out += text.slice(last, run[0].start);
+      run.forEach(function (r, i) { out += sorted[i].r.html + (i < run.length - 1 ? text.slice(r.end, run[i + 1].start) : ""); });
+      last = run[run.length - 1].end; run = [];
+    }
+    re.lastIndex = 0;
+    while ((m = re.exec(text))) {
+      var r = { start: m.index, end: m.index + m[0].length, html: m[0] };
+      if (run.length && !/^\s*$/.test(text.slice(run[run.length - 1].end, r.start))) flush();
+      run.push(r);
+    }
+    flush();
+    return out + text.slice(last);
+  }
+  function cardSortName(html) { var sp = /<span>([\s\S]*?)<\/span>/.exec(html); return sp ? sp[1] : ""; }
+  function sortIndex(text) {
+    var t = sortRuns(String(text), /<a\b[^>]*\bclass="index-card\b[^"]*"[^>]*>[\s\S]*?<\/a>/g, cardSortName);
+    return sortRuns(t, /<a\b[^>]*\bclass="toc-name\b[^"]*"[^>]*>[^<]*<\/a>/g, function (h) { return h.replace(/^<a\b[^>]*>|<\/a>$/g, ""); });
+  }
   /* slug -> { name, ep } for every Index card in an Index source (first card of a slug wins). */
   function cardNames(text) {
     var out = {};
@@ -736,6 +768,7 @@
     heroArtKey: heroArtKey,
     heroParts: heroParts,
     renameIndexCards: renameIndexCards, cardNames: cardNames,
+    sortIndex: sortIndex, compareNames: compareNames, sortKey: sortKey,
     setCardEpithet: setCardEpithet,
     linksTo: linksTo, unlinkArticle: unlinkArticle, removeIndexCards: removeIndexCards, removeRailSection: removeRailSection,
     setArtBack: setArtBack, artBackOf: artBackOf, removeSearchEntry: removeSearchEntry, removeSitemap: removeSitemap,

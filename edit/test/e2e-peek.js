@@ -28,13 +28,14 @@ async function peekTests(browser) {
   await p.waitForTimeout(450);
   const box = await p.evaluate(() => { const r = document.querySelector("#peek").getBoundingClientRect(); return { l: Math.round(r.left), w: Math.round(r.width), t: Math.round(r.top), b: Math.round(r.bottom), nav: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-bottom")) }; });
   check("peek: desktop panel is on the right, ~460px wide, below the nav to the bottom", box.w === 460 && box.l === 1440 - 460 && box.t === box.nav && box.b === 900, JSON.stringify(box));
-  await p.keyboard.press("ArrowRight"); await openP(p); s = await st(p);
-  const nextId = await p.evaluate(() => { const sec = document.querySelector("#heroes"); const v = [...sec.querySelectorAll("a.index-card")].filter((a) => a.getClientRects().length); return v[1].id; });
-  check("peek: Right arrow moves to the next card in the same section (swap in place, no new history entry)", s.on === nextId && s.hl === h0 + 1, JSON.stringify(s));
-  await p.click("#peek .peek-prev"); await openP(p); s = await st(p);
-  check("peek: the panel's ‹ arrow goes back; ‹ is disabled on the first card", s.on === "heroes-vaerek" && await p.evaluate(() => document.querySelector("#peek .peek-prev").disabled), s.on);
-  await p.click('main a.index-card[href="/articles/kuroishi/"]'); await openP(p); s = await st(p);
-  check("peek: clicking another card while open swaps content in place", s.name === "Kuroishi" && s.hl === h0 + 1 && s.open, JSON.stringify(s));
+  // Heroes are A to Z (ia1), so Vaerek Rathkin is the last card of the section.
+  await p.keyboard.press("ArrowLeft"); await openP(p); s = await st(p);
+  const prevId = await p.evaluate(() => { const sec = document.querySelector("#heroes"); const v = [...sec.querySelectorAll("a.index-card")].filter((a) => a.getClientRects().length); return v[v.length - 2].id; });
+  check("peek: Left arrow moves to the previous card in the same section (swap in place, no new history entry)", s.on === prevId && s.hl === h0 + 1, JSON.stringify(s));
+  await p.click("#peek .peek-next"); await openP(p); s = await st(p);
+  check("peek: the panel's › arrow goes forward; › is disabled on the last card", s.on === "heroes-vaerek" && await p.evaluate(() => document.querySelector("#peek .peek-next").disabled), s.on);
+  await p.click('main a.index-card[href="/articles/alaric/"]'); await openP(p); s = await st(p);
+  check("peek: clicking another card while open swaps content in place", s.name === "Alaric Morn" && s.hl === h0 + 1 && s.open, JSON.stringify(s));
   await p.goBack(); await p.waitForTimeout(300); s = await st(p);
   check("peek: Back closes the peek and stays on the Index", !s.open && s.url === "/index/ancients/" && s.on === "", JSON.stringify(s));
   await p.click(VA); await openP(p); await p.keyboard.press("Escape"); await p.waitForTimeout(200); s = await st(p);
@@ -80,6 +81,7 @@ async function privacyTests(browser) {
     const all = await p.evaluate(() => document.querySelector("#peek").textContent);
     if (who === "sawyer") check("privacy: a player never sees another owner's private paragraph or Dossier row in the peek", !/ZQ-SECRET|ZQ-HIDDEN|Zq Secret/.test(all) && /^Bastard son/.test(s.para), s.para.slice(0, 40));
     else check("privacy: Devin sees the private parts he can see on the article", /^ZQ-SECRET/.test(s.para) && /Zq Secret/.test(s.dl), JSON.stringify(s).slice(0, 160));
+    await p.keyboard.press("Escape"); await p.waitForTimeout(200); // Saoirse's card sits under the open panel at 1440
     await p.click('main a.index-card[href="/articles/saoirse/"]'); await openP(p);
     const s2 = await st(p);
     if (who === "sawyer") check("privacy: a secret page this viewer may not see gives no fields / text (only the card's own name)", s2.dl === "" && s2.para === "" && s2.name === "Saoirse", JSON.stringify(s2));
