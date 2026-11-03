@@ -2177,6 +2177,762 @@
         "jason"
       ],
       "everyone": true
+    },
+    "old-ruins-in-akath-the-southern": {
+      "path": "assets/old-ruins-in-akath-the-southern.png",
+      "title": "Old ruins in Akath, the southern land of Uma Sura",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-revenant-host-an-unknown-force": {
+      "path": "assets/the-revenant-host-an-unknown-force.png",
+      "title": "The Revenant Host, an unknown force, marches northward",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "pethengorom-the-sagedragon-burns-the-host": {
+      "path": "assets/pethengorom-the-sagedragon-burns-the-host.png",
+      "title": "Pethengorom the Sagedragon burns the Host with magical dragonflame",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-phantoms-enemies-of-the-revenants": {
+      "path": "assets/the-phantoms-enemies-of-the-revenants.png",
+      "title": "The Phantoms, enemies of the Revenants, hide in the border caverns before the Celestial Sands",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "how-a-dragon-sees-the-world": {
+      "path": "assets/how-a-dragon-sees-the-world.png",
+      "title": "How a dragon sees the world - silhouettes of flame and the core of a soul",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "aszurithice-describes-her-absence-surveying-the": {
+      "path": "assets/aszurithice-describes-her-absence-surveying-the.png",
+      "title": "Aszurithice describes her absence, surveying the Gangaran Expanse deep below the surface",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "pethengorom-casts-a-protective-bubble-to": {
+      "path": "assets/pethengorom-casts-a-protective-bubble-to.png",
+      "title": "Pethengorom casts a protective bubble to ward against the rains of Akath",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "aszurithice-uses-her-draconic-frost-to": {
+      "path": "assets/aszurithice-uses-her-draconic-frost-to.png",
+      "title": "Aszurithice uses her draconic frost to keep Rallice's soul from joining Gangara",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "king-montmorian-carries-rallice-to-be": {
+      "path": "assets/king-montmorian-carries-rallice-to-be.png",
+      "title": "King Montmorian carries Rallice to be prepared for burial",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "rallice-anoram-is-laid-to-rest": {
+      "path": "assets/rallice-anoram-is-laid-to-rest.png",
+      "title": "Rallice Anoram is laid to rest in a tomb beneath Nathalor",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-frozen-mountains-of-the-northernmost": {
+      "path": "assets/the-frozen-mountains-of-the-northernmost.png",
+      "title": "The frozen mountains of the northernmost land, Frostfell",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-ghosts-of-the-frozen-lands": {
+      "path": "assets/the-ghosts-of-the-frozen-lands.png",
+      "title": "The ghosts of the frozen lands appear from icy wind",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "aszurithice-rimes-the-cliffside-with-draconic": {
+      "path": "assets/aszurithice-rimes-the-cliffside-with-draconic.png",
+      "title": "Aszurithice rimes the cliffside with draconic frost",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "rallice-anoram-son-of-regnal-anoram": {
+      "path": "assets/rallice-anoram-son-of-regnal-anoram.png",
+      "title": "Rallice Anoram, Son of Regnal Anoram, Knight of Fala, lies dead",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "queen-primwyn-gives-audience-to-the": {
+      "path": "assets/queen-primwyn-gives-audience-to-the.png",
+      "title": "Queen Primwyn gives audience to the servants of the Kindred",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "vaerek-presents-his-draconic-magic-to": {
+      "path": "assets/vaerek-presents-his-draconic-magic-to.png",
+      "title": "Vaerek presents his draconic magic to the queen",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "sir-brigh-and-lady-jiatra-bid": {
+      "path": "assets/sir-brigh-and-lady-jiatra-bid.png",
+      "title": "Sir Brigh and Lady Jiatra bid the servants of the Kindred farewell",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-capital-of-yollonde-stands-in": {
+      "path": "assets/the-capital-of-yollonde-stands-in.png",
+      "title": "The capital of Yollonde stands in the morning fog",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-cursed-or-blessed-leaf-emanating": {
+      "path": "assets/the-cursed-or-blessed-leaf-emanating.png",
+      "title": "The cursed - or blessed - leaf, emanating raw infinite power",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "queen-primwyn-and-her-attendant-give": {
+      "path": "assets/queen-primwyn-and-her-attendant-give.png",
+      "title": "Queen Primwyn and her attendant give audience in the throneroom",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-guildhall-of-the-scourge-hunters": {
+      "path": "assets/the-guildhall-of-the-scourge-hunters.png",
+      "title": "The Guildhall of the Scourge Hunters, adorned with motifs of Sar Sareen",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "eyes-of-the-red-scourge-are": {
+      "path": "assets/eyes-of-the-red-scourge-are.png",
+      "title": "Eyes of the Red Scourge are given as a trophy of accomplishment, the mark of a successful hunt",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-mayors-boy-attempts-to-lift": {
+      "path": "assets/the-mayors-boy-attempts-to-lift.png",
+      "title": "The mayor's boy attempts to lift Galand's hammer, enchanted with ancient magic",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-countryside-of-yollonde": {
+      "path": "assets/the-countryside-of-yollonde.png",
+      "title": "The countryside of Yollonde",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "statues-of-divinities-lost-in-the": {
+      "path": "assets/statues-of-divinities-lost-in-the.png",
+      "title": "Statues of divinities lost in the southern lands stand amidst the ruins of the chapel",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "sir-brigh-and-galand-dig-a": {
+      "path": "assets/sir-brigh-and-galand-dig-a.png",
+      "title": "Sir Brigh and Galand dig a grave for the fallen",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "saoirse-dreams-of-three-figures-near": {
+      "path": "assets/saoirse-dreams-of-three-figures-near.png",
+      "title": "Saoirse dreams of three figures near a Godtree",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "vaerek-dreams-of-a-dragons-perspective": {
+      "path": "assets/vaerek-dreams-of-a-dragons-perspective.png",
+      "title": "Vaerek dreams of a dragon's perspective, burning the land under a crimson moon",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "wren-dreams-of-a-silver-godtree": {
+      "path": "assets/wren-dreams-of-a-silver-godtree.png",
+      "title": "Wren dreams of a silver Godtree, surrounded by incessant whispers",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "telorin-and-perstrin-dream-of-seven": {
+      "path": "assets/telorin-and-perstrin-dream-of-seven.png",
+      "title": "Telorin and Perstrin dream of seven figures behind a green-flame brazier",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "rallice-dreams-of-the-fading-of": {
+      "path": "assets/rallice-dreams-of-the-fading-of.png",
+      "title": "Rallice dreams of the Fading of Fala",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "galand-dreams-of-bright-light-enveloped": {
+      "path": "assets/galand-dreams-of-bright-light-enveloped.png",
+      "title": "Galand dreams of bright light enveloped by a crimson moon",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-town-of-greymoor-in-the": {
+      "path": "assets/the-town-of-greymoor-in-the.png",
+      "title": "The town of Greymoor in the morning fog",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "a-ruined-chapel-of-astar-provides": {
+      "path": "assets/a-ruined-chapel-of-astar-provides.png",
+      "title": "A ruined chapel of Astar provides shelter in the rain",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "greyguard-talke-rises-as-one-of": {
+      "path": "assets/greyguard-talke-rises-as-one-of.png",
+      "title": "Greyguard Talke rises as one of the Red Scourge",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-twlight-of-the-setting-suns": {
+      "path": "assets/the-twlight-of-the-setting-suns.png",
+      "title": "The twlight of the setting suns is cast upon the ruined stones of the chapel",
+      "tags": [
+        "site",
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T14:53:36.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [

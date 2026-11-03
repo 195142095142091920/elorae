@@ -258,6 +258,52 @@
         "devin",
         "jason"
       ]
+    },
+    "jack-journal-1": {
+      "title": "Journal: Galand's Journal",
+      "owner": "jack",
+      "path": "journal/galands-journal/index.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jack"
+      ]
+    },
+    "jack-journal-nav": {
+      "title": "Journal: Galand's Journal sidebar link",
+      "owner": "jack",
+      "path": "",
+      "kind": "nav",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jack"
+      ]
+    },
+    "sawyer-journal-1": {
+      "title": "Journal: Vaerek's Journal",
+      "owner": "sawyer",
+      "path": "journal/vaereks-journal/index.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "sawyer"
+      ]
+    },
+    "sawyer-journal-nav": {
+      "title": "Journal: Vaerek's Journal sidebar link",
+      "owner": "sawyer",
+      "path": "",
+      "kind": "nav",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "sawyer"
+      ]
     }
   }
 }
