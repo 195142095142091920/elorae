@@ -226,6 +226,14 @@
       }
       if (cur && panel && !panel.contains(e.target) && !(e.target.closest && e.target.closest(".mast, #section-bar, .seek-panel"))) close();
     });
+    /* A plain press on a card must not move the page: focusing the link scrolls it into view
+       against the cards' tall phone scroll-margin (room for the open Categories dropdown), which
+       shifted the grid ~400px on tap, and Back later returned there instead of where you were. */
+    doc.addEventListener("mousedown", function (e) {
+      if (editing() || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest("main a.index-card");
+      if (a && articleKey(a.getAttribute("href"))) e.preventDefault();
+    });
     doc.addEventListener("keydown", function (e) {
       if (!cur || editing()) return;
       if (e.key === "Escape") { e.preventDefault(); close(); return; }

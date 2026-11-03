@@ -778,7 +778,7 @@
   function articleFallback(name, catId, artTpl) {
     var dossier = artTpl && Media && Media.templateDossierHtml ? Media.templateDossierHtml(artTpl, name) + "\n" : "";
     var title = esc(name);
-    return '<!doctype html>\n<html lang="en">\n<head>\n<script src="/session-gate.js?v=jason-ghost"><\/script>\n\n<meta charset="utf-8">\n' +
+    return '<!doctype html>\n<html lang="en">\n<head>\n<script src="/session-gate.js?v=jason-ghost"><\/script>\n<script src="/back-scroll.js?v=bs1"><\/script>\n\n<meta charset="utf-8">\n' +
       '<script src="/img.js?v=img-resize"><\/script>\n<script src="/cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>' + title + ' - Elorae</title>\n' +
       '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=wide1">\n<link rel="stylesheet" href="/html.css?v=pk2">\n' +
@@ -790,9 +790,9 @@
       '<script src="/search.js?v=fs12"><\/script><script src="/login.js?v=jason-ghost"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=art87"><\/script>\n' +
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
-      '<script src="/peek.js?v=pk2" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
+      '<script src="/peek.js?v=bs1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
-  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "pk2"; })();
+  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "bs1"; })();
   function newArticle(name, catId, secId, artTpl) {
     return E.getFile(TEMPLATE_ARTICLE).then(function (f) {
       try { return articleFromTemplate(f.text, name, catId, secId, artTpl); } catch (e) { return articleFallback(name, catId, artTpl); }

@@ -3005,7 +3005,7 @@
       var escTitle = title.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
       var body =
         "<!doctype html>\n<html lang=\"en\">\n<head>\n" +
-        "<script src=\"/session-gate.js?v=guest-browse\"></script>\n\n" +
+        "<script src=\"/session-gate.js?v=guest-browse\"></script>\n<script src=\"/back-scroll.js?v=bs1\"></script>\n\n" +
         "<meta charset=\"utf-8\">\n" +
         "<script src=\"/img.js?v=img-resize\"></script>\n" +
         "<script src=\"/cats-rail-boot.js?v=art74\"></script>\n" +
@@ -3026,8 +3026,8 @@
         "</main>\n" +
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/peek.js?v=pk2\" defer></script>\n" +
-        "<script src=\"/edit/edit.js?v=pk2\" defer></script>\n" +
+        "<script src=\"/peek.js?v=bs1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=bs1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
