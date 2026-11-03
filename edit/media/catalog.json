@@ -3053,6 +3053,237 @@
         "sawyer"
       ],
       "everyone": false
+    },
+    "old-cities-lie-buried-under-the": {
+      "path": "assets/old-cities-lie-buried-under-the.jpg",
+      "title": "Old cities lie buried under the wastes of Jud'hin. Untold riches and history are forever covered in sand",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "two-travelers-finally-reach-their-destination": {
+      "path": "assets/two-travelers-finally-reach-their-destination.jpg",
+      "title": "Two travelers finally reach their destination after traveling through the treacherous Ashap-Ur Valley",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "tum-masa-sits-proudly-under-the": {
+      "path": "assets/tum-masa-sits-proudly-under-the.jpg",
+      "title": "Tum Masa sits proudly under the golden glow of the suns",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-village-of-sesana-lies-tucked": {
+      "path": "assets/the-village-of-sesana-lies-tucked.jpg",
+      "title": "The village of Sesana lies tucked within the majestic forests of inner Asva, not far from Orian Ras",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "empty-lands-sprawl-for-hundreds-of": {
+      "path": "assets/empty-lands-sprawl-for-hundreds-of.jpg",
+      "title": "Empty lands sprawl for hundreds of miles in the central Morathi Plain, once battlefields for old wars of the Helfaust",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-western-marshes-of-pruma-await": {
+      "path": "assets/the-western-marshes-of-pruma-await.jpg",
+      "title": "The western marshes of Pruma await the execution of another who slighted the wrong person",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "leina-a-village-in-the-lower": {
+      "path": "assets/leina-a-village-in-the-lower.jpg",
+      "title": "Leina, a village in the lower Nasani region, sits on the Crystal River under a clear sky",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "old-ruins-of-the-ceremonial-grounds": {
+      "path": "assets/old-ruins-of-the-ceremonial-grounds.jpg",
+      "title": "Old ruins of the ceremonial grounds beneath Ganto quarry, are still preserved and respected by the Fou nobility",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "shesos-monasterium-a-place-of-disciplinary": {
+      "path": "assets/shesos-monasterium-a-place-of-disciplinary.jpg",
+      "title": "Sheso's Monasterium, a place of disciplinary soul rehabilitation, is built into the jagged glaciers of San Zai",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "an-ancient-sylvan-village-rests-within": {
+      "path": "assets/an-ancient-sylvan-village-rests-within.png",
+      "title": "An ancient sylvan village rests within the boughs of totem oaks, inundated in Green magic",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-terrifying-feral-forests-of-shiok": {
+      "path": "assets/the-terrifying-feral-forests-of-shiok.jpg",
+      "title": "The terrifying feral forests of Shiok are filled with the shrieks of ferocious beasts",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:10.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
