@@ -5285,3 +5285,12 @@ html.ee-editing body.article main.art-body > .art-tt { display: none !important;
   to { transform: none; }
 }
 @keyframes tt-fade { from { opacity: 1; } to { opacity: 0; } }
+
+/* ---- ic1: pictures with captions in article text (same caption look as the Journal and Codex) ---- */
+body.article .art-body figure { margin: 1.8em 0; }
+body.article .art-body figure img { display: block; width: 100%; height: auto; }
+body.article .art-body figcaption {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.2075)); font-weight: 400;
+  letter-spacing: 0; text-transform: none; color: #b7b0a4; text-align: center; margin-top: 8px;
+}
+html:not(.ee-page-editing) figcaption:empty { display: none; }

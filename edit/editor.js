@@ -419,6 +419,9 @@
         document.addEventListener("keydown", onKey, true);
         document.addEventListener("paste", onPaste, true);
         document.addEventListener("click", onClick, true);
+        document.addEventListener("click", onCapClick, true);
+        mainEl.addEventListener("input", onCapInput);
+        capMarkAll();
         document.addEventListener("selectionchange", onSelChange);
         window.addEventListener("resize", positionStyleBar);
         addDirtyListeners();
@@ -508,10 +511,11 @@
     var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
     var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart" aria-label="New article">New<span class="ee-wide-only"> article</span></button>' : '';
     var delBtn = admin && articleSlugOfPath() ? '<button type="button" class="ee-btn ee-danger" id="ee-delart" aria-label="Delete article">Del<span class="ee-wide-only">ete</span></button>' : '';
+    var imgBtn = (state.page && Media && P.canEdit(state.profile, PATH)) ? '<button type="button" class="ee-btn" id="ee-img" aria-label="Image" title="Insert a picture with a caption at the caret"><svg class="ee-img-ic" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 17l5-5 4 4 2.5-2.5L20 18" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="9.5" r="1.6" fill="currentColor"/></svg><span class="ee-img-lbl">Image</span></button>' : '';
     var tplBtn = templatesAllowed() ? '<button type="button" class="ee-btn" id="ee-tpl" aria-haspopup="menu" aria-expanded="false" title="Article template">Template</button>' : '';
     var artsBtn = state.arts ? '<button type="button" class="ee-btn" id="ee-arts-btn" aria-expanded="' + (state.arts.open ? "true" : "false") + '">Arts<span class="ee-wide-only"> (' + state.arts.list.length + ')</span></button>' : '';
     bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
-      tplBtn + artsBtn + artBtn + shareBtn + ownerBtn + newBtn + delBtn +
+      tplBtn + artsBtn + imgBtn + artBtn + shareBtn + ownerBtn + newBtn + delBtn +
       '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-save">Save</button>', cls);
     $("ee-save").onclick = save;
@@ -519,7 +523,8 @@
       if (state.dirty && !window.confirm("Discard your unsaved changes to this page?")) return;
       cancelEdit(); closeBar();
     };
-    if ($("ee-art")) $("ee-art").onclick = openArtPanel;
+    if ($("ee-art")) $("ee-art").onclick = function () { openArtPanel(); };
+    if ($("ee-img")) { $("ee-img").onmousedown = function (e) { e.preventDefault(); captureStyleRange(); }; $("ee-img").onclick = function () { captureStyleRange(); openArtPanel({ insert: true }); }; }
     if ($("ee-tpl")) $("ee-tpl").onclick = function (e) { e.stopPropagation(); toggleTemplateMenu(); };
     if ($("ee-arts-btn")) $("ee-arts-btn").onclick = function () { if (state.arts) { state.arts.open = !state.arts.open; renderArts(); editBar(msg, cls); } };
     if ($("ee-share")) $("ee-share").onclick = openSharePanel;
@@ -1501,8 +1506,12 @@
   }
 
 
-  function openArtPanel() {
-    if (!P.isAdmin(state.profile) || !Media) return;
+  function openArtPanel(opts) {
+    // ic1: "Image" on the edit bar opens the same gallery in insert-only mode, for anyone who can
+    // edit this page (players: gallery pictures they may use; upload only where they may upload).
+    state.galInsertOnly = !!(opts && opts.insert);
+    if (!Media) return;
+    if (!P.isAdmin(state.profile) && !(state.galInsertOnly && state.editing && P.canEdit(state.profile, PATH))) return;
     openPanel();
     var p = $("ee-panel");
     if (p) {
@@ -1797,8 +1806,11 @@
   function renderGallery(catalog) {
     var b = $("ee-body");
     if (!b) return;
-    var allItems = Media.listVisible(catalog, "devin", true);
-    var hasHero = !!document.querySelector(".art-hero img, section.art-hero");
+    var admin = P.isAdmin(state.profile);
+    var allItems = Media.listVisible(catalog, admin ? "devin" : ((state.profile && state.profile.person) || ""), admin);
+    var insertOnly = state.galInsertOnly || !admin;
+    var hasHero = !insertOnly && !!document.querySelector(".art-hero img, section.art-hero");
+    var canUp = admin || canUploadArt();
     var act = hasHero ? (state.galAct || "hero") : "insert";
     function matchItem(m, q) {
       if (!q) return true;
@@ -1834,7 +1846,8 @@
       });
     }
     b.innerHTML =
-      '<p class="ee-k">Art</p>' +
+      '<p class="ee-k">' + (insertOnly ? "Insert image" : "Art") + '</p>' +
+      (insertOnly ? '<p class="ee-note">Click a picture to insert it at the caret as a figure with a caption.</p>' : '') +
       (hasHero
         ? '<p class="ee-gal-act" role="radiogroup" aria-label="Click a picture to">' +
           '<label><input type="radio" name="ee-gal-act" value="hero"' + (act === "hero" ? " checked" : "") + '> Hero</label>' +
@@ -1844,7 +1857,7 @@
       '<label class="ee-gal-search-label" for="ee-gal-search">Search</label>' +
       '<input type="search" id="ee-gal-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
       '<div id="ee-gal-wrap">' + gridHtml(allItems) + '</div>' +
-      '<form id="ee-art-form" class="ee-gal-up">' +
+      '<form id="ee-art-form" class="ee-gal-up"' + (canUp ? '' : ' hidden') + '>' +
       '<p class="ee-sub">Upload new</p>' +
       fileButton("ee-art-file") +
       '<input type="text" id="ee-art-title" class="ee-field" placeholder="Title (optional)" autocomplete="off">' +
@@ -1852,8 +1865,10 @@
       '<label class="ee-check"><input type="checkbox" id="ee-art-everyone" checked> Everyone can use in the editor</label>' +
       '<div class="ee-row"><button type="submit" class="ee-btn ee-primary" id="ee-art-up">' + (act === "hero" ? "Use as hero" : "Insert") + '</button>' +
       '<button type="button" class="ee-btn" id="ee-art-back">Back</button></div>' +
-      '<p class="ee-err" id="ee-art-err" hidden></p></form>';
+      '<p class="ee-err" id="ee-art-err" hidden></p></form>' +
+      (canUp ? '' : '<div class="ee-row"><button type="button" class="ee-btn" id="ee-art-back2">Back</button></div><p class="ee-err" id="ee-art-err2" hidden></p>');
     $("ee-art-back").onclick = function () { closePanel(); };
+    if ($("ee-art-back2")) $("ee-art-back2").onclick = function () { closePanel(); };
     Array.prototype.forEach.call(b.querySelectorAll('input[name="ee-gal-act"]'), function (r) {
       r.onchange = function () {
         act = state.galAct = r.value;
@@ -1946,10 +1961,121 @@
     if (first) { first.insertAdjacentHTML("beforeend", imgHtml); return true; }
     return false;
   }
+  /* ---- ic1: pictures with captions ----
+     A picture goes in as the site's own caption markup (as on the Journal pages):
+     <figure><img src alt><figcaption>…</figcaption></figure>, as its own block after the
+     paragraph holding the caret (or in place of an empty one), with the caret in the caption.
+     An empty caption shows "Add a caption" only in edit mode (data-ee-empty, never saved) and is
+     dropped on save; clicking a picture in edit mode offers Add caption / Remove caption. */
+  var FLOW_BLOCK = /^(P|H[1-6]|BLOCKQUOTE|UL|OL|DL|FIGURE|PRE|TABLE|HR|DIV)$/;
+  function flowBlockOf(n, root) {
+    var b = null;
+    for (var x = n; x && x !== root; x = x.parentElement) if (x.nodeType === 1 && FLOW_BLOCK.test(x.tagName)) b = x;
+    // The outermost flow block under a section/main, not a <p> inside a blockquote's quote.
+    return b;
+  }
+  function capMark(fc) {
+    if (!fc) return;
+    var empty = !norm(fc.textContent);
+    if (empty) fc.setAttribute("data-ee-empty", ""); else fc.removeAttribute("data-ee-empty");
+  }
+  function capMarkAll() { var r = state.page && state.page.el; if (r) Array.prototype.forEach.call(r.querySelectorAll("figcaption"), capMark); }
+  function caretInto(el, atEnd) {
+    try {
+      var r = document.createRange(); r.selectNodeContents(el); r.collapse(!atEnd);
+      var s0 = window.getSelection(); s0.removeAllRanges(); s0.addRange(r); el.focus && state.page && state.page.el.focus({ preventScroll: true });
+      s0.removeAllRanges(); s0.addRange(r);
+    } catch (e) {}
+  }
+  function newFigure(imgHtml) {
+    var f = document.createElement("figure");
+    f.innerHTML = imgHtml + "<figcaption></figcaption>";
+    capMark(f.querySelector("figcaption"));
+    return f;
+  }
+  function insertFigure(imgHtml) {
+    if (!state.editing || !state.page) return insertImageHtml(imgHtml);
+    restoreStyleRange();
+    var root = state.page.el, n = selNode(), fig = newFigure(imgHtml);
+    var inPage = n && root.contains(n) && !isTitleField(n) && !(n.closest && n.closest(".ee-locked"));
+    var blk = inPage ? flowBlockOf(n, root) : null;
+    if (blk && blk.closest("figure") && blk.closest("figure") !== blk) blk = blk.closest("figure");
+    if (blk) {
+      var emptyP = blk.tagName === "P" && !norm(blk.textContent) && !blk.querySelector("img");
+      if (emptyP) blk.parentNode.replaceChild(fig, blk);
+      else blk.parentNode.insertBefore(fig, blk.nextSibling);
+    } else {
+      var host = (n && inPage && n.closest && n.closest("section, article")) || root.querySelector("#lore, .art-sec:last-of-type, section:last-of-type") || root;
+      host.appendChild(fig);
+    }
+    caretInto(fig.querySelector("figcaption"));
+    captureStyleRange();
+    return true;
+  }
+  function addCaption(img) {
+    var root = state.page && state.page.el;
+    if (!root || !img || !root.contains(img)) return null;
+    var fig = img.closest("figure");
+    if (!fig || !root.contains(fig)) {
+      fig = document.createElement("figure");
+      var blk = flowBlockOf(img, root);
+      var alone = blk && blk.tagName === "P" && !norm(blk.textContent) && blk.querySelectorAll("img").length === 1;
+      if (alone) { blk.parentNode.replaceChild(fig, blk); fig.appendChild(img); }
+      else if (blk) { blk.parentNode.insertBefore(fig, blk.nextSibling); fig.appendChild(img); }
+      else { img.parentNode.insertBefore(fig, img); fig.appendChild(img); }
+    }
+    var fc = fig.querySelector("figcaption");
+    if (!fc) { fc = document.createElement("figcaption"); fig.appendChild(fc); }
+    capMark(fc); caretInto(fc, true); markDirty();
+    return fc;
+  }
+  function removeCaption(img) {
+    var fig = img && img.closest("figure"), fc = fig && fig.querySelector("figcaption");
+    if (fc) { fc.remove(); markDirty(); }
+  }
+  function capToolsClose() { var t = $("ee-cap-tools"); if (t) t.remove(); }
+  function capTools(img) {
+    capToolsClose();
+    var fig = img.closest("figure"), has = !!(fig && fig.querySelector("figcaption"));
+    var t = document.createElement("div");
+    t.id = "ee-cap-tools"; t.className = "ee-cap-tools"; t.setAttribute("data-ee-ui", "1"); t.setAttribute("contenteditable", "false");
+    t.innerHTML = has ? '<button type="button" class="ee-btn" data-cap="rm">Remove caption</button>' : '<button type="button" class="ee-btn" data-cap="add">Add caption</button>';
+    document.body.appendChild(t);
+    var r = img.getBoundingClientRect();
+    t.style.left = Math.round(Math.max(8, Math.min(window.innerWidth - t.offsetWidth - 8, r.left + 8))) + "px";
+    t.style.top = Math.round(Math.max(8, r.top + 8)) + "px";
+    t.addEventListener("mousedown", function (e) { e.preventDefault(); });
+    t.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-cap]"); if (!b) return;
+      e.preventDefault(); e.stopPropagation();
+      if (b.getAttribute("data-cap") === "add") addCaption(img); else removeCaption(img);
+      capToolsClose();
+    });
+  }
+  function onCapClick(e) {
+    if (!state.editing || !state.page) return;
+    if (e.target.closest && e.target.closest("#ee-cap-tools")) return;
+    var img = e.target.tagName === "IMG" ? e.target : null;
+    if (img && state.page.el.contains(img) && !img.closest(".ee-locked, .art-hero")) { capTools(img); return; }
+    capToolsClose();
+  }
+  function onCapInput() { capMarkAll(); }
+  function capEnter() {
+    var n = selNode(), fc = n && n.closest && n.closest("figcaption");
+    if (!fc || !state.page || !state.page.el.contains(fc)) return false;
+    // Enter in a caption: a new paragraph after the picture (captions stay one line).
+    var fig = fc.closest("figure") || fc, p = document.createElement("p");
+    p.appendChild(document.createElement("br"));
+    fig.parentNode.insertBefore(p, fig.nextSibling);
+    fixBlockClass(p);
+    caretInto(p);
+    markDirty();
+    return true;
+  }
   function insertCatalogImage(entry) {
     var rel = gallerySrc(entry);
     var imgHtml = '<img src="' + esc(rel) + '" alt="' + esc(entry.title || "") + '">';
-    if (!insertImageHtml(imgHtml)) {
+    if (!insertFigure(imgHtml)) {
       var err = $("ee-art-err");
       if (err) { err.textContent = "Enter edit mode and place the caret where the image should go."; err.hidden = false; }
       return;
@@ -2352,7 +2478,7 @@
         editBar("Hero preview \u00b7 uploaded and published when you press Save");
         return;
       }
-      if (!insertImageHtml(pendingImgHtml(pd))) throw new Error("Enter edit mode and place the caret where the image should go.");
+      if (!insertFigure(pendingImgHtml(pd))) throw new Error("Enter edit mode and place the caret where the image should go.");
       closePanel(); markDirty();
       editBar("Image inserted \u00b7 uploaded when you press Save");
     }).catch(function (e) { fail(e.message || "Upload failed."); });
@@ -2370,6 +2496,7 @@
       // Name/epithet stay single-line (site header).
       if (isTitleField(e.target) || isTitleField(selNode())) return;
       if (state.page && dossierEnter(e)) return;
+      if (state.page && capEnter()) return;
       if (!e.shiftKey && state.page && enterParagraph()) return;
       document.execCommand("insertLineBreak");
     }
@@ -2759,6 +2886,9 @@
     document.removeEventListener("keydown", onKey, true);
     document.removeEventListener("paste", onPaste, true);
     document.removeEventListener("click", onClick, true);
+    document.removeEventListener("click", onCapClick, true);
+    if (state.page && state.page.el) state.page.el.removeEventListener("input", onCapInput);
+    capToolsClose();
     document.removeEventListener("selectionchange", onSelChange);
     window.removeEventListener("resize", positionStyleBar);
     removeDirtyListeners();
@@ -2836,6 +2966,7 @@
           dst.appendChild(n);
           return;
         }
+        if (tag === "figcaption" && !norm(ch.textContent)) return; // ic1: empty captions are never saved
         if (PAGE_BLOCK[tag]) {
           var b = document.createElement(tag === "div" ? "p" : tag);
           if (tag !== "div") copyAttrs(ch, b, tag);
@@ -3109,7 +3240,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=wide1\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=tt1\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=ic1\">\n" +
         "<script src=\"/rail-toggle.js?v=nfs1\"></script>\n" +
         "<script src=\"/skip-link.js?v=fs12\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
@@ -3125,7 +3256,7 @@
         "<script src=\"/peek.js?v=vt1\" defer></script>\n" +
         "<script src=\"/art-fit.js?v=af1\" defer></script>\n" +
         "<script src=\"/title-travel.js?v=tt1\" defer></script>\n" +
-        "<script src=\"/edit/edit.js?v=tt1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=ic1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },

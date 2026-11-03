@@ -670,7 +670,7 @@ async function batch2Tests(browser, vpName) {
     check(`[${vpName}] viewer: no EDIT anywhere on the article; Arts arrows still switch the art`, !!nb && r.src !== src0 && !r.edit, JSON.stringify({ src0: src0.slice(-40), src: r.src.slice(-40), edit: r.edit }));
     await ctx.close();
   }
-  // 4/5. Gallery Insert goes at the caret; pasted pictures wait for Save and go in one commit.
+  // 4/5. Gallery Insert goes after the caret's paragraph (as a captioned figure); pasted pictures wait for Save and go in one commit.
   {
     const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
     const file = "articles/aghor/index.html";
@@ -679,8 +679,11 @@ async function batch2Tests(browser, vpName) {
     await page.click("#ee-art"); await page.waitForSelector(".ee-gal-item", { timeout: 10000 }).catch(() => {});
     await page.check('input[name="ee-gal-act"][value="insert"]');
     await page.click(".ee-gal-item"); await page.waitForTimeout(400);
-    const g = await page.evaluate(() => { const im = window.__el.querySelector("img"); if (!im) return null; const r = document.createRange(); r.setStart(window.__el, 0); r.setEndBefore(im); return { before: r.toString().length, total: window.__el.textContent.length, src: im.getAttribute("src") }; });
-    check(`[${vpName}] gallery Insert: picture goes at the caret (mid-paragraph), not the page end`, g && Math.abs(g.before - Math.round(t0.length * 0.5)) <= 1 && /^\/assets\//.test(g.src), JSON.stringify(g));
+    // ic1: a figure can't sit inside a <p>, so the captioned picture goes right after the paragraph
+    // holding the caret (not at the page end), with the paragraph's text left whole.
+    const g = await page.evaluate((t0) => { const p = window.__el, f = p && p.nextElementSibling, im = f && f.tagName === "FIGURE" && f.querySelector(":scope > img"), fc = f && f.querySelector(":scope > figcaption");
+      return { inP: !!(p && p.querySelector("img, figure")), fig: !!im, cap: !!(fc && fc.hasAttribute("data-ee-empty")), whole: p && p.textContent === t0, src: im ? im.getAttribute("src") : null, sel: !!(fc && window.getSelection().anchorNode && fc.contains(window.getSelection().anchorNode)) }; }, t0);
+    check(`[${vpName}] gallery Insert: captioned figure goes right after the caret's paragraph (not inside it, not the page end)`, g && !g.inP && g.fig && g.cap && g.whole && g.sel && /^\/assets\//.test(g.src), JSON.stringify(g));
     const n0 = mock.log.length;
     await caretIn(page, LORE, 1.0);
     await pasteInto(page, { png: PNG1 });

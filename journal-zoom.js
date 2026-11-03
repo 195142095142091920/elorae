@@ -46,12 +46,13 @@
     if (opener && opener.isConnected) opener.focus({ preventScroll: true });
   }
   document.addEventListener("click", function (e) {
+    if (document.documentElement.classList.contains("ee-editing")) return; // ic1: edit mode (caption tools) never zooms
     var im = pick(e.target); if (!im) return;
     e.preventDefault(); open(im);
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") { close(); return; }
-    if ((e.key === "Enter" || e.key === " ") && pick(e.target)) { e.preventDefault(); open(e.target); }
+    if ((e.key === "Enter" || e.key === " ") && pick(e.target) && !document.documentElement.classList.contains("ee-editing")) { e.preventDefault(); open(e.target); }
   });
   /* keyboard reach: make journal images focusable (also for chapters added later) */
   function tab(root) {

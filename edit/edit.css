@@ -647,3 +647,19 @@ html.ee-index-org main.index-flow a.index-card { position: relative; }
 }
 .ee-index-vis:hover, .ee-index-vis:focus-visible, .ee-index-vis[aria-expanded="true"] { color: #f3eee6; outline: none; background: rgba(7,7,7,.9); }
 .ee-index-vis[data-mode="devin"], .ee-index-vis[data-mode="players"] { color: #d9c07a; background: rgba(7,7,7,.88); box-shadow: 0 0 0 1px rgba(217,192,122,.45); }
+
+/* ---- ic1: pictures with captions in edit mode ---- */
+html.ee-page-editing .ee-page figcaption { cursor: text; min-height: 1.4em; }
+html.ee-page-editing .ee-page figcaption[data-ee-empty]::before { content: "Add a caption"; color: #5c5852; font-style: italic; pointer-events: none; }
+html.ee-page-editing .ee-page figure img { cursor: pointer; }
+.ee-cap-tools {
+  position: fixed; z-index: 9110; display: flex; gap: 14px; padding: 7px 12px;
+  background: rgba(11,11,11,.94); border: 1px solid rgba(243,238,230,.14); box-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+/* Image button: the word on wide screens, a small picture icon on phones (keeps the bar's rows). */
+#ee-bar #ee-img { display: inline-flex; align-items: center; }
+#ee-bar #ee-img .ee-img-ic { display: none; flex: none; }
+@media (max-width: 800px) {
+  #ee-bar #ee-img .ee-img-ic { display: block; }
+  #ee-bar #ee-img .ee-img-lbl { display: none; }
+}
