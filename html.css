@@ -4476,7 +4476,7 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
     font-family: Helvetica, Arial, sans-serif !important;
     font-size: calc((12px) * var(--fs,1.5094)) !important;
     font-weight: 400 !important;
-    line-height: 1.15 !important;
+    line-height: 15px !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase !important;
     text-indent: 0 !important;
@@ -5321,4 +5321,36 @@ body:has(#section-bar > a[href^="/atlas/"]) main.read figure,
 body:has(#section-bar > a[href^="/codex/"]) main.read figure {
   margin-top: 1.2em;
   margin-bottom: 1.2em;
+}
+
+/* fs125-desktop: the 125% text look is desktop only (phones: exactly the earlier scale), and the
+   desktop text columns are 1.25x wider so a line holds about as many characters as before;
+   every width stays clamped to the space beside the rail. */
+@media (max-width: 800px) {
+  :root { --fs: 1.2075; --ee-px: 1; }
+}
+@media (min-width: 801px) {
+  .journal-page .read { max-width: 1209px; }
+  html body.gw-page main.read.gw { max-width: 1209px; }
+  body.journal-page:has(aside.toc) main.read {
+    width: min(1209px, calc(100vw - var(--rail-w,275px) - 67px));
+    margin-left: max(calc(var(--rail-w,275px) + 16px), calc(50vw - 604.5px));
+  }
+  body.book:has(aside.toc) main.read {
+    width: min(920px, calc(100vw - var(--rail-w,275px) - 56px));
+    margin-left: max(calc(var(--rail-w,275px) + 8px), calc(50vw - 460px));
+  }
+  body.book .read { max-width: 800px; }
+  body.article .art-body {
+    width: min(920px, calc(100% - 56px));
+    margin-left: calc((100% - min(920px, calc(100% - 56px))) / 2);
+  }
+  body.article.art-index-open .art-body,
+  html.cats-rail-pinned body.article .art-body {
+    width: min(920px, calc(100% - var(--rail-w,275px) - 56px));
+    margin-left: calc(var(--rail-w,275px) + (100% - var(--rail-w,275px) - min(920px, calc(100% - var(--rail-w,275px) - 56px))) / 2);
+  }
+  body.player-page main.read { max-width: 1300px; }
+  #search-hits { max-width: 900px; }
+  .index-list { max-width: 1025px; }
 }

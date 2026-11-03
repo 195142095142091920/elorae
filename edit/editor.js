@@ -3604,7 +3604,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=fs125\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=fig1\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=fs125d\">\n" +
         "<script src=\"/rail-toggle.js?v=nfs1\"></script>\n" +
         "<script src=\"/skip-link.js?v=fs125\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
