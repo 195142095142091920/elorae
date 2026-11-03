@@ -788,7 +788,7 @@
       '<section class="art-hero no-art"><div class="art-title"><h1>' + title + '</h1><p class="art-epithet"></p></div></section>\n' +
       '<main class="art-body">\n' + dossier + '<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n</main>\n' +
       '<script src="/search.js?v=fs12"><\/script><script src="/login.js?v=jason-ghost"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
-      '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=art87"><\/script>\n' +
+      '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=rd1"><\/script>\n<script src="/rail-sections.js?v=rd1"><\/script>\n' +
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="/peek.js?v=bs1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }

@@ -23,7 +23,7 @@
     };
   }).filter(function (c) { return c.el; });
   if (!cats.length) return;
-  var current = null, manual = {}, jump = "";
+  var current = null, jump = "";
   /* jump: the section a link or hash just sent the reader to. Near the page bottom the last
      sections can never reach the highlight line, so the jumped-to one wins there until the
      reader scrolls by hand (end1). */
@@ -84,23 +84,9 @@
     if (desk.matches) setOpen(focused());
     else setOpen(phoneOpen);
   }
-  function layout() {
-    cats.forEach(function (c) {
-      if (!c.tog) return;
-      var id = c.el.id;
-      /* Categories-only on scroll: open only from the chevron (manual), never from scroll. */
-      var open = id in manual ? manual[id] : false;
-      c.box.classList.toggle("open", open);
-      c.tog.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-  }
-  cats.forEach(function (c) {
-    if (!c.tog) return;
-    c.tog.addEventListener("click", function () {
-      manual[c.el.id] = !c.box.classList.contains("open");
-      layout();
-    });
-  });
+  /* Section open / closed belongs to rail-sections.js (rd1, shared with article pages: the title
+     row and the arrow both toggle). Scrolling never opens or closes a section. */
+  function layout() {}
   if (pin) {
     pin.addEventListener("click", function (e) {
       e.preventDefault();
@@ -198,6 +184,7 @@
   });
   toc.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href^='#']");
+    if (a && a.getAttribute("role") === "button") return; // section title: toggles, no jump (rd1)
     if (a) {
       jump = a.getAttribute("href").slice(1);
       window.setTimeout(update, 0);

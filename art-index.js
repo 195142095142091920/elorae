@@ -31,11 +31,14 @@
   }
 
   function setOpen(on) {
+    var was = root.classList.contains("open");
     root.classList.toggle("open", !!on);
     document.body.classList.toggle("art-index-open", !!on);
     if (cue) cue.setAttribute("aria-expanded", on ? "true" : "false");
     if (secToggle) secToggle.setAttribute("aria-expanded", on ? "true" : "false");
-    if (on) keepCurrentInView();
+    /* Only when the rail opens (rd1): re-centring on every focus change scrolled the panel under
+       a pressed section arrow, so the click landed elsewhere. */
+    if (on && !was) keepCurrentInView();
   }
 
   function setPinned(on) {
@@ -123,18 +126,7 @@
     persist();
   }, true);
 
-  root.querySelectorAll(".toc-tog").forEach(function (btn) {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      var box = btn.closest(".toc-cat");
-      if (!box) return;
-      var on = !box.classList.contains("open");
-      box.classList.toggle("open", on);
-      btn.setAttribute("aria-expanded", on ? "true" : "false");
-      if (on) keepCurrentInView();
-    });
-  });
+  /* Section arrows and titles: rail-sections.js (rd1), shared with the Index. */
 
   /* Esc closes; clears pin and persists (esc1). */
   document.addEventListener("keydown", function (e) {
