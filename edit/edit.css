@@ -612,3 +612,38 @@ html.ee-editing body.article .ee-dos-add:hover,
 html.ee-editing body.article .ee-dos-add:focus-visible { color: #f3eee6; border-color: rgba(243,238,230,.45); outline: none; }
 html.ee-editing body.article .art-dossier > dt:empty { min-height: 1.45em; min-width: 6em; border-bottom: 1px dotted rgba(243,238,230,.22); }
 html.ee-editing body.article .art-dossier > dt:empty::before { content: "Field name"; color: rgba(243,238,230,.28); font-style: italic; }
+
+/* ---- vt1: visibility (who can see an article + its cards) ---- */
+#ee-bar .ee-vis-btn { display: inline-flex; align-items: center; gap: 6px; }
+#ee-bar .ee-vis-btn svg { flex: none; }
+#ee-bar .ee-vis-btn.ee-vis-devin, #ee-bar .ee-vis-btn.ee-vis-players { color: #d9c07a; }
+.ee-vis-pop {
+  position: fixed; z-index: 9120; box-sizing: border-box; width: 264px; max-width: calc(100vw - 16px); padding: 14px 16px 12px;
+  background: rgba(11,11,11,.98); border: 1px solid rgba(243,238,230,.12); box-shadow: 0 18px 48px rgba(0,0,0,.6);
+  color: #f3eee6; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: calc(12px * var(--fs,1.2075)); text-shadow: none; text-align: left;
+}
+.ee-vis-head { font-size: calc(10px * var(--fs,1.2075)); letter-spacing: .22em; text-transform: uppercase; color: #8f8a82; }
+.ee-vis-name { margin: 3px 0 10px; font-size: calc(13px * var(--fs,1.2075)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ee-vis-opts { display: flex; flex-direction: column; gap: 2px; }
+.ee-vis-opt { display: flex; align-items: center; gap: 8px; padding: 5px 0; cursor: pointer; }
+.ee-vis-opt input, .ee-vis-p input { accent-color: #8f8a82; margin: 0; }
+.ee-vis-opt em, .ee-vis-p em { font-style: normal; color: #8f8a82; }
+.ee-vis-ic { display: inline-flex; color: #8f8a82; }
+.ee-vis-people { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 4px 0 2px 22px; opacity: .45; transition: opacity .15s; }
+.ee-vis-pop.ee-vis-pick .ee-vis-people { opacity: 1; }
+.ee-vis-p { display: inline-flex; align-items: center; gap: 6px; padding: 3px 0; cursor: pointer; white-space: nowrap; }
+.ee-vis-note { margin: 8px 0 0; color: #8f8a82; line-height: 1.45; font-size: calc(11px * var(--fs,1.2075)); }
+.ee-vis-err { margin: 8px 0 0; color: #d9a07a; line-height: 1.45; font-size: calc(11px * var(--fs,1.2075)); }
+.ee-vis-err.ee-vis-busy { color: #8f8a82; }
+.ee-vis-row { display: flex; justify-content: flex-end; gap: 18px; margin-top: 12px; }
+@media (max-width: 800px) { .ee-vis-opt, .ee-vis-p { min-height: 34px; } }
+/* Index organizer: one small button per card, top-left; faint eye = everyone, lock = Devin only,
+   people + count = chosen players (private / limited cards stand out). */
+html.ee-index-org main.index-flow a.index-card { position: relative; }
+.ee-index-vis {
+  position: absolute; z-index: 6; top: 6px; left: 6px; display: inline-flex; align-items: center; gap: 3px;
+  height: 24px; min-width: 24px; padding: 0 5px; box-sizing: border-box; margin: 0; border: 0; border-radius: 12px; cursor: pointer;
+  background: rgba(7,7,7,.72); color: rgba(243,238,230,.55); font: 700 11px/1 "Helvetica Neue", Helvetica, Arial, sans-serif; text-shadow: none;
+}
+.ee-index-vis:hover, .ee-index-vis:focus-visible, .ee-index-vis[aria-expanded="true"] { color: #f3eee6; outline: none; background: rgba(7,7,7,.9); }
+.ee-index-vis[data-mode="devin"], .ee-index-vis[data-mode="players"] { color: #d9c07a; background: rgba(7,7,7,.88); box-shadow: 0 0 0 1px rgba(217,192,122,.45); }

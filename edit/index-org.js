@@ -718,6 +718,7 @@
     if (!card || !cardsRoot().contains(card)) return;
     // Allow heading edits etc.
     if (e.target.closest && e.target.closest(".ee-index-heading")) return;
+    if (e.target.closest && e.target.closest(".ee-index-vis")) { e.preventDefault(); e.stopPropagation(); openCardVis(e.target.closest(".ee-index-vis"), card); return; }
     e.preventDefault();
     e.stopPropagation();
     setSelected(card);
@@ -791,16 +792,16 @@
     return '<!doctype html>\n<html lang="en">\n<head>\n<script src="/session-gate.js?v=jason-ghost"><\/script>\n<script src="/back-scroll.js?v=bs1"><\/script>\n\n<meta charset="utf-8">\n' +
       '<script src="/img.js?v=img-resize"><\/script>\n<script src="/cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>' + title + ' - Elorae</title>\n' +
-      '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=wide1">\n<link rel="stylesheet" href="/html.css?v=af1">\n' +
+      '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=wide1">\n<link rel="stylesheet" href="/html.css?v=vt1">\n' +
       '<script src="/rail-toggle.js?v=nfs1"><\/script>\n<script src="/skip-link.js?v=fs12"><\/script>\n<link rel="icon" href="/favicon.svg">\n</head>\n<body class="article">\n' +
       '<div class="mast"><header class="topbar"><span class="mark"></span><form action="/search/"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="/atlas/">Atlas</a><a class="" href="/codex/lore/">Codex</a><a class="active" href="/index/ancients/">Index</a><a class="" href="/journal/">Journal</a></nav></header></div>\n' +
       '<a class="art-back" href="/index/ancients/#' + esc(catId) + '">Index</a>\n' +
       '<section class="art-hero no-art"><div class="art-title"><h1>' + title + '</h1><p class="art-epithet"></p></div></section>\n' +
       '<main class="art-body">\n' + dossier + '<section class="art-sec" id="lore"><h2>Lore</h2><p class="art-life"></p></section>\n</main>\n' +
-      '<script src="/search.js?v=fs12"><\/script><script src="/login.js?v=jason-ghost"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
-      '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=rd1"><\/script>\n<script src="/rail-sections.js?v=re1"><\/script>\n' +
+      '<script src="/search.js?v=vt1"><\/script><script src="/login.js?v=vt1"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
+      '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=rd1"><\/script>\n<script src="/rail-sections.js?v=vt1"><\/script>\n' +
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
-      '<script src="/peek.js?v=bs1" defer><\/script>\n<script src="/art-fit.js?v=af1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
+      '<script src="/peek.js?v=vt1" defer><\/script>\n<script src="/art-fit.js?v=af1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
   var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "ia1"; })();
   function newArticle(name, catId, secId, artTpl) {
@@ -905,7 +906,7 @@
     return s;
   }
   function stripRuntime(root, mode) {
-    Array.prototype.forEach.call(root.querySelectorAll(".card-lore-back"), function (n) { n.remove(); });
+    Array.prototype.forEach.call(root.querySelectorAll(".card-lore-back, .ee-index-vis"), function (n) { n.remove(); });
     [root].concat(Array.prototype.slice.call(root.querySelectorAll("*"))).forEach(function (n) {
       if (n.hasAttribute("class")) {
         var kc = Array.prototype.filter.call(n.classList, function (c) { return !RUNTIME_CLASS.test(c); });
@@ -1130,6 +1131,42 @@
     });
   }
 
+  /* ---------- vt1: who can see a card (and its article) ----------
+     A small eye / lock / people button on every card shows who sees it at a glance; it opens the
+     shared popover (edit/visset.js), which saves the article, both Index copies, every duplicate
+     card, the Categories entries, visibility.json and search-index.js in one commit. */
+  function VS() { return window.EloraeVisSet; }
+  function paintVis() {
+    var V = VS(); if (!V || !state.active) return;
+    allCards().forEach(function (card) {
+      var slug = cardSlug(card); if (!slug) return;
+      var b = card.querySelector(":scope > .ee-index-vis");
+      if (!b) {
+        b = document.createElement("button");
+        b.type = "button"; b.className = "ee-index-vis"; b.setAttribute("data-ee-ui", "1"); b.setAttribute("aria-haspopup", "dialog"); b.setAttribute("aria-expanded", "false");
+        b.draggable = false;
+        card.appendChild(b);
+      }
+      var st = V.current(slug);
+      b.setAttribute("data-mode", st.mode);
+      b.title = "Who can see " + cardName(card) + ": " + V.label(st);
+      b.setAttribute("aria-label", b.title);
+      b.innerHTML = V.ICON[st.mode] + (st.mode === "players" ? '<span>' + st.people.length + "</span>" : "");
+    });
+  }
+  function unpaintVis() { Array.prototype.forEach.call(document.querySelectorAll(".ee-index-vis"), function (b) { b.remove(); }); }
+  function openCardVis(btn, card) {
+    var V = VS(); if (!V) return;
+    var slug = cardSlug(card); if (!slug) return;
+    V.open(btn, slug, { name: cardName(card), onSaved: function (res, st) {
+      paintVis();
+      if (state.tocRebuilt) rebuildTocFromDom();
+      barMsg((res.files.length ? "\u201c" + cardName(card) + "\u201d: " + V.label(st) + " \u00b7 " + res.counts.cards + " card" + (res.counts.cards === 1 ? "" : "s") + " + article updated. " : "No change. ") + savedAt(), "ee-done");
+    } });
+  }
+  // The visibility save already committed: make Cancel's snapshot carry it too.
+  function visApplied(fn) { if (snapshot) { snapshot.main = fn(snapshot.main); snapshot.toc = fn(snapshot.toc); } }
+
   var snapshot = null;
   function start() {
     if (state.active || !isIndexPage()) return false;
@@ -1160,6 +1197,8 @@
     window.addEventListener("beforeunload", onUnload);
     if (Array.prototype.map.call(document.querySelectorAll("main.index-flow .index-cards"), sortBox).some(Boolean)) rebuildTocFromDom();
     barMsg("Index organizer · drag cards between categories, or select + Categories");
+    paintVis();
+    if (VS() && !VS().manifest()) VS().loadManifest().then(paintVis).catch(function () {});
     var g = $("ee-glyph");
     if (g) g.style.display = "none";
     return true;
@@ -1181,6 +1220,8 @@
     window.removeEventListener("resize", positionSubs);
     window.removeEventListener("beforeunload", onUnload);
     closeSubs();
+    if (VS()) VS().close();
+    unpaintVis();
     setTarget(null);
     disableHeaderEdit();
     disableDrag();
@@ -1214,6 +1255,8 @@
     setProfile: setProfile,
     active: function () { return state.active; },
     addSubsection: addSubsection,
+    visApplied: visApplied,
+    paintVis: paintVis,
     get lastPlan() { return state.lastPlan || null; }
   };
 

@@ -844,7 +844,7 @@ applyLogin();
 /* Visibility among friends: private pieces shared beyond their owner (edit/visibility.json). */
 (function () {
   if (window.__visGate || !document.head) return;
-  var g = document.createElement("script"); g.src = "/vis-gate.js?v=plain1"; document.head.appendChild(g);
+  var g = document.createElement("script"); g.src = "/vis-gate.js?v=vt1"; document.head.appendChild(g);
 })();
 
 /* Login page: phrase enter, welcome + optional Connect (in-box), guest browse. */

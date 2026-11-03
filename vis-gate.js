@@ -71,9 +71,21 @@
       }
     });
     var q = sel.join(",");
-    var run = function () { Array.prototype.forEach.call(document.querySelectorAll(q), function (n) { n.classList.remove("private"); }); };
+    /* vt1: a revealed Index card also reveals its Categories entry (href="#<card id>"), and a
+       Private section (.private-group) holding something shared with this viewer opens for them
+       (vis-shared); "elorae-vis" tells the empty-section hiding and the rails to look again. */
+    var run = function () {
+      var hit = Array.prototype.slice.call(document.querySelectorAll(q));
+      if (!hit.length) return;
+      hit.forEach(function (n) { n.classList.remove("private"); });
+      hit.forEach(function (n) {
+        if (n.matches("a.index-card") && n.id) Array.prototype.forEach.call(document.querySelectorAll('a.private[href="#' + n.id + '"]'), function (a) { a.classList.remove("private"); var g0 = a.closest(".private-group"); if (g0) g0.classList.add("vis-shared"); });
+        var g = n.closest(".private-group"); if (g) g.classList.add("vis-shared");
+      });
+      try { document.dispatchEvent(new CustomEvent("elorae-vis")); } catch (e) {}
+    };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run); else run();
-    if (window.MutationObserver) new MutationObserver(run).observe(document.documentElement, { childList: true, subtree: true });
+    if (window.MutationObserver) new MutationObserver(function () { if (document.querySelector(q)) run(); }).observe(document.documentElement, { childList: true, subtree: true });
   }
   if (man) reveal(man);
   fresh.then(function (m) { if (m && !man) reveal(m); }).catch(function () {});

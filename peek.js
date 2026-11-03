@@ -64,16 +64,29 @@
     if (cache[slug]) return cache[slug];
     var p = fetch("/articles/" + slug + "/", { credentials: "same-origin" })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(parse);
+      .then(function (t) { return parse(t, slug); });
     p.catch(function () { delete cache[slug]; });
     return (cache[slug] = p);
   }
-  function parse(html) {
+  // vt1: is this (private) article shown to this viewer? Owner + Devin always; others by the manifest.
+  function seesArticle(owner, slug) {
+    var w = me();
+    if (w === "devin" || (owner && owner === w)) return true;
+    if (!w || !slug) return false;
+    var m = manifest();
+    for (var id in m) { var s = m[id]; if (s && (s.path === "articles/" + slug + ".html" || s.path === "articles/" + slug + "/index.html")) return !!(s.everyone || s.owner === w || (s.allowed || []).indexOf(w) >= 0); }
+    return false;
+  }
+  function parse(html, slug) {
     var d = new DOMParser().parseFromString(html, "text/html");
     var h = d.documentElement;
     var pid = h.getAttribute("data-secret-page");
     if (pid && !sees(h.getAttribute("data-owner") || "", pid)) return null;
     var hero = d.querySelector("section.art-hero"), main = d.querySelector("main.art-body");
+    // A private article (hero / body marked private) gives nothing to a viewer it is not shown to,
+    // so a hover card on a plain link never shows it either (vt1).
+    var gate = (main && main.classList.contains("private")) ? main : (hero && hero.classList.contains("private")) ? hero : null;
+    if (gate && !seesArticle(gate.getAttribute("data-owner") || "", slug)) return null;
     // The article itself may be owner-gated (private article): the viewer reached it from a card or
     // link they can see, which is the same rule the article page uses. Anything private INSIDE it
     // that this viewer cannot see goes.

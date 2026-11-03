@@ -497,7 +497,14 @@
     var admin = P.isAdmin(state.profile);
     var artBtn = (admin && Media)
       ? '<button type="button" class="ee-btn" id="ee-art">Art</button>' : '';
-    var shareBtn = (admin && V) ? '<button type="button" class="ee-btn" id="ee-share">Share</button>' : '';
+    // vt1: who can see this article (Everyone / Devin only / chosen players); replaces Share.
+    var VS = window.EloraeVisSet, vslug = articleSlugOfPath();
+    var shareBtn = '';
+    if (admin && VS && vslug) {
+      var vst = VS.current(vslug);
+      shareBtn = '<button type="button" class="ee-btn ee-vis-btn ee-vis-' + vst.mode + '" id="ee-vis" aria-haspopup="dialog" aria-expanded="false" title="Who can see this: ' + esc(VS.label(vst)) + '">' +
+        VS.ICON[vst.mode] + '<span class="ee-vis-lbl">' + esc(VS.shortLabel(vst)) + '</span></button>';
+    } else if (admin && V) shareBtn = '<button type="button" class="ee-btn" id="ee-share">Share</button>';
     var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
     var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart" aria-label="New article">New<span class="ee-wide-only"> article</span></button>' : '';
     var delBtn = admin && articleSlugOfPath() ? '<button type="button" class="ee-btn ee-danger" id="ee-delart" aria-label="Delete article">Del<span class="ee-wide-only">ete</span></button>' : '';
@@ -516,6 +523,17 @@
     if ($("ee-tpl")) $("ee-tpl").onclick = function (e) { e.stopPropagation(); toggleTemplateMenu(); };
     if ($("ee-arts-btn")) $("ee-arts-btn").onclick = function () { if (state.arts) { state.arts.open = !state.arts.open; renderArts(); editBar(msg, cls); } };
     if ($("ee-share")) $("ee-share").onclick = openSharePanel;
+    if ($("ee-vis")) $("ee-vis").onclick = function (e) {
+      e.stopPropagation();
+      var VS = window.EloraeVisSet, sl = articleSlugOfPath(), h1 = document.querySelector(".art-title h1");
+      VS.open($("ee-vis"), sl, { name: h1 ? norm(h1.textContent) : sl, onSaved: function (res, st) {
+        editBar((res.files.length ? "Visible to " + VS.label(st) + ". " : "No change. ") + "Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + ".", "ee-done");
+      } });
+    };
+    if ($("ee-vis") && window.EloraeVisSet && !window.EloraeVisSet.manifest()) {
+      window.EloraeVisSet.loadManifest().then(function () { var b = $("ee-vis"); if (b && !$("ee-vis-pop")) { var VS = window.EloraeVisSet, st = VS.current(articleSlugOfPath());
+        b.className = "ee-btn ee-vis-btn ee-vis-" + st.mode; b.title = "Who can see this: " + VS.label(st); b.innerHTML = VS.ICON[st.mode] + '<span class="ee-vis-lbl">' + esc(VS.shortLabel(st)) + "</span>"; } }).catch(function () {});
+    }
     if ($("ee-owner")) $("ee-owner").onclick = openOwnerPanel;
     if ($("ee-delart")) $("ee-delart").onclick = deleteArticleFlow;
     if ($("ee-newart")) $("ee-newart").onclick = function () {
@@ -3091,7 +3109,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=wide1\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=af1\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=vt1\">\n" +
         "<script src=\"/rail-toggle.js?v=nfs1\"></script>\n" +
         "<script src=\"/skip-link.js?v=fs12\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
@@ -3102,11 +3120,11 @@
         "<header class=\"art-title\"><h1>" + escTitle + "</h1><p class=\"art-epithet\"></p></header>\n" +
         "<section class=\"art-sec\" id=\"lore\"><h2>Lore</h2><p class=\"art-life\"></p></section>\n" +
         "</main>\n" +
-        "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
+        "<script src=\"/search.js?v=vt1\"></script><script src=\"/login.js?v=vt1\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
-        "<script src=\"/peek.js?v=bs1\" defer></script>\n" +
+        "<script src=\"/peek.js?v=vt1\" defer></script>\n" +
         "<script src=\"/art-fit.js?v=af1\" defer></script>\n" +
-        "<script src=\"/edit/edit.js?v=ia1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=vt1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },

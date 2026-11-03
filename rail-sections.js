@@ -249,5 +249,6 @@
   new MutationObserver(function () { if (!busy) soon(); }).observe(watchEl, { childList: true, subtree: true });
   document.addEventListener("elorae-rail-synced", soon);
   window.addEventListener("elorae-edit-session", soon);
+  document.addEventListener("elorae-vis", soon); // vt1: vis-gate revealed shared cards / a visibility save
   window.EloraeEmptySections = { run: run, rule: emptyRule };
 })();

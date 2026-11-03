@@ -76,7 +76,7 @@ requests: write, 90 days). The repository must be selected by hand: *Only select
 ## Editing
 Enter, then click **EDIT** (bottom-right, only on pages you can edit; for players that means only
 their own article pages). Article text and dossier values become editable (for Devin, codex prose,
-journal text and Index text too). On secret/private articles, Devin gets **Share** (Everyone / per-player toggles or Encrypt, same commits as the dashboard; requires unlocked secrets key) and **Owner** (assign which player may edit the page via `profiles.json`). Devin can also edit the article hero **name** (`h1`) and **epithet**
+journal text and Index text too). On every article Devin gets a **visibility** button (eye = Everyone, lock = Devin only, people = chosen players; `edit/visset.js`, vt1, replaces the old Share button) and **Owner** (assign which player may edit the page via `profiles.json`). The same control is a small button on every card in the Index organizer. One save (one commit, retried on clashes) writes the article (both copies: hero, body and its own Categories entries), both Index copies (every card for it, duplicates included, and their Categories entries), `edit/visibility.json` (Everyone removes the article's entry) and its `search-index.js` entry; other articles' Categories rails follow the Index at runtime. Only admins can change visibility (players never get the button, and the guard keeps `edit/**` admin-only). Devin can also edit the article hero **name** (`h1`) and **epithet**
 (`.art-epithet`) in place; players cannot. Nav, other headings, links lists and structure don't. **Save** works like this:
 
 1. GET `/repos/195142095142091920/elorae/contents/<path>?ref=main` to read the current source and its `sha`.

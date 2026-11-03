@@ -83,7 +83,7 @@
     var css = document.createElement("link");
     css.rel = "stylesheet"; css.href = new URL("edit.css" + (V ? "?" + V : ""), base).href;
     document.head.appendChild(css);
-    ["core.js", "perms.js", "srcmap.js", "recent.js", "media.js", "crypto.js", "vis.js", "editor.js", "index-org.js"].reduce(function (p, f) {
+    ["core.js", "perms.js", "srcmap.js", "recent.js", "media.js", "crypto.js", "vis.js", "visset.js", "editor.js", "index-org.js"].reduce(function (p, f) {
       return p.then(function () { return load(f); });
     }, Promise.resolve()).catch(function () {});
   }

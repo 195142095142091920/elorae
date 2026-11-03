@@ -616,7 +616,7 @@ async function signInViaPanel(page, token) {
         await page.goto(BASE + "articles/vaerek.html", { waitUntil: "networkidle" });
         await waitEditor(page);
         await page.click(EDIT_SEL); await page.waitForSelector("#ee-save");
-        check("admin edit bar: Share + Owner buttons", !!(await page.$("#ee-share")) && !!(await page.$("#ee-owner")));
+        check("admin edit bar: Visibility (vt1, replaces Share) + Owner buttons", !!(await page.$("#ee-vis")) && !!(await page.$("#ee-owner")));
         await page.click("#ee-owner");
         await page.waitForSelector("#ee-owner-select");
         // pick julie-gh if present in mock profiles

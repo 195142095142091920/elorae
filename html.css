@@ -4559,7 +4559,7 @@ body:not(.login-devin):not(.login-julie) .private[data-owner="julie"],
 body:not(.login-devin):not(.login-sawyer) .private[data-owner="sawyer"],
 body:not(.login-devin):not(.login-sylum) .private[data-owner="sylum"],
 body:not(.login-devin):not(.login-jason) .private[data-owner="jason"],
-body:not(.login-devin):not(.login-jack) .private-group { display: none !important; }
+body:not(.login-devin):not(.login-jack) .private-group:not(.vis-shared) { display: none !important; }
 /* Articles without art yet (Telorin): shorter, plain hero; Index card shows the name only. */
 body.article .art-hero.no-art { height: 52vh !important; height: 52svh !important; }
 body.article .art-hero.no-art::after { display: none; }

@@ -21,7 +21,13 @@
     if (!entry.private) return true;
     var who = loginWho();
     if (who === "devin") return true;
-    return !!(who && entry.owner && who === entry.owner);
+    if (who && entry.owner && who === entry.owner) return true;
+    // vt1: shared with this player in edit/visibility.json (vis-gate keeps a copy in sessionStorage).
+    try {
+      var m = (JSON.parse(sessionStorage.getItem("elorae-vis-man") || "null") || {}).secrets || {};
+      for (var id in m) { var s = m[id]; if (who && s && s.path === entry.href) return !!(s.everyone || (s.allowed || []).indexOf(who) >= 0); }
+    } catch (e) {}
+    return false;
   }
 
   function escapeHtml(s) {

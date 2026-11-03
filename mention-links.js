@@ -29,9 +29,17 @@
     try { return location.hash === "#edit" || !!(sessionStorage.getItem("elorae-edit-session") || localStorage.getItem("elorae-edit-session")); }
     catch (e) { return false; }
   }
-  function unlocked(owner) {
+  function unlocked(owner, href) {
     var c = document.body.classList;
-    return !!owner && (c.contains("login-devin") || c.contains("login-" + owner));
+    if (!!owner && (c.contains("login-devin") || c.contains("login-" + owner))) return true;
+    // vt1: shared with this player in edit/visibility.json (vis-gate's sessionStorage copy).
+    var w = ""; for (var i = 0; i < c.length; i++) { var mm = /^login-([a-z]+)$/.exec(c[i]); if (mm && mm[1] !== "guest") w = mm[1]; }
+    if (!w || !href) return false;
+    try {
+      var m = (JSON.parse(sessionStorage.getItem("elorae-vis-man") || "null") || {}).secrets || {};
+      for (var id in m) { var s = m[id]; if (s && s.path === href) return !!(s.everyone || (s.allowed || []).indexOf(w) >= 0); }
+    } catch (e) {}
+    return false;
   }
   function text(el) { return el ? el.textContent.replace(/\s+/g, " ").trim() : ""; }
   function opening(t) {
@@ -148,7 +156,7 @@
       var all = JSON.parse(t.slice(t.indexOf("["), t.lastIndexOf("]") + 1));
       var places = {};
       all.forEach(function (e) { if (e.kind !== "article") places[e.title] = 1; });
-      var list = all.filter(function (e) { return e.kind === "article" && (!e.private || unlocked(e.owner)); });
+      var list = all.filter(function (e) { return e.kind === "article" && (!e.private || unlocked(e.owner, e.href)); });
       /* Full article titles, plus the short forms the Journal itself already uses as link text
          (e.g. "Silar" for Silar Scorria); no guessed aliases, so common words never match. */
       var names = {}, ok = {};
