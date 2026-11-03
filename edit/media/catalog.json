@@ -2933,6 +2933,126 @@
         "jason"
       ],
       "everyone": true
+    },
+    "mano-beneath-the-crimson-light-of": {
+      "path": "assets/mano-beneath-the-crimson-light-of.png",
+      "title": "Mano, beneath the crimson light of Cressana",
+      "tags": [
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T15:07:45.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "everyone": false
+    },
+    "manos-eyes-vibrant-red-with-the": {
+      "path": "assets/manos-eyes-vibrant-red-with-the.png",
+      "title": "Mano's eyes, vibrant red with the blessing of Cressana, and shaped with the grief of duty",
+      "tags": [
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T15:07:45.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "everyone": false
+    },
+    "glaidrogh-the-ancestral-weapon-of-house": {
+      "path": "assets/glaidrogh-the-ancestral-weapon-of-house.png",
+      "title": "Glaidrogh, the ancestral weapon of House Manos, dating back to the second age",
+      "tags": [
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T15:07:45.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "everyone": false
+    },
+    "haethlin-gazes-out-into-the-lands": {
+      "path": "assets/haethlin-gazes-out-into-the-lands.png",
+      "title": "Haethlin gazes out into the lands beneath the Red Moon",
+      "tags": [
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T15:07:45.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "everyone": false
+    },
+    "the-red-moon-in-the-dream": {
+      "path": "assets/the-red-moon-in-the-dream.png",
+      "title": "The red moon, in the Dream, grows and distorts beyond reason",
+      "tags": [
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T15:07:45.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack"
+      ],
+      "everyone": false
+    },
+    "heldranc-awaits-vaerek-for-a-private": {
+      "path": "assets/heldranc-awaits-vaerek-for-a-private.png",
+      "title": "Heldranc awaits Vaerek for a private audience",
+      "tags": [
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T15:07:45.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "sawyer"
+      ],
+      "everyone": false
+    },
+    "after-two-millennia-heldranc-last-dragon": {
+      "path": "assets/after-two-millennia-heldranc-last-dragon.png",
+      "title": "After two millennia, Heldranc, Last Dragon of the Old Blood, flies once more",
+      "tags": [
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T15:07:45.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "sawyer"
+      ],
+      "everyone": false
+    },
+    "vaerek-is-bathed-in-heldrancs-ancient": {
+      "path": "assets/vaerek-is-bathed-in-heldrancs-ancient.png",
+      "title": "Vaerek is bathed in Heldranc's ancient dragonflame",
+      "tags": [
+        "journal"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T15:07:45.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "sawyer"
+      ],
+      "everyone": false
     }
   },
   "hidden": [
