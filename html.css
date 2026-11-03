@@ -5239,3 +5239,37 @@ body.index-page a.index-card.peek-on { outline: 1px solid rgba(243, 238, 230, 0.
 .hover-card-dl dd { margin: 0; min-width: 0; font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif; font-size: calc((13px) * var(--fs,1.2075)); line-height: 1.35; color: #e4ddd2; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: reduce) { .hover-card { transition: none; transform: none; } }
 html.ee-editing .hover-card, html.ee-index-org .peek, html.ee-editing .peek { display: none !important; }
+
+/* fa1: View full art. Faint expand icon in the hero's top right; uncropped lightbox. */
+body.article section.art-hero .art-full-btn {
+  position: absolute; z-index: 3; top: calc(var(--nav-bottom, 56px) + 14px); right: 16px;
+  width: 28px; height: 28px; padding: 6px; margin: 0; border: 0; border-radius: 0; background: none;
+  color: #f3eee6; opacity: .28; cursor: zoom-in; transition: opacity .18s ease;
+  filter: drop-shadow(0 0 3px rgba(0,0,0,.55));
+}
+body.article section.art-hero .art-full-btn svg { display: block; width: 100%; height: 100%; }
+body.article section.art-hero:hover .art-full-btn { opacity: .5; }
+body.article section.art-hero .art-full-btn:hover,
+body.article section.art-hero .art-full-btn:focus-visible { opacity: 1; outline: none; }
+body.article section.art-hero .art-full-btn:focus-visible { outline: 1px solid rgba(243,238,230,.45); outline-offset: 2px; }
+@media (hover: none) {
+  body.article section.art-hero .art-full-btn { opacity: .45; }
+}
+@media (max-width: 800px) {
+  /* Bottom right, in the art-swap arrows' row: the top of the hero sits under the open Categories dropdown on phones. */
+  body.article section.art-hero .art-full-btn { opacity: .45; right: 12px; top: auto; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); }
+  /* Keep the name / epithet clear of the icon (wrap a little earlier; the hero itself is unchanged). */
+  body.article section.art-hero:has(> .art-full-btn) .art-title { padding-right: 56px; }
+}
+html.ee-editing body.article .art-full-btn { display: none !important; }
+.art-full-btn .vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+.art-full { position: fixed; inset: 0; z-index: 10050; background: #000; display: flex; align-items: center; justify-content: center; cursor: zoom-out; overscroll-behavior: contain; touch-action: none; outline: none; }
+.art-full[hidden] { display: none; }
+.art-full-img { width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; -webkit-user-drag: none; }
+.art-full-x {
+  position: absolute; top: max(12px, env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+  width: 36px; height: 36px; padding: 0; border: 0; background: none; color: #f3eee6; opacity: .6;
+  font: 300 18px/36px system-ui, sans-serif; cursor: pointer;
+}
+.art-full-x:hover, .art-full-x:focus-visible { opacity: 1; outline: none; }
+html.art-full-open { overflow: hidden; }
