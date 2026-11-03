@@ -3284,6 +3284,237 @@
         "jason"
       ],
       "everyone": true
+    },
+    "an-artists-depiction-of-a-valoran": {
+      "path": "assets/an-artists-depiction-of-a-valoran.png",
+      "title": "An artists depiction of a Valoran librarium",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "lore-ilium-legendarium": {
+      "path": "assets/lore-ilium-legendarium.png",
+      "title": "Lore: Ilium Legendarium",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "lore-twin-fates-lore-of-the-celestial-sands": {
+      "path": "assets/lore-twin-fates-lore-of-the-celestial-sands.jpg",
+      "title": "Lore: Twin Fates: Lore of the Celestial Sands",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "a-sorcerer-peers-into-a-landscape": {
+      "path": "assets/a-sorcerer-peers-into-a-landscape.jpg",
+      "title": "A sorcerer peers into a landscape infused with Elder magic",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "a-priest-wreathes-himself-in-radiant": {
+      "path": "assets/a-priest-wreathes-himself-in-radiant.jpg",
+      "title": "A priest wreathes himself in Radiant magic",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "an-assassin-siphons-the-soul-of": {
+      "path": "assets/an-assassin-siphons-the-soul-of.jpg",
+      "title": "An assassin siphons the soul of his victim using Death magic",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "a-great-dragon-incinerates-an-army": {
+      "path": "assets/a-great-dragon-incinerates-an-army.jpg",
+      "title": "A great dragon incinerates an army using Fire magic",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-king-of-pyne-stands-before": {
+      "path": "assets/the-king-of-pyne-stands-before.jpg",
+      "title": "The King of Pyne stands before his army in a ceremony of war",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "a-shadow-knight-of-the-dark": {
+      "path": "assets/a-shadow-knight-of-the-dark.jpg",
+      "title": "A Shadow-Knight of the Dark Tribunal defends the corridors of his order",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "a-congregation-walks-in-a-basin": {
+      "path": "assets/a-congregation-walks-in-a-basin.jpg",
+      "title": "A congregation walks in a basin of waterfalls before a temple of Sar Sareen",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "the-land-is-enveloped-in-raw": {
+      "path": "assets/the-land-is-enveloped-in-raw.png",
+      "title": "The land is enveloped in raw Infinity for years after the death of Aghor",
+      "tags": [
+        "site",
+        "codex"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:30:31.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
