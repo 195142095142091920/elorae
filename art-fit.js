@@ -12,26 +12,18 @@
   "use strict";
   var doc = document, root = doc.documentElement;
   if (!doc.body || !doc.body.classList.contains("article")) return;
-  var hero = null, img = null, full = true, ro = null;
+  var hero = null, img = null, full = false, ro = null;
   var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
   function editing() { return root.classList.contains("ee-editing"); }
   function usable() { return hero && img && img.getAttribute("src") && !hero.classList.contains("no-art") && !editing(); }
   function label() { return full ? "Show the art cropped to the frame" : "Show the whole art"; }
-  // afd1: fit is the default and sits at the top, right under the nav bar (extra black goes below).
-  function navTop() {
-    if (!hero) return 0; var b = 0;
-    [".topbar", "#section-bar"].forEach(function (q) { var n = doc.querySelector(q); if (n) { var r = n.getBoundingClientRect(), cs = getComputedStyle(n); if (r.height && cs.display !== "none" && cs.visibility !== "hidden" && r.top < 220) b = Math.max(b, r.bottom); } });
-    var t = Math.round(b - hero.getBoundingClientRect().top);
-    t = Math.max(0, Math.min(t, 200)); root.style.setProperty("--af-top", t + "px"); return t;
-  }
   function fitBox() {
     var W = hero.clientWidth, H = hero.clientHeight;
     var nw = img.naturalWidth, nh = img.naturalHeight;
     if (!W || !H || !nw || !nh) return null;
     var r = nw / nh, w, h;
-    var T = navTop(); H -= T;
     if (W / H > r) { h = H; w = H * r; } else { w = W; h = W / r; }
-    return { left: (W - w) / 2, top: T, width: w, height: h };
+    return { left: (W - w) / 2, top: (H - h) / 2, width: w, height: h };
   }
   function apply(animate) {
     if (!img) return;
@@ -45,7 +37,6 @@
       ["inset", "left", "top", "width", "height"].forEach(function (k) { img.style[k] = ""; });
     }
     hero.classList.toggle("art-fit-full", full);
-    hero.classList.toggle("art-crop", !full);
     img.setAttribute("aria-pressed", full ? "true" : "false");
     img.setAttribute("aria-label", label());
   }
@@ -60,13 +51,13 @@
     if (!usable()) return;
     if (!img.naturalWidth) return;
     full = !full;
-    if (full) { prepareCrop(); apply(true); hero.classList.add("art-crop"); setTimeout(function () { if (full) hero.classList.remove("art-crop"); }, reduce.matches ? 0 : 380); }
+    if (full) { prepareCrop(); apply(true); }
     else {
       // Animate back to the full hero box, then hand back to the stylesheet (inset 0, 100%).
       img.classList.toggle("art-fit-anim", !reduce.matches);
       img.style.left = "0px"; img.style.top = "0px";
       img.style.width = hero.clientWidth + "px"; img.style.height = hero.clientHeight + "px";
-      hero.classList.remove("art-fit-full"); hero.classList.add("art-crop");
+      hero.classList.remove("art-fit-full");
       img.setAttribute("aria-pressed", "false"); img.setAttribute("aria-label", label());
       var done = function () { if (!full) { img.classList.remove("art-fit-anim"); ["inset", "left", "top", "width", "height"].forEach(function (k) { img.style[k] = ""; }); } };
       if (reduce.matches) done(); else setTimeout(done, 380);
@@ -105,7 +96,6 @@
     var ok = usable();
     mark(ok);
     if (!ok && full) { full = false; img && apply(false); }
-    else if (ok && full && img.naturalWidth && !img.style.width) apply(false);
   }
   new MutationObserver(bind).observe(root, { attributes: true, attributeFilter: ["class"] });
   bind();

@@ -801,7 +801,7 @@
       '<script src="/search.js?v=fs125"><\/script><script src="/login.js?v=vt1"><\/script><script src="/player-mark.js?v=pretty-urls"><\/script>\n' +
       '<canvas id="friend-glow"></canvas>\n<script src="/glow.js?v=jason-ghost"><\/script>\n<script src="/art-index.js?v=rd1"><\/script>\n<script src="/rail-sections.js?v=vt1"><\/script>\n' +
       '<script src="/article-siblings.js?v=fs125"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
-      '<script src="/peek.js?v=vt1" defer><\/script>\n<script src="/art-fit.js?v=afd1" defer><\/script>\n<script src="/title-travel.js?v=tt1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
+      '<script src="/peek.js?v=vt1" defer><\/script>\n<script src="/art-fit.js?v=afd2" defer><\/script>\n<script src="/title-travel.js?v=tt1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
   var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "pf1"; })();
   function newArticle(name, catId, secId, artTpl) {

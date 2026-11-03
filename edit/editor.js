@@ -3614,7 +3614,7 @@
         "<script src=\"/search.js?v=fs125\"></script><script src=\"/login.js?v=vt1\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
         "<script src=\"/peek.js?v=vt1\" defer></script>\n" +
-        "<script src=\"/art-fit.js?v=afd1\" defer></script>\n" +
+        "<script src=\"/art-fit.js?v=afd2\" defer></script>\n" +
         "<script src=\"/title-travel.js?v=tt1\" defer></script>\n" +
         "<script src=\"/edit/edit.js?v=fs125\" defer></script>\n" +
         "</body>\n</html>\n";
