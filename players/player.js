@@ -203,8 +203,7 @@
 
     /* Combined edit + secret cards (one section, no separate Editor/Secrets). */
     var bag = {}; /* path -> { path, title, edit, secret, link } */
-    /* nd2: edit cards/marks only for Devin (the only editor). */
-    if (viewer() === "devin") articlesFor(profiles, slug).forEach(function (path) {
+    articlesFor(profiles, slug).forEach(function (path) {
       if (inCharacters[path]) return;
       bag[path] = { path: path, title: prettyPath(path), edit: true, secret: false, link: true };
     });

@@ -171,8 +171,9 @@ function tags(text, re) { return text.match(re) || []; }
 
     // ---- 3) Players can't change it ----
     ctx = await ctxFor(browser, "sawyer", true); page = await ctx.newPage(); errs = watch(page);
-    await page.goto(BASE + "articles/vaerek/#edit", { waitUntil: "load" }); await page.waitForTimeout(1500);
-    check("player (nd2): no Edit, no Gallery, no editor at all on Sawyer's own article", !(await page.$("#ee-edit")) && !(await page.$("#ee-gallery")) && !(await page.evaluate(() => !!window.EloraeEditor)) && !(await page.$("#ee-vis")) && !!(await page.$("#login-logout")));
+    await enterEdit(page, "articles/vaerek/");
+    await page.waitForSelector("#ee-save", { timeout: 15000 });
+    check("player: no visibility control on Sawyer's own article", !(await page.$("#ee-vis")) && !(await page.$("#ee-share")));
     await ctx.close();
 
     // ---- 4) Gating as Guest / Sawyer / Jack / Devin ----
