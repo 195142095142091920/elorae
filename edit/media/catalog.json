@@ -3515,6 +3515,69 @@
         "jason"
       ],
       "everyone": true
+    },
+    "spirits-are-released-from-ancient-imprisonment": {
+      "path": "assets/spirits-are-released-from-ancient-imprisonment.jpg",
+      "title": "Spirits are released from ancient imprisonment shards in the Caverns of Mas",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:52:48.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "deepfolk-and-a-zozog-rider-overlook": {
+      "path": "assets/deepfolk-and-a-zozog-rider-overlook.jpg",
+      "title": "Deepfolk and a Zozog rider overlook the legendary Falls of Mana",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:52:48.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "deep-below-the-silent-city-sits": {
+      "path": "assets/deep-below-the-silent-city-sits.jpg",
+      "title": "Deep below, the Silent City sits, its braziers ever-flickering on the reflective waters",
+      "tags": [
+        "site",
+        "atlas"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-03T18:52:48.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
