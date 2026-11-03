@@ -95,7 +95,7 @@ async function interactions(browser) {
   const tp = await p.evaluate(() => { const r = document.querySelector("section.art-hero > .art-title h1").getBoundingClientRect(); return { x: r.left + 10, y: r.top + r.height / 2 }; });
   await p.mouse.click(tp.x, tp.y); await p.waitForTimeout(450);
   const fit2 = await p.evaluate(() => document.querySelector("section.art-hero").classList.contains("art-fit-full"));
-  check("click-to-fit still works on the art; a click on the title spot does not toggle it", fit && fit2, JSON.stringify({ fit, fit2 }));
+  check("click-to-fit still works on the art (full by default, a click crops); a click on the title spot does not toggle it", !fit && !fit2, JSON.stringify({ fit, fit2 }));
   // The copy never reaches the accessibility tree; the page title / h1 text is the real name.
   const ax = await p.evaluate(() => { const d = document.querySelector(".art-tt"); return { ah: d.closest("[aria-hidden=true]") === d, h1: document.querySelector("h1").textContent.trim(), sel: getComputedStyle(d).userSelect }; });
   check("one announced title: the copy is aria-hidden and not selectable; the h1 is the real name", ax.ah && ax.h1 === "Vaerek Rathkin" && ax.sel === "none", JSON.stringify(ax));

@@ -17,9 +17,9 @@ const S = (p) => p.evaluate(() => {
   const h = document.querySelector("section.art-hero"), i = h.querySelector(":scope > img");
   const R = (e) => { const r = e.getBoundingClientRect(); return { l: Math.round(r.left), t: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) }; };
   const cs = getComputedStyle(i);
-  return { hero: R(h), img: R(i), ratio: i.naturalWidth / i.naturalHeight, pressed: i.getAttribute("aria-pressed"), role: i.getAttribute("role"), tab: i.getAttribute("tabindex"), full: h.classList.contains("art-fit-full"), cursor: cs.cursor, pos: cs.objectPosition, fit: cs.objectFit, mask: cs.maskImage || cs.webkitMaskImage, sticky: getComputedStyle(h).position, src: i.getAttribute("src") };
+  return { hero: R(h), img: R(i), ratio: i.naturalWidth / i.naturalHeight, pressed: i.getAttribute("aria-pressed"), role: i.getAttribute("role"), tab: i.getAttribute("tabindex"), full: h.classList.contains("art-fit-full"), cursor: cs.cursor, pos: cs.objectPosition, fit: cs.objectFit, mask: cs.maskImage || cs.webkitMaskImage, sticky: getComputedStyle(h).position, src: i.getAttribute("src"), navT: parseInt(getComputedStyle(document.documentElement).getPropertyValue("--af-top")) || 0, navB: Math.round(Math.max(...[".topbar","#section-bar"].map(q => { const n = document.querySelector(q); if (!n) return 0; const r = n.getBoundingClientRect(); return r.height && r.top < 220 && getComputedStyle(n).display !== "none" ? r.bottom : 0; }))) };
 });
-const contained = (s) => { const r = s.img.w / s.img.h; return Math.abs(r - s.ratio) < 0.02 && s.img.w <= s.hero.w + 1 && s.img.h <= s.hero.h + 1 && (Math.abs(s.img.w - s.hero.w) <= 1 || Math.abs(s.img.h - s.hero.h) <= 1) && Math.abs((s.img.l - s.hero.l) - (s.hero.l + s.hero.w - s.img.l - s.img.w)) <= 2 && Math.abs((s.img.t - s.hero.t) - (s.hero.t + s.hero.h - s.img.t - s.img.h)) <= 2; };
+const contained = (s) => { const r = s.img.w / s.img.h; return Math.abs(r - s.ratio) < 0.02 && s.img.w <= s.hero.w + 1 && s.img.t === s.hero.t + s.navT && Math.abs(s.img.t - s.navB) <= 1 && s.img.t + s.img.h <= s.hero.t + s.hero.h + 1 && (Math.abs(s.img.w - s.hero.w) <= 1 || Math.abs(s.img.h - (s.hero.h - s.navT)) <= 1); };
 const covers = (s) => s.img.l === s.hero.l && s.img.t === s.hero.t && s.img.w === s.hero.w && s.img.h === s.hero.h;
 async function artPoint(p) {
   return p.evaluate(() => { const h = document.querySelector("section.art-hero"), r = h.getBoundingClientRect(), i = h.querySelector(":scope > img"); for (const [fx, fy] of [[0.6, 0.35], [0.5, 0.3], [0.7, 0.5], [0.4, 0.2]]) { const x = r.left + r.width * fx, y = r.top + r.height * fy; if (document.elementFromPoint(x, y) === i) return { x, y }; } return null; });
@@ -27,6 +27,9 @@ async function artPoint(p) {
 async function desktop(browser) {
   const ctx = await ctxFor(browser, false); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(e.message));
   await p.goto(BASE + "articles/vaerek/", { waitUntil: "load" }); await p.waitForTimeout(900);
+  { const d = await S(p); check("art fit (afd1): full art is the default at load, top edge right under the nav bar, bottom fade only", d.full && contained(d) && d.pressed === "true" && !/transparent 0/.test(d.mask || "x"), JSON.stringify(d));
+    if (SHOTS) await p.screenshot({ path: SHOTS + "/art-fit-default-1440.png" });
+    const q = await artPoint(p); await p.mouse.click(q.x, q.y); await p.waitForTimeout(500); }
   let s0 = await S(p);
   check("art fit: art is the cover crop at load, a role=button with aria-pressed=false and tabindex, zoom-in cursor", covers(s0) && s0.fit === "cover" && s0.role === "button" && s0.tab === "0" && s0.pressed === "false" && s0.cursor === "zoom-in" && s0.sticky === "sticky", JSON.stringify(s0));
   if (SHOTS) await p.screenshot({ path: SHOTS + "/art-fit-crop-1440.png" });
@@ -63,13 +66,13 @@ async function desktop(browser) {
   await p.evaluate(() => scrollTo(0, 0));
   // Not persisted.
   await p.reload({ waitUntil: "load" }); await p.waitForTimeout(700); s = await S(p);
-  check("art fit: mode is not kept across page loads", !s.full && covers(s));
+  check("art fit: a reload opens in full art again (default)", s.full && contained(s), JSON.stringify(s));
   // Filibeth keeps its inline object-position for the crop, before and after a round trip.
   await p.goto(BASE + "articles/filibeth/", { waitUntil: "load" }); await p.waitForTimeout(700);
   const f0 = await S(p); const fp = await artPoint(p);
   await p.mouse.click(fp.x, fp.y); await p.waitForTimeout(450); const f1 = await S(p);
   await p.mouse.click(fp.x, fp.y); await p.waitForTimeout(450); const f2 = await S(p);
-  check("art fit: Filibeth's crop keeps object-position 62% 20%, and fits fully in between", f0.pos === "62% 20%" && f2.pos === "62% 20%" && covers(f2) && f1.full && contained(f1), JSON.stringify({ p0: f0.pos, p2: f2.pos }));
+  check("art fit: Filibeth's crop keeps object-position 62% 20%, and fits fully in between", f1.pos === "62% 20%" && covers(f1) && !f1.full && f0.full && contained(f0) && f2.full && contained(f2), JSON.stringify({ p1: f1.pos }));
   // Edit mode and no-art: off.
   await p.evaluate(() => document.documentElement.classList.add("ee-editing")); await p.waitForTimeout(100);
   await p.evaluate(() => document.querySelector("section.art-hero > img").click()); await p.waitForTimeout(200); s = await S(p);
@@ -84,12 +87,15 @@ async function desktop(browser) {
   const rctx = await ctxFor(browser, false, { reducedMotion: "reduce" }); const rp = await rctx.newPage();
   await rp.goto(BASE + "articles/aghor/", { waitUntil: "load" }); await rp.waitForTimeout(700);
   const rpt = await artPoint(rp); await rp.mouse.click(rpt.x, rpt.y); await rp.waitForTimeout(40); s = await S(rp);
-  check("art fit: reduced motion — no animation, just the fitted state", s.full && contained(s), JSON.stringify(s.img));
+  check("art fit: reduced motion — no animation, straight to the crop", !s.full && covers(s), JSON.stringify(s.img));
   await rctx.close();
 }
 async function phone(browser) {
   const ctx = await ctxFor(browser, true); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(e.message));
   await p.goto(BASE + "articles/vaerek/", { waitUntil: "load" }); await p.waitForTimeout(900);
+  { const d = await S(p); check("art fit (afd1): full art is the default at load, top edge right under the nav bar, bottom fade only", d.full && contained(d) && d.pressed === "true" && !/transparent 0/.test(d.mask || "x"), JSON.stringify(d));
+    if (SHOTS) await p.screenshot({ path: SHOTS + "/art-fit-default-390.png" });
+    const q = await artPoint(p); await p.touchscreen.tap(q.x, q.y); await p.waitForTimeout(500); }
   const s0 = await S(p);
   if (SHOTS) await p.screenshot({ path: SHOTS + "/art-fit-crop-390.png" });
   const pt = await artPoint(p);

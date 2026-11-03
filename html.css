@@ -5244,9 +5244,17 @@ html.ee-editing .hover-card, html.ee-index-org .peek, html.ee-editing .peek { di
    never changes; the image box shrinks to the picture's proportions over the hero's black, with
    soft fades at its top and bottom. Cursor hint on desktop only; no button. */
 body.article section.art-hero > img.art-fit-anim { transition: left .35s ease, top .35s ease, width .35s ease, height .35s ease; }
+/* afd1: fit is the default at load (pre-JS too, no crop flash): whole picture, top edge right under
+   the nav bar, leftover black below; only a bottom fade. .art-crop = the toggled cover crop. */
+html:not(.ee-editing) body.article section.art-hero:not(.no-art):not(.art-crop) > img {
+  object-fit: contain !important; object-position: 50% 0 !important;
+  top: var(--af-top, 40px); height: calc(100% - var(--af-top, 40px));
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 91%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 91%, transparent 100%);
+}
 body.article section.art-hero.art-fit-full > img {
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 91%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 91%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 91%, transparent 100%);
 }
 body.article section.art-hero > img.art-fit-on:focus { outline: none; }
 body.article section.art-hero > img.art-fit-on:focus-visible { outline: 1px solid rgba(243,238,230,.35); outline-offset: -6px; }
@@ -5370,3 +5378,4 @@ body:has(#section-bar > a[href^="/codex/"]) main.read figure {
     font-size: calc((11px) * var(--fs,1.5094)) !important; font-weight: 700 !important; letter-spacing: .16em !important;
   }
 }
+@media (max-width: 760px) { html:not(.ee-editing) body.article section.art-hero:not(.no-art):not(.art-crop) > img { top: var(--af-top, 116px); height: calc(100% - var(--af-top, 116px)); } }

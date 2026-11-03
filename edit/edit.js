@@ -133,6 +133,12 @@
   }
 
 
+  /* nd2: Edit (nav, editor, #edit panel) exists only for Devin. */
+  function devinOnly() {
+    if (phraseIsDevin()) return true;
+    var s = readSession();
+    return !!(s && (s.role === "admin" || s.person === "devin"));
+  }
   function phraseIsDevin() {
     try {
       if (document.body.classList.contains("login-devin")) return true;
@@ -156,7 +162,7 @@
       var s = readSession();
       allow = !!(s && (s.role === "admin" || s.person === "devin"));
     }
-    if (!allow) { if (existing && !existing.hasAttribute("data-ee-by-editor")) existing.remove(); return; }
+    if (!allow) { if (existing) existing.remove(); return; }
     if (existing) { existing.removeAttribute("data-ee-by-editor"); return; }
     navButton();
   }
@@ -214,6 +220,7 @@
   }
   window.EloraeEditNav = {
     add: function () {
+      if (!devinOnly()) return null;
       var had = document.getElementById("ee-edit");
       var a = navButton();
       if (a && !had) a.setAttribute("data-ee-by-editor", "");
@@ -236,10 +243,10 @@
     dash();
     editAffordance();
     recentWait();
-    if (wanted()) start();
+    if (wanted() && devinOnly()) start();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
-  window.addEventListener("hashchange", function () { if (location.hash === "#edit") start(); });
+  window.addEventListener("hashchange", function () { if (location.hash === "#edit" && devinOnly()) start(); });
   window.addEventListener("elorae-edit-session", function () { dash(); editAffordance(); });
 })();

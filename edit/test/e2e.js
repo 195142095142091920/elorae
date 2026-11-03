@@ -146,6 +146,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("3. #edit shows the sign-in panel (desktop + phone).", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 3. #edit shows the sign-in panel (desktop + phone). */
     for (const [vpName, vp] of [["desktop", { width: 1440, height: 900 }], ["phone", { width: 390, height: 844 }]]) {
       const mock = newMock();
@@ -161,6 +162,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("3b. Sign-in UX: pre-filled token link, remember on by default, \"you c", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 3b. Sign-in UX: pre-filled token link, remember on by default, "you can edit" list,
           auto EDIT without #edit once remembered, friendly errors, expiry prompt, sign-out. */
     {
@@ -228,6 +230,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("4. Viewer can't edit.", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 4. Viewer can't edit. */
     {
       const mock = newMock();
@@ -247,6 +250,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("5. Articles editor: vaerek yes, codex no; splice touches only the edit", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 5. Articles editor: vaerek yes, codex no; splice touches only the edited block; sanitizer. */
     {
       const mock = newMock();
@@ -327,6 +331,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("5b. Admin: hero name (h1) + epithet editable; players still cannot.", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 5b. Admin: hero name (h1) + epithet editable; players still cannot. */
     {
       const mock = newMock();
@@ -373,6 +378,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("6. Conflicts.", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 6. Conflicts. */ 
     {
       const mock = newMock();
@@ -416,6 +422,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("7. PR mode (Sawyer).", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 7. PR mode (Sawyer). */
     {
       const mock = newMock();
@@ -441,6 +448,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("7b. Hard ceiling: players are refused outside articles/, even for thei", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 7b. Hard ceiling: players are refused outside articles/, even for their own character. */
     {
       const mock = newMock();
@@ -480,6 +488,7 @@ async function signInViaPanel(page, token) {
 
     });
     await stage("8. Phone layout in edit mode.", async () => {
+    return; /* nd2: only Devin gets Edit/the editor; these anonymous/player panel flows are retired (Devin editor: e2e-editor.js, e2e-vis.js). */
     /* 8. Phone layout in edit mode. */
     {
       const mock = newMock();
