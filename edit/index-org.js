@@ -803,7 +803,7 @@
       '<script src="/article-siblings.js?v=fs12"><\/script>\n<script src="/related-articles.js?v=editor-batch2"><\/script>\n' +
       '<script src="/peek.js?v=vt1" defer><\/script>\n<script src="/art-fit.js?v=af1" defer><\/script>\n<script src="/title-travel.js?v=tt1" defer><\/script>\n<script src="/edit/edit.js?v=' + EDIT_V + '" defer><\/script>\n</body>\n</html>\n';
   }
-  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "tt1"; })();
+  var EDIT_V = (function () { var s = document.querySelector('script[src*="edit/edit.js"]'); var m = s && /[?&]v=([\w-]+)/.exec(s.getAttribute("src")); return m ? m[1] : "pf1"; })();
   function newArticle(name, catId, secId, artTpl) {
     return E.getFile(TEMPLATE_ARTICLE).then(function (f) {
       try { return articleFromTemplate(f.text, name, catId, secId, artTpl); } catch (e) { return articleFallback(name, catId, artTpl); }

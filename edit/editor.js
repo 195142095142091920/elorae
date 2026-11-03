@@ -418,6 +418,8 @@
         } catch (e1) {}
         document.addEventListener("keydown", onKey, true);
         document.addEventListener("paste", onPaste, true);
+        document.addEventListener("copy", onCopy, true);
+        document.addEventListener("cut", onCopy, true);
         document.addEventListener("click", onClick, true);
         document.addEventListener("click", onCapClick, true);
         mainEl.addEventListener("input", onCapInput);
@@ -455,6 +457,8 @@
       document.documentElement.classList.add("ee-editing");
       document.addEventListener("keydown", onKey, true);
       document.addEventListener("paste", onPaste, true);
+      document.addEventListener("copy", onCopy, true);
+      document.addEventListener("cut", onCopy, true);
       document.addEventListener("click", onClick, true);
       document.addEventListener("selectionchange", onSelChange);
       window.addEventListener("resize", positionStyleBar);
@@ -1160,6 +1164,16 @@
     var stack = undo ? styleUndo : styleRedo;
     var top = stack[stack.length - 1];
     if (!top) return false;
+    if (top.custom) {
+      // pf1: a formatted paste (blocks inserted / split by hand, not by execCommand).
+      if (!(undo ? top.custom.canUndo() : top.custom.canRedo())) return false;
+      e.preventDefault();
+      stack.pop();
+      if (undo) top.custom.undo(); else top.custom.redo();
+      (undo ? styleRedo : styleUndo).push(top);
+      markDirty();
+      return true;
+    }
     var ok = top.every(function (x) { return undo ? blockMatches(x.el, x.html2, x.cls2) : blockMatches(x.el, x.html, x.cls); });
     if (!ok) return false;
     e.preventDefault();
@@ -2773,6 +2787,352 @@
     });
     return seq.then(function () { return container; });
   }
+  /* pf1: copy / cut / paste INSIDE the editor keeps the site's own formatting.
+     Copy writes text/html of the selection wrapped in its blocks (p.ee-pt-12, h2, figure…)
+     with a data-ee-clip marker; paste of that (or of site HTML that carries our ee-* classes)
+     keeps sizes, fonts, captions, alignment, headings, bold/italic/underline, links, line
+     breaks and pictures. Pasted text keeps ITS OWN look: it never takes the size/style of the
+     line it lands in (an incompatible block is split; a compatible line gets a classed span).
+     Foreign HTML still goes through the plain structure-only cleanup above. */
+  var PF_KEEP = /^ee-(pt-(10|11|12|14|16|18|20|24)|size-(sm|md|lg)|serif|sans|caption|al-(left|center|right)|h2|h3)$/;
+  var PF_FAMS = [/^ee-(pt-\d+|size-(sm|md|lg))$/, /^ee-(serif|sans)$/, /^ee-caption$/, /^ee-h[23]$/];
+  var PF_SITE = /\bdata-ee-clip=|class\s*=\s*["']?[^"'>]*\bee-(pt-\d+|serif|sans|caption|size-(sm|md|lg)|al-(center|right))\b/i;
+  function pfClasses(n) { return n && n.classList ? Array.prototype.filter.call(n.classList, function (c) { return PF_KEEP.test(c); }) : []; }
+  function pfFam(list, re) { for (var i = 0; i < list.length; i++) if (re.test(list[i])) return list[i]; return ""; }
+  function pfEl(n) { return n && (n.nodeType === 1 ? n : n.parentElement); }
+  function pfSelRange() {
+    var sel = window.getSelection && window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return null;
+    var r = sel.getRangeAt(0), host = pfEl(r.commonAncestorContainer);
+    var ed = host && host.closest && host.closest(".ee-editable");
+    if (!ed || isTitleField(host) || !ed.contains(pfEl(r.startContainer)) || !ed.contains(pfEl(r.endContainer))) return null;
+    return { range: r, host: host, ed: ed, sel: sel };
+  }
+  function clipHtmlOf(x) {
+    var holder = document.createElement("div");
+    holder.appendChild(x.range.cloneContents());
+    // A selection inside one block: wrap it in that block (and its spans) so the copy
+    // carries the block's size / font / heading / caption.
+    for (var a = x.host; a && a !== x.ed && x.ed.contains(a); a = a.parentElement) {
+      var c = a.cloneNode(false);
+      while (holder.firstChild) c.appendChild(holder.firstChild);
+      holder.appendChild(c);
+    }
+    Array.prototype.slice.call(holder.querySelectorAll(INJECTED_SEL + ", [data-ee-ui], #ee-cap-tools")).forEach(function (n) { n.remove(); });
+    Array.prototype.slice.call(holder.querySelectorAll("*")).forEach(function (n) {
+      if (n.tagName === "IMG") {
+        var o = n.getAttribute("data-eimg-orig");
+        if (o) n.setAttribute("src", o);
+        n.removeAttribute("srcset"); n.removeAttribute("sizes");
+      }
+      n.removeAttribute("id"); n.removeAttribute("style"); n.removeAttribute("contenteditable");
+      var cls = pfClasses(n);
+      if (cls.length) n.setAttribute("class", cls.join(" ")); else n.removeAttribute("class");
+    });
+    return '<div data-ee-clip="pf1">' + holder.innerHTML + "</div>";
+  }
+  function onCopy(e) {
+    var x = pfSelRange(), cd = e.clipboardData;
+    if (!x || !cd) return;
+    try {
+      cd.setData("text/html", clipHtmlOf(x));
+      cd.setData("text/plain", x.sel.toString());
+    } catch (err) { return; }
+    e.preventDefault();
+    if (e.type === "cut" && !pfEl(x.range.startContainer).closest(".ee-locked,[contenteditable=\"false\"]")) {
+      document.execCommand("delete", false, null);
+      markDirty();
+    }
+  }
+  // Site clipboard HTML -> a div of clean blocks that keep their ee-* classes.
+  function pfInline(src, dst) {
+    Array.prototype.forEach.call(src.childNodes, function (ch) {
+      if (ch.nodeType === 3) { dst.appendChild(document.createTextNode(ch.nodeValue.replace(/[\r\n]+/g, " "))); return; }
+      if (ch.nodeType !== 1) return;
+      var tag = ch.tagName.toLowerCase();
+      if (DROP[tag] || tag === "title" || tag === "xml" || /:/.test(tag)) return;
+      if (tag === "br") { dst.appendChild(document.createElement("br")); return; }
+      if (tag === "img") {
+        var s = safeSrc(ch.getAttribute("src"));
+        if (!s || /^blob:/i.test(s)) return;
+        var im = document.createElement("img"); im.setAttribute("src", s);
+        if (ch.getAttribute("alt")) im.setAttribute("alt", ch.getAttribute("alt"));
+        dst.appendChild(im); return;
+      }
+      var into = dst, k = null;
+      if (tag === "b" || tag === "strong") k = document.createElement("strong");
+      else if (tag === "i" || tag === "em") k = document.createElement("em");
+      else if (/^(u|s|sub|sup|small|code|cite|q|mark)$/.test(tag)) k = document.createElement(tag);
+      else if (tag === "a") {
+        var h = safeHref(ch.getAttribute("href"));
+        if (h != null) { k = document.createElement("a"); k.setAttribute("href", h); if (ch.getAttribute("target") === "_blank") { k.setAttribute("target", "_blank"); k.setAttribute("rel", "noopener"); } }
+      }
+      var cls = pfClasses(ch).filter(function (c) { return !/^ee-al-/.test(c); });
+      if (!k && cls.length) k = document.createElement("span");
+      if (k) { if (cls.length) k.className = cls.join(" "); into.appendChild(k); into = k; }
+      pfInline(ch, into);
+    });
+  }
+  function sanitizeSiteBlocks(html) {
+    var wrap = document.createElement("div");
+    wrap.innerHTML = String(html || "").replace(/<!--[\s\S]*?-->/g, "");
+    var out = document.createElement("div"), cur = null, curCls = [];
+    function para() {
+      if (!cur) { cur = document.createElement("p"); if (curCls.length) cur.className = curCls.join(" "); out.appendChild(cur); }
+      return cur;
+    }
+    function end() { cur = null; }
+    function leafish(n) { return !n.querySelector("p,div,h1,h2,h3,h4,h5,h6,ul,ol,figure,section,article,blockquote,table"); }
+    function walk(src) {
+      Array.prototype.forEach.call(src.childNodes, function (ch) {
+        if (ch.nodeType === 3) { if (/\S/.test(ch.nodeValue) || cur) pfInline({ childNodes: [ch] }, para()); return; }
+        if (ch.nodeType !== 1) return;
+        var tag = ch.tagName.toLowerCase();
+        if (DROP[tag] || tag === "title" || tag === "xml" || tag === "head" || /:/.test(tag)) return;
+        if (/^h[1-6]$/.test(tag)) {
+          end();
+          var h = document.createElement(/^h[12]$/.test(tag) ? "h2" : "h3"), hc = pfClasses(ch);
+          if (hc.length) h.className = hc.join(" ");
+          pfInline(ch, h);
+          out.appendChild(h);
+          return;
+        }
+        if (tag === "ul" || tag === "ol") {
+          end();
+          var list = document.createElement(tag);
+          (function items(l) {
+            Array.prototype.forEach.call(l.childNodes, function (li) {
+              if (li.nodeType !== 1) { if (li.nodeType === 3 && /\S/.test(li.nodeValue)) { var t = document.createElement("li"); t.textContent = li.nodeValue.trim(); list.appendChild(t); } return; }
+              if (/^(ul|ol)$/i.test(li.tagName)) { items(li); return; }
+              var item = document.createElement("li"), lc = pfClasses(li);
+              if (lc.length) item.className = lc.join(" ");
+              var sub = Array.prototype.filter.call(li.childNodes, function (k) { return k.nodeType === 1 && /^(UL|OL)$/.test(k.tagName); });
+              sub.forEach(function (k) { li.removeChild(k); });
+              pfInline(li, item);
+              list.appendChild(item);
+              sub.forEach(items);
+            });
+          })(ch);
+          out.appendChild(list);
+          return;
+        }
+        if (tag === "figure") {
+          end();
+          var imgs = Array.prototype.slice.call(ch.querySelectorAll("img")), fc0 = ch.querySelector("figcaption");
+          if (imgs.length) {
+            var fig = document.createElement("figure");
+            imgs.forEach(function (im) { pfInline({ childNodes: [im] }, fig); });
+            if (fc0) { var fc = document.createElement("figcaption"), fcc = pfClasses(fc0); if (fcc.length) fc.className = fcc.join(" "); pfInline(fc0, fc); fig.appendChild(fc); }
+            if (fig.querySelector("img")) { out.appendChild(fig); return; }
+          }
+          // Only the caption's words were copied: they keep the caption look.
+          if (fc0) { var cp = document.createElement("p"), cc = pfClasses(fc0); if (cc.indexOf("ee-caption") < 0) cc.push("ee-caption"); cp.className = cc.join(" "); pfInline(fc0, cp); out.appendChild(cp); }
+          return;
+        }
+        if (tag === "figcaption") { end(); var fp = document.createElement("p"), fpc = pfClasses(ch); if (fpc.indexOf("ee-caption") < 0) fpc.push("ee-caption"); fp.className = fpc.join(" "); pfInline(ch, fp); out.appendChild(fp); return; }
+        if (tag === "li") { end(); var pc = curCls; curCls = pfClasses(ch); walk(ch); end(); curCls = pc; return; }
+        if (tag === "hr") { end(); return; }
+        if (tag === "p" || (PASTE_BLOCK.test(tag) && leafish(ch) && (tag !== "div" || pfClasses(ch).length || ch.parentNode !== wrap))) {
+          end();
+          var prev = curCls; curCls = pfClasses(ch);
+          if (!curCls.length && tag !== "p") curCls = prev;
+          walk(ch); end();
+          curCls = prev;
+          return;
+        }
+        if (PASTE_BLOCK.test(tag)) { end(); var pv = curCls; var own = pfClasses(ch); if (own.length) curCls = own; walk(ch); end(); curCls = pv; return; }
+        pfInline({ childNodes: [ch] }, para());
+      });
+    }
+    walk(wrap);
+    Array.prototype.slice.call(out.querySelectorAll("p,li,h2,h3,figcaption")).forEach(function (b) {
+      while (b.lastChild && b.lastChild.nodeType === 3 && !/\S/.test(b.lastChild.nodeValue)) b.removeChild(b.lastChild);
+      if (b.firstChild && b.firstChild.nodeType === 3) b.firstChild.nodeValue = b.firstChild.nodeValue.replace(/^\s+/, "");
+    });
+    Array.prototype.slice.call(out.querySelectorAll("strong,em,a,span,u,s,sub,sup,small,code,cite,q,mark")).reverse().forEach(function (n) { if (!n.textContent && !n.querySelector("img,br")) n.remove(); });
+    Array.prototype.slice.call(out.children).forEach(function (b) {
+      if (b.tagName === "FIGURE") return;
+      if (b.tagName === "UL" || b.tagName === "OL") {
+        Array.prototype.slice.call(b.children).forEach(function (li) { if (!/\S/.test(li.textContent) && !li.querySelector("img")) li.remove(); });
+        if (!b.children.length) b.remove();
+        return;
+      }
+      // A block that is only a <br> was a copied empty line: keep it as an empty paragraph
+      // between others, drop it at either end.
+      if (!/\S/.test(b.textContent) && !b.querySelector("img")) {
+        if (b === out.firstElementChild || b === out.lastElementChild || !b.querySelector("br")) b.remove();
+        else b.innerHTML = "<br>";
+      }
+    });
+    Array.prototype.slice.call(out.querySelectorAll("p,li,h2,h3,figcaption")).forEach(function (b) {
+      while (b.lastChild && b.lastChild.nodeName === "BR" && b.childNodes.length > 1) b.removeChild(b.lastChild);
+      // The whole line is one styled span (text copied out of a sized run): the look
+      // moves onto the line itself, so it also sizes the line box where it lands.
+      var kids = Array.prototype.filter.call(b.childNodes, function (k) { return !(k.nodeType === 3 && !/\S/.test(k.nodeValue)); });
+      if (kids.length === 1 && kids[0].nodeName === "SPAN" && kids[0].classList.length) {
+        var sp = kids[0];
+        Array.prototype.forEach.call(sp.classList, function (c) {
+          PF_FAMS.forEach(function (re) { if (re.test(c)) Array.prototype.slice.call(b.classList).forEach(function (x) { if (re.test(x)) b.classList.remove(x); }); });
+          b.classList.add(c);
+        });
+        while (sp.firstChild) b.insertBefore(sp.firstChild, sp);
+        sp.remove();
+      }
+    });
+    return out;
+  }
+  function pfGroup(b) { var t = b.tagName; return t === "H1" || t === "H2" ? "h2" : /^H[3-6]$/.test(t) ? "h3" : t === "P" ? "p" : t.toLowerCase(); }
+  function pfLook(b) { return pfClasses(b).filter(function (c) { return !/^ee-al-/.test(c); }).sort().join(" "); }
+  function pfSame(a, b) { return pfGroup(a) === pfGroup(b) && pfLook(a) === pfLook(b); }
+  function pfEmpty(n) { return !/\S/.test(n.textContent.replace(/\u00a0/g, " ")) && !n.querySelector("img"); }
+  // Inline content of a pasted block, wrapped in a span for every look it has that the
+  // target block does not (null when the target has a look the paste would wrongly inherit).
+  function pfInlineFor(b, target) {
+    var bc = pfClasses(b), tc = pfClasses(target), span = [];
+    if (b.tagName === "H2" || b.tagName === "H3") bc.push("ee-" + b.tagName.toLowerCase());
+    if (target.tagName === "H2" || target.tagName === "H3") tc.push("ee-" + target.tagName.toLowerCase());
+    for (var i = 0; i < PF_FAMS.length; i++) {
+      var s = pfFam(bc, PF_FAMS[i]), t = pfFam(tc, PF_FAMS[i]);
+      if (s && s !== t) span.push(s);
+      else if (!s && t) return null;
+    }
+    var f = document.createDocumentFragment(), into = f;
+    if (span.length) { var sp = document.createElement("span"); sp.className = span.join(" "); f.appendChild(sp); into = sp; }
+    if (b.tagName === "FIGURE") Array.prototype.forEach.call(b.querySelectorAll("img"), function (im) { into.appendChild(im.cloneNode(true)); });
+    else if (b.tagName === "UL" || b.tagName === "OL") Array.prototype.forEach.call(b.children, function (li, k) { if (k) into.appendChild(document.createElement("br")); while (li.firstChild) into.appendChild(li.firstChild); });
+    else while (b.firstChild) into.appendChild(b.firstChild);
+    return f;
+  }
+  function pfPrune(n) {
+    Array.prototype.slice.call(n.querySelectorAll ? n.querySelectorAll("span,strong,em,b,i,u,s,a,sub,sup,small,font") : []).reverse().forEach(function (x) {
+      if (!x.textContent && !x.querySelector("img,br")) x.remove();
+    });
+  }
+  function pfCaretAfter(node) {
+    try { var r = document.createRange(); r.setStartAfter(node); r.collapse(true); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {}
+  }
+  // Put inline content at the caret at the TOP level of block L: any spans/bold the caret
+  // sits in are split around it, so the paste never inherits them.
+  function pfInsertTop(L, range, frag) {
+    var r = document.createRange();
+    r.setStart(range.startContainer, range.startOffset); r.setEnd(L, L.childNodes.length);
+    var tail = r.extractContents();
+    pfPrune(tail); pfPrune(L);
+    var hadText = /\S/.test(L.textContent) || !!L.querySelector("img");
+    if (!hadText) while (L.firstChild) L.removeChild(L.firstChild);
+    var last = frag.lastChild;
+    L.appendChild(frag);
+    if (/\S/.test(tail.textContent) || (tail.querySelector && tail.querySelector("img"))) L.appendChild(tail);
+    L.normalize();
+    return last;
+  }
+  function pfPaste(html) {
+    var root = state.page && state.page.el;
+    var out = sanitizeSiteBlocks(html);
+    var blocks = Array.prototype.slice.call(out.children);
+    if (!blocks.length) return false;
+    var sel = window.getSelection();
+    if (!sel.rangeCount) return false;
+    if (!sel.isCollapsed) document.execCommand("delete", false, null);
+    if (!sel.rangeCount) return false;
+    var range = sel.getRangeAt(0);
+    if (!root) {
+      // Per-block pages: inline only, each pasted block's look rides on a span.
+      var hh = blocks.map(function (b) {
+        var d = document.createElement("div"), cls = pfClasses(b).filter(function (c) { return !/^ee-al-/.test(c); });
+        if (b.tagName === "H2" || b.tagName === "H3") cls.push("ee-" + b.tagName.toLowerCase());
+        var inner = b.tagName === "FIGURE" ? Array.prototype.map.call(b.querySelectorAll("img"), function (im) { return im.outerHTML; }).join("") : b.innerHTML;
+        d.innerHTML = cls.length ? '<span class="' + cls.join(" ") + '">' + inner + "</span>" : inner;
+        return d.innerHTML;
+      });
+      document.execCommand("insertHTML", false, hh.join("<br>"));
+      markDirty();
+      return true;
+    }
+    var L = leafOf(range.startContainer, root);
+    if (!L || !blockUsable(L) || !root.contains(L)) return false;
+    var before = { html: L.innerHTML, cls: L.getAttribute("class") };
+    var parent = L.parentNode, inserted = [], removeL = false, caretNode = null;
+    var blockOK = /^(P|H[1-6])$/.test(L.tagName) && !L.closest("li,figure,dd,dt,td,th");
+    var Lempty = pfEmpty(L);
+    var single = blocks.length === 1 && /^(P|H2|H3)$/.test(blocks[0].tagName) ? pfInlineFor(blocks[0].cloneNode(true), L) : null;
+    if (!blockOK) {
+      // Caption, list item, dossier cell…: lines joined by line breaks, looks on spans.
+      var f = document.createDocumentFragment();
+      blocks.forEach(function (b, i) {
+        if (i) f.appendChild(document.createElement("br"));
+        var part = pfInlineFor(b, L);
+        if (!part) { part = document.createDocumentFragment(); var sp = document.createElement("span"); var cl = pfClasses(b).filter(function (c) { return !/^ee-al-/.test(c); }); if (cl.length) sp.className = cl.join(" "); while (b.firstChild) sp.appendChild(b.firstChild); part.appendChild(cl.length ? sp : document.createTextNode(sp.textContent)); }
+        f.appendChild(part);
+      });
+      caretNode = pfInsertTop(L, range, f);
+    } else if (single && !Lempty) {
+      caretNode = pfInsertTop(L, range, single);
+    } else {
+      var r = document.createRange();
+      r.setStart(range.startContainer, range.startOffset); r.setEnd(L, L.childNodes.length);
+      var tailFrag = r.extractContents();
+      pfPrune(tailFrag); pfPrune(L);
+      var tailHas = /\S/.test(tailFrag.textContent) || !!(tailFrag.querySelector && tailFrag.querySelector("img"));
+      var headHas = !pfEmpty(L);
+      var list = blocks.slice();
+      if (headHas && list.length && pfSame(L, list[0])) {
+        var b0 = list.shift(); while (b0.firstChild) L.appendChild(b0.firstChild);
+        caretNode = L.lastChild;
+      }
+      var T = null;
+      if (tailHas) {
+        T = L.cloneNode(false); T.removeAttribute("id");
+        T.appendChild(tailFrag);
+        if (list.length && pfSame(L, list[list.length - 1])) {
+          var bl = list.pop(), first = T.firstChild, lastIn = bl.lastChild;
+          while (bl.firstChild) T.insertBefore(bl.firstChild, first);
+          caretNode = lastIn;
+        }
+      }
+      var ref = L.nextSibling;
+      list.forEach(function (b) { parent.insertBefore(b, ref); inserted.push(b); if (b.tagName === "P" || /^H/.test(b.tagName)) fixBlockClass(b); });
+      if (T) { parent.insertBefore(T, ref); inserted.push(T); }
+      // Caret: after the pasted text (merged into the tail line, else the last new block).
+      if (!(T && caretNode && T.contains(caretNode)) && list.length) {
+        var lb = list[list.length - 1];
+        caretNode = null;
+        caretInto(lb.tagName === "FIGURE" ? (lb.querySelector("figcaption") || lb) : (lb.tagName === "UL" || lb.tagName === "OL") ? (lb.lastElementChild || lb) : lb, true);
+      }
+      if (!headHas) { removeL = true; L.remove(); }
+      else L.normalize();
+    }
+    if (caretNode && caretNode.isConnected) pfCaretAfter(caretNode);
+    capMarkAll();
+    var after = { html: L.innerHTML, cls: L.getAttribute("class"), ins: inserted.map(function (n) { return n.outerHTML; }) };
+    var entry = [];
+    entry.custom = {
+      canUndo: function () {
+        return inserted.every(function (n, i) { return n.isConnected && n.outerHTML === after.ins[i]; }) &&
+          (removeL ? !L.isConnected && (inserted.length ? true : false) : (L.isConnected && L.innerHTML === after.html));
+      },
+      canRedo: function () {
+        return L.isConnected && L.innerHTML === before.html && L.getAttribute("class") === before.cls && inserted.every(function (n) { return !n.isConnected; });
+      },
+      undo: function () {
+        if (removeL) parent.insertBefore(L, inserted[0] || null);
+        inserted.forEach(function (n) { n.remove(); });
+        setBlock(L, before.html, before.cls);
+        caretInto(L, true);
+      },
+      redo: function () {
+        var ref2 = L.nextSibling;
+        inserted.forEach(function (n) { parent.insertBefore(n, ref2); });
+        setBlock(L, after.html, after.cls);
+        if (removeL) L.remove();
+        if (inserted.length) caretInto(inserted[inserted.length - 1], true); else caretInto(L, true);
+      }
+    };
+    styleUndo.push(entry); if (styleUndo.length > 60) styleUndo.shift();
+    styleRedo = [];
+    markDirty();
+    return true;
+  }
   function onPaste(e) {
     if (!e.target.closest || !e.target.closest(".ee-editable")) return;
     e.preventDefault();
@@ -2797,6 +3157,8 @@
     var html = cd ? cd.getData("text/html") : "";
     var t = cd ? cd.getData("text/plain") : "";
     if (!(html && /<[a-z]/i.test(html))) { document.execCommand("insertText", false, t); return; }
+    // pf1: our own copy (or site HTML with our classes) keeps its formatting.
+    if (PF_SITE.test(html)) { try { if (pfPaste(html)) return; } catch (pfErr) {} }
     var root = state.page && state.page.el, n = selNode();
     var leaf = root && n ? leafOf(n, root) : null;
     // Full-page editing in a paragraph: keep the pasted paragraphs/headings/lists.
@@ -2885,6 +3247,8 @@
     document.documentElement.classList.remove("ee-editing", "ee-page-editing");
     document.removeEventListener("keydown", onKey, true);
     document.removeEventListener("paste", onPaste, true);
+    document.removeEventListener("copy", onCopy, true);
+    document.removeEventListener("cut", onCopy, true);
     document.removeEventListener("click", onClick, true);
     document.removeEventListener("click", onCapClick, true);
     if (state.page && state.page.el) state.page.el.removeEventListener("input", onCapInput);
@@ -3256,7 +3620,7 @@
         "<script src=\"/peek.js?v=vt1\" defer></script>\n" +
         "<script src=\"/art-fit.js?v=af1\" defer></script>\n" +
         "<script src=\"/title-travel.js?v=tt1\" defer></script>\n" +
-        "<script src=\"/edit/edit.js?v=ic1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=pf1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
