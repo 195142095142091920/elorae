@@ -4449,7 +4449,7 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
     font-size: calc((12px) * var(--fs,1.5094)) !important;
     font-weight: 400 !important;
     font-style: normal !important;
-    line-height: 1.15 !important;
+    line-height: 15px !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase !important;
     text-indent: 0 !important;
@@ -5353,4 +5353,13 @@ body:has(#section-bar > a[href^="/codex/"]) main.read figure {
   body.player-page main.read { max-width: 1300px; }
   #search-hits { max-width: 900px; }
   .index-list { max-width: 1025px; }
+}
+
+/* toc-nav1: on desktop the 125% look is for the reading text only. The masthead and every nav
+   item (top nav, sign-in row incl. Dashboard/Gallery, section/tab bars, back links, back-to-top)
+   and every contents rail (Categories, article and Index rails, Codex/Journal chapter rails) go
+   back to the earlier text scale, and the rail back to 220px. Phones are untouched. */
+@media (min-width: 801px) {
+  :root { --rail-w: 220px; }
+  .mast, #section-bar, aside.toc, aside.art-index, .art-back, #nt-top, #nt-skip { --fs: 1.2075; }
 }
