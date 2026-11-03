@@ -76,11 +76,56 @@ async function details(browser) {
   check("rail: Index scrolling does not reset an opened section", await p.evaluate(() => document.querySelector("#index-toc-panel .toc-cat:nth-of-type(2)").classList.contains("open")));
   await ctx.close();
 }
+
+async function sync(browser) {
+  // Static: every article rail lists each Index section's entries, with an arrow when it has any.
+  const fs = require("fs"), path = require("path"), ROOT = path.resolve(__dirname, "../..");
+  const ctx = await ctxFor(browser, "devin", false, true); const p = await ctx.newPage();
+  await p.goto(BASE + "index/ancients/", { waitUntil: "load" });
+  const idx = await p.evaluate(() => [...document.querySelectorAll("#index-toc-panel > .toc-cat")].map((b) => [b.querySelector(".toc-row > a").getAttribute("href").slice(1), b.querySelectorAll(".toc-nest a.toc-name").length]));
+  const bad = [];
+  for (const d of fs.readdirSync(path.join(ROOT, "articles"))) {
+    const f = path.join(ROOT, "articles", d, "index.html"); if (!fs.existsSync(f)) continue;
+    const T = fs.readFileSync(f, "utf8"); const m = /<nav class="art-index-panel"[\s\S]*?<\/nav>/.exec(T); if (!m) continue;
+    const C = path.join(ROOT, "articles", d + ".html");
+    if (fs.existsSync(C) && fs.readFileSync(C, "utf8") !== T) bad.push(d + ": copies differ");
+    for (const [sec, n] of idx) {
+      const re = new RegExp('<div class="toc-cat[^"]*"><div class="toc-row"><a class="[^"]*" href="/index/ancients/#' + sec + '">[^<]*</a>(<button[^>]*class="toc-tog")?[\\s\\S]*?(?=<div class="toc-cat|</nav>)');
+      const b = re.exec(m[0]); if (!b) { bad.push(d + ": no " + sec); continue; }
+      const k = (b[0].match(/class="toc-name[^"]*"/g) || []).length;
+      if (k !== n || (n > 0) !== !!b[1]) bad.push(`${d}: ${sec} ${k}/${n} arrow ${!!b[1]}`);
+    }
+  }
+  check("rail sync: every article page (both copies) lists each Index section's entries, with an arrow when it has any (Divines included)", !bad.length && idx.some(([s, n]) => s === "divines" && n >= 33), bad.slice(0, 4).join(" | "));
+  // Runtime: a stale article rail (no Divines entries) is refreshed from the Index.
+  const f = path.join(ROOT, "articles/vaerek/index.html");
+  const stale = fs.readFileSync(f, "utf8").replace(/(<a class="" href="\/index\/ancients\/#divines">Divines<\/a>)<button[\s\S]*?<\/button><\/div><div class="toc-nest">[\s\S]*?<\/div><\/div>/, "$1</div></div>");
+  for (const who of ["sawyer", "devin"]) {
+    const c2 = await ctxFor(browser, who, false, true); const q = await c2.newPage(); const errs = []; q.on("pageerror", (e) => errs.push(e.message));
+    await q.route(BASE + "articles/vaerek/", (r) => r.fulfill({ status: 200, contentType: "text/html", body: stale }));
+    await q.goto(BASE + "articles/vaerek/", { waitUntil: "load" });
+    const before = await q.evaluate(() => { const r = [...document.querySelectorAll("#art-index .toc-row > a")].find((a) => /#divines$/.test(a.getAttribute("href"))); return !!r.parentElement.querySelector(".toc-tog"); });
+    await q.waitForFunction(() => { const r = [...document.querySelectorAll("#art-index .toc-row > a")].find((a) => /#divines$/.test(a.getAttribute("href"))); return r && r.parentElement.querySelector(".toc-tog"); }, null, { timeout: 8000 }).catch(() => {});
+    const r = await q.evaluate(() => {
+      const row = [...document.querySelectorAll("#art-index .toc-row > a")].find((a) => /#divines$/.test(a.getAttribute("href")));
+      const box = row.closest(".toc-cat");
+      const vis = (s) => [...document.querySelectorAll("#art-index " + s)].filter((a) => getComputedStyle(a).display !== "none" && !a.closest(".private-group[style*='none']")).length;
+      const priv = [...document.querySelectorAll("#art-index a.toc-name.private[data-owner='devin']")];
+      return { tog: !!box.querySelector(".toc-tog"), n: box.querySelectorAll(".toc-nest a.toc-name").length, first: (box.querySelector(".toc-nest a") || {}).getAttribute && box.querySelector(".toc-nest a").getAttribute("href"), on: (document.querySelector("#art-index .toc-cat.open .toc-name.on") || {}).textContent, privShown: priv.filter((a) => a.getClientRects().length > 0 || getComputedStyle(a).display !== "none").length, priv: priv.length, role: row.getAttribute("role") };
+    });
+    await q.click('#art-index .toc-row > a[href="/index/ancients/#divines"]'); await q.waitForTimeout(200);
+    const opened = await q.evaluate(() => document.querySelector('#art-index .toc-row > a[href="/index/ancients/#divines"]').closest(".toc-cat").classList.contains("open"));
+    const privOk = who === "devin" ? r.privShown === r.priv : r.privShown === 0;
+    check(`rail sync (${who}): a stale article rail is refreshed from the Index — Divines gets its ${r.n} entries and arrow, toggles, current article still marked, private entries only for their owner`, !before && r.tog && r.n >= 33 && /^\/articles\//.test(r.first) && r.on === "Vaerek Rathkin" && r.role === "button" && opened && r.priv > 0 && privOk && !errs.length, JSON.stringify(Object.assign(r, { opened, errs })));
+    await c2.close();
+  }
+  await ctx.close();
+}
 (async () => {
   const srv = await serverForTests(); BASE = srv.base;
   const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined, args: ["--no-sandbox"] });
   try {
-    for (const [n, fn] of [["matrix", matrix], ["details", details]]) {
+    for (const [n, fn] of [["matrix", matrix], ["details", details], ["sync", sync]]) {
       try { await fn(browser); } catch (e) { check(n + " stage ran without exceptions", false, e.stack.split("\n").slice(0, 3).join(" ")); }
     }
   } finally { await browser.close(); srv.close(); }
