@@ -5363,3 +5363,10 @@ body:has(#section-bar > a[href^="/codex/"]) main.read figure {
   :root { --rail-w: 220px; }
   .mast, #section-bar, aside.toc, aside.art-index, .art-back, #nt-top, #nt-skip { --fs: 1.2075; }
 }
+
+/* nd1: desktop — the signed-in name in the top bar matches the Edit / Log out / Gallery buttons. */
+@media (min-width: 801px) {
+  .mast .topbar > .mark > .friend, .mast .topbar > .mark > .friend a {
+    font-size: calc((11px) * var(--fs,1.5094)) !important; font-weight: 700 !important; letter-spacing: .16em !important;
+  }
+}

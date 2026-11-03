@@ -135,11 +135,7 @@
         : ((canHere ? "Use the EDIT button on this page. " : "") + (P.saveMode(pr) === "direct" ? "Saves go straight to the site." : "Saves become a pull request that Devin approves before it goes live."))) : "";
       // Dashboard control is always offered to Devin on the login-success view, on every page
       // (including this dashboard page itself — then it just closes the panel).
-      var dashCtl = (pr && P.isAdmin(pr))
-        ? (onDash
-          ? '<button type="button" class="ee-btn" id="ee-goto-dash">Dashboard</button>'
-          : '<a class="ee-btn" id="ee-goto-dash" href="' + esc(E.ROOT + "edit/dashboard/") + '">Dashboard</a>')
-        : '';
+      var dashCtl = "";
       b.innerHTML =
         '<p class="ee-k">Edit</p>' +
         '<p class="ee-who" id="ee-who">Signed in as ' + esc((pr && pr.name) || s.login) + ' <span>@' + esc(s.login) + '</span></p>' +

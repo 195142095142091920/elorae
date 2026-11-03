@@ -96,14 +96,10 @@
     var isAdmin = !!(s && (s.role === "admin" || s.person === "devin"));
     var existing = document.getElementById("ee-dash");
     if (!isAdmin) { if (existing) existing.remove(); var gl = document.getElementById("ee-gallery"); if (gl) gl.remove(); return; }
-    if (existing) { if (!document.getElementById("ee-gallery")) gallery(existing.parentNode, existing); return; }
+    if (existing) existing.remove();
+    if (document.getElementById("ee-gallery")) return;
     var mark = document.querySelector(".mast .topbar > .mark") || document.querySelector(".mast .mark");
     if (!mark) return;
-    var a = document.createElement("a");
-    a.id = "ee-dash";
-    a.className = "ee-dash";
-    a.href = "/edit/dashboard/";
-    a.textContent = "Dashboard";
     var st = document.getElementById("ee-dash-style");
     if (!st) {
       st = document.createElement("style");
@@ -111,8 +107,7 @@
       st.textContent = ".mast .topbar > .mark > .ee-dash,.mast .mark > .ee-dash{display:inline-flex;align-items:center;flex:0 0 auto;min-height:44px;margin-right:14px;font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:calc((11px) * var(--fs,1.5094));font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f3eee6;text-decoration:none;background:none;border:0}.mast .topbar > .mark > .ee-dash:hover,.mast .mark > .ee-dash:hover,.mast .topbar > .mark > .ee-dash:focus-visible,.mast .mark > .ee-dash:focus-visible{color:#fff;outline:none;text-shadow:0 0 16px rgba(243,238,230,.95),0 0 32px rgba(243,238,230,.55)}";
       document.head.appendChild(st);
     }
-    mark.insertBefore(a, mark.firstChild);
-    gallery(mark, a);
+    gallery(mark, null);
   }
   /* GALLERY link (admin only, every page), right after DASHBOARD: opens the gallery manager
      (editor.js openGalleryManager) without entering edit mode. Same styling as DASHBOARD. */
@@ -134,7 +129,7 @@
         else if (n > 100) clearInterval(t);
       }, 50);
     });
-    if (dashEl && dashEl.nextSibling) mark.insertBefore(g, dashEl.nextSibling); else mark.appendChild(g);
+    mark.insertBefore(g, mark.firstChild);
   }
 
 

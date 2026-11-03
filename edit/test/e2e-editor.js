@@ -569,7 +569,7 @@ async function batch2Tests(browser, vpName) {
     await page.goto(BASE + "journal/", { waitUntil: "load" });
     await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
     const order = await page.evaluate(() => { const g = document.getElementById("ee-gallery"); const p = g && g.previousElementSibling; return g ? (p && p.id) + ">" + g.textContent.trim() : "none"; });
-    check(`[${vpName}] gallery: GALLERY sits right after DASHBOARD in the top nav`, /^ee-dash>Gallery$/i.test(order), order);
+    check(`[${vpName}] gallery: GALLERY leads the top nav row (no DASHBOARD)`, /^(null|undefined)>Gallery$/i.test(order), order);
     await page.click("#ee-gallery");
     await page.waitForSelector("#ee-galm-wrap .ee-gal-item", { timeout: 10000 });
     const g = await page.evaluate(() => { const b = document.querySelector("#ee-panel .ee-box").getBoundingClientRect(); return { editing: document.documentElement.classList.contains("ee-editing"), n: document.querySelectorAll("#ee-galm-wrap .ee-gal-item").length, l: Math.round(b.left), r: Math.round(innerWidth - b.right), t: Math.round(b.top), bt: Math.round(innerHeight - b.bottom) }; });
