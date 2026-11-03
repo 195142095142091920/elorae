@@ -3091,7 +3091,7 @@
         "<title>" + escTitle + " - Elorae</title>\n" +
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=wide1\">\n" +
-        "<link rel=\"stylesheet\" href=\"/html.css?v=fa1\">\n" +
+        "<link rel=\"stylesheet\" href=\"/html.css?v=af1\">\n" +
         "<script src=\"/rail-toggle.js?v=nfs1\"></script>\n" +
         "<script src=\"/skip-link.js?v=fs12\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
@@ -3105,8 +3105,8 @@
         "<script src=\"/search.js?v=fs12\"></script><script src=\"/login.js?v=art-gallery-seed\"></script><script src=\"/player-mark.js?v=pretty-urls\"></script>\n" +
         "<canvas id=\"friend-glow\"></canvas>\n<script src=\"/glow.js?v=nt32-ambient\"></script>\n" +
         "<script src=\"/peek.js?v=bs1\" defer></script>\n" +
-        "<script src=\"/full-art.js?v=fa1\" defer></script>\n" +
-        "<script src=\"/edit/edit.js?v=fa1\" defer></script>\n" +
+        "<script src=\"/art-fit.js?v=af1\" defer></script>\n" +
+        "<script src=\"/edit/edit.js?v=af1\" defer></script>\n" +
         "</body>\n</html>\n";
       var files = [
         { path: path, text: body },
