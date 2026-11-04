@@ -3200,6 +3200,7 @@
   }
   function onNavClick(e) {
     if (!state.editing || !state.dirty || state.leaving) return;
+    if (window.__eeStale) return; // sg1: stale page, reloading on purpose
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     var a = e.target && e.target.closest && e.target.closest("a[href]");
     if (!a || a.closest(".ee-editable") || a.closest("#ee-bar,#ee-panel,#ee-stylebar")) return;

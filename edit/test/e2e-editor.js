@@ -237,7 +237,8 @@ async function flowTests(browser, vpName) {
     mock.setUpstream(file, orig.replace("<title>", "<title>Up "));
     await page.click("#ee-save"); await page.waitForTimeout(1200);
     const now = mock.file(file);
-    check(`[${vpName}] upstream change outside the body: both kept`, now.includes("<title>Up ") && now.includes(" Mine</p>"), (await page.textContent("#ee-bar")).trim().slice(0, 60));
+    // sg1: the page changed on main since it loaded -> nothing written, stale pill, page reloads.
+    check(`[${vpName}] upstream change outside the body: stale guard, upstream kept, nothing written`, now.includes("<title>Up ") && !now.includes(" Mine</p>") && !!(await page.$("#ee-stale")), (await page.textContent("#ee-bar")).trim().slice(0, 60));
     await ctx.close();
   }
   // Hero from the gallery: preview only (nothing written), normal edit bar; Save writes it

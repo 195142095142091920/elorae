@@ -1208,6 +1208,7 @@
 
   function onUnload(e) {
     if (!state.active || !state.dirty) return;
+    if (window.__eeStale) return; // sg1: stale page, reloading on purpose
     e.preventDefault(); e.returnValue = ""; return "";
   }
   function stop() {

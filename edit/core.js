@@ -322,7 +322,85 @@
     });
   }
 
+  /* sg1 (2026-11-04): stale-page save guard. The page's own file (and its twin copy) is recorded
+     at load as the git blob sha of the HTML this browser was served (cache "force-cache", the copy
+     the page was built from), plus any copy of it this browser saved in the last minutes
+     (recent.js). Every write of those paths (commitFiles / putFile) first checks main's current
+     blob: if someone changed it since this page loaded, nothing is written; a small pill shows and
+     the page reloads once the site serves the new version. Own saves add their blob sha, so
+     consecutive saves in one session pass. */
+  function twinOf(p) {
+    var m;
+    if ((m = /^(.+)\/index\.html$/.exec(p))) return m[1] + ".html";
+    if ((m = /^(.+)\.html$/.exec(p)) && !/(^|\/)index$/.test(m[1])) return m[1] + "/index.html";
+    return null;
+  }
+  function blobSha(text) {
+    if (!window.crypto || !crypto.subtle || !window.TextEncoder) return Promise.resolve(null);
+    var body = new TextEncoder().encode(text), head = new TextEncoder().encode("blob " + body.length + "\0"), all = new Uint8Array(head.length + body.length);
+    all.set(head); all.set(body, head.length);
+    return crypto.subtle.digest("SHA-1", all).then(function (d) { return Array.prototype.map.call(new Uint8Array(d), function (b) { return ("0" + b.toString(16)).slice(-2); }).join(""); });
+  }
+  var PAGE = pagePath(), PAGES = [PAGE, twinOf(PAGE)].filter(Boolean), known = {}, staleHit = false;
+  function servedText() { return fetch(location.pathname + location.search, { cache: "force-cache", credentials: "same-origin" }).then(function (r) { return r.ok ? r.text() : null; }); }
+  var baseline = (/\.html$/.test(PAGE) ? servedText() : Promise.resolve(null)).then(function (t) {
+    var texts = t != null ? [t] : [];
+    try { var o = JSON.parse(localStorage.getItem("elorae-edit-recent") || "null"); PAGES.forEach(function (p) { var e = o && o.files && o.files[p]; if (e && typeof e.text === "string") texts.push(e.text); }); } catch (e) {}
+    return Promise.all(texts.map(blobSha)).then(function (shas) { shas.forEach(function (x) { if (x) known[x] = 1; }); return t != null; });
+  }).catch(function () { return false; });
+  function tracked(path) { return PAGES.indexOf(path) >= 0; }
+  function stalePill() {
+    if (document.getElementById("ee-stale")) return;
+    var el = document.createElement("div"); el.id = "ee-stale"; el.className = "ee-toast ee-stale"; el.setAttribute("role", "status"); el.setAttribute("aria-label", "Page updated elsewhere; reloading"); el.setAttribute("data-ee-ui", "1");
+    el.innerHTML = '<span class="ee-stale-ic" aria-hidden="true">\u21bb</span><span class="ee-msg">Updated</span>';
+    document.body.appendChild(el);
+  }
+  // Reload once the site serves main's version (deploys lag ~1 min), at most ~2 min.
+  function staleReload(want) {
+    var t0 = Date.now();
+    (function tick() {
+      fetch(location.pathname + location.search + (location.search ? "&" : "?") + "ee=" + Date.now(), { cache: "no-store", credentials: "same-origin" })
+        .then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t == null ? null : blobSha(t); })
+        .then(function (sha) {
+          if (!want || (sha && want[sha]) || Date.now() - t0 > 120000) { window.EloraeEdit.__reload(); return; }
+          setTimeout(tick, 4000);
+        }, function () { setTimeout(tick, 4000); });
+    })();
+  }
+  function stale(want) {
+    staleHit = true; window.__eeStale = true; stalePill(); staleReload(want);
+    return new Promise(function () {}); // never settles: nothing written, no error text; the page reloads
+  }
+  // [{ path, sha }] current on main -> resolves when safe, or never (stale).
+  function guardShas(list) {
+    if (staleHit) return new Promise(function () {});
+    if (!list.length) return Promise.resolve();
+    return baseline.then(function (have) {
+      if (!have) return; // could not read what the page was built from: do not block saves
+      var bad = list.filter(function (x) { return x.sha && !known[x.sha]; });
+      if (!bad.length) return;
+      var want = {}; bad.forEach(function (x) { want[x.sha] = 1; });
+      return stale(want);
+    });
+  }
+  function guardCommit(files, ref) {
+    var mine = files.filter(function (f) { return tracked(f.path) && !f.delete; });
+    if (!mine.length) return Promise.resolve();
+    return Promise.all(mine.map(function (f) { return getFile(f.path, ref).then(function (x) { return { path: f.path, sha: x.sha }; }, function () { return { path: f.path, sha: null }; }); }))
+      .then(guardShas);
+  }
+  function learn(files) {
+    return Promise.all(files.filter(function (f) { return tracked(f.path) && typeof f.text === "string"; }).map(function (f) { return blobSha(f.text).then(function (x) { if (x) known[x] = 1; }); }));
+  }
+
   function putFile(path, text, sha, message, branch) {
+    if (tracked(path)) {
+      return guardShas([{ path: path, sha: sha }]).then(function () { return putFile0(path, text, sha, message, branch); })
+        .then(function (r) { return learn([{ path: path, text: text }]).then(function () { return r; }); });
+    }
+    return putFile0(path, text, sha, message, branch);
+  }
+  function putFile0(path, text, sha, message, branch) {
     var body = { message: message, content: b64EncodeUtf8(text), branch: branch || BRANCH };
     if (sha) body.sha = sha;
     return api(repoPath("/contents/" + enc(path)), { method: "PUT", body: body });
@@ -354,6 +432,8 @@
       return withUsage(files, sha);
     }).then(function (fs2) {
       files = fs2;
+      return guardCommit(files, parent);
+    }).then(function () {
       return api(repoPath("/git/commits/" + parent));
     }).then(function (c) {
       baseTree = c.tree.sha;
@@ -377,7 +457,7 @@
       return api(repoPath("/git/commits"), { method: "POST", body: { message: message, tree: t.sha, parents: [parent] } });
     }).then(function (commit) {
       return api(repoPath("/git/refs/heads/" + enc(branch)), { method: "PATCH", body: { sha: commit.sha, force: false } })
-        .then(function () { return commit; });
+        .then(function () { return learn(files); }).then(function () { return commit; });
     });
   }
 
@@ -470,7 +550,7 @@
     closePhoneRail: closePhoneRail,
     tokenKind: tokenKind, TOKEN_LINKS: TOKEN_LINKS, OWNER: owner,
     REPO: REPO, BRANCH: BRANCH, API: API, ROOT: ROOT,
-    pagePath: pagePath, session: session, api: api, repoPath: repoPath,
+    pagePath: pagePath, staleGuard: { baseline: function () { return baseline; }, known: known, check: guardShas }, __reload: function () { location.reload(); }, session: session, api: api, repoPath: repoPath,
     getFile: getFile, listDir: listDir, listTree: listTree, putFile: putFile, headSha: headSha, commitFiles: commitFiles, isRace: isRace, retrySave: retrySave, RACE_MSG: RACE_MSG, loadJSON: loadJSON, loadScript: loadScript,
     b64EncodeUtf8: b64EncodeUtf8, b64EncodeBytes: b64EncodeBytes, b64DecodeUtf8: b64DecodeUtf8,
     loginWho: function () { return readPhraseWho(); }
