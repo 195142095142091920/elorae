@@ -318,6 +318,20 @@
       "epoch": 0,
       "keys": {},
       "openKey": null
+    },
+    "the-beckoning-bell": {
+      "title": "The Beckoning Bell",
+      "owner": "devin",
+      "path": "articles/the-beckoning-bell.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
     }
   }
 }
