@@ -4556,38 +4556,7 @@ body.article .art-hero.no-art { height: 52vh !important; height: 52svh !importan
 body.article .art-hero.no-art::after { display: none; }
 body.index-page .index-card.no-art { background: #111; }
 
-/* ---- nt27: Codex TOC short inset dividers ----
-   Between each section link on Lore / Magics / Souls / Calendar / Timeline.
-   Not on Index or Journal. Replaces the shared full-width border on those rails with a
-   short, left-inset hairline. */
-@media (min-width: 801px) {
-  body.lore-page aside.toc .toc-list > a {
-    border-bottom: 0;
-  }
-  body.lore-page aside.toc .toc-list > a + a::before {
-    content: "";
-    display: block;
-    width: 28px;
-    height: 1px;
-    margin: 0 0 8px;
-    background: rgba(243, 238, 230, 0.22);
-    pointer-events: none;
-  }
-}
-@media (max-width: 800px) {
-  body.lore-page aside.toc .toc-list > a {
-    border-bottom: 0;
-  }
-  body.lore-page aside.toc .toc-list > a + a::before {
-    content: "";
-    display: block;
-    width: 24px;
-    height: 1px;
-    margin: 0 0 6px;
-    background: rgba(243, 238, 230, 0.2);
-    pointer-events: none;
-  }
-}
+/* nt27 inset dividers removed (tc1: no per-entry dividers). */
 
 /* ---- nt29/nt30: Timeline Eras summary — era name is a section header bar, not a list item.
    Specificity must beat body.journal-page .read h3 (small uppercase Helvetica). */
@@ -5365,3 +5334,38 @@ body.article .art-index-cue { display: none !important; }
 @media (max-width: 800px) {
   :is(main.read, .art-body) figure:not(.gw-banner), .journal-fig { margin: 1.6em 0 1.8em; }
 }
+
+/* tc1: cleaner TOC rail entries site-wide (Codex, Atlas, Journal, Timeline, Index + article rails):
+   titles as authored (no uppercase), tight tracking, ~0.9 size, no per-entry dividers, hanging
+   indent for wrapped lines, small gap between entries. Section headers (h3, category rows,
+   subsection labels) keep their uppercase spaced look. Colours / active / hover unchanged.
+   (html-prefixed so it outranks the art88 !important rail rules.) */
+html body aside.toc:not(.index-toc) a,
+html body.journal-page aside.toc > a,
+html body.journal-page aside.toc .toc-list > a,
+html body.lore-page aside.toc .toc-list > a,
+html body.book aside.toc .toc-list > a,
+html body .index-toc-panel .toc-nest a.toc-name,
+html body .art-index .toc-nest a.toc-name {
+  text-transform: none !important;
+  letter-spacing: .01em !important;
+  font-size: calc((10.8px) * var(--fs,1.5094)) !important;
+  line-height: 1.3 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding-left: .9em !important;
+  text-indent: -.9em !important;
+}
+@media (min-width: 801px) {
+  html body aside.toc:not(.index-toc) a,
+  html body.journal-page aside.toc > a,
+  html body.journal-page aside.toc .toc-list > a,
+  html body.lore-page aside.toc .toc-list > a,
+  html body.book aside.toc .toc-list > a,
+  html body .index-toc-panel .toc-nest a.toc-name,
+  html body .art-index .toc-nest a.toc-name { padding-top: .225em !important; padding-bottom: .225em !important; margin: 0 !important; }
+}
+html body .index-toc-panel .toc-group a.toc-name,
+html body .art-index .toc-group a.toc-name { padding-left: calc(8px + .9em) !important; }
