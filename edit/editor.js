@@ -207,7 +207,7 @@
       var doc = JSON.parse(f.text);
       var pr = P.profileFor(doc, login);
       if (!pr) throw new Error("Signed in to GitHub as @" + login + ", but there's no edit profile for you yet. Ask Devin to add @" + login + ".");
-      state.profiles = doc; state.profile = pr;
+      state.profiles = doc; state.profile = pr; if (window.EloraeUsage) window.EloraeUsage.admin = !!(pr && P.isAdmin(pr));
       E.session.set({ token: token, login: login, remember: !!remember, person: pr.person || "", role: pr.role || "", kind: kind, warn: warn, since: new Date().toISOString() });
       notify();
       glyph();
@@ -1660,6 +1660,7 @@
           '<p class="ee-galm-lbl">Access</p>' +
           '<div class="ee-galm-who"><label class="ee-check"><input type="checkbox" id="ee-galm-everyone"' + (m.everyone ? " checked" : "") + '> Everyone</label>' +
           people().map(function (x) { return '<label class="ee-check"><input type="checkbox" data-galm-who="' + esc(x) + '"' + ((m.allowed || []).indexOf(x) >= 0 ? " checked" : "") + (m.everyone ? " disabled" : "") + '> ' + esc(x.charAt(0).toUpperCase() + x.slice(1)) + '</label>'; }).join("") + '</div>' +
+          '<p class="ee-galm-lbl">Used on</p><div class="ee-galm-used" id="ee-galm-used" aria-live="polite"></div>' +
           '<div class="ee-row ee-galm-acts"><button type="button" class="ee-btn ee-ic ee-danger" id="ee-galm-remove" aria-label="Remove from gallery" title="Remove from gallery">' + ic("trash") + '</button>' +
           '<button type="button" class="ee-btn ee-ic ee-primary" id="ee-galm-save" aria-label="Save" title="Save">' + ic("check") + '</button></div>';
       }
@@ -1685,11 +1686,26 @@
           };
         });
       }
+      /* uo1: "Used on" - every page showing this picture (edit/media/usage.json, kept current by
+         edit-mode saves; see edit/usage.js). Read once per Gallery open. */
+      var usageP = null;
+      function drawUsed(m) {
+        var U = window.EloraeUsage, box = $("ee-galm-used"); if (!box || !U) return;
+        usageP = usageP || E.getFile(U.PATH).then(function (f) { return JSON.parse(f.text); }, function () { return fetch(E.ROOT + U.PATH, { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); });
+        usageP.then(function (o) {
+          if ($("ee-galm-used") !== box) return;
+          var uses = o ? U.usesOf(o, m.path) : [];
+          box.innerHTML = uses.length ? uses.map(function (u) {
+            return '<a href="' + esc(u.url) + '" target="_blank" rel="noopener" title="' + esc(u.url) + '">' + esc(u.title) + '</a><span class="ee-galm-k">' + esc(u.kinds.join(" \u00b7 ")) + '</span>';
+          }).join("") : '<span class="ee-galm-none">' + (o ? "Not used" : "\u2014") + '</span>';
+        });
+      }
       function drawDetail() {
         var d = $("ee-galm-detail"); if (!d) return;
         var m = sel && catalog.media[sel] ? Object.assign({ id: sel }, catalog.media[sel]) : null;
         d.innerHTML = detailHtml(m);
         if (!m) return;
+        drawUsed(m);
         $("ee-galm-deselect").onclick = function () { sel = null; drawGrid(); drawDetail(); };
         var ev = $("ee-galm-everyone");
         ev.onchange = function () { Array.prototype.forEach.call(d.querySelectorAll("[data-galm-who]"), function (c) { c.disabled = ev.checked; }); };
@@ -4227,7 +4243,7 @@
     if (!s) return Promise.resolve(null);
     function apply(f) {
       state.profiles = JSON.parse(f.text);
-      state.profile = P.profileFor(state.profiles, s.login);
+      state.profile = P.profileFor(state.profiles, s.login); if (window.EloraeUsage) window.EloraeUsage.admin = !!(state.profile && P.isAdmin(state.profile));
       return state.profile;
     }
     return E.getFile("edit/profiles.json").then(apply).catch(function (err) {

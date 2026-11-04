@@ -335,12 +335,26 @@
   // One atomic commit with several files (non-forced ref update => detects concurrent pushes).
   // files: [{ path, text }]. parentSha (optional): the commit the edit was based on; if the
   // branch moved since, GitHub refuses the ref update (422) instead of overwriting.
+  /* uo1: a commit that writes or deletes site pages also updates edit/media/usage.json (Gallery
+     "Used on"), read at the same parent so a retried save recomputes it. Never blocks a save. */
+  function withUsage(files, ref) {
+    var U = window.EloraeUsage;
+    // Only admins may write edit/** (edit-guard), so player saves leave the manifest alone.
+    if (!U || !U.admin || files.some(function (f) { return f.path === U.PATH; }) || !files.some(function (f) { return /\.html$/.test(f.path); })) return Promise.resolve(files);
+    return getFile(U.PATH, ref).then(function (f) {
+      var t = U.update(f.text, files);
+      return t ? files.concat([{ path: U.PATH, text: t }]) : files;
+    }).catch(function () { return files; });
+  }
   function commitFiles(files, message, branch, parentSha) {
     branch = branch || BRANCH;
     var parent, baseTree;
     return (parentSha ? Promise.resolve(parentSha) : headSha(branch)).then(function (sha) {
       parent = sha;
-      return api(repoPath("/git/commits/" + sha));
+      return withUsage(files, sha);
+    }).then(function (fs2) {
+      files = fs2;
+      return api(repoPath("/git/commits/" + parent));
     }).then(function (c) {
       baseTree = c.tree.sha;
       // A few blobs at a time (a rename can touch every article; GitHub dislikes bursts).

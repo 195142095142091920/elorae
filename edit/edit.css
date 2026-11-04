@@ -871,3 +871,11 @@ html.ee-page-editing .ee-page figure img { cursor: pointer; }
 #ee-toast .ee-pill-ic .ee-svg { width: 15px; height: 15px; stroke-width: 2; }
 #ee-toast.ee-pill-out { opacity: 0; transform: translateX(-50%) translateY(6px); }
 @media (prefers-reduced-motion: reduce) { #ee-toast { animation: none; transition: none; } }
+
+/* uo1: Gallery details "Used on": page links with a muted kind marker. */
+#ee-panel .ee-galm-used { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; align-items: baseline; margin-top: 4px; max-height: 168px; overflow: auto;
+  font: calc((10px) * var(--fs,1.5094)) "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .02em; }
+#ee-panel .ee-galm-used a { color: #d8d2c8; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ee-panel .ee-galm-used a:hover, #ee-panel .ee-galm-used a:focus-visible { color: #f3eee6; text-decoration: underline; text-underline-offset: 2px; }
+#ee-panel .ee-galm-k, #ee-panel .ee-galm-none { color: #6f6a63; font-size: .9em; }
+#ee-panel .ee-galm-none { grid-column: 1 / -1; }
