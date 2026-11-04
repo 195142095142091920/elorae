@@ -2137,7 +2137,7 @@
     document.documentElement.classList.add("ee-arts-on");
     var n = A.list.length;
     box.innerHTML = '<div class="ee-arts-head"><span class="ee-arts-title">Arts \u00b7 ' + n + '</span>' +
-      '<button type="button" class="ee-btn ee-primary" id="ee-arts-add">+ Add art</button>' +
+      '<button type="button" class="ee-btn ee-primary" id="ee-arts-add" aria-label="Add art" title="Add art">+</button>' +
       '<button type="button" class="ee-btn" id="ee-arts-close">Done</button></div>' +
       '<div class="ee-arts-list" role="list">' + A.list.map(function (a, i) {
         var main = i === A.main;

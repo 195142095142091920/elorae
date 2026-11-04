@@ -731,3 +731,15 @@ html.ee-page-editing .ee-page figure img { cursor: pointer; }
 #ee-arts .ee-art-row .ee-art-star.is-main { color: #f3eee6; cursor: default; text-shadow: 0 0 8px rgba(243,238,230,.25); }
 #ee-arts .ee-art-row .ee-art-star.is-main:hover { background-color: transparent; }
 #ee-arts .ee-art-row .ee-art-star.is-main:active { transform: none; background-color: transparent; }
+
+/* eb3: while editing, a "Saved at… / No change" result never grows the bar: it shows inline at the
+   left of the button row, then fades and folds away on its own (desktop and phone). */
+#ee-bar.ee-done:has(#ee-save) { flex-wrap: nowrap; }
+#ee-bar.ee-done:has(#ee-save) .ee-msg {
+  flex: 0 1 auto !important; flex-basis: auto !important; min-width: 0; max-width: 42ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  animation: ee-toast 3.6s ease forwards;
+}
+@keyframes ee-toast { 0% { opacity: 0; } 8%, 75% { opacity: 1; max-width: 42ch; } 90% { opacity: 0; max-width: 42ch; padding: 0 10px; } 100% { opacity: 0; max-width: 0; padding: 0; margin: 0; } }
+@media (max-width: 800px) { #ee-bar.ee-done:has(#ee-save) { flex-wrap: wrap; } #ee-bar.ee-done:has(#ee-save) .ee-msg { flex-basis: 100% !important; max-width: none; animation-name: ee-toast-m; } @keyframes ee-toast-m { 0% { opacity: 0; } 8%, 75% { opacity: 1; max-height: 3em; } 100% { opacity: 0; max-height: 0; } } }
+@media (prefers-reduced-motion: reduce) { #ee-bar.ee-done:has(#ee-save) .ee-msg { animation-duration: 3.6s; animation-timing-function: steps(1, end); } }
+#ee-arts #ee-arts-add { width: 30px; height: 30px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 18px; font-weight: 400; letter-spacing: 0; line-height: 1; }
