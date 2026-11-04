@@ -494,7 +494,7 @@
     var delBtn = admin && articleSlugOfPath() ? ib("ee-delart", "Delete article", "trash", "ee-danger") : '';
     var imgBtn = (state.page && Media && P.canEdit(state.profile, PATH)) ? ib("ee-img", "Insert image", "imgadd") : '';
     var tplBtn = templatesAllowed() ? ib("ee-tpl", "Template", "template", "", ' aria-haspopup="menu" aria-expanded="false"') : '';
-    var artsBtn = state.arts ? '<button type="button" class="ee-btn ee-ic" id="ee-arts-btn" aria-label="Arts (' + state.arts.list.length + ')" title="Arts" aria-expanded="' + (state.arts.open ? "true" : "false") + '">' + ic("arts") + '<span class="ee-count" aria-hidden="true">' + state.arts.list.length + '</span></button>' : '';
+    var artsBtn = state.arts ? '<button type="button" class="ee-btn ee-ic" id="ee-arts-btn" aria-label="Art (' + state.arts.list.length + ')" title="Art" aria-expanded="' + (state.arts.open ? "true" : "false") + '">' + ic("arts") + '<span class="ee-count" aria-hidden="true">' + state.arts.list.length + '</span></button>' : '';
     bar('<span class="ee-msg">' + esc(msg || "") + '</span>' +
       tplBtn + artsBtn + imgBtn + shareBtn + ownerBtn + delBtn + /* bx1: Art, New article removed from the bar (code kept) */
       ib("ee-cancel", "Cancel", "x") +
@@ -611,7 +611,7 @@
     var box = dl.closest("section.art-sec");
     if (!dl.querySelector("dt") && box && box.id === "dossier" && !(pageSrc().map && pageSrc().map.get(box))) box.remove();
     state.dirty = true;
-    editBar(nt ? "Template: " + nt.label + (added ? " \u00b7 " + added + " field" + (added > 1 ? "s" : "") + " added" : "") + " \u00b7 Save to publish" : "No template \u00b7 empty fields removed \u00b7 Save to publish");
+    editBar(nt ? "Template: " + nt.label + (added ? " \u00b7 " + added + " field" + (added > 1 ? "s" : "") + " added" : "") : "No template \u00b7 empty fields removed");
     var first = nt && Array.prototype.filter.call(dl.querySelectorAll(":scope > dd"), ddEmpty)[0];
     if (first) { try { first.scrollIntoView({ block: "center" }); } catch (e) {} }
     dossierTools();
@@ -655,7 +655,7 @@
     dossierTools();
     caretAt(dt);
     try { dt.scrollIntoView({ block: "nearest" }); } catch (e) {}
-    editBar((had ? "Field added" : "Dossier added") + " \u00b7 type the field name, Enter, then its value \u00b7 Save to publish");
+    editBar(had ? "Field added" : "Dossier added");
     return dt;
   }
   function dossierTools() {
@@ -1928,10 +1928,10 @@
     state.hero = null;
   }
   function applyCatalogToHero(entry) {
-    if (state.arts && state.arts.list.length) { artsReplaceMain({ src: gallerySrc(entry), alt: entry.title || "" }); closePanel(); editBar("Main art replaced \u00b7 Save to publish it, Cancel to keep the old art"); return; }
+    if (state.arts && state.arts.list.length) { artsReplaceMain({ src: gallerySrc(entry), alt: entry.title || "" }); closePanel(); editBar("Main art replaced"); return; }
     if (!setHeroPreview(gallerySrc(entry), entry.title || "")) return;
     closePanel();
-    editBar("Hero preview \u00b7 Save to publish it, Cancel to keep the old art");
+    editBar("Hero preview");
   }
 
   // Insert at the caret where it was before the gallery opened (not at the page end).
@@ -2069,7 +2069,7 @@
     }
     closePanel();
     markDirty();
-    editBar("Image inserted \u00b7 Save to publish");
+    editBar("Image inserted");
   }
 
   /* ---------------- Hero art set (the article's art switcher) ----------------
@@ -2109,7 +2109,7 @@
     if (!A || !A.open || !state.editing) { closeArts(); return; }
     var box = $("ee-arts");
     if (!box) {
-      box = el("div", { id: "ee-arts", role: "region", "aria-label": "Arts", "data-ee-ui": "1" });
+      box = el("div", { id: "ee-arts", role: "region", "aria-label": "Art", "data-ee-ui": "1" });
       document.body.appendChild(box);
       bindArtsBox(box);
       window.addEventListener("resize", positionArts);
@@ -2117,7 +2117,7 @@
     }
     document.documentElement.classList.add("ee-arts-on");
     var n = A.list.length;
-    box.innerHTML = '<div class="ee-arts-head"><span class="ee-arts-title">Arts \u00b7 ' + n + '</span>' +
+    box.innerHTML = '<div class="ee-arts-head"><span class="ee-arts-title">Art \u00b7 ' + n + '</span>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-arts-add" aria-label="Add art" title="Add art">' + ic("plus") + '</button>' +
       '<button type="button" class="ee-btn ee-ic" id="ee-arts-close" aria-label="Done" title="Done">' + ic("check") + '</button></div>' +
       '<div class="ee-arts-list" role="list">' + A.list.map(function (a, i) {
@@ -2165,12 +2165,12 @@
     var it = A.list.splice(i, 1)[0];
     A.list.splice(j, 0, it);
     A.main = A.list.indexOf(mainIt); A.shown = A.list.indexOf(shownIt);
-    artsChanged("Arts reordered \u00b7 Save to publish");
+    artsChanged("Art reordered");
   }
   function artsSetMain(i) {
     var A = state.arts; if (!A || !A.list[i]) return;
     A.main = i; A.shown = i;
-    artsChanged("Main art set \u00b7 Save to publish");
+    artsChanged("Main art set");
   }
   function artsRemove(i) {
     var A = state.arts; if (!A || A.list.length < 2 || !A.list[i]) return;
@@ -2179,7 +2179,7 @@
     A.list.splice(i, 1);
     A.main = A.list.indexOf(mainIt); if (A.main < 0) A.main = Math.min(i, A.list.length - 1);
     A.shown = A.list.indexOf(shownIt); if (A.shown < 0) A.shown = A.main;
-    artsChanged(A.list.length > 1 ? "Art removed \u00b7 Save to publish" : "Art removed \u00b7 one art left, the switcher goes away when you Save");
+    artsChanged("Art removed");
   }
   function artsAdd(item) {
     var A = state.arts; if (!A) return;
@@ -2187,7 +2187,7 @@
     if (!A.list[A.main] || A.list.length === 1) A.main = 0;
     A.shown = A.list.length - 1;
     A.open = true;
-    artsChanged("Added \u201c" + (item.alt || "art") + "\u201d \u00b7 Save to publish");
+    artsChanged("Added \u201c" + (item.alt || "art") + "\u201d");
   }
   function artsReplaceMain(item) {
     var A = state.arts; if (!A) return;
@@ -2205,7 +2205,7 @@
     openArtPicker({
       title: "Add art to this page", upload: up,
       person: (state.profile && state.profile.person) || "devin",
-      note: "Added as the last art; captions can be changed in the Arts strip. Nothing is published until you press Save.",
+      note: "",
       noUploadNote: "Uploading new pictures needs Devin; you can add any picture from the gallery.",
       onFile: function (f) {
         var nm = baseName(f.name) || "Art";

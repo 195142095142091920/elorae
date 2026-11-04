@@ -153,7 +153,7 @@
       allCards().forEach(function (c) { if (cardSlug(c) === slug) previewOnCard(c, url); });
       state.artBusy--;
       markDirty();
-      barMsg("Art for “" + cardName(card) + "” ready (" + Math.round(info.bytes.length / 1024) + " KB" + (info.resized ? ", resized to " + info.width + "×" + info.height : "") + ") · Save to publish");
+      barMsg("Art for “" + cardName(card) + "” ready (" + Math.round(info.bytes.length / 1024) + " KB" + (info.resized ? ", resized to " + info.width + "×" + info.height : "") + ")");
       return true;
     }, function (err) {
       state.artBusy--;
@@ -169,7 +169,7 @@
     state.art[slug] = { name: cardName(card), asset: entry.path, title: entry.title, hero: true };
     allCards().forEach(function (c) { if (cardSlug(c) === slug) previewOnCard(c, "/" + entry.path); });
     markDirty();
-    barMsg("Art for “" + cardName(card) + "”: " + (entry.title || entry.path) + " · Save to publish");
+    barMsg("Art for “" + cardName(card) + "”: " + (entry.title || entry.path));
   }
   function openCardArt() {
     var card = state.selected;
