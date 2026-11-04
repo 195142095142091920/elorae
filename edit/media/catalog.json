@@ -3639,6 +3639,27 @@
         "jason"
       ],
       "everyone": true
+    },
+    "ghostly-wanderer-nul": {
+      "path": "assets/Ghostly Wanderer - Nul.jpg",
+      "title": "Ghostly Wanderer - Nul",
+      "tags": [
+        "site",
+        "seed"
+      ],
+      "uploadedBy": "seed",
+      "date": "2026-10-07T00:00:00.000Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
