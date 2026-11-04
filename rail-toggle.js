@@ -73,11 +73,8 @@
     var mast = document.querySelector(".mast"), sec = document.getElementById("section-bar");
     function measure() {
       var b = mast ? mast.getBoundingClientRect().bottom : 0;
-      if (sec) {
-        var cs = getComputedStyle(sec), r = sec.getBoundingClientRect();
-        if (cs.display !== "none" && cs.visibility !== "hidden" && r.height > 0 &&
-            (cs.position === "fixed" || cs.position === "sticky") && r.top <= b + 1) b = Math.max(b, r.bottom);
-      }
+      /* ra1: rails sit flush under the mast on every page (the Codex section bar no longer pushes
+         the rail down), so the first rail header is at the same height site-wide. */
       if (b > 0) h.style.setProperty("--rail-top", Math.round(b * 100) / 100 + "px");
     }
     measure();

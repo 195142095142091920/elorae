@@ -795,7 +795,7 @@
       '<script src="/img.js?v=img-resize"><\/script>\n<script src="/cats-rail-boot.js?v=art74"><\/script>\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>' + title + ' - Elorae</title>\n' +
       '<meta name="description" content="' + title + '">\n<link rel="stylesheet" href="/styles.css?v=fs125">\n<link rel="stylesheet" href="/html.css?v=tn1">\n' +
-      '<script src="/rail-toggle.js?v=nfs1"><\/script>\n<script src="/skip-link.js?v=fs125"><\/script>\n<link rel="icon" href="/favicon.svg">\n</head>\n<body class="article">\n' +
+      '<script src="/rail-toggle.js?v=ra1"><\/script>\n<script src="/skip-link.js?v=fs125"><\/script>\n<link rel="icon" href="/favicon.svg">\n</head>\n<body class="article">\n' +
       '<div class="mast"><header class="topbar"><span class="mark"></span><form action="/search/"><input id="seek" name="q" type="search" placeholder="Search" aria-label="Search"></form><nav class="filters"><a class="" href="/atlas/">Atlas</a><a class="" href="/codex/lore/">Codex</a><a class="active" href="/index/ancients/">Index</a><a class="" href="/journal/">Journal</a></nav></header></div>\n' +
       '<a class="art-back" href="/index/ancients/#' + esc(catId) + '">Index</a>\n' +
       '<section class="art-hero no-art"><div class="art-title"><h1>' + title + '</h1><p class="art-epithet"></p></div></section>\n' +

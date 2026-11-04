@@ -3597,7 +3597,7 @@
         "<meta name=\"description\" content=\"" + escTitle + "\">\n" +
         "<link rel=\"stylesheet\" href=\"/styles.css?v=fs125\">\n" +
         "<link rel=\"stylesheet\" href=\"/html.css?v=tn1\">\n" +
-        "<script src=\"/rail-toggle.js?v=nfs1\"></script>\n" +
+        "<script src=\"/rail-toggle.js?v=ra1\"></script>\n" +
         "<script src=\"/skip-link.js?v=fs125\"></script>\n" +
         "<link rel=\"icon\" href=\"/favicon.svg\">\n</head>\n<body class=\"article\">\n" +
         "<div class=\"mast\"><header class=\"topbar\"><span class=\"mark\"></span>" +

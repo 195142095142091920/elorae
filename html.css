@@ -4373,11 +4373,11 @@ body.index-page .index-card > span { font-family: "Iowan Old Style", Palatino, s
   /* Codex (mast + section bar) and Journal (mast only): rail flush under the chrome. */
   body.journal-page aside.toc,
   body.lore-page aside.toc,
-  body.book aside.toc { top: var(--rail-top, 96px) !important; }
+  body.book aside.toc { top: var(--rail-top, 56px) !important; z-index: 20 !important; }
   body.journal-flow aside.toc { top: var(--rail-top, 56px) !important; }
   body.journal-page aside.toc::after,
   body.lore-page aside.toc::after,
-  body.book aside.toc::after { top: var(--rail-top, 96px) !important; }
+  body.book aside.toc::after { top: var(--rail-top, 56px) !important; }
   body.journal-flow aside.toc::after { top: var(--rail-top, 56px) !important; }
   /* Collapsed Codex/Journal TOC: rail (and its fade) hidden; the reading column centres. */
   html.toc-rail-collapsed body.journal-page aside.toc,
