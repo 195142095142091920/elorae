@@ -296,7 +296,7 @@ async function signInViaPanel(page, token) {
       const expected = S.splice(vaerekSrc, [{ start: hb.start, end: hb.end, html: hb.inner + " An added sentence." }]);
       check("save: splice changed only the edited block (rest byte-identical)", out === expected && out.slice(0, hb.start) === vaerekSrc.slice(0, hb.start) && out.slice(hb.end + 19) === vaerekSrc.slice(hb.end), `block bytes ${hb.start}..${hb.end} of ${vaerekSrc.length}; +${out.length - vaerekSrc.length} bytes, inserted ${JSON.stringify(changedNew)} (diff: ${SHOTS}/splice-diff.txt)`);
       const barText = await page.textContent("#ee-bar");
-      check("save: success state reads \"Saved at <time>.\" with Close", /^Saved at \d{1,2}:\d{2}\s?[AP]M\.\s*Close$/i.test(barText.trim()), barText.trim().slice(0, 90));
+      check("save: success pill reads \"Saved <time>\"", /^Saved \d{1,2}:\d{2}\s?[AP]M$/i.test(barText.trim()), barText.trim().slice(0, 90));
       await page.screenshot({ path: `${SHOTS}/saved-desktop.png` });
 
       // Editing a block that contains character references keeps them (minimal diff).

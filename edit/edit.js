@@ -15,6 +15,10 @@
     addcard: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M12 8.5v7M8.5 12h7"/>',
     subsection: '<path d="M4 6h16M9 12h11M9 18h11M4.5 9v6.5A2.5 2.5 0 0 0 7 18"/>',
     back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+    upload: '<path d="M12 15.5V4.5M7.5 9 12 4.5 16.5 9M4.5 15v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3"/>',
+    eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>',
+    lock: '<rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/>',
     share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.3 10.8 7.4-3.6M8.3 13.2l7.4 3.6"/>'
   };
   window.EloraeIcon = function (n) {
@@ -277,7 +281,7 @@
 /* eb2: press ripple on the editor bars' buttons (pure decoration, never saved). */
 (function () {
   document.addEventListener("pointerdown", function (e) {
-    var b = e.target && e.target.closest && e.target.closest("#ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn, #ee-arts .ee-btn, #ee-panel .ee-ic");
+    var b = e.target && e.target.closest && e.target.closest("#ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn, #ee-arts .ee-btn, #ee-panel .ee-ic, #ee-panel .ee-gal-item");
     if (!b || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
     var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2, s = document.createElement("span");
     s.className = "ee-ripple"; s.setAttribute("aria-hidden", "true");

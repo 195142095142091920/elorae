@@ -332,10 +332,17 @@
     return b;
   }
   function closeBar() { var b = $("ee-bar"); if (b) b.remove(); }
-  function doneBar(msg) {
-    bar('<span class="ee-msg ee-good">' + esc(msg) + '</span><button type="button" class="ee-btn ee-ic" id="ee-x" aria-label="Close" title="Close">' + ic("x") + '</button>', "ee-done");
-    $("ee-x").onclick = closeBar;
+  function doneBar(msg) { pill(msg); }
+  /* sp1: a finished save is a small pill (check + "Saved 9:03 AM") that fades away on its own;
+     a click dismisses it. Failures keep the full bar with a visible dismiss. */
+  function pill(msg) {
+    var b = bar('<span class="ee-pill-ic">' + ic("check") + '</span><span class="ee-msg ee-good">' + esc(msg) + '</span>', "ee-done ee-pill");
+    b.onclick = function () { if (b.parentNode) b.remove(); };
+    clearTimeout(pill.t1); clearTimeout(pill.t2);
+    pill.t1 = setTimeout(function () { if (b.classList.contains("ee-pill")) b.classList.add("ee-pill-out"); }, 3000);
+    pill.t2 = setTimeout(function () { if (b.classList.contains("ee-pill") && b.parentNode) b.remove(); }, 3500);
   }
+  function savedTime() { return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
   function canon(html) { var t = document.createElement("template"); t.innerHTML = html; return t.innerHTML; }
   function textOf(html) { var t = document.createElement("template"); t.innerHTML = html; return norm(t.content.textContent); }
   function norm(s) { return String(s || "").replace(/\s+/g, " ").trim(); }
@@ -1491,7 +1498,7 @@
       .then(function () {
         closePanel();
         if (state.editing) editBar("Owner updated. Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + ".", "ee-done");
-        else doneBar("Owner updated. Saved at " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + ".");
+        else doneBar("Owner saved " + savedTime());
       })
       .catch(function (e) { fail(e.message || "Save failed."); });
   }
@@ -1626,7 +1633,7 @@
       if (box) { box.classList.add("ee-wide"); box.setAttribute("aria-label", "Gallery"); }
       var b = $("ee-body");
       b.innerHTML = '<p class="ee-k">Gallery</p><p class="ee-note">Loading gallery\u2026</p>';
-      var catalog = null, q = "", sel = null, busy = false;
+      var catalog = null, q = "", sel = null, busy = false, animIn = true;
       function freshCatalog() {
         return E.getFile(Media.CATALOG).then(function (f) { return JSON.parse(f.text); }, function (err) { if (err && err.status === 404) return { version: 1, media: {} }; throw err; });
       }
@@ -1639,20 +1646,20 @@
           });
         }, function (n) { say("Someone else saved at the same time \u2014 retrying (" + n + "/3)\u2026"); });
       }
-      function say(m, bad) { var e = $("ee-galm-msg"); if (e) { e.textContent = m || ""; e.className = "ee-note" + (bad ? " ee-err" : ""); } }
+      function say(m, bad) { var e = $("ee-galm-msg"); if (e) { e.textContent = m || ""; e.className = "ee-note" + (bad ? " ee-err" : ""); } var f = $("ee-galm-up"); if (f) f.classList.toggle("ee-uploading", busy && /Upload/.test(m || "")); }
       function people() { return Media.PEOPLE.filter(function (x) { return x !== "devin"; }); }
       function detailHtml(m) {
         if (!m) return '';
-        var thumb = '<img src="' + esc(gallerySrc(m)) + '" alt="">';
-        return '<div class="ee-galm-pic">' + thumb + '</div>' +
-          '<p class="ee-sub">Title</p><input type="text" id="ee-galm-title" class="ee-field" value="' + esc(m.title || "") + '" autocomplete="off">' +
-          '<p class="ee-sub">Tags</p><input type="text" id="ee-galm-tags" class="ee-field" value="' + esc((m.tags || []).join(", ")) + '" placeholder="comma-separated" autocomplete="off">' +
-          '<p class="ee-sub">Who can use it in the editor</p>' +
+        var thumb = '<img src="' + esc(gallerySrc(m)) + '" alt="" title="' + esc(m.path) + '">';
+        return '<div class="ee-galm-dhead"><div class="ee-galm-pic">' + thumb + '</div>' +
+          '<button type="button" class="ee-btn ee-ic" id="ee-galm-deselect" aria-label="Close" title="Close">' + ic("x") + '</button></div>' +
+          '<label class="ee-galm-lbl" for="ee-galm-title">Title</label><input type="text" id="ee-galm-title" class="ee-field" value="' + esc(m.title || "") + '" autocomplete="off">' +
+          '<label class="ee-galm-lbl" for="ee-galm-tags">Tags</label><input type="text" id="ee-galm-tags" class="ee-field" value="' + esc((m.tags || []).join(", ")) + '" autocomplete="off">' +
+          '<p class="ee-galm-lbl">Access</p>' +
           '<div class="ee-galm-who"><label class="ee-check"><input type="checkbox" id="ee-galm-everyone"' + (m.everyone ? " checked" : "") + '> Everyone</label>' +
           people().map(function (x) { return '<label class="ee-check"><input type="checkbox" data-galm-who="' + esc(x) + '"' + ((m.allowed || []).indexOf(x) >= 0 ? " checked" : "") + (m.everyone ? " disabled" : "") + '> ' + esc(x.charAt(0).toUpperCase() + x.slice(1)) + '</label>'; }).join("") + '</div>' +
-          '<p class="ee-note">' + esc(m.path) + '</p>' +
-          '<div class="ee-row"><button type="button" class="ee-btn ee-primary" id="ee-galm-save">Save</button>' +
-          '<button type="button" class="ee-btn ee-danger" id="ee-galm-remove">Remove from gallery</button></div>';
+          '<div class="ee-row ee-galm-acts"><button type="button" class="ee-btn ee-ic ee-danger" id="ee-galm-remove" aria-label="Remove from gallery" title="Remove from gallery">' + ic("trash") + '</button>' +
+          '<button type="button" class="ee-btn ee-ic ee-primary" id="ee-galm-save" aria-label="Save" title="Save">' + ic("check") + '</button></div>';
       }
       function list() {
         var all = Media.listVisible(catalog, "devin", true);
@@ -1660,14 +1667,15 @@
       }
       function drawGrid() {
         var w = $("ee-galm-wrap"); if (!w) return;
-        var items = list();
-        w.innerHTML = items.length ? '<div class="ee-gallery">' + items.map(function (m) {
+        var items = list(), gi = 0;
+        var cols = w.parentNode; if (cols) cols.classList.toggle("ee-has-sel", !!(sel && catalog.media[sel]));
+        w.innerHTML = items.length ? '<div class="ee-gallery' + (animIn ? " ee-anim" : "") + '">' + items.map(function (m) {
           var thumb = window.eloraeImg
             ? window.eloraeImg.html(E.ROOT + m.path, { sizes: "(max-width: 800px) 180px, 240px", min: 160, max: 640, fallback: 320, lazy: true }, 'alt=""')
             : '<img src="' + esc(gallerySrc(m)) + '" alt="" loading="lazy">';
-          return '<button type="button" class="ee-gal-item' + (sel === m.id ? " ee-on" : "") + '" data-gal-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' + thumb + '<span>' + esc(m.title || m.id) + '</span></button>';
+          return '<button type="button" class="ee-gal-item' + (sel === m.id ? " ee-on" : "") + '" style="--i:' + Math.min(gi++, 24) + '" data-gal-id="' + esc(m.id) + '" aria-label="' + esc(m.title || m.id) + '">' + thumb + '<span>' + esc(m.title || m.id) + '</span></button>';
         }).join("") + '</div>' : '<p class="ee-note">' + (q ? "No matches." : "Empty.") + '</p>';
-        thumbFallback(w, catalog);
+        thumbFallback(w, catalog); animIn = false;
         Array.prototype.forEach.call(w.querySelectorAll("[data-gal-id]"), function (btn) {
           btn.onclick = function () {
             sel = btn.getAttribute("data-gal-id"); drawGrid(); drawDetail();
@@ -1680,6 +1688,7 @@
         var m = sel && catalog.media[sel] ? Object.assign({ id: sel }, catalog.media[sel]) : null;
         d.innerHTML = detailHtml(m);
         if (!m) return;
+        $("ee-galm-deselect").onclick = function () { sel = null; drawGrid(); drawDetail(); };
         var ev = $("ee-galm-everyone");
         ev.onchange = function () { Array.prototype.forEach.call(d.querySelectorAll("[data-galm-who]"), function (c) { c.disabled = ev.checked; }); };
         $("ee-galm-save").onclick = function () {
@@ -1719,18 +1728,32 @@
       var assetsP = (E.listDir ? E.listDir(Media.ASSET_DIR) : Promise.resolve([])).then(function (es) { return es.filter(function (e) { return e.type === "file"; }).map(function (e) { return e.path; }); }, function () { return []; });
       return Promise.all([freshCatalog().catch(function () { return { version: 1, media: {} }; }), assetsP]).then(function (r) {
         assetPaths = r[1]; catalog = mergeSeeded(r[0]);
-        b.innerHTML = '<p class="ee-k">Gallery</p>' +
-          '<form id="ee-galm-up" class="ee-gal-up ee-gal-first"><p class="ee-sub">Add art</p>' +
-          '<div class="ee-galm-uprow">' + fileButton("ee-galm-file") +
-          '<input type="text" id="ee-galm-newtitle" class="ee-field" placeholder="Title (optional)" autocomplete="off">' +
-          '<input type="text" id="ee-galm-newtags" class="ee-field" placeholder="Tags (comma-separated)" autocomplete="off">' +
-          '<label class="ee-check"><input type="checkbox" id="ee-galm-neweveryone" checked> Everyone can use it</label>' +
-          '<button type="submit" class="ee-btn ee-primary" id="ee-galm-upload">Upload</button></div>' +
+        b.innerHTML = '<div class="ee-galm-top">' +
+          '<label class="ee-galm-search">' + ic("search") + '<input type="search" id="ee-galm-search" class="ee-field ee-gal-q" placeholder="Search" aria-label="Search" autocomplete="off" spellcheck="false"></label>' +
+          '<label class="ee-btn ee-ic ee-galm-upbtn" title="Upload" aria-label="Upload"><input type="file" id="ee-galm-file" accept="image/png,image/jpeg,image/webp,image/gif">' + ic("upload") + '</label></div>' +
+          '<form id="ee-galm-up" class="ee-galm-up" hidden>' +
+          '<img class="ee-galm-prev" alt="">' +
+          '<input type="text" id="ee-galm-newtitle" class="ee-field" placeholder="Title" aria-label="Title" autocomplete="off">' +
+          '<input type="text" id="ee-galm-newtags" class="ee-field" placeholder="Tags" aria-label="Tags" autocomplete="off">' +
+          '<input type="checkbox" id="ee-galm-neweveryone" checked hidden>' +
+          '<button type="button" class="ee-btn ee-ic ee-galm-vis" id="ee-galm-vis" aria-pressed="true" aria-label="Everyone can use it" title="Everyone can use it">' + ic("eye") + '</button>' +
+          '<button type="button" class="ee-btn ee-ic" id="ee-galm-discard" aria-label="Discard" title="Discard">' + ic("x") + '</button>' +
+          '<button type="submit" class="ee-btn ee-ic ee-primary" id="ee-galm-upload" aria-label="Upload" title="Upload">' + ic("check") + '</button>' +
           '</form>' +
-          '<div class="ee-gal-head"><p class="ee-sub">All art</p><input type="search" id="ee-galm-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false"></div>' +
           '<p class="ee-note" id="ee-galm-msg" role="status"></p>' +
           '<div class="ee-galm-cols"><div id="ee-galm-wrap"></div><div id="ee-galm-detail" class="ee-galm-detail"></div></div>';
-        bindFileButton($("ee-galm-file"));
+        (function () {
+          var fi = $("ee-galm-file"), form = $("ee-galm-up"), prev = form.querySelector(".ee-galm-prev"), url = null, ev = $("ee-galm-neweveryone"), vb = $("ee-galm-vis");
+          function paintVis() { vb.setAttribute("aria-pressed", ev.checked ? "true" : "false"); var t = ev.checked ? "Everyone can use it" : "Only Devin"; vb.title = t; vb.setAttribute("aria-label", t); vb.innerHTML = ic(ev.checked ? "eye" : "lock"); }
+          vb.onclick = function () { ev.checked = !ev.checked; paintVis(); };
+          fi.addEventListener("change", function () {
+            if (url) { try { URL.revokeObjectURL(url); } catch (e) {} url = null; }
+            var f = fi.files && fi.files[0];
+            form.hidden = !f;
+            if (f) { url = URL.createObjectURL(f); prev.src = url; setTimeout(function () { $("ee-galm-newtitle").focus(); }, 0); } else prev.removeAttribute("src");
+          });
+          $("ee-galm-discard").onclick = function () { fi.value = ""; fi.dispatchEvent(new Event("change")); $("ee-galm-newtitle").value = ""; $("ee-galm-newtags").value = ""; ev.checked = true; paintVis(); say(""); };
+        })();
         $("ee-galm-search").oninput = function () { q = String(this.value || "").trim().toLowerCase(); drawGrid(); };
         $("ee-galm-up").onsubmit = function (e) {
           e.preventDefault();
@@ -4097,15 +4120,15 @@
       state.page = null;
       var note = (mirror && mirror.skipped ? " The other copy (" + esc(mirror.path) + ") differs here and was left unchanged." : "") + esc(state.syncNote || "");
       var html;
-      if (mode === "direct") {
-        html = '<span class="ee-msg ee-good">Saved at ' + esc(new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) + '.' + note + '</span>';
+      if (mode === "direct" && !note) { pill("Saved " + savedTime()); html = null; }
+      else if (mode === "direct") {
+        html = '<span class="ee-msg ee-good">Saved at ' + esc(savedTime()) + '.' + note + '</span>';
       } else if (done.pull) {
         html = '<span class="ee-msg ee-good">Proposed as pull request #' + esc(done.pull.number) + '. Live about 1\u20132 minutes after it is merged.' + note + ' <a href="' + esc(done.pull.html_url) + '" target="_blank" rel="noopener">Open</a></span>';
       } else {
         html = '<span class="ee-msg ee-good">Saved to branch ' + esc(branch) + '. Opening the pull request failed (' + esc(done.pullErr && done.pullErr.message) + ').' + note + ' <a href="https://github.com/' + E.REPO + '/compare/' + E.BRANCH + '...' + encodeURIComponent(branch) + '" target="_blank" rel="noopener">Open one</a></span>';
       }
-      bar(html + '<button type="button" class="ee-btn ee-ic" id="ee-x" aria-label="Close" title="Close">' + ic("x") + '</button>', "ee-done");
-      $("ee-x").onclick = closeBar;
+      if (html) { bar(html + '<button type="button" class="ee-btn ee-ic" id="ee-x" aria-label="Close" title="Close">' + ic("x") + '</button>', "ee-done"); $("ee-x").onclick = closeBar; }
     }).catch(function (err) {
       var m;
       if (err.race) m = E.RACE_MSG;

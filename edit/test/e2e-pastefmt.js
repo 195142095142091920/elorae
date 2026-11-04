@@ -35,7 +35,7 @@ async function openEdit(page, url) {
 }
 async function saveNow(page) {
   await page.click("#ee-save");
-  await page.waitForFunction(() => /Saved at|failed|refused|pull request|No changes/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
+  await page.waitForFunction(() => /Saved|failed|refused|pull request|No changes/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
   await page.waitForTimeout(300);
 }
 // Page helpers (installed in the page).

@@ -581,7 +581,7 @@ async function batch2Tests(browser, vpName) {
     await page.click("#ee-galm-save"); await page.waitForTimeout(1500);
     const cat = JSON.parse(String(mock.file("edit/media/catalog.json")));
     const commits = mock.log.filter((e) => e.committed);
-    check(`[${vpName}] gallery: rename + tags saved as one catalog commit`, commits.length === 1 && cat.media[id] && cat.media[id].title === "Zg Renamed Art" && cat.media[id].tags.join(",") === "zg,test" && /Saved at/.test(await page.textContent("#ee-galm-msg")), JSON.stringify({ commits: commits.length, e: cat.media[id] }));
+    check(`[${vpName}] gallery: rename + tags saved as one catalog commit`, commits.length === 1 && cat.media[id] && cat.media[id].title === "Zg Renamed Art" && cat.media[id].tags.join(",") === "zg,test" && /Saved/.test(await page.textContent("#ee-galm-msg")), JSON.stringify({ commits: commits.length, e: cat.media[id] }));
     check(`[${vpName}] gallery: no page errors`, W.errs.length === 0, W.errs.join(" | "));
     await ctx.close();
     const ctx2 = await ctxFor(browser, newMock(), VPS[vpName], "sawyer"); const p2 = await ctx2.newPage();
@@ -654,7 +654,7 @@ async function batch2Tests(browser, vpName) {
     raceOn(art, 2);
     await page.click("#ee-save"); await page.waitForTimeout(6500);
     a = String(mock.file(art));
-    check(`[${vpName}] race: article save retried twice on the new main — edit and the other save both kept`, races === 2 && a.includes(" Zrace") && a.includes("<!-- upstream 2 -->") && /Saved at/.test(await page.textContent("#ee-bar")), JSON.stringify({ races, z: a.includes(" Zrace"), bar: (await page.textContent("#ee-bar")).slice(0, 100) }));
+    check(`[${vpName}] race: article save retried twice on the new main — edit and the other save both kept`, races === 2 && a.includes(" Zrace") && a.includes("<!-- upstream 2 -->") && /Saved/.test(await page.textContent("#ee-bar")), JSON.stringify({ races, z: a.includes(" Zrace"), bar: (await page.textContent("#ee-bar")).slice(0, 100) }));
     mock.hooks.before = null;
     check(`[${vpName}] race tests: no page errors`, W.errs.length === 0, W.errs.join(" | "));
     await ctx.close();
@@ -882,7 +882,7 @@ async function recentTests(browser, vpName) {
     await openEdit(page, url); await page.waitForTimeout(400);
     await caretIn(page, sel, 1.0); await page.keyboard.type(" Zq");
     await page.click("#ee-save");
-    await page.waitForFunction(() => /Saved at/.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 15000 }).catch(() => {});
+    await page.waitForFunction(() => /Saved/.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 15000 }).catch(() => {});
     const st = await reloadReady(page);
     const shown = await page.evaluate((m) => (document.querySelector(m) || {}).textContent.includes(" Zq"), mainSel);
     const hidden = await page.evaluate(() => document.documentElement.classList.contains("ee-recent-wait"));
@@ -892,7 +892,7 @@ async function recentTests(browser, vpName) {
     await page.waitForSelector("#ee-save", { timeout: 15000 }); await page.waitForTimeout(250);
     await caretIn(page, sel, 1.0); await page.keyboard.type(" Wv");
     await page.click("#ee-save");
-    await page.waitForFunction(() => /Saved at|refused|failed|changed this part/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 15000 }).catch(() => {});
+    await page.waitForFunction(() => /Saved|refused|failed|changed this part/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 15000 }).catch(() => {});
     const saved = String(mock.file(file)), n = diffLines(orig, saved, vpName + "-recent-" + file.replace(/\W+/g, "_"));
     check(`[${vpName}] ${url}: editing after the reload builds on the saved copy (both edits, small diff)`, saved.includes(" Zq") && saved.includes(" Wv") && n <= 2 && saved.length - orig.length === 6, `diff lines ${n}, +${saved.length - orig.length} bytes`);
     const st2 = await reloadReady(page);
@@ -1136,7 +1136,7 @@ async function indexArtTests(browser, vpName) {
   await page.waitForTimeout(300);
   check(`[${vpName}] edit mode: no hover preview, clicking a card selects it (no navigation)`, !hover && page.url() === s0.url && await page.evaluate((h) => document.querySelector(`a.index-card[href="${h}"]`).classList.contains("ee-index-selected"), AG));
   await page.click("#ee-idx-save");
-  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+  await page.waitForFunction(() => /Saved|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
   const i2 = T(IDX), sv = await savedState(i2);
   check(`[${vpName}] save after drags: order saved exactly as on screen, every card once, both copies identical, no runtime artifacts`, sameOrder(sv.secs, s2.secs) && uniq(sv.all) && i2 === T(IDX2) && !ART.test(i2.replace(/<script[\s\S]*?<\/script>/g, "")), (i2.match(ART) || [""])[0] + " same " + sameOrder(sv.secs, s2.secs) + " uniq " + uniq(sv.all) + " copies " + (i2 === T(IDX2)));
   // 3. Art: upload a big PNG on the new card, replace Aghor's art with a wide one, gallery pick for a third.
@@ -1162,7 +1162,7 @@ async function indexArtTests(browser, vpName) {
   await cardEl.scrollIntoViewIfNeeded(); await page.click(`main.index-flow a.index-card[href="${NEW}"]`); await page.waitForTimeout(200);
   if (vpName === "desktop") { fs.mkdirSync("/workspace/shots", { recursive: true }); await page.screenshot({ path: "/workspace/shots/index-card-art-test.png" }); }
   await page.click("#ee-idx-save");
-  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
+  await page.waitForFunction(() => /Saved|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
   const i3 = T(IDX), cat = JSON.parse(T("edit/media/catalog.json"));
   const entries = Object.values(cat.media).filter((m) => /zq-test-card|aghor\.webp/i.test(m.path));
   const newImg = entries.map((m) => m.path).find((p) => /zq-test-card/.test(p)), agImg = entries.map((m) => m.path).find((p) => /^assets\/aghor/.test(p));
@@ -1191,7 +1191,7 @@ async function indexArtTests(browser, vpName) {
   const st5 = await domState();
   await drag(NEW, st5.all.filter((h) => h !== NEW)[0], "before");
   await page.click("#ee-idx-save");
-  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+  await page.waitForFunction(() => /Saved|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
   const i4 = T(IDX), sv4 = await savedState(i4), c4 = cardHtml(i4, NEW);
   check(`[${vpName}] organize again after reload: saved, art markup unchanged, every card once, copies identical`, i4 !== i3 && uniq(sv4.all) && sv4.all.length === s2.all.length && c4 && c4.includes(newImg) && !/blob:/.test(i4) && i4 === T(IDX2), (await page.textContent("#ee-bar")).trim().slice(0, 60));
   check(`[${vpName}] index art: no page errors`, W.errs.length === 0, W.errs.join(" | "));
@@ -1207,7 +1207,7 @@ async function indexArtTests(browser, vpName) {
     await page.click("#ee-art-up"); await page.waitForTimeout(500);
     const shown = await page.evaluate(() => { const im = document.querySelector(".art-hero img"); return im && im.getAttribute("src").startsWith("blob:") && !document.querySelector(".art-hero").classList.contains("no-art"); });
     await page.click("#ee-save");
-    await page.waitForFunction(() => /Saved at|failed|refused/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
+    await page.waitForFunction(() => /Saved|failed|refused/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
     const sa = T(SH + "index.html"), sb = T("articles/shune-s-basin.html"), si = T(IDX);
     const sc = cardHtml(si, "/articles/shune-s-basin/");
     check(`[${vpName}] article: hero art added to a no-art hero (preview, both copies saved)`, shown && sa === sb && /<section class="art-hero"><img src="\/assets\/shune-test-art[^"]*" alt="Shune Test Art">/.test(sa), (sa.match(/<section class="art-hero[^>]*>.{0,90}/) || [""])[0]);
@@ -1239,7 +1239,7 @@ async function deleteTests(browser, vpName) {
   }
   async function pickCard(sel) { await page.evaluate((s) => document.querySelector(s).scrollIntoView({ block: "center" }), sel); await page.click(sel); }
   async function dialog() { await page.waitForSelector("#ee-del-ok", { state: "visible", timeout: 10000 }); return page.evaluate(() => document.getElementById("ee-body").textContent); }
-  async function ok() { await page.click("#ee-del-ok"); await page.waitForFunction(() => /Saved at|failed|could not/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 60000 }); return bar(); }
+  async function ok() { await page.click("#ee-del-ok"); await page.waitForFunction(() => /Saved|failed|could not/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 60000 }); return bar(); }
   const cardsOf = (t, slug) => (t.match(new RegExp('<a class="index-card[^"]*"[^>]*href="/articles/' + slug + '/"', "g")) || []).length;
   await openOrg();
 
@@ -1415,7 +1415,7 @@ async function subsecTests(browser, vpName) {
   await page.click('#ee-sub-list li[data-sub="zq-guild"] [data-act="up"]');
   const o4 = await subIds();
   await page.click("#ee-idx-save");
-  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+  await page.waitForFunction(() => /Saved|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
   const i4 = T(IDX);
   check(`[${vpName}] subsection: ↑ reorders; save writes the empty one as heading + "None filed here yet" box, order kept, copies identical`, JSON.stringify(o4.slice(-2)) === JSON.stringify(["zq-guild", "zq-order"]) && i4.includes('<h3 class="index-sub" id="zq-guild">Zq Guild</h3><div class="index-cards"><p class="index-empty">None filed here yet</p></div><h3 class="index-sub" id="zq-order">') && i4.includes('href="/articles/aghor/"') && i4 === T(IDX2) && !ART.test(i4.replace(/<script[\s\S]*?<\/script>/g, "")), JSON.stringify(o4));
   // 5. Rename (heading edit), 6. delete: blocked while it has cards; empty one deleted after confirm.
@@ -1436,7 +1436,7 @@ async function subsecTests(browser, vpName) {
   const gone = await page.evaluate(() => !document.getElementById("zq-guild") && !document.querySelector('#index-toc-panel a[href="#zq-guild"]'));
   check(`[${vpName}] subsection: rename via its heading (Categories follows); delete of one with cards asks what to do with them (cancel keeps it); empty one deleted after confirm`, ren.h === "Zq Guild Two" && ren.toc === "Zq Guild Two" && /It has 2 cards/.test(blocked) && still && gone, JSON.stringify(ren) + " " + blocked.slice(0, 60));
   await page.click("#ee-idx-save");
-  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+  await page.waitForFunction(() => /Saved|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
   const i6 = T(IDX);
   check(`[${vpName}] subsection: saved without the deleted one; others untouched; copies identical`, !i6.includes("zq-guild") && i6.includes('id="zq-order"') && i6.includes('<h3 class="index-sub" id="kindred">Draconic Kindred</h3>') && i6 === T(IDX2), "");
   // 7. Reload during deploy: the kept copy shows the subsection.
@@ -1464,7 +1464,7 @@ async function artSetTests(browser, vpName) {
   const bar = (page) => page.evaluate(() => ((document.getElementById("ee-bar") || {}).textContent || "").trim());
   async function saveAndWait(page) {
     await page.click("#ee-save");
-    await page.waitForFunction(() => /Saved at|Proposed|failed|No changes|refused|Nothing was saved/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
+    await page.waitForFunction(() => /Saved|Proposed|failed|No changes|refused|Nothing was saved/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
     return bar(page);
   }
   const item = (i, act) => `#ee-arts .ee-art-item[data-i="${i}"] [data-act="${act}"]`;
@@ -1502,7 +1502,7 @@ async function artSetTests(browser, vpName) {
     const t1 = String(mock.file(A1)), bs = btns(t1), commits = writes(mock, n0).filter((e) => e.committed);
     const cat = JSON.parse(String(mock.file("edit/media/catalog.json")));
     const upPath = Object.values(cat.media).map((m) => m.path).find((p) => /aghor-dawn|aghor dawn/i.test(p));
-    check(`[${vpName}] arts save: one commit, both copies identical, site switcher markup (3 thumbs, main first-shown, script once)`, /Saved at/.test(b1) && commits.length === 1 && t1 === String(mock.file(A2)) && /<section class="art-hero has-swap">/.test(t1) && bs.length === 3 && bs.filter((b) => b.on).length === 1 && bs[s4.findIndex((x) => x.main)].on && (t1.match(/art-swap\.js\?v=/g) || []).length === 1 && /<div class="art-swap-nav">/.test(t1), b1.slice(0, 60) + " commits " + commits.length + " " + JSON.stringify(bs.map((b) => [b.alt, b.on])));
+    check(`[${vpName}] arts save: one commit, both copies identical, site switcher markup (3 thumbs, main first-shown, script once)`, /Saved/.test(b1) && commits.length === 1 && t1 === String(mock.file(A2)) && /<section class="art-hero has-swap">/.test(t1) && bs.length === 3 && bs.filter((b) => b.on).length === 1 && bs[s4.findIndex((x) => x.main)].on && (t1.match(/art-swap\.js\?v=/g) || []).length === 1 && /<div class="art-swap-nav">/.test(t1), b1.slice(0, 60) + " commits " + commits.length + " " + JSON.stringify(bs.map((b) => [b.alt, b.on])));
     check(`[${vpName}] arts save: upload resized + committed with the gallery catalog; caption used for data-alt/aria-label; hero = main`, upPath && mock.file(upPath) && bs.some((b) => b.src === "/" + upPath && b.alt === "Aghor at Dawn" && b.label === "Aghor at Dawn" && b.on) && heroImgSrc(t1) === "/" + upPath && commits[0].committed.paths.includes(upPath) && commits[0].committed.paths.includes("edit/media/catalog.json"), upPath + " hero " + heroImgSrc(t1));
     const i1 = String(mock.file(IDX));
     check(`[${vpName}] arts save: "Set as main" moves the Index card art (both Index copies) and og:image, same commit`, cardsArt(i1, "aghor").every((u) => u === "/" + upPath.replace(/ /g, "%20")) && i1 === String(mock.file(IDX2)) && commits[0].committed.paths.includes(IDX) && /og:image" content="https:\/\/elorae\.world\/assets\/aghor-dawn/i.test(t1), JSON.stringify(cardsArt(i1, "aghor")));
@@ -1532,7 +1532,7 @@ async function artSetTests(browser, vpName) {
     const s6 = await strip(page);
     const b2 = await saveAndWait(page);
     const t2 = String(mock.file(A1)), i2 = String(mock.file(IDX));
-    check(`[${vpName}] arts: edit again loads the saved set; remove down to 1 (confirm) → plain hero, no switcher/script; page identical to the original`, s5.length === 3 && s6.length === 1 && /Saved at/.test(b2) && t2 === orig && t2 === String(mock.file(A2)), b2.slice(0, 60) + " " + JSON.stringify(s6));
+    check(`[${vpName}] arts: edit again loads the saved set; remove down to 1 (confirm) → plain hero, no switcher/script; page identical to the original`, s5.length === 3 && s6.length === 1 && /Saved/.test(b2) && t2 === orig && t2 === String(mock.file(A2)), b2.slice(0, 60) + " " + JSON.stringify(s6));
     check(`[${vpName}] arts: card art follows the main art back (both Index copies identical to the original)`, i2 === idx0 && String(mock.file(IDX2)) === fs.readFileSync(path.join(ROOT, IDX2), "utf8"), JSON.stringify(cardsArt(i2, "aghor")));
     const gone = await page.evaluate(() => ({ swap: document.querySelectorAll(".art-swap").length, cls: document.querySelector(".art-hero").className }));
     check(`[${vpName}] arts: page shows a plain hero after the collapse save`, gone.swap === 0 && !/has-swap/.test(gone.cls), JSON.stringify(gone));
@@ -1559,7 +1559,7 @@ async function artSetTests(browser, vpName) {
     const t1 = String(mock.file(V1)), i1 = String(mock.file(IDX)), bs = btns(t1);
     const ca = cardsArt(i1, "vaerek");
     const diff = t1.split("\n").filter((l, i) => l !== orig.split("\n")[i]).length;
-    check(`[${vpName}] arts (Vaerek): Set as main → hero + "on" thumb move, thumbnails byte-kept, both copies`, /Saved at/.test(b1) && t1 === String(mock.file(V2)) && bs.length === 2 && bs[1].on && !bs[0].on && heroImgSrc(t1) === "/assets/Vaerek, Vessel of Heldranc.png" && t1.replace(/ class="on" aria-pressed="true"| class="" aria-pressed="false"/g, "") .length > 0 && diff <= 3, `diff lines ${diff}`);
+    check(`[${vpName}] arts (Vaerek): Set as main → hero + "on" thumb move, thumbnails byte-kept, both copies`, /Saved/.test(b1) && t1 === String(mock.file(V2)) && bs.length === 2 && bs[1].on && !bs[0].on && heroImgSrc(t1) === "/assets/Vaerek, Vessel of Heldranc.png" && t1.replace(/ class="on" aria-pressed="true"| class="" aria-pressed="false"/g, "") .length > 0 && diff <= 3, `diff lines ${diff}`);
     check(`[${vpName}] arts (Vaerek): every Vaerek card (Heroes + Kindred, both Index copies) gets the new main art`, ca.length === 2 && ca.every((u) => /Vessel%20of%20Heldranc/.test(u)) && i1 === String(mock.file(IDX2)), JSON.stringify(ca));
     check(`[${vpName}] arts (Vaerek): no page errors`, W.errs.length === 0, W.errs.join(" | "));
     await ctx.close();
@@ -1602,7 +1602,7 @@ async function artSetTests(browser, vpName) {
     const commits = writes(mock, n0).filter((e) => e.committed), paths = commits[0] ? commits[0].committed.paths : [];
     const cardNames = [...i1.matchAll(/<a class="index-card[^"]*"[^>]*href="\/articles\/vaerek\/"[^>]*><span>([^<]*)<\/span>/g)].map((m) => m[1]);
     const tocNames = [...i1.matchAll(/<a class="toc-name[^"]*" href="#(?:heroes|kindred)-vaerek">([^<]*)<\/a>/g)].map((m) => m[1]);
-    check(`[${vpName}] rename: one commit; both copies of the page get the new name in <title>/og:title and "Name, Epithet" descriptions`, /Saved at/.test(b1) && commits.length === 1 && v === String(mock.file("articles/vaerek/index.html")) && v.includes("<title>Vaerek Rathkin Zq - Elorae</title>") && v.includes('og:title" content="Vaerek Rathkin Zq"') && v.includes('name="description" content="Vaerek Rathkin Zq, Wreathbound Ranger Zw. Bastard'), b1.slice(0, 60) + " " + commits.length);
+    check(`[${vpName}] rename: one commit; both copies of the page get the new name in <title>/og:title and "Name, Epithet" descriptions`, /Saved/.test(b1) && commits.length === 1 && v === String(mock.file("articles/vaerek/index.html")) && v.includes("<title>Vaerek Rathkin Zq - Elorae</title>") && v.includes('og:title" content="Vaerek Rathkin Zq"') && v.includes('name="description" content="Vaerek Rathkin Zq, Wreathbound Ranger Zw. Bastard'), b1.slice(0, 60) + " " + commits.length);
     const cardEps = [...i1.matchAll(/<a class="index-card[^"]*"[^>]*href="\/articles\/vaerek\/"([^>]*)>/g)].map((m) => (/data-epithet="([^"]*)"/.exec(m[1]) || [])[1]);
     check(`[${vpName}] rename: every Vaerek card (Heroes + Kindred) and its Index panel entry renamed, card epithet (data-epithet) follows, both Index copies`, cardNames.length === 2 && cardNames.every((n) => n === "Vaerek Rathkin Zq") && cardEps.length === 2 && cardEps.every((e) => e === "Wreathbound Ranger Zw") && tocNames.length === 2 && tocNames.every((n) => n === "Vaerek Rathkin Zq") && i1 === String(mock.file(IDX2)), JSON.stringify({ cardNames, tocNames }));
     const linkOld = (t) => (t.match(/<a class="toc-name[^"]*" href="\/articles\/vaerek\/">Vaerek Rathkin<\/a>|<li><a href="\/articles\/vaerek\/">Vaerek Rathkin<\/a>/g) || []).length;
@@ -1616,7 +1616,7 @@ async function artSetTests(browser, vpName) {
     const c2 = writes(mock, n1).filter((e) => e.committed), p2 = c2[0] ? c2[0].committed.paths : [];
     const v2 = String(mock.file("articles/vaerek.html")), i2 = String(mock.file(IDX));
     const onlyEp = i2.replace(/ data-epithet="Wreathbound Ranger Zw Zx &amp; &quot;Q&quot;"/g, ' data-epithet="Wreathbound Ranger Zw"') === i1b && (i2.match(/data-epithet="Wreathbound Ranger Zw Zx &amp; &quot;Q&quot;"/g) || []).length === 2;
-    check(`[${vpName}] epithet change: page + descriptions + both Vaerek cards' data-epithet (escaped), both Index copies, one commit; search/other pages untouched`, /Saved at/.test(b2) && v2.includes('Wreathbound Ranger Zw Zx') && c2.length === 1 && onlyEp && i2 === String(mock.file(IDX2)) && ["search-index.js", "articles/saoirse.html"].every((p, k) => String(mock.file(p)) === keep[k]), b2.slice(0, 50) + " " + JSON.stringify(p2));
+    check(`[${vpName}] epithet change: page + descriptions + both Vaerek cards' data-epithet (escaped), both Index copies, one commit; search/other pages untouched`, /Saved/.test(b2) && v2.includes('Wreathbound Ranger Zw Zx') && c2.length === 1 && onlyEp && i2 === String(mock.file(IDX2)) && ["search-index.js", "articles/saoirse.html"].every((p, k) => String(mock.file(p)) === keep[k]), b2.slice(0, 50) + " " + JSON.stringify(p2));
     // Clearing the epithet drops the attribute from the cards.
     const n2 = mock.log.length;
     await page.evaluate(() => window.EloraeEditor.tryEnterEdit()); await page.waitForSelector("#ee-save", { timeout: 15000 }); await page.waitForTimeout(250);
@@ -1625,7 +1625,7 @@ async function artSetTests(browser, vpName) {
     const b3 = await saveAndWait(page);
     const i3 = String(mock.file(IDX));
     const eps3 = [...i3.matchAll(/<a class="index-card[^"]*"[^>]*href="\/articles\/vaerek\/"[^>]*>/g)].map((m) => m[0]);
-    check(`[${vpName}] epithet cleared: the cards lose data-epithet (no hover reveal), both Index copies`, /Saved at/.test(b3) && eps3.length === 2 && eps3.every((t) => !/data-epithet/.test(t)) && i3 === String(mock.file(IDX2)), b3.slice(0, 50) + " " + eps3.join(" "));
+    check(`[${vpName}] epithet cleared: the cards lose data-epithet (no hover reveal), both Index copies`, /Saved/.test(b3) && eps3.length === 2 && eps3.every((t) => !/data-epithet/.test(t)) && i3 === String(mock.file(IDX2)), b3.slice(0, 50) + " " + eps3.join(" "));
     check(`[${vpName}] rename: no page errors`, W.errs.length === 0, W.errs.join(" | "));
     await ctx.close();
   }

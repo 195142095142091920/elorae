@@ -132,7 +132,7 @@ async function organizer(browser, vpName) {
   await page.waitForTimeout(150);
   check(`[${vpName}] drag inside a section: ignored (A to Z kept), the bar says why`, (await secNames(page, "#divines a.index-card")).join(",") === before && /sort A\u2013Z by name automatically/.test(await page.textContent("#ee-bar")), (await page.textContent("#ee-bar")).slice(0, 90));
   await page.click("#ee-idx-save");
-  await page.waitForFunction(() => /Saved at|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
+  await page.waitForFunction(() => /Saved|failed/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 20000 });
   sv = T(IDX);
   check(`[${vpName}] save after a move: Vignettes saved A to Z with Aghor first, whole file A to Z, copies identical`, savedSec(sv, "vignettes")[0][0] === "Aghor" && savedToc(sv, "vignettes")[0] === "Aghor" && allSorted(sv) && sv === T(IDX2), unsorted(sv));
   check(`[${vpName}] organizer: no page errors`, W.errs.length === 0, W.errs.join(" | "));

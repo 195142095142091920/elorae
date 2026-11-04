@@ -59,7 +59,7 @@ async function caretEnd(page, sel) {
 }
 async function saveNow(page) {
   await page.click("#ee-save");
-  await page.waitForFunction(() => /Saved at|failed|refused|pull request|No changes/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
+  await page.waitForFunction(() => /Saved|failed|refused|pull request|No changes/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
   await page.waitForTimeout(300);
 }
 const T = (p) => { const v = mock.file(p); return v == null ? null : String(v); };
