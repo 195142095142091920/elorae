@@ -1,4 +1,4 @@
-/* codex-layout.css (cx2: wider lore measure): the opt-in "Codex" article layout (body.article.art-codex), built
+/* codex-layout.css (cx3: plates column | wider lore | Particulars): the opt-in "Codex" article layout (body.article.art-codex), built
    by codex-layout.js. Only while html.cx-on (never in edit mode): hides the originals that the
    generated copies stand in for, widens Plates + Lore past the reading column, and styles the
    plates row, ornament headings, drop cap and sticky side box. Hero, title and Dossier untouched. */
@@ -8,11 +8,10 @@ html.cx-on body.art-codex #lore > ul.art-facts,
 html.cx-on body.art-codex #related { display: none !important; }
 
 /* Wider band for Plates + Lore, centred on the reading column (same centre, rail or not). */
-html.cx-on body.art-codex { --cx-w: min(1200px, calc(100vw - 64px)); }
+html.cx-on body.art-codex { --cx-w: min(1320px, calc(100vw - 48px)); }
 @media (min-width: 801px) {
   html.cx-on.cats-rail-pinned body.art-codex,
-  html.cx-on body.art-codex.art-index-open { --cx-w: min(1200px, calc(100vw - var(--rail-w, 220px) - 64px)); }
-  html.cx-on body.art-codex .cx-plates,
+  html.cx-on body.art-codex.art-index-open { --cx-w: min(1320px, calc(100vw - var(--rail-w, 220px) - 48px)); }
   html.cx-on body.art-codex #lore { width: var(--cx-w); margin-left: calc((100% - var(--cx-w)) / 2); box-sizing: border-box; }
 }
 
@@ -34,37 +33,44 @@ html.cx-on body.art-codex .cx-orn span { display: flex; align-items: center; gap
 html.cx-on body.art-codex .cx-orn span::before,
 html.cx-on body.art-codex .cx-orn span::after { content: ""; width: 6px; height: 6px; border: 1px solid #cdb48a; transform: rotate(45deg); }
 
-/* Plates: framed, captioned, horizontal snap row (touch / trackpad / mouse drag), no arrows. */
-.cx-plates { margin: 0 0 88px; }
-.cx-row {
-  display: flex; gap: 26px; overflow-x: auto; overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; padding: 2px 0 8px; outline: none;
-  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 90px), transparent);
-          mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 90px), transparent);
-}
-.cx-row::-webkit-scrollbar { display: none; }
+/* Plates (cx3): small framed thumbnails, tiny captions. Desktop: a slim sticky column left of
+   the lore text. Phone: a compact snap row above the lore. Tap = fade the hero to that art. */
+body.article .art-body .cx-plates h3 { margin: 0 0 12px; font: 500 10px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .3em; text-transform: uppercase; color: #8f887c; }
+.cx-row { display: flex; gap: 14px; outline: none; }
 .cx-row.cx-drag { scroll-snap-type: none; scroll-behavior: auto; cursor: grabbing; user-select: none; }
-.cx-plates.cx-one .cx-row { -webkit-mask-image: none; mask-image: none; }
 .cx-row > figure.cx-plate {
-  flex: 0 0 78%; margin: 0 !important; scroll-snap-align: start; cursor: pointer; box-sizing: border-box;
-  padding: 12px; border: 1px solid rgba(243,238,230,.12); background: linear-gradient(#0d0d0c, #0a0a09);
-  transition: border-color .5s ease;
+  margin: 0 !important; cursor: pointer; box-sizing: border-box; padding: 4px;
+  border: 1px solid rgba(243,238,230,.12); background: linear-gradient(#0d0d0c, #0a0a09); transition: border-color .4s ease;
 }
-.cx-plates.cx-one .cx-row > figure.cx-plate { flex-basis: 100%; }
-.cx-row > figure.cx-plate:last-child:not(:first-child) { margin-right: 90px !important; }
-.cx-row > figure.cx-plate.on { border-color: rgba(205,180,138,.55); }
-.cx-pic { display: block; aspect-ratio: 7 / 3; background-size: cover; background-position: center 30%; opacity: .7; transition: opacity .5s ease; }
+.cx-row > figure.cx-plate.on { border-color: rgba(205,180,138,.6); }
+.cx-row > figure.cx-plate:hover { border-color: rgba(243,238,230,.28); }
+.cx-row > figure.cx-plate.on:hover { border-color: rgba(205,180,138,.8); }
+.cx-pic { display: block; aspect-ratio: 3 / 2; background-size: cover; background-position: center 30%; opacity: .6; transition: opacity .4s ease; }
 .cx-plate.on .cx-pic, .cx-plate:hover .cx-pic { opacity: 1; }
-body.article .art-body .cx-plate figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 14px 4px 2px; margin: 0; text-align: left; }
-.cx-cap { font: italic calc(11px * var(--fs, 1.5094)) "Iowan Old Style", "Palatino Linotype", Palatino, serif; color: #b7b0a4; }
-.cx-no { flex: none; font: 500 10px "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .3em; text-transform: uppercase; color: #cdb48a; }
+body.article .art-body .cx-plate figcaption { display: block; padding: 6px 2px 1px; margin: 0; text-align: left; line-height: 1.3; }
+.cx-cap { display: block; font: italic 12.5px/1.3 "Iowan Old Style", "Palatino Linotype", Palatino, serif; color: #a39c90; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-no { display: block; margin-top: 2px; font: 500 8.5px "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .28em; text-transform: uppercase; color: #cdb48a; }
+@media (min-width: 801px) {
+  .cx-row { flex-direction: column; max-height: calc(100vh - 150px); overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; }
+  .cx-row::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 800px) {
+  .cx-plates { margin: 0 0 34px; }
+  .cx-row {
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -12px; padding: 0 12px 4px; scroll-padding: 0 12px; gap: 10px;
+  }
+  .cx-row::-webkit-scrollbar { display: none; }
+  .cx-row > figure.cx-plate { flex: 0 0 42%; scroll-snap-align: start; }
+}
 
 /* Lore + sticky side box. */
 @media (min-width: 801px) {
-  html.cx-on body.art-codex #lore { display: grid; grid-template-columns: minmax(0, 820px) 300px; column-gap: 52px; justify-content: center; align-items: start; }
-  html.cx-on body.art-codex #lore > * { grid-column: 1; }
-  html.cx-on body.art-codex #lore > .cx-side { grid-column: 2; grid-row: 2 / span 200; position: sticky; top: 96px; align-self: start; }
+  /* cx3: plates | lore text | Particulars. */
+  html.cx-on body.art-codex #lore { display: grid; grid-template-columns: 96px minmax(0, 820px) 300px; column-gap: 36px; justify-content: center; align-items: start; }
+  html.cx-on body.art-codex #lore > * { grid-column: 2; }
+  html.cx-on body.art-codex #lore > .cx-plates { grid-column: 1; grid-row: 2 / span 200; position: sticky; top: 96px; align-self: start; margin: 0; }
+  html.cx-on body.art-codex #lore > .cx-side { grid-column: 3; grid-row: 2 / span 200; position: sticky; top: 96px; align-self: start; }
 }
 html.cx-on body.art-codex #lore > p.art-life:first-of-type::first-letter {
   float: left; font-size: 4.1em; line-height: .8; padding: .08em .12em 0 0; color: #cdb48a;
@@ -81,14 +87,11 @@ body.article .art-body .cx-links h4 { text-align: left; margin-bottom: 8px; }
 .cx-links a { display: block; font-size: 15px; line-height: 1.5; color: #b7b0a4; padding: 2px 0; text-decoration: none; }
 .cx-links a:hover { color: #f3eee6; }
 
-/* Phone: plates edge to edge; the side box sits above the lore text. */
+/* Phone: plates row first, then the side box above the lore text. */
 @media (max-width: 800px) {
-  .cx-plates { margin-bottom: 60px; }
-  .cx-row { margin: 0 -12px; gap: 12px; -webkit-mask-image: none; mask-image: none; scroll-padding: 0 12px; }
-  .cx-row > figure.cx-plate { flex-basis: 86%; padding: 7px; }
-  .cx-row > figure.cx-plate:first-child { margin-left: 12px !important; }
-  .cx-row > figure.cx-plate:last-child { margin-right: 12px !important; }
   .cx-side { margin: 0 0 40px; }
+  html.cx-on body.art-codex #lore { display: flex; flex-direction: column; }
+  html.cx-on body.art-codex #lore > .cx-plates { order: -1; }
   .cx-links a { display: inline-block; margin-right: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { .cx-row { scroll-behavior: auto; } .cx-pic, .cx-row > figure.cx-plate { transition: none; } }

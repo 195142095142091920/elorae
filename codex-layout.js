@@ -1,4 +1,4 @@
-/* codex-layout.js (cx1): opt-in "Codex" article layout (body.article.art-codex).
+/* codex-layout.js (cx3: plates as a slim side column): opt-in "Codex" article layout (body.article.art-codex).
    The hero, name and Dossier stay as they are. Below them, the page's own arts become framed
    plates in a horizontal snap row (tap one to fade the hero to it), and the lore gets a sticky
    side box (facts, quote, Related links) beside it.
@@ -51,8 +51,9 @@
 
   function buildPlates(lore) {
     var list = arts(); if (!list.length) return;
-    var sec = el("section", "cx-plates cx-gen"); sec.setAttribute("aria-label", "Plates");
-    sec.appendChild(heading("Plates"));
+    // cx3: a slim column inside the lore grid (left of the text on desktop; a compact row on phones).
+    var sec = el("aside", "cx-plates cx-gen"); sec.setAttribute("aria-label", "Plates");
+    sec.appendChild(el("h3", null, "Plates"));
     row = el("div", "cx-row"); row.tabIndex = 0;
     var cur = (hero() || {}).getAttribute ? hero().getAttribute("src") : "";
     list.forEach(function (a, i) {
@@ -65,7 +66,8 @@
     });
     if (list.length === 1) sec.classList.add("cx-one");
     sec.appendChild(row);
-    lore.parentNode.insertBefore(sec, lore);
+    var h2 = lore.querySelector(":scope > h2");
+    lore.insertBefore(sec, h2 ? h2.nextSibling : lore.firstChild);
     drag(row);
   }
   // Mouse drag swipes the row on desktop (touch and trackpad scroll natively, with snap).
@@ -121,7 +123,7 @@
     if (editing()) return;
     var lore = document.getElementById("lore");
     if (!lore || !document.querySelector("main.art-body")) return;
-    buildPlates(lore); buildSide(lore);
+    buildSide(lore); buildPlates(lore);
     root.classList.add("cx-on");
   }
 
