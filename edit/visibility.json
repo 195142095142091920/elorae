@@ -304,6 +304,20 @@
         "devin",
         "sawyer"
       ]
+    },
+    "nilarem-kavari": {
+      "title": "Nilarem Kavari",
+      "owner": "devin",
+      "path": "articles/nilarem-kavari.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin",
+        "jason"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
     }
   }
 }
