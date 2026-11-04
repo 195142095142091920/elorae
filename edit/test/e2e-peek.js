@@ -174,8 +174,10 @@ async function hoverTests(browser) {
   check("hover: a link to an article shows its card after the delay (not instantly): art, name, epithet, ≤3 filled fields, ~280px, on screen", !early && c.name === "Galand Helviath" && c.ep && c.img && c.dl.split("|").length <= 3 && !/Name/.test(c.dl) && c.w === 280 && c.inside, JSON.stringify(c));
   const hit = await p.evaluate((sel) => { const a = document.querySelector(sel), b = a.getBoundingClientRect(); const e = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); return e === a || a.contains(e); }, L);
   check("hover: the card never covers the link (still clickable)", hit);
-  const hb = await p.$eval("#hover-card", (h) => { const b = h.getBoundingClientRect(); return { x: b.left + 40, y: b.top + 40 }; });
-  await p.mouse.move(r.x + r.width / 2, r.y + r.height + 4); await p.mouse.move(hb.x, hb.y, { steps: 3 }); await p.waitForTimeout(300);
+  // Leave the link toward the card (it may open above or below; links in a stacked list sit right next to each other).
+  const hb = await p.$eval("#hover-card", (h) => { const b = h.getBoundingClientRect(); return { x: b.left + 40, y: b.top + 40, top: b.top, bottom: b.bottom }; });
+  const below = hb.top >= r.y + r.height / 2, ex = Math.min(Math.max(hb.x, r.x + 4), r.x + r.width - 4);
+  await p.mouse.move(ex, below ? r.y + r.height + 2 : r.y - 2); await p.mouse.move(ex, below ? hb.top + 6 : hb.bottom - 6, { steps: 2 }); await p.mouse.move(hb.x, below ? hb.top + 6 : hb.bottom - 6); await p.waitForTimeout(300);
   check("hover: moving onto the card keeps it open (grace)", !!(await p.$("#hover-card.hover-card-on")));
   await p.mouse.move(5, 300); await p.waitForTimeout(400);
   check("hover: leaving hides it", !(await p.$("#hover-card.hover-card-on")));

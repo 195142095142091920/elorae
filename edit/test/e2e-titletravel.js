@@ -89,13 +89,14 @@ async function interactions(browser) {
   const after = await S(p);
   check("art-swap arrow still switches the art, and the copy stays on the title", src1 !== src0 && onTitle(after), src0 + " -> " + src1);
   const pt = await p.evaluate(() => { const h = document.querySelector("section.art-hero"), r = h.getBoundingClientRect(), i = h.querySelector(":scope > img"); for (const [fx, fy] of [[0.6, 0.35], [0.5, 0.3], [0.7, 0.5]]) { const x = r.left + r.width * fx, y = r.top + r.height * fy; if (document.elementFromPoint(x, y) === i) return { x, y }; } return null; });
+  const fit0 = await p.evaluate(() => document.querySelector("section.art-hero").classList.contains("art-fit-full"));
   await p.mouse.click(pt.x, pt.y); await p.waitForTimeout(500);
   const fit = await p.evaluate(() => document.querySelector("section.art-hero").classList.contains("art-fit-full"));
   // Clicking where the (hidden) hero title is does not toggle the fit.
   const tp = await p.evaluate(() => { const r = document.querySelector("section.art-hero > .art-title h1").getBoundingClientRect(); return { x: r.left + 10, y: r.top + r.height / 2 }; });
   await p.mouse.click(tp.x, tp.y); await p.waitForTimeout(450);
   const fit2 = await p.evaluate(() => document.querySelector("section.art-hero").classList.contains("art-fit-full"));
-  check("click-to-fit still works on the art (full by default, a click crops); a click on the title spot does not toggle it", !fit && !fit2, JSON.stringify({ fit, fit2 }));
+  check("click-to-fit still works on the art (cover crop by default, a click shows the full art); a click on the title spot does not toggle it back", !fit0 && fit && fit2, JSON.stringify({ fit0, fit, fit2 }));
   // The copy never reaches the accessibility tree; the page title / h1 text is the real name.
   const ax = await p.evaluate(() => { const d = document.querySelector(".art-tt"); return { ah: d.closest("[aria-hidden=true]") === d, h1: document.querySelector("h1").textContent.trim(), sel: getComputedStyle(d).userSelect }; });
   check("one announced title: the copy is aria-hidden and not selectable; the h1 is the real name", ax.ah && ax.h1 === "Vaerek Rathkin" && ax.sel === "none", JSON.stringify(ax));

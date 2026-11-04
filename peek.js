@@ -400,7 +400,7 @@
       if (e.pointerType !== "mouse" || editing()) return;
       if (card && card.contains(e.target)) return;
       var a = e.target.closest && e.target.closest("a[href]");
-      if (!a || !a.closest(SCOPE) || a.closest(".mast, nav, aside, .art-index, .toc, #section-bar, .art-swap")) return;
+      if (!a || !a.closest(SCOPE) || a.closest(".mast, nav, aside:not(.cx-side), .art-index, .toc, #section-bar, .art-swap")) return;
       var slug = articleKey(a.getAttribute("href"));
       if (!slug || slug === here) return;
       if (a === link) { clearTimeout(hideT); return; }
