@@ -30,13 +30,12 @@
   "secrets": {
     "bel-harath": {
       "title": "Bel Harath",
-      "owner": "jack",
+      "owner": "devin",
       "path": "articles/bel-harath.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
-        "devin",
-        "jack"
+        "devin"
       ],
       "epoch": 0,
       "keys": {},
@@ -83,13 +82,12 @@
     },
     "haethlin-dream": {
       "title": "Haethlin in the Dream",
-      "owner": "jack",
+      "owner": "devin",
       "path": "articles/haethlin-dream.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
-        "devin",
-        "jack"
+        "devin"
       ],
       "epoch": 0,
       "keys": {},
@@ -110,13 +108,12 @@
     },
     "ito-gangara": {
       "title": "Ito Gangara",
-      "owner": "jack",
+      "owner": "devin",
       "path": "articles/ito-gangara.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
-        "devin",
-        "jack"
+        "devin"
       ],
       "epoch": 0,
       "keys": {},
@@ -150,13 +147,12 @@
     },
     "vallorca": {
       "title": "Vallorca",
-      "owner": "jack",
+      "owner": "devin",
       "path": "articles/vallorca.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
-        "devin",
-        "jack"
+        "devin"
       ],
       "epoch": 0,
       "keys": {},
@@ -164,13 +160,12 @@
     },
     "yena": {
       "title": "Yena",
-      "owner": "jack",
+      "owner": "devin",
       "path": "articles/yena.html",
       "status": "plaintext",
       "everyone": false,
       "allowed": [
-        "devin",
-        "jack"
+        "devin"
       ],
       "epoch": 0,
       "keys": {},
@@ -326,8 +321,46 @@
       "status": "plaintext",
       "everyone": false,
       "allowed": [
-        "devin",
-        "jason"
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "cressana": {
+      "title": "Cressana",
+      "owner": "devin",
+      "path": "articles/cressana.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "darcdressil": {
+      "title": "Darcdressil",
+      "owner": "devin",
+      "path": "articles/darcdressil.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
+      ],
+      "epoch": 0,
+      "keys": {},
+      "openKey": null
+    },
+    "the-six-kings": {
+      "title": "The Six Kings",
+      "owner": "devin",
+      "path": "articles/the-six-kings.html",
+      "status": "plaintext",
+      "everyone": false,
+      "allowed": [
+        "devin"
       ],
       "epoch": 0,
       "keys": {},

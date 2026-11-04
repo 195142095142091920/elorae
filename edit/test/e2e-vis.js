@@ -83,13 +83,15 @@ function tags(text, re) { return text.match(re) || []; }
     let ctx = await ctxFor(browser, "devin", true), page = await ctx.newPage(), errs = watch(page);
     await enterEdit(page, "articles/saoirse/");
     await page.waitForSelector("#ee-vis", { timeout: 15000 });
-    await page.waitForFunction(() => document.querySelector("#ee-vis .ee-vis-lbl"), null, { timeout: 5000 });
-    check("article: Visibility button on the edit bar shows the state (Everyone)", /Everyone/.test(await page.textContent("#ee-vis")), await page.textContent("#ee-vis"));
+    await page.waitForFunction(() => /^Visibility: /.test(document.querySelector("#ee-vis").getAttribute("aria-label") || ""), null, { timeout: 5000 });
+    const visLbl = () => page.getAttribute("#ee-vis", "aria-label");
+    check("article: Visibility button on the edit bar shows the state (Everyone)", /Everyone/.test(await visLbl()), await visLbl());
     check("article: the old Share button is replaced", !(await page.$("#ee-share")));
     await page.click("#ee-vis");
     await page.waitForSelector("#ee-vis-pop .ee-vis-people input", { timeout: 10000 });
     check("article: popover lists Everyone / Devin only / Chosen players + 6 players", (await page.$$("#ee-vis-pop input[name=ee-vis-mode]")).length === 3 && (await page.$$("#ee-vis-pop .ee-vis-people input")).length === 6);
-    check("article: popover says whose character it is", /Julie/.test(await page.textContent("#ee-vis-pop")));
+    check("article: popover marks whose character it is (\u2605 by Julie), no help text", /Julie\s*\u2605/.test(await page.textContent("#ee-vis-pop .ee-vis-people")) && !(await page.$("#ee-vis-pop .ee-vis-note")) && !/guests too/.test(await page.textContent("#ee-vis-pop")));
+    check("article: Cancel / Save are icon buttons", await page.evaluate(() => ["cancel", "save"].every((a) => { const b = document.querySelector('#ee-vis-pop [data-vis-act="' + a + '"]'); return b && b.classList.contains("ee-ic") && !!b.querySelector("svg") && !b.textContent.trim(); })));
     await page.check('#ee-vis-pop .ee-vis-people input[value="sawyer"]');
     check("article: ticking a player switches to Chosen players", await page.isChecked('#ee-vis-pop input[value="players"]'));
     await page.screenshot({ path: path.join(OUT, "vis-toggle-article-1440.png") });
@@ -119,7 +121,7 @@ function tags(text, re) { return text.match(re) || []; }
     check("manifest: saoirse { owner devin, allowed [devin, sawyer], everyone false }", man && man.owner === "devin" && JSON.stringify(man.allowed) === '["devin","sawyer"]' && man.everyone === false && man.path === "articles/saoirse.html", JSON.stringify(man));
     const si = String(mock.file("search-index.js")); const se = JSON.parse(si.slice(si.indexOf("["), si.lastIndexOf("]") + 1)).find((e) => e.href === "articles/saoirse.html");
     check("search index: Saoirse private (owner devin)", se && se.private === true && se.owner === "devin");
-    check("article: bar shows the new state at a glance", /Sawyer/.test(await page.textContent("#ee-vis")) && /Visible to Sawyer/.test(await page.textContent("#ee-bar")), await page.textContent("#ee-bar"));
+    check("article: bar shows the new state at a glance", /Sawyer/.test(await visLbl()) && /Visible to Sawyer/.test(await page.textContent("body")), await visLbl());
     check("article: live page updated (hero/body private)", await page.evaluate(() => document.querySelector("main.art-body").classList.contains("private") && document.querySelector("section.art-hero").getAttribute("data-owner") === "devin"));
     // A text save afterwards keeps the mark.
     await page.evaluate(() => { const p = document.querySelector("main.art-body #lore p") || document.querySelector("main.art-body p"); p.textContent = p.textContent + " Zqv"; p.dispatchEvent(new Event("input", { bubbles: true })); });
@@ -140,7 +142,7 @@ function tags(text, re) { return text.match(re) || []; }
       cursed: (document.querySelector('a.index-card[href="/articles/cursed-of-olesh/"] .ee-index-vis') || {}).getAttribute("data-mode") }));
     check("organizer: a visibility button on every card", marks.n === marks.b, marks.b + "/" + marks.n);
     check("organizer: Saoirse's 3 cards marked limited (1 player)", marks.sa.length === 3 && marks.sa.every((m) => m === "players1"), marks.sa.join());
-    check("organizer: existing secrets marked (Yena: Jack + Devin; Cursed of Olesh: Devin only)", /Jack \+ Devin/.test(marks.yena || "") && marks.cursed === "devin", marks.yena + " / " + marks.cursed);
+    check("organizer: existing secrets marked (Yena: Devin only since pr1; Cursed of Olesh: Devin only)", /Devin only/.test(marks.yena || "") && !/Jack/.test(marks.yena || "") && marks.cursed === "devin", marks.yena + " / " + marks.cursed);
     const baiji = 'a.index-card[href="/articles/baiji/"] .ee-index-vis';
     await page.locator(baiji).first().scrollIntoViewIfNeeded();
     await page.click(baiji);
@@ -219,6 +221,45 @@ function tags(text, re) { return text.match(re) || []; }
       const hc = await page.evaluate(() => { const c = document.querySelector("#hover-card.hover-card-on"); return !!c && !c.hidden && /Saoirse/.test(c.textContent); });
       check(`${who}: hover card for a link to Saoirse ${see ? "shown" : "not shown"}`, hc === see, String(hc));
       check(`${who}: no page errors`, !errs.length, errs.join(" | "));
+      await ctx.close();
+    }
+
+    // ---- 4b) pr1: the old Private section is gone; its 14 cards sit in Unsorted, Devin only ----
+    const UNSORTED = ["the-beckoning-bell", "bel-harath", "cressana", "darcdressil", "darmstadt", "elraim", "haethlin-dream", "imani-valash", "ito-gangara", "rathalon", "sen-teloch-ini", "the-six-kings", "vallorca", "yena"];
+    {
+      const man = JSON.parse(disk("edit/visibility.json")).secrets;
+      const bad = UNSORTED.filter((sl) => { const e = Object.values(man).find((x) => x.path === "articles/" + sl + ".html"); return !e || e.owner !== "devin" || e.everyone || JSON.stringify(e.allowed) !== '["devin"]'; });
+      check("pr1: visibility.json — all 14 Unsorted entries owner devin, allowed [devin], not everyone", !bad.length, bad.join());
+      const idx = disk("index/ancients/index.html");
+      check("pr1: no Private section / private-group left; Unsorted is the last section", !/private-group|id="private"|>Private</.test(idx) && /<section class="index-cat" id="unsorted"><h2>Unsorted<\/h2>/.test(idx) && idx.lastIndexOf('<section class="index-cat"') === idx.indexOf('id="unsorted"') - 27);
+      const ungated = UNSORTED.filter((sl) => ["articles/" + sl + ".html", "articles/" + sl + "/index.html"].some((p) => { const t = disk(p); return !/<main class="art-body private" data-owner="devin">/.test(t) || !/<section class="art-hero[^"]*private[^"]*" data-owner="devin">/.test(t); }));
+      check("pr1: every Unsorted article (both copies) hero + body private to Devin", !ungated.length, ungated.join());
+    }
+    for (const who of ["guest", "jack", "sawyer", "devin"]) {
+      const see = who === "devin";
+      ctx = await ctxFor(browser, who, false); page = await ctx.newPage(); errs = watch(page);
+      await page.goto(BASE + "index/ancients/", { waitUntil: "load" }); await page.waitForTimeout(1500);
+      const u = await page.evaluate((sl) => {
+        const vis = (n) => !!n && n.getClientRects().length > 0;
+        const cards = sl.map((s) => Array.from(document.querySelectorAll('a.index-card[href="/articles/' + s + '/"]')).some(vis));
+        const rail = Array.from(document.querySelectorAll('#index-toc-panel a.toc-name[href^="#unsorted-"]')).filter((a) => getComputedStyle(a).display !== "none" && !a.closest(".ix-hide")).length;
+        const priv = vis(document.getElementById("private")) || vis(document.querySelector('#index-toc-panel a[href="#private"]'));
+        return { cards: cards.filter(Boolean).length, rail, sec: vis(document.getElementById("unsorted")), toc: vis(document.querySelector('#index-toc-panel a[href="#unsorted"]')), priv };
+      }, UNSORTED);
+      check(`pr1 ${who}: Index — Unsorted cards ${see ? "all 14 shown" : "none shown"}, rail entries, section`, see ? (u.cards === 14 && u.rail === 14 && u.sec && u.toc) : (u.cards === 0 && u.rail === 0 && !u.sec && !u.toc), JSON.stringify(u));
+      check(`pr1 ${who}: no Private section anywhere`, !u.priv);
+      const pk = await page.evaluate((sl) => Promise.all(sl.map((s) => window.EloraePeek.load(s).then((d) => !!d, () => false))), UNSORTED);
+      check(`pr1 ${who}: peek data for the 14 ${see ? "given" : "withheld"}`, pk.every((v) => v === see), pk.join());
+      const sr = await page.evaluate(() => new Promise((res) => { const go = () => res((window.SEARCH_INDEX || []).filter((e) => /^articles\/(the-beckoning-bell|bel-harath|darmstadt|elraim|haethlin-dream|imani-valash|ito-gangara|rathalon|sen-teloch-ini|vallorca|yena)\.html$/.test(e.href)).map((e) => !!e.private && e.owner === "devin")); if (window.SEARCH_INDEX) go(); else { const s = document.createElement("script"); s.src = "/search-index.js"; s.onload = go; document.head.appendChild(s); } }));
+      check(`pr1 ${who}: search entries of the 14 all private to Devin`, sr.length === 10 && sr.every(Boolean), sr.length + "");
+      for (const sl of ["bel-harath", "cressana", "the-six-kings", "yena"]) {
+        await page.goto(BASE + "articles/" + sl + "/", { waitUntil: "load" }); await page.waitForTimeout(500);
+        const av = await page.evaluate(() => { const v = (n) => !!n && n.getClientRects().length > 0; return { hero: v(document.querySelector("section.art-hero")), body: v(document.querySelector("main.art-body")) }; });
+        check(`pr1 ${who}: direct URL /articles/${sl}/ ${see ? "shown" : "hidden"}`, av.hero === see && av.body === see, JSON.stringify(av));
+      }
+      const rv = await page.evaluate(() => { const v = (n) => !!n && n.getClientRects().length > 0; return { n: Array.from(document.querySelectorAll('#art-index-panel a.toc-name')).filter((a) => /\/articles\/(the-beckoning-bell|bel-harath|cressana|darcdressil|darmstadt|elraim|haethlin-dream|imani-valash|ito-gangara|rathalon|sen-teloch-ini|the-six-kings|vallorca|yena)\//.test(a.getAttribute("href")) && getComputedStyle(a).display !== "none" && !a.closest(".ix-hide")).length, unsorted: v(document.querySelector('#art-index-panel a[href$="#unsorted"]')), priv: !!document.querySelector('#art-index-panel a[href$="#private"]') }; });
+      check(`pr1 ${who}: article rail — Unsorted entries ${see ? "shown" : "hidden"}, no Private`, (see ? rv.n === 14 && rv.unsorted : rv.n === 0 && !rv.unsorted) && !rv.priv, JSON.stringify(rv));
+      check(`pr1 ${who}: no page errors`, !errs.length, errs.join(" | "));
       await ctx.close();
     }
 

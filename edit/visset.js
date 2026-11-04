@@ -274,22 +274,22 @@
       el.querySelector(".ee-vis-note").textContent = (e && e.message) || "Could not load visibility.";
     });
   }
+  /* pr1 (2026-11-04): no help text; Cancel / Save are icon buttons (ic1 set). The Private section
+     (and its "Devin + Jack" note) is gone: visibility is set per card / article only. */
+  function icon(n) { return W.EloraeIcon ? W.EloraeIcon(n) : (n === "x" ? "\u2715" : "\u2713"); }
   function render(el, slug, st, owners, opts) {
     var ps = people();
-    var inPrivateGroup = Array.prototype.some.call(doc.querySelectorAll("main.index-flow a.index-card"), function (c) { return slugOfHref(c.getAttribute("href")) === slug && c.closest(".private-group"); });
     var radio = function (v, txt, sub) {
       return '<label class="ee-vis-opt"><input type="radio" name="ee-vis-mode" value="' + v + '"' + (st.mode === v ? " checked" : "") + '><span class="ee-vis-ic">' + ICON[v] + '</span><span>' + txt + (sub ? ' <em>' + sub + '</em>' : "") + "</span></label>";
     };
     el.innerHTML = '<div class="ee-vis-head">Who can see</div><div class="ee-vis-name">' + esc(opts.name || slug) + "</div>" +
-      '<div class="ee-vis-opts">' + radio("everyone", "Everyone", "guests too") + radio("devin", "Devin only") + radio("players", "Chosen players") + "</div>" +
+      '<div class="ee-vis-opts">' + radio("everyone", "Everyone") + radio("devin", "Devin only") + radio("players", "Chosen players") + "</div>" +
       '<div class="ee-vis-people">' + ps.map(function (p) {
         return '<label class="ee-vis-p"><input type="checkbox" value="' + esc(p) + '"' + (st.people.indexOf(p) >= 0 ? " checked" : "") + "> " + esc(nameOf(p)) +
           (owners.indexOf(p) >= 0 ? ' <em title="Plays this character">\u2605</em>' : "") + "</label>";
       }).join("") + "</div>" +
-      (owners.length ? '<p class="ee-vis-note">' + esc(owners.map(nameOf).join(" and ")) + "\u2019s character (\u2605). Only you can change who sees it.</p>" : "") +
-      (inPrivateGroup ? '<p class="ee-vis-note">This card sits in the Private section, which only Devin, Jack and the people it is shared with see.</p>' : "") +
       '<p class="ee-vis-err" hidden></p>' +
-      '<div class="ee-vis-row"><button type="button" class="ee-btn" data-vis-act="cancel">Cancel</button><button type="button" class="ee-btn ee-primary" data-vis-act="save">Save</button></div>';
+      '<div class="ee-vis-row"><button type="button" class="ee-btn ee-ic" data-vis-act="cancel" aria-label="Cancel" title="Cancel">' + icon("x") + '</button><button type="button" class="ee-btn ee-ic ee-primary" data-vis-act="save" aria-label="Save" title="Save">' + icon("check") + "</button></div>";
     var boxes = el.querySelectorAll(".ee-vis-people input");
     function mode() { var r = el.querySelector('input[name="ee-vis-mode"]:checked'); return r ? r.value : "everyone"; }
     function sync() {
