@@ -84,6 +84,8 @@
     barMsg("Index changed · Save to commit");
   }
 
+  function ic(n) { return window.EloraeIcon ? window.EloraeIcon(n) : ""; }
+  function ib(id, label, icon, cls, extra) { return '<button type="button" class="ee-btn ee-ic' + (cls ? " " + cls : "") + '" id="' + id + '" aria-label="' + label + '" title="' + label + '"' + (extra || "") + '>' + ic(icon) + '</button>'; }
   function barMsg(msg, cls) {
     var b = $("ee-bar");
     if (!b) {
@@ -95,13 +97,13 @@
     }
     b.className = cls || "";
     b.innerHTML =
-      '<span class="ee-msg" title="' + esc(msg || "") + '">' + esc(msg || "Index organizer · drag cards or select + Categories") + '</span>' +
-      '<button type="button" class="ee-btn" id="ee-idx-add">Add card</button>' +
-      '<button type="button" class="ee-btn" id="ee-idx-subs-btn" aria-expanded="' + ($("ee-idx-subs") ? "true" : "false") + '">Sub<span class="ee-wide-only">section</span></button>' +
-      '<button type="button" class="ee-btn" id="ee-idx-art" title="Art for the selected card (or drop an image file on a card)">Art</button>' +
-      '<button type="button" class="ee-btn ee-danger" id="ee-idx-del" title="Delete the selected card">Del<span class="ee-wide-only">ete</span></button>' +
-      '<button type="button" class="ee-btn" id="ee-idx-cancel">Cancel</button>' +
-      '<button type="button" class="ee-btn ee-primary" id="ee-idx-save">Save</button>';
+      '<span class="ee-msg" title="' + esc(msg || "") + '">' + esc(msg || "") + '</span>' +
+      ib("ee-idx-add", "Add card", "addcard") +
+      ib("ee-idx-subs-btn", "Subsection", "subsection", "", ' aria-expanded="' + ($("ee-idx-subs") ? "true" : "false") + '"') +
+      ib("ee-idx-art", "Art", "art") +
+      ib("ee-idx-del", "Delete card", "trash", "ee-danger") +
+      ib("ee-idx-cancel", "Cancel", "x") +
+      ib("ee-idx-save", "Save", "check", "ee-primary");
     $("ee-idx-save").onclick = function () { saveIndex(); };
     $("ee-idx-cancel").onclick = function () {
       if (state.dirty && !window.confirm("Discard your unsaved changes to the Index?")) return;
@@ -111,7 +113,7 @@
     $("ee-idx-art").onclick = openCardArt;
     $("ee-idx-del").onclick = function () {
       if (state.selected) return deleteCardFlow(state.selected);
-      barMsg("Select a card to delete it (click it once). To delete a section or subsection, open Subsection.");
+      barMsg("Select a card first.");
     };
     $("ee-idx-subs-btn").onclick = function () { if ($("ee-idx-subs")) closeSubs(); else openSubs(); barMsg(b.querySelector(".ee-msg").textContent, cls); };
     if ($("ee-idx-subs")) setTimeout(positionSubs, 0);
@@ -171,7 +173,7 @@
   }
   function openCardArt() {
     var card = state.selected;
-    if (!card) { barMsg("Select a card first (click it), then Art. Or drop an image file on a card."); return; }
+    if (!card) { barMsg("Select a card first."); return; }
     var Ed = window.EloraeEditor;
     if (Ed && Ed.openArtPicker) {
       Ed.openArtPicker({
@@ -545,7 +547,7 @@
           '<button type="button" class="ee-btn" data-act="down" aria-label="Move down"' + (i === list.length - 1 ? " disabled" : "") + '>\u2193</button>' +
           '<button type="button" class="ee-btn" data-act="del" aria-label="Delete">\u2715</button></li>';
       }).join("") : '<li class="ee-sub-none">No subsections in this section yet.</li>') + '</ul>' +
-      '<p class="ee-note">Rename a subsection by clicking its heading on the page.</p>';
+      '';
     $("ee-sub-parent").onchange = function () { renderSubs(this.value); positionSubs(); };
     var add = function () {
       var v = $("ee-sub-name").value;
@@ -588,7 +590,7 @@
     if (!id) return;
     setSelected(null); setTarget(id);
     var h = document.getElementById(id), name = h ? (h.querySelector("h2") || h).textContent.trim() : id;
-    barMsg("\u201c" + name + "\u201d selected \u00b7 Add card puts the new card here");
+    barMsg("\u201c" + name + "\u201d selected");
   }
 
   function enableHeaderEdit() {
@@ -694,7 +696,7 @@
     if (hasFiles(e)) {
       var f = e.dataTransfer.files && e.dataTransfer.files[0];
       clearDragMarks();
-      if (!d || !d.card) { barMsg("Drop the image on the card it is for."); return; }
+      if (!d || !d.card) { barMsg("Drop on a card."); return; }
       if (f) { setSelected(d.card); setArtFile(d.card, f); }
       return;
     }
@@ -703,7 +705,7 @@
     dragCard = null; scrollV = 0;
     clearDragMarks();
     if (!card || !d) return;
-    if (d.box === card.parentNode) { barMsg(SORT_HINT); return; } // ia1: same category, order is A to Z
+    if (d.box === card.parentNode) return; // ia1: same category, order is A to Z
     var catId = null, box = d.box;
     var prev = box.previousElementSibling;
     if (prev && prev.classList.contains("index-sub")) catId = prev.id;
@@ -722,7 +724,7 @@
     e.preventDefault();
     e.stopPropagation();
     setSelected(card);
-    barMsg("Selected “" + ((card.querySelector("span") || {}).textContent || card.id) + "” · click a category to move");
+    barMsg("Selected “" + ((card.querySelector("span") || {}).textContent || card.id) + "”");
   }
 
   function onTocClick(e) {
@@ -1196,11 +1198,9 @@
     window.addEventListener("resize", positionSubs);
     window.addEventListener("beforeunload", onUnload);
     if (Array.prototype.map.call(document.querySelectorAll("main.index-flow .index-cards"), sortBox).some(Boolean)) rebuildTocFromDom();
-    barMsg("Index organizer · drag cards between categories, or select + Categories");
+    barMsg("");
     paintVis();
     if (VS() && !VS().manifest()) VS().loadManifest().then(paintVis).catch(function () {});
-    var g = $("ee-glyph");
-    if (g) g.style.display = "none";
     return true;
   }
 
@@ -1231,8 +1231,6 @@
     state.active = false;
     var b = $("ee-bar");
     if (b) b.remove();
-    var g = $("ee-glyph");
-    if (g) g.style.display = "";
   }
 
   function cancelOrg() {

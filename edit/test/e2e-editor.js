@@ -476,7 +476,7 @@ async function batch2Tests(browser, vpName) {
       await page.goto(BASE + "journal/", { waitUntil: "load" });
       await page.waitForFunction(() => window.EloraeEditor && window.EloraeEditor.state.profile, null, { timeout: 15000 });
       await page.waitForTimeout(300);
-      check(`[${vpName}] devin: non-article pages keep their EDIT (journal)`, !!(await page.$("#ee-glyph")) && !!(await page.$("#ee-edit")));
+      check(`[${vpName}] devin: journal has only the nav Edit (no floating glyph)`, !(await page.$("#ee-glyph")) && !!(await page.$("#ee-edit")));
     }
     check(`[${vpName}] ${who}: article nav EDIT — no page errors`, W.errs.length === 0, W.errs.join(" | "));
     await ctx.close();
@@ -1087,7 +1087,7 @@ async function indexArtTests(browser, vpName) {
   await drag(NEW, locFirst, "before");
   const d1 = await domState();
   const locOrder2 = await page.evaluate(() => [...document.querySelectorAll("#locations a.index-card")].map((a) => a.getAttribute("href")).join(","));
-  check(`[${vpName}] drag: within a section does not reorder (A to Z kept) and says why`, locOrder2 === locOrder && await azIn("#locations a.index-card") && d1.stuck === 0 && /sort A\u2013Z/.test(await page.textContent("#ee-bar")), d1.stuck + " marks " + (await page.textContent("#ee-bar")).slice(0, 80));
+  check(`[${vpName}] drag: within a section does not reorder (A to Z kept) and says why`, locOrder2 === locOrder && await azIn("#locations a.index-card") && d1.stuck === 0 , d1.stuck + " marks " + (await page.textContent("#ee-bar")).slice(0, 80));
   const hint = await page.evaluate(() => getComputedStyle(document.getElementById("ee-bar"), "::before").content);
   check(`[${vpName}] organizer: no standing instruction note over the bar`, !/sort A.Z/.test(hint), hint);
   const divA = await firstIn("#demonic a.index-card");

@@ -2,6 +2,8 @@
    Loaded on demand by edit/edit.js (never for anonymous visitors). */
 (function () {
   "use strict";
+  function ic(n) { return window.EloraeIcon ? window.EloraeIcon(n) : ""; }
+  function ib(id, label, icon, cls, extra) { return '<button type="button" class="ee-btn ee-ic' + (cls ? " " + cls : "") + '" id="' + id + '" aria-label="' + label + '" title="' + label + '"' + (extra || "") + '>' + ic(icon) + '</button>'; }
   var E = window.EloraeEdit, P = window.EloraeEditPerms, M = window.EloraeSrcMap, Media = window.EloraeMedia,
       K = window.EloraeCrypto, V = window.EloraeVis, R = window.EloraeRecent;
   if (!E || !P || !M || window.EloraeEditor) return;
@@ -281,32 +283,13 @@
     return !!(Org && Org.isIndexPage && Org.isIndexPage() && state.profile && P.isAdmin(state.profile) && P.canEdit(state.profile, PATH));
   }
   function glyph() {
-    var g = $("ee-glyph");
+    /* ne1: the only way into edit mode is Devin's Edit link in the top nav (edit.js). No floating
+       EDIT glyph or editor-added nav link anywhere. */
+    var g = $("ee-glyph"); if (g) g.remove();
     var Org = window.EloraeIndexOrg;
     if (Org && state.profile) Org.setProfile(state.profile);
-    var textOk = !!(E.session.get() && state.profile && P.canEdit(state.profile, PATH) && (findLiveMain() || liveBlocks().length));
-    var indexOk = !!(E.session.get() && isIndexOrganizePage());
-    var ok = textOk || indexOk;
-    /* Article pages: no floating EDIT on the hero art (it sat on the Arts arrows); the top-nav
-       EDIT opens the editor instead (edit.js EloraeEditNav; its click runs tryEnterEdit). */
-    var NavE = window.EloraeEditNav;
-    if (NavE && document.body.classList.contains("article")) {
-      if (g) g.remove();
-      if (ok) NavE.add(); else NavE.remove();
-      return;
-    }
-    if (!ok) { if (g) g.remove(); return; }
-    if (g) return;
-    g = el("button", { id: "ee-glyph", type: "button", "aria-label": "Edit this page" }, "Edit");
-    g.onclick = function () {
-      if (state.editing) { if (!state.busy && !$("ee-bar")) editBar(); return; }
-      var O = window.EloraeIndexOrg;
-      if (O && O.active && O.active()) return;
-      if (isIndexOrganizePage() && O && O.start) { O.start(); return; }
-      startEdit();
-    };
-    document.body.appendChild(g);
   }
+
 
   /* Article pages in edit mode: the edit bar + style bar are fixed at the bottom of the screen and
      used to sit on the hero (name, epithet, Arts arrows). --ee-dock = how much of the viewport bottom
@@ -350,7 +333,7 @@
   }
   function closeBar() { var b = $("ee-bar"); if (b) b.remove(); }
   function doneBar(msg) {
-    bar('<span class="ee-msg ee-good">' + esc(msg) + '</span><button type="button" class="ee-btn" id="ee-x">Close</button>', "ee-done");
+    bar('<span class="ee-msg ee-good">' + esc(msg) + '</span><button type="button" class="ee-btn ee-ic" id="ee-x" aria-label="Close" title="Close">' + ic("x") + '</button>', "ee-done");
     $("ee-x").onclick = closeBar;
   }
   function canon(html) { var t = document.createElement("template"); t.innerHTML = html; return t.innerHTML; }
@@ -364,7 +347,7 @@
     // editing it now could save the old text back (recent.js).
     var wait = R && R.blocked(PATH);
     if (wait) {
-      bar('<span class="ee-msg">' + esc(wait) + '</span><button type="button" class="ee-btn" id="ee-x">Close</button>');
+      bar('<span class="ee-msg">' + esc(wait) + '</span><button type="button" class="ee-btn ee-ic" id="ee-x" aria-label="Close" title="Close">' + ic("x") + '</button>');
       $("ee-x").onclick = closeBar;
       return;
     }
@@ -463,7 +446,7 @@
       editBar();
       ensureStyleBar();
     }).catch(function (err) {
-      bar('<span class="ee-msg ee-bad">' + esc(err.message || "Could not start editing.") + '</span><button type="button" class="ee-btn" id="ee-x">Close</button>');
+      bar('<span class="ee-msg ee-bad">' + esc(err.message || "Could not start editing.") + '</span><button type="button" class="ee-btn ee-ic" id="ee-x" aria-label="Close" title="Close">' + ic("x") + '</button>');
       $("ee-x").onclick = closeBar;
     }).then(function () { state.busy = false; });
   }
@@ -496,28 +479,26 @@
     if (last && /\.\s*$/.test(last.nodeValue)) last.nodeValue = last.nodeValue.replace(/\.\s*$/, "");
   }
   function editBar(msg, cls) {
-    var mode = P.saveMode(state.profile) === "direct" ? "Saves to the live site" : "Saves as a pull request";
     var admin = P.isAdmin(state.profile);
-    var artBtn = (admin && Media)
-      ? '<button type="button" class="ee-btn" id="ee-art">Art</button>' : '';
+    var artBtn = (admin && Media) ? ib("ee-art", "Art", "art") : '';
     // vt1: who can see this article (Everyone / Devin only / chosen players); replaces Share.
     var VS = window.EloraeVisSet, vslug = articleSlugOfPath();
     var shareBtn = '';
     if (admin && VS && vslug) {
       var vst = VS.current(vslug);
-      shareBtn = '<button type="button" class="ee-btn ee-vis-btn ee-vis-' + vst.mode + '" id="ee-vis" aria-haspopup="dialog" aria-expanded="false" title="Who can see this: ' + esc(VS.label(vst)) + '">' +
-        VS.ICON[vst.mode] + '<span class="ee-vis-lbl">' + esc(VS.shortLabel(vst)) + '</span></button>';
-    } else if (admin && V) shareBtn = '<button type="button" class="ee-btn" id="ee-share">Share</button>';
-    var ownerBtn = admin ? '<button type="button" class="ee-btn" id="ee-owner">Owner</button>' : '';
-    var newBtn = admin ? '<button type="button" class="ee-btn" id="ee-newart" aria-label="New article">New<span class="ee-wide-only"> article</span></button>' : '';
-    var delBtn = admin && articleSlugOfPath() ? '<button type="button" class="ee-btn ee-danger" id="ee-delart" aria-label="Delete article">Del<span class="ee-wide-only">ete</span></button>' : '';
-    var imgBtn = (state.page && Media && P.canEdit(state.profile, PATH)) ? '<button type="button" class="ee-btn" id="ee-img" aria-label="Image" title="Insert a picture with a caption at the caret"><svg class="ee-img-ic" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 17l5-5 4 4 2.5-2.5L20 18" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="9.5" r="1.6" fill="currentColor"/></svg><span class="ee-img-lbl">Image</span></button>' : '';
-    var tplBtn = templatesAllowed() ? '<button type="button" class="ee-btn" id="ee-tpl" aria-haspopup="menu" aria-expanded="false" title="Article template">Template</button>' : '';
-    var artsBtn = state.arts ? '<button type="button" class="ee-btn" id="ee-arts-btn" aria-expanded="' + (state.arts.open ? "true" : "false") + '">Arts<span class="ee-wide-only"> (' + state.arts.list.length + ')</span></button>' : '';
-    bar('<span class="ee-msg">' + esc(msg || ("Editing · " + mode)) + '</span>' +
+      shareBtn = '<button type="button" class="ee-btn ee-ic ee-vis-btn ee-vis-' + vst.mode + '" id="ee-vis" aria-haspopup="dialog" aria-expanded="false" aria-label="Visibility: ' + esc(VS.label(vst)) + '" title="Visibility: ' + esc(VS.label(vst)) + '">' +
+        VS.ICON[vst.mode] + '</button>';
+    } else if (admin && V) shareBtn = ib("ee-share", "Share", "share");
+    var ownerBtn = admin ? ib("ee-owner", "Owner", "owner") : '';
+    var newBtn = admin ? ib("ee-newart", "New article", "new") : '';
+    var delBtn = admin && articleSlugOfPath() ? ib("ee-delart", "Delete article", "trash", "ee-danger") : '';
+    var imgBtn = (state.page && Media && P.canEdit(state.profile, PATH)) ? ib("ee-img", "Image", "image") : '';
+    var tplBtn = templatesAllowed() ? ib("ee-tpl", "Template", "template", "", ' aria-haspopup="menu" aria-expanded="false"') : '';
+    var artsBtn = state.arts ? '<button type="button" class="ee-btn ee-ic" id="ee-arts-btn" aria-label="Arts (' + state.arts.list.length + ')" title="Arts" aria-expanded="' + (state.arts.open ? "true" : "false") + '">' + ic("arts") + '<span class="ee-count" aria-hidden="true">' + state.arts.list.length + '</span></button>' : '';
+    bar('<span class="ee-msg">' + esc(msg || "") + '</span>' +
       tplBtn + artsBtn + imgBtn + artBtn + shareBtn + ownerBtn + newBtn + delBtn +
-      '<button type="button" class="ee-btn" id="ee-cancel">Cancel</button>' +
-      '<button type="button" class="ee-btn ee-primary" id="ee-save">Save</button>', cls);
+      ib("ee-cancel", "Cancel", "x") +
+      ib("ee-save", "Save", "check", "ee-primary"), cls);
     $("ee-save").onclick = save;
     $("ee-cancel").onclick = function () {
       if (state.dirty && !window.confirm("Discard your unsaved changes to this page?")) return;
@@ -537,7 +518,7 @@
     };
     if ($("ee-vis") && window.EloraeVisSet && !window.EloraeVisSet.manifest()) {
       window.EloraeVisSet.loadManifest().then(function () { var b = $("ee-vis"); if (b && !$("ee-vis-pop")) { var VS = window.EloraeVisSet, st = VS.current(articleSlugOfPath());
-        b.className = "ee-btn ee-vis-btn ee-vis-" + st.mode; b.title = "Who can see this: " + VS.label(st); b.innerHTML = VS.ICON[st.mode] + '<span class="ee-vis-lbl">' + esc(VS.shortLabel(st)) + "</span>"; } }).catch(function () {});
+        b.className = "ee-btn ee-ic ee-vis-btn ee-vis-" + st.mode; b.title = "Visibility: " + VS.label(st); b.setAttribute("aria-label", b.title); b.innerHTML = VS.ICON[st.mode]; } }).catch(function () {});
     }
     if ($("ee-owner")) $("ee-owner").onclick = openOwnerPanel;
     if ($("ee-delart")) $("ee-delart").onclick = deleteArticleFlow;
@@ -604,7 +585,7 @@
     var oldF = (ot ? ot.fields : []).map(lc), newF = (nt ? nt.fields : []).map(lc);
     var dl = dossierEl();
     if (!dl) {
-      if (!nt) { editBar("No template \u00b7 use + Add dossier to start one"); return; }
+      if (!nt) { editBar("No template"); return; }
       dl = ensureDossier();
     }
     // Drop the old type's rows that are still empty (and not part of the new type).
@@ -822,7 +803,7 @@
           ALIGNS.map(function (a) {
             return '<button type="button" class="ee-glyph-btn ee-al-btn" id="ee-al-' + a + '" data-al="' + a + '" title="' + ALIGN_TITLES[a] + '" aria-label="' + ALIGN_TITLES[a] + '" aria-pressed="false">' + alignSvg(a) + '</button>';
           }).join("") +
-          '<button type="button" class="ee-glyph-btn ee-al-btn" id="ee-al-cycle" title="Alignment: left (tap for center)" aria-label="Alignment: left">' + alignSvg("left") + '</button>' +
+          '<button type="button" class="ee-glyph-btn ee-al-btn" id="ee-al-cycle" title="Alignment: left" aria-label="Alignment: left">' + alignSvg("left") + '</button>' +
           '</span>'
         : '');
     $("ee-font").onchange = function () {
@@ -1479,7 +1460,7 @@
       return '<option value="' + esc(p.login) + '"' + sel + '>' + esc(label) + '</option>';
     }).join("");
     b.innerHTML = '<p class="ee-k">Owner</p>' +
-      '<p class="ee-note">Who may edit <code>' + esc(PATH) + '</code> (writes <code>edit/profiles.json</code>). Admin always can. Current: ' +
+      '<p class="ee-note">Current: ' +
       (current.length ? esc(current.join(", ")) : "no player") + '.</p>' +
       '<label class="ee-note">Assign to</label>' +
       '<select id="ee-owner-select" style="width:100%;margin-top:8px;background:#0b0b0b;color:#f3eee6;border:0;border-bottom:1px solid rgba(143,138,130,.28);padding:8px 0;font:calc(14px * var(--fs,1.5094)) Helvetica,Arial,sans-serif">' + opts + '</select>' +
@@ -1685,7 +1666,7 @@
             ? window.eloraeImg.html(E.ROOT + m.path, { sizes: "(max-width: 800px) 180px, 240px", min: 160, max: 640, fallback: 320, lazy: true }, 'alt=""')
             : '<img src="' + esc(gallerySrc(m)) + '" alt="" loading="lazy">';
           return '<button type="button" class="ee-gal-item' + (sel === m.id ? " ee-on" : "") + '" data-gal-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' + thumb + '<span>' + esc(m.title || m.id) + '</span></button>';
-        }).join("") + '</div>' : '<p class="ee-note">' + (q ? "No matches." : "The gallery is empty. Upload the first picture above.") + '</p>';
+        }).join("") + '</div>' : '<p class="ee-note">' + (q ? "No matches." : "Empty.") + '</p>';
         thumbFallback(w, catalog);
         Array.prototype.forEach.call(w.querySelectorAll("[data-gal-id]"), function (btn) {
           btn.onclick = function () {
@@ -1829,7 +1810,7 @@
       if (!items.length) {
         return allItems.length
           ? '<p class="ee-note" id="ee-gal-empty">No matches.</p>'
-          : '<p class="ee-note" id="ee-gal-empty">Catalog is empty. Upload below, or add images from the dashboard.</p>';
+          : '<p class="ee-note" id="ee-gal-empty">Empty.</p>';
       }
       return '<div class="ee-gallery" id="ee-gal-grid">' + items.map(function (m) {
         var src = gallerySrc(m);
@@ -1870,9 +1851,9 @@
       '<input type="text" id="ee-art-tags" class="ee-field" placeholder="Tags (comma-separated)" autocomplete="off">' +
       '<label class="ee-check"><input type="checkbox" id="ee-art-everyone" checked> Everyone can use in the editor</label>' +
       '<div class="ee-row"><button type="submit" class="ee-btn ee-primary" id="ee-art-up">' + (act === "hero" ? "Use as hero" : "Insert") + '</button>' +
-      '<button type="button" class="ee-btn" id="ee-art-back">Back</button></div>' +
+      '<button type="button" class="ee-btn ee-ic" id="ee-art-back" aria-label="Back" title="Back">' + ic("back") + '</button></div>' +
       '<p class="ee-err" id="ee-art-err" hidden></p></form>' +
-      (canUp ? '' : '<div class="ee-row"><button type="button" class="ee-btn" id="ee-art-back2">Back</button></div><p class="ee-err" id="ee-art-err2" hidden></p>');
+      (canUp ? '' : '<div class="ee-row"><button type="button" class="ee-btn ee-ic" id="ee-art-back2" aria-label="Back" title="Back">' + ic("back") + '</button></div><p class="ee-err" id="ee-art-err2" hidden></p>');
     $("ee-art-back").onclick = function () { closePanel(); };
     if ($("ee-art-back2")) $("ee-art-back2").onclick = function () { closePanel(); };
     Array.prototype.forEach.call(b.querySelectorAll('input[name="ee-gal-act"]'), function (r) {
@@ -2137,8 +2118,8 @@
     document.documentElement.classList.add("ee-arts-on");
     var n = A.list.length;
     box.innerHTML = '<div class="ee-arts-head"><span class="ee-arts-title">Arts \u00b7 ' + n + '</span>' +
-      '<button type="button" class="ee-btn ee-primary" id="ee-arts-add" aria-label="Add art" title="Add art">+</button>' +
-      '<button type="button" class="ee-btn" id="ee-arts-close">Done</button></div>' +
+      '<button type="button" class="ee-btn ee-primary" id="ee-arts-add" aria-label="Add art" title="Add art">' + ic("plus") + '</button>' +
+      '<button type="button" class="ee-btn ee-ic" id="ee-arts-close" aria-label="Done" title="Done">' + ic("check") + '</button></div>' +
       '<div class="ee-arts-list" role="list">' + A.list.map(function (a, i) {
         var main = i === A.main;
         return '<div class="ee-art-item' + (main ? " is-main" : "") + (i === A.shown ? " is-shown" : "") + '" role="listitem" draggable="true" data-i="' + i + '">' +
@@ -3678,7 +3659,6 @@
     if (!b) return;
     b.innerHTML =
       '<p class="ee-k">New article</p>' +
-      '<p class="ee-note">Title only — a blank page opens for editing.</p>' +
       '<form id="ee-newart-form">' +
       '<input type="text" id="ee-newart-title" class="ee-field" placeholder="Article title" autocomplete="off" spellcheck="true">' +
       '<div class="ee-row">' +
@@ -4124,7 +4104,7 @@
       } else {
         html = '<span class="ee-msg ee-good">Saved to branch ' + esc(branch) + '. Opening the pull request failed (' + esc(done.pullErr && done.pullErr.message) + ').' + note + ' <a href="https://github.com/' + E.REPO + '/compare/' + E.BRANCH + '...' + encodeURIComponent(branch) + '" target="_blank" rel="noopener">Open one</a></span>';
       }
-      bar(html + '<button type="button" class="ee-btn" id="ee-x">Close</button>', "ee-done");
+      bar(html + '<button type="button" class="ee-btn ee-ic" id="ee-x" aria-label="Close" title="Close">' + ic("x") + '</button>', "ee-done");
       $("ee-x").onclick = closeBar;
     }).catch(function (err) {
       var m;

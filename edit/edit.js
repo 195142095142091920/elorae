@@ -1,3 +1,25 @@
+/* ic1: one shared minimalist icon set for the editor (24px grid, 1.5 stroke, currentColor). */
+(function () {
+  var P = {
+    template: '<rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/>',
+    arts: '<rect x="7.5" y="3.5" width="13" height="13" rx="2"/><path d="M4 7.5v10.5a2.5 2.5 0 0 0 2.5 2.5H17"/><path d="m7.5 13.5 3.5-3.5 3 3 1.8-1.8 4.7 4.7"/>',
+    image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 18.5 5-5 3.5 3.5 2.5-2.5 5 5"/>',
+    art: '<path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.1 0 1.7-.8 1.7-1.6 0-1.2-1-1.5-1-2.6 0-.9.7-1.6 1.6-1.6H17a3.5 3.5 0 0 0 3.5-3.5c0-4.3-3.8-7.7-8.5-7.7z"/><circle cx="7.6" cy="11.2" r="1"/><circle cx="10" cy="7.4" r="1"/><circle cx="14.6" cy="7.4" r="1"/>',
+    owner: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.8 3.6-6 7-6s6.2 2.2 7 6"/>',
+    "new": '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5M12 11.5v6M9 14.5h6"/>',
+    trash: '<path d="M4.5 7h15M10 3.5h4M6.5 7l.9 12.1a2 2 0 0 0 2 1.9h5.2a2 2 0 0 0 2-1.9L17.5 7M10 11v6M14 11v6"/>',
+    x: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+    check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    plus: '<path d="M12 5.5v13M5.5 12h13"/>',
+    addcard: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M12 8.5v7M8.5 12h7"/>',
+    subsection: '<path d="M4 6h16M9 12h11M9 18h11M4.5 9v6.5A2.5 2.5 0 0 0 7 18"/>',
+    back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+    share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.3 10.8 7.4-3.6M8.3 13.2l7.4 3.6"/>'
+  };
+  window.EloraeIcon = function (n) {
+    return '<svg class="ee-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (P[n] || "") + '</svg>';
+  };
+})();
 /* Elorae edit mode bootstrap (the only file referenced from site pages).
    For anonymous visitors this does nothing: no DOM, no styles, no network requests.
    It wakes up only when the URL hash is #edit or an editor session already exists in this
@@ -254,7 +276,7 @@
 /* eb2: press ripple on the editor bars' buttons (pure decoration, never saved). */
 (function () {
   document.addEventListener("pointerdown", function (e) {
-    var b = e.target && e.target.closest && e.target.closest("#ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn, #ee-arts .ee-btn");
+    var b = e.target && e.target.closest && e.target.closest("#ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn, #ee-arts .ee-btn, #ee-panel .ee-ic");
     if (!b || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
     var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2, s = document.createElement("span");
     s.className = "ee-ripple"; s.setAttribute("aria-hidden", "true");
