@@ -21,6 +21,23 @@
     lock: '<rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/>',
     share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.3 10.8 7.4-3.6M8.3 13.2l7.4 3.6"/>'
   };
+  /* bf1: success toast for bars that stay open (Index organizer, article edit bar): the same small
+     centred check pill as the post-save pill (sp1), floated just above the bar; fades after ~3s. */
+  window.EloraeToast = function (msg) {
+    var t = document.getElementById("ee-toast");
+    if (t) t.remove();
+    t = document.createElement("div"); t.id = "ee-toast"; t.className = "ee-toast"; t.setAttribute("role", "status"); t.setAttribute("data-ee-ui", "1");
+    msg = String(msg || "").replace(/\bSaved at ([0-9:]+\s*[AP]M)\.?/i, "Saved $1").replace(/\.\s*$/, "");
+    t.innerHTML = '<span class="ee-pill-ic">' + window.EloraeIcon("check") + '</span><span class="ee-msg"></span>';
+    t.lastChild.textContent = msg;
+    var bar = document.getElementById("ee-bar");
+    if (bar && !bar.classList.contains("ee-pill")) { var r = bar.getBoundingClientRect(); if (r.height) t.style.bottom = Math.round(window.innerHeight - r.top + 10) + "px"; }
+    t.onclick = function () { t.remove(); };
+    document.body.appendChild(t);
+    clearTimeout(window.EloraeToast.t1); clearTimeout(window.EloraeToast.t2);
+    window.EloraeToast.t1 = setTimeout(function () { t.classList.add("ee-pill-out"); }, 3000);
+    window.EloraeToast.t2 = setTimeout(function () { if (t.parentNode) t.remove(); }, 3500);
+  };
   window.EloraeIcon = function (n) {
     return '<svg class="ee-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (P[n] || "") + '</svg>';
   };

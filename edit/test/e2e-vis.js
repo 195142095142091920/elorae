@@ -244,9 +244,9 @@ function tags(text, re) { return text.match(re) || []; }
         const cards = sl.map((s) => Array.from(document.querySelectorAll('a.index-card[href="/articles/' + s + '/"]')).some(vis));
         const rail = Array.from(document.querySelectorAll('#index-toc-panel a.toc-name[href^="#unsorted-"]')).filter((a) => getComputedStyle(a).display !== "none" && !a.closest(".ix-hide")).length;
         const priv = vis(document.getElementById("private")) || vis(document.querySelector('#index-toc-panel a[href="#private"]'));
-        return { cards: cards.filter(Boolean).length, rail, sec: vis(document.getElementById("unsorted")), toc: vis(document.querySelector('#index-toc-panel a[href="#unsorted"]')), priv };
+        return { cards: cards.filter(Boolean).length, rail, inSec: document.querySelectorAll("#unsorted a.index-card").length, sec: vis(document.getElementById("unsorted")), toc: vis(document.querySelector('#index-toc-panel a[href="#unsorted"]')), priv };
       }, UNSORTED);
-      check(`pr1 ${who}: Index — Unsorted cards ${see ? "all 14 shown" : "none shown"}, rail entries, section`, see ? (u.cards === 14 && u.rail === 14 && u.sec && u.toc) : (u.cards === 0 && u.rail === 0 && !u.sec && !u.toc), JSON.stringify(u));
+      check(`pr1 ${who}: Index — the 14 cards ${see ? "all shown (Unsorted or wherever Devin moved them)" : "none shown"}, rail entries, section`, see ? (u.cards === 14 && u.rail === u.inSec && u.inSec > 0 && u.sec && u.toc) : (u.cards === 0 && u.rail === 0 && !u.sec && !u.toc), JSON.stringify(u));
       check(`pr1 ${who}: no Private section anywhere`, !u.priv);
       const pk = await page.evaluate((sl) => Promise.all(sl.map((s) => window.EloraePeek.load(s).then((d) => !!d, () => false))), UNSORTED);
       check(`pr1 ${who}: peek data for the 14 ${see ? "given" : "withheld"}`, pk.every((v) => v === see), pk.join());

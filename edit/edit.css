@@ -857,3 +857,17 @@ html.ee-page-editing .ee-page figure img { cursor: pointer; }
 #ee-bar.ee-pill.ee-pill-out { opacity: 0; transform: translateX(-50%) translateY(6px); }
 @keyframes ee-pill-in { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { #ee-bar.ee-pill { animation: none; transition: none; } }
+
+/* bf1: icon bars hug their icons (no 640px floor), equal side padding; success toast above a bar
+   that stays open, styled like the sp1 pill. */
+@media (min-width: 801px) {
+  #ee-bar:has(.ee-ic) { min-width: 0 !important; width: -moz-fit-content; width: fit-content; padding-left: 14px; padding-right: 14px; }
+}
+#ee-toast { position: fixed; z-index: 9061; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translateX(-50%); max-width: min(560px, calc(100vw - 32px)); box-sizing: border-box;
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(243,238,230,.12); background: rgba(11,11,11,.96); color: #f3eee6;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--ee-px, 1.2075)); letter-spacing: .04em; line-height: 1.4; cursor: pointer;
+  animation: ee-pill-in .22s cubic-bezier(.2,.8,.3,1) both; transition: opacity .45s ease, transform .45s ease; }
+#ee-toast .ee-pill-ic { display: inline-flex; color: #cfe3c4; }
+#ee-toast .ee-pill-ic .ee-svg { width: 15px; height: 15px; stroke-width: 2; }
+#ee-toast.ee-pill-out { opacity: 0; transform: translateX(-50%) translateY(6px); }
+@media (prefers-reduced-motion: reduce) { #ee-toast { animation: none; transition: none; } }

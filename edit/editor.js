@@ -486,6 +486,8 @@
     if (last && /\.\s*$/.test(last.nodeValue)) last.nodeValue = last.nodeValue.replace(/\.\s*$/, "");
   }
   function editBar(msg, cls) {
+    // bf1: a success is a toast above the bar, not a row in it (errors keep their row).
+    if (cls === "ee-done" && msg && window.EloraeToast) { var okMsg = msg; msg = ""; cls = ""; setTimeout(function () { window.EloraeToast(okMsg); }, 0); }
     var admin = P.isAdmin(state.profile);
     var artBtn = (admin && Media) ? ib("ee-art", "Art", "art") : '';
     // vt1: who can see this article (Everyone / Devin only / chosen players); replaces Share.

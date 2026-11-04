@@ -95,6 +95,8 @@
       b.setAttribute("aria-label", "Index organizer");
       document.body.appendChild(b);
     }
+    // bf1: a success is a toast above the bar, not a row in it (errors keep their row).
+    if (cls === "ee-done" && msg && window.EloraeToast) { var okMsg = msg; msg = ""; cls = ""; setTimeout(function () { window.EloraeToast(okMsg); }, 0); }
     b.className = cls || "";
     b.innerHTML =
       '<span class="ee-msg" title="' + esc(msg || "") + '">' + esc(msg || "") + '</span>' +
