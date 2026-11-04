@@ -1244,6 +1244,9 @@
   "/journal/": {
    "t": "Journal",
    "u": {
+    "assets/thalancords-arrival.webp": [
+     "inline"
+    ],
     "assets/bloated-one-rises.png": [
      "inline"
     ],
