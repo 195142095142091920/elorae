@@ -250,3 +250,15 @@
   window.addEventListener("hashchange", function () { if (location.hash === "#edit" && devinOnly()) start(); });
   window.addEventListener("elorae-edit-session", function () { dash(); editAffordance(); });
 })();
+
+/* eb2: press ripple on the editor bars' buttons (pure decoration, never saved). */
+(function () {
+  document.addEventListener("pointerdown", function (e) {
+    var b = e.target && e.target.closest && e.target.closest("#ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn");
+    if (!b || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+    var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2, s = document.createElement("span");
+    s.className = "ee-ripple"; s.setAttribute("aria-hidden", "true");
+    s.style.cssText = "width:" + d + "px;height:" + d + "px;left:" + (e.clientX - r.left - d / 2) + "px;top:" + (e.clientY - r.top - d / 2) + "px";
+    b.appendChild(s); setTimeout(function () { s.remove(); }, 520);
+  }, true);
+})();

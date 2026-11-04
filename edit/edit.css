@@ -672,3 +672,32 @@ html.ee-page-editing .ee-page figure img { cursor: pointer; }
 @media (min-width: 801px) {
   #ee-bar, #ee-stylebar { --fs: 1.2075; }
 }
+
+/* eb2: cleaner editor bars + tactile presses (desktop and phone). One calm surface, even rhythm,
+   hairline dividers; buttons lift a soft glow on hover and sink with a quick ripple on press. */
+#ee-bar, #ee-stylebar { border-radius: 8px; border-color: rgba(243,238,230,.08); background: rgba(10,10,10,.94);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 10px 34px rgba(0,0,0,.55), inset 0 1px 0 rgba(243,238,230,.04); }
+@media (min-width: 801px) {
+  #ee-bar { padding: 8px 10px; gap: 2px; }
+  #ee-bar .ee-btn { padding: 9px 13px; border-radius: 5px; }
+  #ee-bar .ee-msg { padding: 0 10px; }
+  #ee-bar #ee-cancel { margin-left: 6px; position: relative; }
+  #ee-bar #ee-cancel::before { content: ""; position: absolute; left: -4px; top: 22%; bottom: 22%; width: 1px; background: rgba(243,238,230,.1); }
+}
+#ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn, #ee-stylebar select {
+  position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent;
+  transition: color .18s ease, background-color .18s ease, text-shadow .25s ease, transform .14s cubic-bezier(.2,.8,.3,1.4), box-shadow .25s ease;
+}
+#ee-bar .ee-btn:hover, #ee-bar .ee-btn:focus-visible { background-color: rgba(243,238,230,.055); }
+#ee-bar .ee-btn:active, #ee-stylebar .ee-glyph-btn:active { transform: scale(.93); background-color: rgba(243,238,230,.1); transition-duration: .06s; }
+#ee-bar #ee-save { color: #f3eee6; background-color: rgba(243,238,230,.08); box-shadow: inset 0 0 0 1px rgba(243,238,230,.14); }
+#ee-bar #ee-save:hover { background-color: rgba(243,238,230,.14); box-shadow: inset 0 0 0 1px rgba(243,238,230,.28), 0 0 18px rgba(243,238,230,.12); }
+.ee-ripple { position: absolute; border-radius: 50%; pointer-events: none; background: rgba(243,238,230,.28); transform: scale(0); animation: ee-ripple .5s ease-out forwards; }
+@keyframes ee-ripple { to { transform: scale(1); opacity: 0; } }
+@media (max-width: 800px) { #ee-bar, #ee-stylebar { border-radius: 0; box-shadow: 0 -8px 24px rgba(0,0,0,.45); } #ee-bar .ee-btn { padding: 7px 6px; border-radius: 4px; } }
+@media (prefers-reduced-motion: reduce) { #ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn { transition: none; } .ee-ripple { display: none; } }
+@media (min-width: 801px) {
+  /* eb2: the idle "Editing" note is dropped on desktop (it only ever showed as a clipped stub); saving, errors and results still show. */
+  #ee-bar:not(.ee-bad-bar):not(.ee-done):not(.ee-expired):not(.ee-busy) .ee-msg { display: none; }
+}
