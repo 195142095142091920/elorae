@@ -3660,6 +3660,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "telorin-against-olesh": {
+      "path": "assets/telorin-against-olesh.jpg",
+      "title": "Telorin Against Olesh",
+      "tags": [
+        "Telorin Against Olesh"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-04T22:13:04.325Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [

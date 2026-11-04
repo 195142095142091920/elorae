@@ -1244,6 +1244,9 @@
   "/journal/": {
    "t": "Journal",
    "u": {
+    "assets/telorin-against-olesh.jpg": [
+     "inline"
+    ],
     "assets/thalancords-arrival.webp": [
      "inline"
     ],
