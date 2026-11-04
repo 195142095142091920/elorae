@@ -1583,8 +1583,6 @@
         : '<form id="ee-pick-form" class="ee-gal-up ee-gal-first">' +
           '<p class="ee-sub">Upload new</p>' +
           fileButton("ee-pick-file") +
-          '<p class="ee-note">' + esc(opts.note || "Nothing is published until you press Save.") + '</p>' +
-          '<p class="ee-note">Big images are resized to ' + Media.MAX_EDGE + ' px on the long edge.</p>' +
           '<p class="ee-err" id="ee-pick-err" hidden></p></form>') +
       '<div class="ee-gal-head"><p class="ee-sub">Or pick from the gallery</p>' +
       '<input type="search" id="ee-pick-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false"></div>' +
@@ -1663,7 +1661,7 @@
       function say(m, bad) { var e = $("ee-galm-msg"); if (e) { e.textContent = m || ""; e.className = "ee-note" + (bad ? " ee-err" : ""); } }
       function people() { return Media.PEOPLE.filter(function (x) { return x !== "devin"; }); }
       function detailHtml(m) {
-        if (!m) return '<p class="ee-note">Pick a picture to rename it, change its tags or who can use it, or remove it.</p>';
+        if (!m) return '';
         var thumb = '<img src="' + esc(gallerySrc(m)) + '" alt="">';
         return '<div class="ee-galm-pic">' + thumb + '</div>' +
           '<p class="ee-sub">Title</p><input type="text" id="ee-galm-title" class="ee-field" value="' + esc(m.title || "") + '" autocomplete="off">' +
@@ -1747,7 +1745,7 @@
           '<input type="text" id="ee-galm-newtags" class="ee-field" placeholder="Tags (comma-separated)" autocomplete="off">' +
           '<label class="ee-check"><input type="checkbox" id="ee-galm-neweveryone" checked> Everyone can use it</label>' +
           '<button type="submit" class="ee-btn ee-primary" id="ee-galm-upload">Upload</button></div>' +
-          '<p class="ee-note">Goes to assets/ and the gallery right away (one commit). Big images are resized to ' + Media.MAX_EDGE + ' px on the long edge.</p></form>' +
+          '</form>' +
           '<div class="ee-gal-head"><p class="ee-sub">All art</p><input type="search" id="ee-galm-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false"></div>' +
           '<p class="ee-note" id="ee-galm-msg" role="status"></p>' +
           '<div class="ee-galm-cols"><div id="ee-galm-wrap"></div><div id="ee-galm-detail" class="ee-galm-detail"></div></div>';
@@ -1857,13 +1855,11 @@
     }
     b.innerHTML =
       '<p class="ee-k">' + (insertOnly ? "Insert image" : "Art") + '</p>' +
-      (insertOnly ? '<p class="ee-note">Click a picture to insert it at the caret as a figure with a caption.</p>' : '') +
       (hasHero
         ? '<p class="ee-gal-act" role="radiogroup" aria-label="Click a picture to">' +
           '<label><input type="radio" name="ee-gal-act" value="hero"' + (act === "hero" ? " checked" : "") + '> Hero</label>' +
           '<label><input type="radio" name="ee-gal-act" value="insert"' + (act === "insert" ? " checked" : "") + '> Insert at caret</label></p>'
         : '') +
-      '<p class="ee-note">Nothing is published until you press Save.</p>' +
       '<label class="ee-gal-search-label" for="ee-gal-search">Search</label>' +
       '<input type="search" id="ee-gal-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
       '<div id="ee-gal-wrap">' + gridHtml(allItems) + '</div>' +
@@ -2141,18 +2137,16 @@
     document.documentElement.classList.add("ee-arts-on");
     var n = A.list.length;
     box.innerHTML = '<div class="ee-arts-head"><span class="ee-arts-title">Arts \u00b7 ' + n + '</span>' +
-      '<span class="ee-arts-hint">' + (n > 1 ? "Main shows first and is the Index card art. Drag or use \u2039 \u203a to reorder." : "Add a second art to give this page an art switcher.") + '</span>' +
       '<button type="button" class="ee-btn ee-primary" id="ee-arts-add">+ Add art</button>' +
       '<button type="button" class="ee-btn" id="ee-arts-close">Done</button></div>' +
       '<div class="ee-arts-list" role="list">' + A.list.map(function (a, i) {
         var main = i === A.main;
         return '<div class="ee-art-item' + (main ? " is-main" : "") + (i === A.shown ? " is-shown" : "") + '" role="listitem" draggable="true" data-i="' + i + '">' +
           '<button type="button" class="ee-art-thumb" data-act="show" aria-label="Show ' + esc(a.alt || "art " + (i + 1)) + ' in the hero"><img alt="" draggable="false"></button>' +
-          (main ? '<span class="ee-art-badge">Main</span>' : '') +
+          (main ? '<span class="ee-art-badge">Main</span>' : '<button type="button" class="ee-art-setmain" data-act="main" aria-label="Set as main (Index card art)" title="Set as main">\u2606 Main</button>') +
           '<input type="text" class="ee-field ee-art-cap" data-act="cap" value="' + esc(a.alt || "") + '" aria-label="Caption" placeholder="Caption" autocomplete="off" spellcheck="true">' +
           '<div class="ee-art-row">' +
           '<button type="button" class="ee-btn ee-art-left" data-act="left" aria-label="Move earlier"' + (i === 0 ? " disabled" : "") + '>\u2039</button>' +
-          '<button type="button" class="ee-btn ee-art-setmain" data-act="main" aria-pressed="' + (main ? "true" : "false") + '"' + (main ? " disabled" : "") + '>' + (main ? "Main" : "Set as main") + '</button>' +
           '<button type="button" class="ee-btn ee-art-right" data-act="right" aria-label="Move later"' + (i === n - 1 ? " disabled" : "") + '>\u203a</button>' +
           '<button type="button" class="ee-btn ee-art-del" data-act="del" aria-label="Remove ' + esc(a.alt || "this art") + '"' + (n < 2 ? " disabled" : "") + '>\u2715</button>' +
           '</div></div>';
