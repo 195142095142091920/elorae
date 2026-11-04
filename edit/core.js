@@ -433,12 +433,29 @@
       return t ? files.concat([{ path: U.PATH, text: t }]) : files;
     }).catch(function () { return files; });
   }
+  /* al1: a commit that writes the Gallery catalog, usage.json or an article page also refreshes
+     autolink.json (site-wide auto-links: article names + Capitalised Gallery tags), read at
+     the same parent. Admin saves only: a player renaming their own article is picked up the next
+     time Devin saves that article (or by tools/build-autolink.js). Never blocks a save. */
+  function withAutolink(files, ref) {
+    var A = window.EloraeAutolinkMap, U = window.EloraeUsage;
+    if (!A || !U || !U.admin || files.some(function (f) { return f.path === A.PATH; })) return Promise.resolve(files);
+    if (!files.some(function (f) { return f.path === A.CATALOG || f.path === A.USAGE || A.slugOf(f.path); })) return Promise.resolve(files);
+    function txt(p) {
+      for (var i = 0; i < files.length; i++) if (files[i].path === p && !files[i].delete) return Promise.resolve(files[i].text);
+      return getFile(p, ref).then(function (f) { return f.text; }, function () { return "{}"; });
+    }
+    return Promise.all([getFile(A.PATH, ref).then(function (f) { return f.text; }), txt(A.CATALOG), txt(A.USAGE)]).then(function (r) {
+      var t = A.update(r[0], files, r[1], r[2]);
+      return t ? files.concat([{ path: A.PATH, text: t }]) : files;
+    }).catch(function () { return files; });
+  }
   function commitFiles(files, message, branch, parentSha) {
     branch = branch || BRANCH;
     var parent, baseTree;
     return (parentSha ? Promise.resolve(parentSha) : headSha(branch)).then(function (sha) {
       parent = sha;
-      return withUsage(files, sha);
+      return withUsage(files, sha).then(function (fs1) { return withAutolink(fs1, sha); });
     }).then(function (fs2) {
       files = fs2;
       return guardCommit(files, parent);

@@ -150,7 +150,9 @@
       });
     });
   }
-  if (!editing()) {
+  /* al1: the site-wide auto-linker (/autolink.js) links names now; this file keeps the cards. */
+  var autolinked = !!document.querySelector('script[src*="autolink.js"]');
+  if (!editing() && !autolinked) {
     fetch(ROOT + "search-index.js").then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) {
       if (!t || editing()) return;
       var all = JSON.parse(t.slice(t.indexOf("["), t.lastIndexOf("]") + 1));

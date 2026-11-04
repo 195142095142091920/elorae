@@ -1,0 +1,443 @@
+{
+ "_readme": "Auto-link map, built by edit/autolink.js (tools/build-autolink.js; refreshed by admin edit-mode saves). Words in 'terms' link to that article site-wide. Add a word: give one of the article's hero/Art images a Capitalised tag in the Gallery.",
+ "version": 1,
+ "articles": {
+  "aghor": {
+   "n": "Aghor"
+  },
+  "alaric": {
+   "n": "Alaric Morn"
+  },
+  "amora": {
+   "n": "Amora"
+  },
+  "ara-tess": {
+   "n": "Ara Tess"
+  },
+  "arleth": {
+   "n": "Arleth"
+  },
+  "asenia": {
+   "n": "Asenia"
+  },
+  "astar": {
+   "n": "Astar"
+  },
+  "aszurithice": {
+   "n": "Aszurithice"
+  },
+  "auralon": {
+   "n": "Auralon"
+  },
+  "baiji": {
+   "n": "Baiji En"
+  },
+  "balamad": {
+   "n": "Balamad"
+  },
+  "bel-harath": {
+   "n": "Bel Harath",
+   "o": "devin"
+  },
+  "benedine": {
+   "n": "Benedine"
+  },
+  "cadarinost-falls": {
+   "n": "Cadarinost Falls"
+  },
+  "calor": {
+   "n": "Calor"
+  },
+  "caurobor": {
+   "n": "Caurobor"
+  },
+  "celurna": {
+   "n": "Celurna"
+  },
+  "cressana": {
+   "n": "Cressana",
+   "o": "devin"
+  },
+  "cursed-of-olesh": {
+   "n": "Cursed of Olesh",
+   "o": "devin"
+  },
+  "daeloth": {
+   "n": "Daeloth"
+  },
+  "darcdressil": {
+   "n": "Darcdressil",
+   "o": "devin"
+  },
+  "darmstadt": {
+   "n": "Darmstadt",
+   "o": "devin"
+  },
+  "elraim": {
+   "n": "Elraim",
+   "o": "devin"
+  },
+  "erenar": {
+   "n": "Erenar"
+  },
+  "eshrag": {
+   "n": "Eshrag"
+  },
+  "etyana": {
+   "n": "Etyana"
+  },
+  "fell": {
+   "n": "Fell"
+  },
+  "fena": {
+   "n": "Fena"
+  },
+  "filibeth": {
+   "n": "Filibeth"
+  },
+  "galand-helviath": {
+   "n": "Galand Helviath"
+  },
+  "gimithrie": {
+   "n": "Gimithrie"
+  },
+  "haethlin": {
+   "n": "Haethlin"
+  },
+  "haethlin-dream": {
+   "n": "Haethlin in the Dream",
+   "o": "devin"
+  },
+  "hanto-han": {
+   "n": "Hanto Han"
+  },
+  "heldranc": {
+   "n": "Heldranc"
+  },
+  "hesk": {
+   "n": "Hesk"
+  },
+  "horlg": {
+   "n": "Horlg"
+  },
+  "imani-valash": {
+   "n": "Imani Valash",
+   "o": "devin"
+  },
+  "imroten": {
+   "n": "Imroten"
+  },
+  "ito-gangara": {
+   "n": "Ito Gangara",
+   "o": "devin"
+  },
+  "izil": {
+   "n": "Izil"
+  },
+  "kojin": {
+   "n": "Kojin En"
+  },
+  "krael": {
+   "n": "Krael"
+  },
+  "kuroishi": {
+   "n": "Kuroishi"
+  },
+  "larellan": {
+   "n": "Larellan"
+  },
+  "maegoroth": {
+   "n": "Maegoroth"
+  },
+  "malyr": {
+   "n": "Malyr"
+  },
+  "mano": {
+   "n": "Mano"
+  },
+  "megana": {
+   "n": "Megana"
+  },
+  "minashi": {
+   "n": "Minashi"
+  },
+  "mintas-fae": {
+   "n": "Mintas Fae"
+  },
+  "montmorian": {
+   "n": "Montmorian"
+  },
+  "nadra": {
+   "n": "Nadra"
+  },
+  "nereb": {
+   "n": "Nereb"
+  },
+  "nilarem-kavari": {
+   "n": "Nilarem Kavari",
+   "o": "devin"
+  },
+  "nobunaga-yudai": {
+   "n": "Nobunaga Yudai"
+  },
+  "nul": {
+   "n": "Nul"
+  },
+  "nyralshirad": {
+   "n": "Nyralshirad"
+  },
+  "olesh": {
+   "n": "Olesh"
+  },
+  "olesh-in-the-basin-of-tears": {
+   "n": "Olesh in the Basin of Tears"
+  },
+  "perstrin-naba": {
+   "n": "Perstrin Naba"
+  },
+  "pethengorom": {
+   "n": "Pethengorom"
+  },
+  "phantom-cavern": {
+   "n": "Phantom Cavern"
+  },
+  "quenala": {
+   "n": "Quenala"
+  },
+  "raith": {
+   "n": "Raith"
+  },
+  "rathalon": {
+   "n": "Rathalon",
+   "o": "devin"
+  },
+  "revenant-host": {
+   "n": "Revenant Host"
+  },
+  "salaseth": {
+   "n": "Salaseth"
+  },
+  "saoirse": {
+   "n": "Saoirse"
+  },
+  "saoirse-s-arlethian-tide": {
+   "n": "Saoirse's Arlethian Tide"
+  },
+  "sar-sareen": {
+   "n": "Sar Sareen"
+  },
+  "sen-teloch-ini": {
+   "n": "Sen Teloch Ini",
+   "o": "devin"
+  },
+  "shiok": {
+   "n": "Shiok"
+  },
+  "shune": {
+   "n": "Shune"
+  },
+  "shune-s-basin": {
+   "n": "Shune's Basin"
+  },
+  "silar-scorria": {
+   "n": "Silar Scorria"
+  },
+  "sthistu": {
+   "n": "Sthistu"
+  },
+  "telorin": {
+   "n": "Telorin Nelis"
+  },
+  "thalancord-s-arrival": {
+   "n": "Thalancord's Arrival"
+  },
+  "the-beckoning-bell": {
+   "n": "The Beckoning Bell",
+   "o": "devin"
+  },
+  "the-empire-of-raim": {
+   "n": "The Empire of Raim"
+  },
+  "the-glaurfeldt": {
+   "n": "The Glaurfeldt"
+  },
+  "the-k-bas-forest": {
+   "n": "The K'bas Forest"
+  },
+  "the-six-kings": {
+   "n": "The Six Kings",
+   "o": "devin"
+  },
+  "the-starry-kingdom": {
+   "n": "The Starry Kingdom"
+  },
+  "vaerek": {
+   "n": "Vaerek Rathkin"
+  },
+  "vallorca": {
+   "n": "Vallorca",
+   "o": "devin"
+  },
+  "vana": {
+   "n": "Vana"
+  },
+  "vehem-adahr": {
+   "n": "Vehem Adahr"
+  },
+  "vorn": {
+   "n": "Vorn"
+  },
+  "yena": {
+   "n": "Yena",
+   "o": "devin"
+  },
+  "yudai-s-flame": {
+   "n": "Yudai's Flame"
+  },
+  "yuo-nanaga": {
+   "n": "Yuo Nanaga"
+  },
+  "zimn": {
+   "n": "Zimn"
+  }
+ },
+ "terms": {
+  "Adahr": "vehem-adahr",
+  "Aghor": "aghor",
+  "Alaric": "alaric",
+  "Alaric Morn": "alaric",
+  "Amora": "amora",
+  "Ara Tess": "ara-tess",
+  "Arleth": "arleth",
+  "Asenia": "asenia",
+  "Astar": "astar",
+  "Aszurithice": "aszurithice",
+  "Auralon": "auralon",
+  "Baiji": "baiji",
+  "Baiji En": "baiji",
+  "Balamad": "balamad",
+  "Bel Harath": "bel-harath",
+  "Benedine": "benedine",
+  "Cadarinost Falls": "cadarinost-falls",
+  "Calor": "calor",
+  "Caurobor": "caurobor",
+  "Celurna": "celurna",
+  "Cressana": "cressana",
+  "Cursed of Olesh": "cursed-of-olesh",
+  "Daeloth": "daeloth",
+  "Darcdressil": "darcdressil",
+  "Darmstadt": "darmstadt",
+  "Elraim": "elraim",
+  "Erenar": "erenar",
+  "Eshrag": "eshrag",
+  "Etyana": "etyana",
+  "Fell": "fell",
+  "Fena": "fena",
+  "Filibeth": "filibeth",
+  "Galand": "galand-helviath",
+  "Galand Helviath": "galand-helviath",
+  "Gangara": "ito-gangara",
+  "Gimithrie": "gimithrie",
+  "Haethlin": "haethlin",
+  "Haethlin in the Dream": "haethlin-dream",
+  "Hanto": "hanto-han",
+  "Hanto Han": "hanto-han",
+  "Harath": "bel-harath",
+  "Heldranc": "heldranc",
+  "Helviath": "galand-helviath",
+  "Horlg": "horlg",
+  "Imani": "imani-valash",
+  "Imani Valash": "imani-valash",
+  "Imroten": "imroten",
+  "Ito Gangara": "ito-gangara",
+  "Izil": "izil",
+  "Kavari": "nilarem-kavari",
+  "Kojin": "kojin",
+  "Kojin En": "kojin",
+  "Krael": "krael",
+  "Kuroishi": "kuroishi",
+  "Larellan": "larellan",
+  "Maegoroth": "maegoroth",
+  "Malyr": "malyr",
+  "Mano": "mano",
+  "Megana": "megana",
+  "Minashi": "minashi",
+  "Mintas": "mintas-fae",
+  "Mintas Fae": "mintas-fae",
+  "Montmorian": "montmorian",
+  "Morn": "alaric",
+  "Naba": "perstrin-naba",
+  "Nadra": "nadra",
+  "Nanaga": "yuo-nanaga",
+  "Nelis": "telorin",
+  "Nereb": "nereb",
+  "Nilarem": "nilarem-kavari",
+  "Nilarem Kavari": "nilarem-kavari",
+  "Nobunaga": "nobunaga-yudai",
+  "Nobunaga Yudai": "nobunaga-yudai",
+  "Nul": "nul",
+  "Nyralshirad": "nyralshirad",
+  "Olesh": "olesh",
+  "Olesh in the Basin of Tears": "olesh-in-the-basin-of-tears",
+  "Perstrin": "perstrin-naba",
+  "Perstrin Naba": "perstrin-naba",
+  "Pethengorom": "pethengorom",
+  "Phantom Cavern": "phantom-cavern",
+  "Quenala": "quenala",
+  "Raith": "raith",
+  "Rathalon": "rathalon",
+  "Rathkin": "vaerek",
+  "Revenant Host": "revenant-host",
+  "Salaseth": "salaseth",
+  "Saoirse": "saoirse",
+  "Saoirse's Arlethian Tide": "saoirse-s-arlethian-tide",
+  "Sar Sareen": "sar-sareen",
+  "Sareen": "sar-sareen",
+  "Scorria": "silar-scorria",
+  "Sen Teloch Ini": "sen-teloch-ini",
+  "Shiok": "shiok",
+  "Shune": "shune",
+  "Shune's Basin": "shune-s-basin",
+  "Silar": "silar-scorria",
+  "Silar Scorria": "silar-scorria",
+  "Sthistu": "sthistu",
+  "Teloch": "sen-teloch-ini",
+  "Telorin": "telorin",
+  "Telorin Nelis": "telorin",
+  "Tess": "ara-tess",
+  "Thalancord's Arrival": "thalancord-s-arrival",
+  "The Beckoning Bell": "the-beckoning-bell",
+  "The Empire of Raim": "the-empire-of-raim",
+  "The Glaurfeldt": "the-glaurfeldt",
+  "The K'bas Forest": "the-k-bas-forest",
+  "The Six Kings": "the-six-kings",
+  "The Starry Kingdom": "the-starry-kingdom",
+  "Vaerek": "vaerek",
+  "Vaerek Rathkin": "vaerek",
+  "Valash": "imani-valash",
+  "Vallorca": "vallorca",
+  "Vana": "vana",
+  "Vehem": "vehem-adahr",
+  "Vehem Adahr": "vehem-adahr",
+  "Vorn": "vorn",
+  "Yena": "yena",
+  "Yudai": "nobunaga-yudai",
+  "Yudai's Flame": "yudai-s-flame",
+  "Yuo Nanaga": "yuo-nanaga",
+  "Zimn": "zimn"
+ },
+ "skipped": {
+  "Hesk": [
+   "hesk",
+   "(atlas place)"
+  ]
+ },
+ "reserved": [
+  "Atlas",
+  "Cosm",
+  "Essen Revir",
+  "Far Nybei",
+  "Hesk",
+  "The Nexus"
+ ]
+}

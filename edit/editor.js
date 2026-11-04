@@ -359,6 +359,8 @@
       return;
     }
     state.busy = true;
+    // al1: drop the runtime auto-links first, so the page matches its source and saves never contain them.
+    try { if (window.EloraeAutolink) window.EloraeAutolink.off(); } catch (eA) {}
     bar('<span class="ee-msg">Loading the page source…</span>');
     E.getFile(PATH).then(function (f) {
       var mainEl = findLiveMain();
@@ -455,7 +457,7 @@
     }).catch(function (err) {
       bar('<span class="ee-msg ee-bad">' + esc(err.message || "Could not start editing.") + '</span><button type="button" class="ee-btn ee-ic" id="ee-x" aria-label="Close" title="Close">' + ic("x") + '</button>');
       $("ee-x").onclick = closeBar;
-    }).then(function () { state.busy = false; });
+    }).then(function () { state.busy = false; if (!state.editing && window.EloraeAutolink) window.EloraeAutolink.on(); });
   }
   /* Hero name + epithet: admins, and players on their own page. Inside main they are
      saved with the body; in the hero (most articles) they are their own small regions. */
