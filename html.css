@@ -5388,3 +5388,6 @@ html body .art-index .toc-nest a.toc-name {
 }
 html body .index-toc-panel .toc-group a.toc-name,
 html body .art-index .toc-group a.toc-name { padding-left: calc(8px + .9em) !important; }
+
+/* do1: Edit + Gallery are Devin-only */
+body:not(.login-devin) #ee-edit,body:not(.login-devin) #ee-gallery,body:not(.login-devin) #ee-dash{display:none!important}

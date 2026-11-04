@@ -136,8 +136,7 @@
   // stamped at sign-in after profiles.json check). Friend login alone never grants it.
   // Prepend so the phone friends row shows it without swiping.
   function dash() {
-    var s = readSession();
-    var isAdmin = !!(s && (s.role === "admin" || s.person === "devin"));
+    var isAdmin = devinOnly();
     var existing = document.getElementById("ee-dash");
     if (!isAdmin) { if (existing) existing.remove(); var gl = document.getElementById("ee-gallery"); if (gl) gl.remove(); return; }
     if (existing) existing.remove();
@@ -178,10 +177,11 @@
 
 
   /* nd2: Edit (nav, editor, #edit panel) exists only for Devin. */
+  /* do1: Edit/Gallery/editor only when the CURRENT login is Devin; a leftover Devin GitHub
+     session or seal on a browser now signed in as a player or guest never counts. */
   function devinOnly() {
-    if (phraseIsDevin()) return true;
-    var s = readSession();
-    return !!(s && (s.role === "admin" || s.person === "devin"));
+    /* login.js resolves the signed-in person (cookie first) into body.login-<who>. */
+    return document.body.classList.contains("login-devin");
   }
   function phraseIsDevin() {
     try {
@@ -201,11 +201,7 @@
       if (existing) existing.remove();
       return;
     }
-    var allow = phraseIsDevin();
-    if (!allow) {
-      var s = readSession();
-      allow = !!(s && (s.role === "admin" || s.person === "devin"));
-    }
+    var allow = devinOnly();
     if (!allow) { if (existing) existing.remove(); return; }
     if (existing) { existing.removeAttribute("data-ee-by-editor"); return; }
     navButton();

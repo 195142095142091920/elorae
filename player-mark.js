@@ -34,6 +34,7 @@
     ".mast [data-ni]:hover,.mast [data-ni]:focus-visible{color:#fff!important;outline:none;filter:drop-shadow(0 0 5px rgba(255,255,255,.75)) drop-shadow(0 0 12px rgba(255,255,255,.35))}" +
     ".mast .filters:has(a[data-ni]){gap:10px!important}.mast .filters:has(a[data-ni]) .seek-glyph::before{content:none!important}" +
     ".mast [data-ni][hidden]{display:none!important}" +
+    "body:not(.login-devin) #ee-edit,body:not(.login-devin) #ee-gallery,body:not(.login-devin) #ee-dash{display:none!important}" +
     "@media (max-width:800px){.mast [data-ni]{min-width:36px;min-height:40px;padding:0 2px!important}.mast [data-ni]::after{width:22px;height:22px}.mast .filters:has(a[data-ni]){gap:6px!important}}";
   document.head.appendChild(css);
 
