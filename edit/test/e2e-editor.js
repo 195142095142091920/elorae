@@ -1089,7 +1089,7 @@ async function indexArtTests(browser, vpName) {
   const locOrder2 = await page.evaluate(() => [...document.querySelectorAll("#locations a.index-card")].map((a) => a.getAttribute("href")).join(","));
   check(`[${vpName}] drag: within a section does not reorder (A to Z kept) and says why`, locOrder2 === locOrder && await azIn("#locations a.index-card") && d1.stuck === 0 && /sort A\u2013Z/.test(await page.textContent("#ee-bar")), d1.stuck + " marks " + (await page.textContent("#ee-bar")).slice(0, 80));
   const hint = await page.evaluate(() => getComputedStyle(document.getElementById("ee-bar"), "::before").content);
-  check(`[${vpName}] organizer: a small hint says cards sort A\u2013Z automatically`, /sort A.Z .*automatically/.test(hint), hint);
+  check(`[${vpName}] organizer: no standing instruction note over the bar`, !/sort A.Z/.test(hint), hint);
   const divA = await firstIn("#demonic a.index-card");
   await drag(NEW, divA, "before");
   const afterDiv = await page.evaluate((n) => { const a = document.querySelector(`a.index-card[href="${n}"]`); return { sec: a.closest("section.index-cat").id, id: a.id, last: [...a.parentElement.querySelectorAll("a.index-card")].pop() === a }; }, NEW);
@@ -1468,6 +1468,7 @@ async function artSetTests(browser, vpName) {
     return bar(page);
   }
   const item = (i, act) => `#ee-arts .ee-art-item[data-i="${i}"] [data-act="${act}"]`;
+  const dragArt = async (page, from, to, after) => { const t = await page.$(`#ee-arts .ee-art-item[data-i="${to}"]`); const bb = await t.boundingBox(); await page.dragAndDrop(`#ee-arts .ee-art-item[data-i="${from}"]`, `#ee-arts .ee-art-item[data-i="${to}"]`, { targetPosition: { x: after ? bb.width - 6 : 6, y: 20 }, force: true }); await page.waitForTimeout(120); };
   // 1. Devin, single-hero page (Aghor): add a 2nd (upload) and a 3rd (gallery), reorder, caption, set main, save.
   {
     const mock = newMock(); const ctx = await ctxFor(browser, mock, vp); const page = await ctx.newPage(); const W = watch(page);
@@ -1484,18 +1485,13 @@ async function artSetTests(browser, vpName) {
     await page.click("#ee-arts-add"); await page.waitForSelector("#ee-pick-wrap .ee-gal-item", { timeout: 15000 });
     const pickId = await page.evaluate(() => { const b = [...document.querySelectorAll("#ee-pick-wrap .ee-gal-item")].find((x) => !/aghor/i.test(x.getAttribute("data-pick-id"))); b.click(); return b.getAttribute("data-pick-id"); });
     await page.waitForFunction(() => document.querySelectorAll("#ee-arts .ee-art-item").length === 3, null, { timeout: 10000 });
-    // Reorder: 3rd one step left (button), then drag the first to the end.
-    await page.click(item(2, "left"));
+    // Reorder (drag only, no arrows): 3rd one step earlier, then the first to the end.
+    await dragArt(page, 2, 1, false);
     const s2 = await strip(page);
-    if (vpName === "phone") { await page.click(item(0, "right")); await page.click(item(1, "right")); } // touch: the ‹ › buttons
-    else {
-      const d2 = await page.$('#ee-arts .ee-art-item[data-i="2"]');
-      const bb = await d2.boundingBox();
-      await page.dragAndDrop('#ee-arts .ee-art-item[data-i="0"]', '#ee-arts .ee-art-item[data-i="2"]', { targetPosition: { x: bb.width - 6, y: 20 }, force: true });
-    }
+    await dragArt(page, 0, 2, true);
     await page.waitForTimeout(150);
     const s3 = await strip(page);
-    check(`[${vpName}] arts: gallery pick adds a 3rd; ‹ moves one earlier; ${vpName === "phone" ? "› ›" : "drag"} moves the first to the end`, s2.length === 3 && s2[2].cap === "Aghor Dawn" && s3.length === 3 && s3[2].cap === "Aghor" && s3[2].main && s3[1].cap === "Aghor Dawn", JSON.stringify(s3));
+    check(`[${vpName}] arts: gallery pick adds a 3rd; drag moves one earlier; drag moves the first to the end`, s2.length === 3 && s2[2].cap === "Aghor Dawn" && s3.length === 3 && s3[2].cap === "Aghor" && s3[2].main && s3[1].cap === "Aghor Dawn", JSON.stringify(s3));
     const dawn = s3.findIndex((x) => x.cap === "Aghor Dawn");
     await page.fill(`#ee-arts .ee-art-item[data-i="${dawn}"] .ee-art-cap`, "Aghor at Dawn");
     await page.click(item(dawn, "main"));
@@ -1551,7 +1547,9 @@ async function artSetTests(browser, vpName) {
     await openEdit(page, "articles/vaerek/");
     await page.click("#ee-arts-btn"); await page.waitForSelector("#ee-arts .ee-art-item");
     const s0 = await strip(page);
-    await page.click(item(1, "left")); await page.click(item(0, "right"));
+    await dragArt(page, 0, 1, true); await dragArt(page, 0, 1, true);
+    const st = await page.evaluate(() => [...document.querySelectorAll("#ee-arts .ee-art-item")].map((it) => { const b = it.querySelector(".ee-art-star"); return b && b.textContent + b.getAttribute("aria-pressed"); }).join(","));
+    check(`[${vpName}] arts: star row (★ main, ☆ others), no arrows/badge/chip`, /^\u2605true,\u2606false$/.test(st) && !(await page.$("#ee-arts .ee-art-left, #ee-arts .ee-art-right, #ee-arts .ee-art-badge, #ee-arts .ee-art-setmain")), st);
     await page.click(item(1, "main")); await page.click(item(0, "main"));
     const n0 = mock.log.length;
     const b0 = await saveAndWait(page);

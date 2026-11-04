@@ -2143,11 +2143,9 @@
         var main = i === A.main;
         return '<div class="ee-art-item' + (main ? " is-main" : "") + (i === A.shown ? " is-shown" : "") + '" role="listitem" draggable="true" data-i="' + i + '">' +
           '<button type="button" class="ee-art-thumb" data-act="show" aria-label="Show ' + esc(a.alt || "art " + (i + 1)) + ' in the hero"><img alt="" draggable="false"></button>' +
-          (main ? '<span class="ee-art-badge">Main</span>' : '<button type="button" class="ee-art-setmain" data-act="main" aria-label="Set as main (Index card art)" title="Set as main">\u2606 Main</button>') +
           '<input type="text" class="ee-field ee-art-cap" data-act="cap" value="' + esc(a.alt || "") + '" aria-label="Caption" placeholder="Caption" autocomplete="off" spellcheck="true">' +
           '<div class="ee-art-row">' +
-          '<button type="button" class="ee-btn ee-art-left" data-act="left" aria-label="Move earlier"' + (i === 0 ? " disabled" : "") + '>\u2039</button>' +
-          '<button type="button" class="ee-btn ee-art-right" data-act="right" aria-label="Move later"' + (i === n - 1 ? " disabled" : "") + '>\u203a</button>' +
+          '<button type="button" class="ee-btn ee-art-star' + (main ? " is-main" : "") + '" data-act="main" aria-pressed="' + (main ? "true" : "false") + '" aria-label="' + (main ? "Main art" : "Make main art") + '" title="' + (main ? "Main art" : "Make main art") + '">' + (main ? "\u2605" : "\u2606") + '</button>' +
           '<button type="button" class="ee-btn ee-art-del" data-act="del" aria-label="Remove ' + esc(a.alt || "this art") + '"' + (n < 2 ? " disabled" : "") + '>\u2715</button>' +
           '</div></div>';
       }).join("") + '</div>';
@@ -2252,7 +2250,7 @@
       if (act === "show") { state.arts.shown = i; previewArt(i); renderArts(); }
       else if (act === "left") artsMove(i, i - 1);
       else if (act === "right") artsMove(i, i + 1);
-      else if (act === "main") artsSetMain(i);
+      else if (act === "main") { if (i !== state.arts.main) artsSetMain(i); }
       else if (act === "del") artsRemove(i);
       var again = box.querySelector('.ee-art-item[data-i="' + Math.max(0, act === "left" ? i - 1 : act === "right" ? i + 1 : i) + '"] [data-act="' + act + '"]');
       if (again && !again.disabled && (act === "left" || act === "right")) again.focus();

@@ -254,7 +254,7 @@
 /* eb2: press ripple on the editor bars' buttons (pure decoration, never saved). */
 (function () {
   document.addEventListener("pointerdown", function (e) {
-    var b = e.target && e.target.closest && e.target.closest("#ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn, #ee-arts .ee-btn, #ee-arts .ee-art-setmain");
+    var b = e.target && e.target.closest && e.target.closest("#ee-bar .ee-btn, #ee-stylebar .ee-glyph-btn, #ee-arts .ee-btn");
     if (!b || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
     var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2, s = document.createElement("span");
     s.className = "ee-ripple"; s.setAttribute("aria-hidden", "true");
