@@ -5370,3 +5370,6 @@ body:has(#section-bar > a[href^="/codex/"]) main.read figure {
     font-size: calc((11px) * var(--fs,1.5094)) !important; font-weight: 700 !important; letter-spacing: .16em !important;
   }
 }
+
+/* nc1: no rail-edge cue arrow anywhere; the top-left rail toggle opens/closes the Categories rail. */
+body.article .art-index-cue { display: none !important; }
