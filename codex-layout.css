@@ -1,4 +1,4 @@
-/* codex-layout.css (cx1): the opt-in "Codex" article layout (body.article.art-codex), built
+/* codex-layout.css (cx2: wider lore measure): the opt-in "Codex" article layout (body.article.art-codex), built
    by codex-layout.js. Only while html.cx-on (never in edit mode): hides the originals that the
    generated copies stand in for, widens Plates + Lore past the reading column, and styles the
    plates row, ornament headings, drop cap and sticky side box. Hero, title and Dossier untouched. */
@@ -8,10 +8,10 @@ html.cx-on body.art-codex #lore > ul.art-facts,
 html.cx-on body.art-codex #related { display: none !important; }
 
 /* Wider band for Plates + Lore, centred on the reading column (same centre, rail or not). */
-html.cx-on body.art-codex { --cx-w: min(1080px, calc(100vw - 96px)); }
+html.cx-on body.art-codex { --cx-w: min(1200px, calc(100vw - 64px)); }
 @media (min-width: 801px) {
   html.cx-on.cats-rail-pinned body.art-codex,
-  html.cx-on body.art-codex.art-index-open { --cx-w: min(1080px, calc(100vw - var(--rail-w, 220px) - 96px)); }
+  html.cx-on body.art-codex.art-index-open { --cx-w: min(1200px, calc(100vw - var(--rail-w, 220px) - 64px)); }
   html.cx-on body.art-codex .cx-plates,
   html.cx-on body.art-codex #lore { width: var(--cx-w); margin-left: calc((100% - var(--cx-w)) / 2); box-sizing: border-box; }
 }
@@ -62,7 +62,7 @@ body.article .art-body .cx-plate figcaption { display: flex; justify-content: sp
 
 /* Lore + sticky side box. */
 @media (min-width: 801px) {
-  html.cx-on body.art-codex #lore { display: grid; grid-template-columns: minmax(0, 700px) 300px; column-gap: 72px; justify-content: center; align-items: start; }
+  html.cx-on body.art-codex #lore { display: grid; grid-template-columns: minmax(0, 820px) 300px; column-gap: 52px; justify-content: center; align-items: start; }
   html.cx-on body.art-codex #lore > * { grid-column: 1; }
   html.cx-on body.art-codex #lore > .cx-side { grid-column: 2; grid-row: 2 / span 200; position: sticky; top: 96px; align-self: start; }
 }
