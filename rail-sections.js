@@ -52,22 +52,58 @@
     if (!row || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     if (expandable(prep(row))) e.preventDefault();
   });
+  /* rc1 (2026-11-04): on the Index the header (title or arrow) scrolls smoothly to its section and
+     opens it in the rail; a header with nothing to open still scrolls. Clicking an open header
+     whose section is already at the top closes it (the only way to fold it on the Index). Article
+     pages: unchanged - the title toggles like the arrow; a header with no entries keeps its link
+     to the Index section. Organizer capture clicks (defaultPrevented) still win. */
+  function onIndex(row) { return !!row.closest("#index-toc-panel"); }
+  function target(p) {
+    var h = p.a && p.a.getAttribute("href") || "";
+    return h.charAt(0) === "#" ? document.getElementById(h.slice(1)) : null;
+  }
+  function offset() {
+    var m = document.querySelector(".mast"), sb = document.getElementById("section-bar"), b = 0;
+    [m, sb].forEach(function (x) { var ps = x && getComputedStyle(x).position; if (ps === "fixed" || ps === "sticky") b = Math.max(b, x.getBoundingClientRect().bottom); });
+    return (b || 56) + 16;
+  }
+  function goTo(p) {
+    var el = target(p); if (!el) return false;
+    var h = el.querySelector("h2") || el;
+    var y = Math.max(0, Math.round(h.getBoundingClientRect().top + window.scrollY - offset()));
+    var at = Math.abs(window.scrollY - y) < 4 || (y > window.scrollY && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2);
+    if (expandable(p)) {
+      if (p.box.classList.contains("open") && at) toggle(p);
+      else if (!p.box.classList.contains("open")) toggle(p);
+    }
+    if (!at) {
+      var rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: y, behavior: rm ? "auto" : "smooth" });
+    }
+    try { history.replaceState(history.state, "", "#" + el.id); } catch (e) {}
+    return true;
+  }
+  function activate(p, e) {
+    if (onIndex(p.row) && goTo(p)) { if (e) e.preventDefault(); return; }
+    if (!expandable(p)) return;
+    if (e) e.preventDefault();
+    toggle(p);
+  }
   document.addEventListener("click", function (e) {
     if (e.defaultPrevented) return;
     var row = rowFrom(e.target);
     if (!row) return;
     var p = prep(row);
-    if (!expandable(p)) return;
+    if (!expandable(p) && !onIndex(row)) return;
     if (e.target.closest(".toc-row > a") && (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) return; // new tab etc.
-    e.preventDefault();
-    toggle(p);
+    activate(p, e);
   });
   document.addEventListener("keydown", function (e) {
     if (e.key !== " " && e.key !== "Spacebar") return;
     var a = e.target && e.target.closest && e.target.closest(".toc-row > a[role='button']");
     if (!a || !rowFrom(a)) return;
     e.preventDefault();
-    toggle(parts(rowFrom(a)));
+    activate(parts(rowFrom(a)));
   });
   /* rd2: article-page rails are a copy of the Index rail (/index/ancients/, the one source). The
      copies baked into article pages went stale when cards were added straight to the Index (the

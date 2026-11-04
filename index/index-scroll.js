@@ -184,7 +184,6 @@
   });
   toc.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[href^='#']");
-    if (a && a.getAttribute("role") === "button") return; // section title: toggles, no jump (rd1)
     if (a) {
       jump = a.getAttribute("href").slice(1);
       window.setTimeout(update, 0);
