@@ -3578,6 +3578,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "nilarem-kavari": {
+      "path": "assets/nilarem-kavari.webp",
+      "title": "Nilarem Kavari",
+      "tags": [
+        "card"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-04T04:12:41.006Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
