@@ -492,11 +492,11 @@
     var ownerBtn = admin ? ib("ee-owner", "Owner", "owner") : '';
     var newBtn = admin ? ib("ee-newart", "New article", "new") : '';
     var delBtn = admin && articleSlugOfPath() ? ib("ee-delart", "Delete article", "trash", "ee-danger") : '';
-    var imgBtn = (state.page && Media && P.canEdit(state.profile, PATH)) ? ib("ee-img", "Image", "image") : '';
+    var imgBtn = (state.page && Media && P.canEdit(state.profile, PATH)) ? ib("ee-img", "Insert image", "imgadd") : '';
     var tplBtn = templatesAllowed() ? ib("ee-tpl", "Template", "template", "", ' aria-haspopup="menu" aria-expanded="false"') : '';
     var artsBtn = state.arts ? '<button type="button" class="ee-btn ee-ic" id="ee-arts-btn" aria-label="Arts (' + state.arts.list.length + ')" title="Arts" aria-expanded="' + (state.arts.open ? "true" : "false") + '">' + ic("arts") + '<span class="ee-count" aria-hidden="true">' + state.arts.list.length + '</span></button>' : '';
     bar('<span class="ee-msg">' + esc(msg || "") + '</span>' +
-      tplBtn + artsBtn + imgBtn + artBtn + shareBtn + ownerBtn + newBtn + delBtn +
+      tplBtn + artsBtn + imgBtn + shareBtn + ownerBtn + delBtn + /* bx1: Art, New article removed from the bar (code kept) */
       ib("ee-cancel", "Cancel", "x") +
       ib("ee-save", "Save", "check", "ee-primary"), cls);
     $("ee-save").onclick = save;
