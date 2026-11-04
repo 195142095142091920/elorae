@@ -668,6 +668,7 @@ html.ee-page-editing .ee-page figure img { cursor: pointer; }
 @media (max-width: 800px) {
   #ee-bar, #ee-stylebar, #ee-arts { --fs: 1.2075; }
 }
-@media (min-width: 801px) and (max-width: 1365px) {
+/* Editor bars are UI chrome: keep the pre-125% scale at every desktop width so every button fits. */
+@media (min-width: 801px) {
   #ee-bar, #ee-stylebar { --fs: 1.2075; }
 }
