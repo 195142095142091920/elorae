@@ -131,6 +131,34 @@ const reloadSpy = () => { window.__eeReloads = 0; const E = window.EloraeEdit; i
     check("article stale: pill shown, nothing written", !!(await page.$("#ee-stale")) && commitsSince(n).length === 0 && !String(mock.file("articles/baiji/index.html")).includes("Zqc"));
     check("article: no page errors", !errs.length, errs.join(" | "));
     await ctx.close();
+    // ---- 4) sg2: Art strip — upload a new art, save; then a second save (own writes never trip the guard) ----
+    {
+      const UP = path.join(OUT, "Zq Dawn.png");
+      fs.writeFileSync(UP, Buffer.from("89504e470d0a1a0a0000000d4948445200000002000000020802000000fdd49a730000001649444154789c63f8cfc0f09f81e1ff7f0606860c0c0c00271a04fd7c3d3f720000000049454e44ae426082", "hex"));
+      ctx = await ctxFor(browser, "devin", true); page = await ctx.newPage(); errs = watch(page);
+      await enterEdit(page, "articles/aghor/");
+      await page.waitForSelector("#ee-save", { timeout: 15000 });
+      await page.evaluate(reloadSpy);
+      await page.click("#ee-arts-btn"); await page.waitForSelector("#ee-arts .ee-art-item");
+      await page.click("#ee-arts-add");
+      const upSel = (await page.waitForSelector("#ee-pick-file, #ee-galm-file", { state: "attached", timeout: 10000 }).then((h) => h.evaluate((x) => "#" + x.id)));
+      await page.setInputFiles(upSel, UP);
+      if (upSel === "#ee-galm-file") await page.click("#ee-galm-upload");
+      await page.waitForFunction(() => document.querySelectorAll("#ee-arts .ee-art-item").length === 2, null, { timeout: 20000 });
+      n = mock.log.length;
+      await page.click("#ee-save");
+      await page.waitForFunction(() => /Saved|failed|refused/i.test(((document.getElementById("ee-bar") || {}).textContent || "") + ((document.getElementById("ee-toast") || {}).textContent || "")), null, { timeout: 30000 }).catch(() => {});
+      await page.waitForTimeout(600);
+      const c1 = commitsSince(n), a1 = String(mock.file("articles/aghor/index.html"));
+      check("art add: upload + save commits once, the new art is in the page, no stale pill", c1.length === 1 && /zq-dawn/i.test(a1) && !(await page.$("#ee-stale")), c1.map((c) => c.committed.message).join(" | ") + " " + JSON.stringify(await page.evaluate(() => window.__eeStaleInfo || null)));
+      if (!(await page.$("#ee-save"))) { await page.evaluate(() => window.EloraeEditor.tryEnterEdit()); await page.waitForSelector("#ee-save", { timeout: 15000 }); }
+      n = mock.log.length;
+      await artEdit(page, "Zqd"); await page.click("#ee-save");
+      await page.waitForTimeout(2500);
+      check("art add: a second save right after also commits", commitsSince(n).length === 1 && !(await page.$("#ee-stale")) && String(mock.file("articles/aghor/index.html")).includes("Zqd"));
+      check("art add: no page errors", !errs.length, errs.join(" | "));
+      await ctx.close();
+    }
   } finally {
     await browser.close(); srv.close();
   }

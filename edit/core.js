@@ -342,9 +342,11 @@
     return crypto.subtle.digest("SHA-1", all).then(function (d) { return Array.prototype.map.call(new Uint8Array(d), function (b) { return ("0" + b.toString(16)).slice(-2); }).join(""); });
   }
   var PAGE = pagePath(), PAGES = [PAGE, twinOf(PAGE)].filter(Boolean), known = {}, staleHit = false;
-  function servedText() { return fetch(location.pathname + location.search, { cache: "force-cache", credentials: "same-origin" }).then(function (r) { return r.ok ? r.text() : null; }); }
-  var baseline = (/\.html$/.test(PAGE) ? servedText() : Promise.resolve(null)).then(function (t) {
-    var texts = t != null ? [t] : [];
+  function servedText(mode) { return fetch(location.pathname + location.search, { cache: mode, credentials: "same-origin" }).then(function (r) { return r.ok ? r.text() : null; }, function () { return null; }); }
+  // sg2: the copy the page was built from (force-cache) AND a fresh read right now: a browser cache
+  // holding an older copy must not make an up-to-date page look stale.
+  var baseline = (/\.html$/.test(PAGE) ? Promise.all([servedText("force-cache"), servedText("no-store")]) : Promise.resolve([])).then(function (two) {
+    var texts = two.filter(function (x) { return x != null; }), t = texts.length ? texts[0] : null;
     try { var o = JSON.parse(localStorage.getItem("elorae-edit-recent") || "null"); PAGES.forEach(function (p) { var e = o && o.files && o.files[p]; if (e && typeof e.text === "string") texts.push(e.text); }); } catch (e) {}
     return Promise.all(texts.map(blobSha)).then(function (shas) { shas.forEach(function (x) { if (x) known[x] = 1; }); return t != null; });
   }).catch(function () { return false; });
@@ -355,20 +357,26 @@
     el.innerHTML = '<span class="ee-stale-ic" aria-hidden="true">\u21bb</span><span class="ee-msg">Updated</span>';
     document.body.appendChild(el);
   }
-  // Reload once the site serves main's version (deploys lag ~1 min), at most ~2 min.
+  // Reload once the site serves main's version (deploys lag ~1 min); sg2: reload anyway after 90 s.
   function staleReload(want) {
-    var t0 = Date.now();
+    var t0 = Date.now(), done = false;
+    function go() { if (done) return; done = true; window.EloraeEdit.__reload(); }
+    setTimeout(go, 90000);
     (function tick() {
-      fetch(location.pathname + location.search + (location.search ? "&" : "?") + "ee=" + Date.now(), { cache: "no-store", credentials: "same-origin" })
+      if (done) return;
+      fetch(location.pathname + (location.search ? location.search + "&" : "?") + "ee=" + Date.now(), { cache: "no-store", credentials: "same-origin" })
         .then(function (r) { return r.ok ? r.text() : null; }).then(function (t) { return t == null ? null : blobSha(t); })
         .then(function (sha) {
-          if (!want || (sha && want[sha]) || Date.now() - t0 > 120000) { window.EloraeEdit.__reload(); return; }
-          setTimeout(tick, 4000);
-        }, function () { setTimeout(tick, 4000); });
+          if (!want || (sha && want[sha]) || Date.now() - t0 > 90000) { go(); return; }
+          setTimeout(tick, 3000);
+        }, function () { setTimeout(tick, 3000); });
     })();
   }
   function stale(want) {
-    staleHit = true; window.__eeStale = true; stalePill(); staleReload(want);
+    staleHit = true; window.__eeStale = true; stalePill();
+    // sg2: no "Saving…" left on the bar.
+    var m = document.querySelector("#ee-bar .ee-msg"); if (m) m.textContent = "";
+    staleReload(want);
     return new Promise(function () {}); // never settles: nothing written, no error text; the page reloads
   }
   // [{ path, sha }] current on main -> resolves when safe, or never (stale).
@@ -378,6 +386,7 @@
     return baseline.then(function (have) {
       if (!have) return; // could not read what the page was built from: do not block saves
       var bad = list.filter(function (x) { return x.sha && !known[x.sha]; });
+      window.__eeStaleInfo = { at: new Date().toISOString(), page: PAGE, known: Object.keys(known), main: list }; // sg2: for diagnosis
       if (!bad.length) return;
       var want = {}; bad.forEach(function (x) { want[x.sha] = 1; });
       return stale(want);
