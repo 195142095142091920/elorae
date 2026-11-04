@@ -3618,6 +3618,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "amora-2": {
+      "path": "assets/amora-2.webp",
+      "title": "Amora",
+      "tags": [
+        "Amora"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-04T16:29:37.144Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
