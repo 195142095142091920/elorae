@@ -706,7 +706,7 @@ html.ee-page-editing .ee-page figure img { cursor: pointer; }
    always faint on touch), compact ‹ › ✕ row, eb2 surface + presses. */
 #ee-arts { border-radius: 8px; border-color: rgba(243,238,230,.08); background: rgba(10,10,10,.94);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 10px 34px rgba(0,0,0,.55), inset 0 1px 0 rgba(243,238,230,.04); }
-#ee-arts .ee-arts-head { gap: 6px; }
+#ee-arts .ee-arts-head { gap: 12px; }
 #ee-arts .ee-arts-head .ee-btn { padding: 6px 12px; }
 #ee-arts .ee-arts-title { margin-right: auto; }
 #ee-arts .ee-btn, #ee-arts .ee-art-setmain { position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent; border-radius: 5px;
