@@ -104,7 +104,7 @@ async function interactions(browser) {
   // Peek / hover cards read the real name from the article (no copy in the fetched source).
   const c2 = await ctxFor(browser, { vp: "desktop" }); const q = await c2.newPage();
   await q.goto(BASE + "index/ancients/", { waitUntil: "load" });
-  await q.click('main a.index-card[href="/articles/vaerek/"]');
+  await q.hover('main a.index-card[href="/articles/vaerek/"]'); await q.waitForSelector("#peek-eye.peek-eye-on"); await q.waitForTimeout(300); await q.click("#peek-eye"); // cc1
   await q.waitForFunction(() => { const x = document.querySelector("#peek"); return x && x.classList.contains("peek-open") && !x.classList.contains("peek-loading"); }, null, { timeout: 8000 });
   const pk = await q.evaluate(() => ({ name: document.querySelector("#peek .peek-name").textContent, tt: !!document.querySelector("#peek .art-tt"), para: document.querySelector("#peek .peek-para").textContent.slice(0, 30) }));
   check("peek reads the real name and first paragraph (the copy is runtime only, never in the page source)", pk.name === "Vaerek Rathkin" && !pk.tt && !/Vaerek Rathkin/.test(pk.para) && !/art-tt/.test(fs.readFileSync(path.join(ROOT, "articles/vaerek/index.html"), "utf8")), JSON.stringify(pk));

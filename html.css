@@ -5131,6 +5131,25 @@ html:not(.ee-editing) body.article .art-sec:has(> dl.art-dossier):not(:has(> dl.
 /* Every field, not only template rows: peek.js marks a row data-ee-empty when its value is blank,
    whitespace / <br> only, or only a placeholder (—, -, ?, …, TBD, N/A). */
 
+/* ---- cc1: Index card preview button (peek.js). A plain click on a card opens the article; this
+   small eye fades in at the hovered / focused card's top-right corner and opens the peek. Touch:
+   long-press a card (no link callout). ---- */
+.peek-eye {
+  position: absolute; z-index: 19; width: 28px; height: 28px; padding: 0; margin: 0;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  border: 1px solid rgba(243, 238, 230, 0.22); border-radius: 50%;
+  background: rgba(7, 7, 7, 0.62); color: #efe8dc;
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  opacity: 0; visibility: hidden; transform: scale(.92);
+  transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s, border-color .15s, background .15s;
+}
+.peek-eye svg { width: 15px; height: 15px; display: block; }
+.peek-eye.peek-eye-on { opacity: 1; visibility: visible; transform: none; transition: opacity .18s ease, transform .18s ease, visibility 0s, border-color .15s, background .15s; }
+.peek-eye:hover, .peek-eye:focus-visible { border-color: rgba(205, 180, 138, 0.75); background: rgba(7, 7, 7, 0.82); color: #fff; outline: none; }
+html.ee-editing .peek-eye, html.ee-index-org .peek-eye { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .peek-eye, .peek-eye.peek-eye-on { transition: none; transform: none; } }
+html:not(.ee-editing):not(.ee-index-org) body.index-page main a.index-card { -webkit-touch-callout: none; }
+
 /* ---- pk1: Index peek panel + hover link cards (peek.js) ---- */
 .peek {
   position: fixed; z-index: 19; top: var(--nav-bottom, 56px); right: 0; bottom: 0;

@@ -6,6 +6,16 @@ const { serverForTests } = require("./server.js");
 const results = [];
 function check(name, ok, detail) { results.push({ name, ok: !!ok }); console.log((ok ? "PASS " : "FAIL ") + name + (detail ? "  — " + detail : "")); }
 let BASE;
+// cc1: the Index peek opens from the hovered card's eye button (mouse) or a long-press (touch).
+async function peekAt(p, touch, x, y) {
+  if (touch) {
+    const cdp = await p.context().newCDPSession(p);
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] }); await p.waitForTimeout(650);
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    return;
+  }
+  await p.mouse.move(x, y); await p.waitForSelector("#peek-eye.peek-eye-on"); await p.waitForTimeout(300); await p.click("#peek-eye");
+}
 async function ctxFor(browser, who, vp, extra) {
   const ctx = await browser.newContext(Object.assign({ viewport: vp || { width: 1440, height: 900 }, deviceScaleFactor: 1 }, extra || {}));
   await ctx.route((u) => !u.href.startsWith(BASE) && !u.href.startsWith("data:"), (r) => r.abort());
@@ -44,7 +54,7 @@ async function peekCase(browser) {
     const ctx = await ctxFor(browser, "sawyer", vp ? vp[0] : null, vp ? vp[1] : null); const p = await ctx.newPage(); const errs = []; p.on("pageerror", (e) => errs.push(e.message));
     const r = await roundTrip(p, "index/ancients/", 1500, async (p) => {
       const pt = await p.evaluate(() => { const a = [...document.querySelectorAll("main a.index-card")].find((a) => { const r = a.getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return r.top > 120 && r.bottom < innerHeight - 20 && e && a.contains(e); }); const b = a.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; });
-      if (vp) await p.touchscreen.tap(pt.x, pt.y); else await p.mouse.click(pt.x, pt.y);
+      await peekAt(p, vp, pt.x, pt.y); // cc1: eye button (desktop) / long-press (touch)
       await p.waitForSelector("#peek.peek-open"); await p.waitForTimeout(350);
       check(`back+peek ${vp ? 390 : 1440}: opening the peek does not move the page`, Math.abs((await y(p)) - 1500) <= 2, String(await y(p)));
       await Promise.all([p.waitForNavigation(), p.click("#peek .peek-read")]);
@@ -52,7 +62,8 @@ async function peekCase(browser) {
     const open = await p.evaluate(() => !!document.querySelector("#peek.peek-open"));
     check(`back+peek ${vp ? 390 : 1440}: Back from the full article lands on the Index at the same place, peek closed`, Math.abs(r.y1 - r.y0) <= 2 && r.url === "/index/ancients/" && !open, JSON.stringify(r));
     await p.goto(BASE + "index/ancients/", { waitUntil: "load" }); await p.waitForTimeout(400);
-    await p.click('main a.index-card[href="/articles/vaerek/"]'); await p.waitForSelector("#peek.peek-open");
+    { const a = await p.$('main a.index-card[href="/articles/vaerek/"]'); await a.scrollIntoViewIfNeeded(); const b = await a.boundingBox(); await peekAt(p, vp, b.x + b.width / 2, b.y + b.height / 2); }
+    await p.waitForSelector("#peek.peek-open");
     await p.goBack(); await p.waitForTimeout(300);
     check(`back+peek ${vp ? 390 : 1440}: Back still just closes an open peek`, await p.evaluate(() => !document.querySelector("#peek.peek-open") && location.pathname === "/index/ancients/"));
     check(`back+peek ${vp ? 390 : 1440}: no page errors`, errs.length === 0, errs.join(" | "));

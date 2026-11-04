@@ -1,5 +1,5 @@
 /* pk1 (2026-10-31): Index peek panel + article hover cards.
-   1) Index: a plain click / tap on a card opens a peek (desktop: panel from the right, below the
+   1) Index (cc1: opened from the card's eye button / long-press; a plain click goes to the article): a peek (desktop: panel from the right, below the
       nav; phone: sheet) with the article's art, name, epithet, filled Dossier fields, the first Lore
       paragraph and "Read full article". The card's href stays the article, so Ctrl/Cmd/Shift/
       middle-click still open it normally. Close: X, Esc, a click outside, or Back (one history
@@ -226,18 +226,103 @@
     window.addEventListener("popstate", function () { if (cur) close(true); });
     // Back from the full article onto our peek history entry after a reload: drop the stale entry state.
     try { if (history.state && history.state.eloraePeek && !cur) history.replaceState(null, ""); } catch (e) {}
+    /* cc1 (2026-11-04): a plain click / tap on a card goes straight to its article. The peek opens
+       from a small eye button: on a mouse it fades in at the hovered (or keyboard-focused) card's
+       top-right corner; on touch, a long-press on a card opens it. The button lives outside the
+       card markup (one floating element, data-ee-ui), so Index saves never see it. */
+    var eye = null, eyeFor = null, eyeT = 0;
+    function eyeEl() {
+      if (eye) return eye;
+      eye = doc.createElement("button");
+      eye.type = "button"; eye.id = "peek-eye"; eye.className = "peek-eye"; eye.setAttribute("data-ee-ui", "");
+      eye.setAttribute("aria-label", "Preview"); eye.title = "Preview";
+      eye.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+      eye.addEventListener("click", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        var a = eyeFor; if (!a) return;
+        if (cur === a) close(); else open(a);
+      });
+      eye.addEventListener("mousedown", function (e) { e.preventDefault(); });
+      eye.addEventListener("pointerleave", function (e) { if (!(e.relatedTarget && eyeFor && eyeFor.contains(e.relatedTarget))) hideEye(); });
+      doc.body.appendChild(eye);
+      return eye;
+    }
+    function placeEye(a) {
+      if (!a || editing() || !articleKey(a.getAttribute("href"))) return;
+      clearTimeout(eyeT);
+      var b = eyeEl(), r = a.getBoundingClientRect();
+      eyeFor = a;
+      b.style.top = Math.round(r.top + window.scrollY + 8) + "px";
+      b.style.left = Math.round(r.right + window.scrollX - 8 - 28) + "px";
+      b.classList.add("peek-eye-on");
+    }
+    function hideEye(now) {
+      clearTimeout(eyeT);
+      var go = function () { if (eye) eye.classList.remove("peek-eye-on"); eyeFor = null; };
+      if (now) go(); else eyeT = setTimeout(go, 120);
+    }
+    if (finePointer) {
+      doc.addEventListener("pointerover", function (e) {
+        if (e.pointerType !== "mouse" || editing()) return;
+        var a = e.target.closest && e.target.closest("main a.index-card");
+        if (a) placeEye(a);
+      }, { passive: true });
+      doc.addEventListener("pointerout", function (e) {
+        if (e.pointerType !== "mouse") return;
+        var a = e.target.closest && e.target.closest("main a.index-card");
+        if (!a) return;
+        var to = e.relatedTarget;
+        if (to && (a.contains(to) || (eye && (to === eye || eye.contains(to))))) return;
+        hideEye();
+      }, { passive: true });
+    }
+    doc.addEventListener("focusin", function (e) {
+      var a = e.target.closest && e.target.closest("main a.index-card");
+      if (a && a.matches(":focus-visible")) placeEye(a);
+    });
+    // Keyboard: with a card focused, Space (or P) opens its preview; Enter follows the link.
+    doc.addEventListener("keydown", function (e) {
+      if (editing() || e.altKey || e.ctrlKey || e.metaKey) return;
+      var a = e.target.closest && e.target.closest("main a.index-card");
+      if (!a || !articleKey(a.getAttribute("href"))) return;
+      if (e.key === " " || e.key === "p" || e.key === "P") { e.preventDefault(); if (cur === a) close(); else open(a); }
+    });
+    // Touch: long-press (450 ms, finger still) on a card = preview; a tap still follows the link.
+    var lp = null;
+    doc.addEventListener("touchstart", function (e) {
+      if (editing() || e.touches.length !== 1) return;
+      var a = e.target.closest && e.target.closest("main a.index-card");
+      if (!a || !articleKey(a.getAttribute("href"))) return;
+      var t0 = e.touches[0];
+      lp = { a: a, x: t0.clientX, y: t0.clientY, fired: false };
+      lp.t = setTimeout(function () { if (!lp) return; lp.fired = true; open(lp.a); }, 450);
+    }, { passive: true });
+    doc.addEventListener("touchmove", function (e) {
+      if (!lp) return; var t0 = e.touches[0];
+      if (Math.abs(t0.clientX - lp.x) > 10 || Math.abs(t0.clientY - lp.y) > 10) { clearTimeout(lp.t); lp = null; }
+    }, { passive: true });
+    var swallowUntil = 0;
+    doc.addEventListener("touchend", function (e) {
+      if (!lp) return; clearTimeout(lp.t);
+      if (lp.fired) { if (e.cancelable) e.preventDefault(); swallowUntil = Date.now() + 800; }
+      lp = null;
+    });
+    doc.addEventListener("touchcancel", function () { if (lp) { clearTimeout(lp.t); lp = null; } });
+    // No link callout / context menu while a card is being long-pressed.
+    doc.addEventListener("contextmenu", function (e) {
+      if (editing()) return;
+      var a = e.target.closest && e.target.closest("main a.index-card");
+      if (a && (lp || Date.now() < swallowUntil)) e.preventDefault();
+    });
     doc.addEventListener("click", function (e) {
       if (editing()) return;
       var a = e.target.closest && e.target.closest("main a.index-card");
       if (a) {
-        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-        if (!articleKey(a.getAttribute("href"))) return;
-        e.preventDefault();
-        if (cur === a) { close(); return; }
-        open(a);
+        // The click that ends a long-press must not also navigate.
+        if (Date.now() < swallowUntil) e.preventDefault();
         return;
       }
-      if (cur && panel && !panel.contains(e.target) && !(e.target.closest && e.target.closest(".mast, #section-bar, .seek-panel"))) close();
+      if (cur && panel && !panel.contains(e.target) && !(eye && eye.contains(e.target)) && !(e.target.closest && e.target.closest(".mast, #section-bar, .seek-panel"))) close();
     });
     /* A plain press on a card must not move the page: focusing the link scrolls it into view
        against the cards' tall phone scroll-margin (room for the open Categories dropdown), which
@@ -256,7 +341,7 @@
       else if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
     });
     // Organizer / edit mode opening while a peek is up: close it.
-    new MutationObserver(function () { if (cur && editing()) close(); }).observe(root, { attributes: true, attributeFilter: ["class"] });
+    new MutationObserver(function () { if (editing()) { if (cur) close(); hideEye(true); } }).observe(root, { attributes: true, attributeFilter: ["class"] });
     // Warm the cache on intent.
     function warm(e) {
       if (editing()) return;

@@ -199,7 +199,9 @@ function tags(text, re) { return text.match(re) || []; }
       const pb = await page.evaluate(() => window.EloraePeek.load("baiji").then((d) => !!d, () => "err"));
       check(`${who}: peek / hover card data for Saoirse ${see ? "given" : "withheld"}; Baiji ${who === "devin" ? "given" : "withheld"}`, pk === see && pb === (who === "devin"), pk + "/" + pb);
       if (see) {
-        await page.click('a.index-card[id="heroes-saoirse"]'); await page.waitForTimeout(900);
+        // cc1: the peek opens from the card's eye button (a plain click goes to the article).
+        await page.hover('a.index-card[id="heroes-saoirse"]'); await page.waitForSelector("#peek-eye.peek-eye-on"); await page.waitForTimeout(300);
+        await page.click("#peek-eye"); await page.waitForTimeout(900);
         check(`${who}: Index peek opens for Saoirse`, await page.evaluate(() => { const p = document.querySelector(".peek-panel, #peek, [class*=peek]"); return !!p && /Saoirse/.test(document.body.innerText); }));
       }
       await page.goto(BASE + "articles/saoirse/", { waitUntil: "load" }); await page.waitForTimeout(600);
