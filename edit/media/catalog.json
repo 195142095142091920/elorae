@@ -3518,10 +3518,10 @@
     },
     "spirits-are-released-from-ancient-imprisonment": {
       "path": "assets/spirits-are-released-from-ancient-imprisonment.jpg",
-      "title": "Spirits are released from ancient imprisonment shards in the Caverns of Mas",
+      "title": "Caverns of Mas",
       "tags": [
-        "site",
-        "atlas"
+        "Caverns of Mas",
+        "Mas"
       ],
       "uploadedBy": "devin",
       "date": "2026-11-03T18:52:48.000Z",
