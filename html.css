@@ -1798,15 +1798,6 @@ body.article .art-dossier a:hover { color: #f3eee6; }
   body.journal-flow .read > h1 ~ h1 { margin-top: 44px; padding-top: 40px; border-top: 1px solid rgba(243,238,230,0.14); }
 }
 
-/* Journal: breathing room around in-column art and captions. */
-@media (min-width: 801px) {
-  body.journal-flow .read figure { margin: 2em 0; }
-  body.journal-flow .read figcaption { margin-top: 12px; }
-}
-@media (max-width: 800px) {
-  body.journal-flow .read figure { margin: 1.5em 0; }
-  body.journal-flow .read figcaption { margin-top: 10px; }
-}
 
 /* Journal background follows the column (journal-scroll.js stacks two layers and crossfades). */
 @media (min-width: 801px) {
@@ -5287,11 +5278,10 @@ html.ee-editing body.article main.art-body > .art-tt { display: none !important;
 @keyframes tt-fade { from { opacity: 1; } to { opacity: 0; } }
 
 /* ---- ic1: pictures with captions in article text (same caption look as the Journal and Codex) ---- */
-body.article .art-body figure { margin: 1.8em 0; }
 body.article .art-body figure img { display: block; width: 100%; height: auto; }
 body.article .art-body figcaption {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: calc((12px) * var(--fs,1.5094)); font-weight: 400;
-  letter-spacing: 0; text-transform: none; color: #b7b0a4; text-align: center; margin-top: 8px;
+  letter-spacing: 0; text-transform: none; color: #b7b0a4; text-align: center;
 }
 html:not(.ee-page-editing) figcaption:empty { display: none; }
 
@@ -5315,13 +5305,6 @@ html:not(.ee-page-editing) figcaption:empty { display: none; }
   body.article { overflow-x: clip; }
 }
 
-/* fig1: more air around the pictures on the Atlas and Codex pages (LegendKeeper imagery):
-   about 1.2em above the picture and below its caption, in the text's own size so it scales with --fs. */
-body:has(#section-bar > a[href^="/atlas/"]) main.read figure,
-body:has(#section-bar > a[href^="/codex/"]) main.read figure {
-  margin-top: 1.2em;
-  margin-bottom: 1.2em;
-}
 
 /* fs125-desktop: the 125% text look is desktop only (phones: exactly the earlier scale), and the
    desktop text columns are 1.25x wider so a line holds about as many characters as before;
@@ -5373,3 +5356,12 @@ body:has(#section-bar > a[href^="/codex/"]) main.read figure {
 
 /* nc1: no rail-edge cue arrow anywhere; the top-left rail toggle opens/closes the Categories rail. */
 body.article .art-index-cue { display: none !important; }
+
+/* fsp1: one site-wide spacing for pictures in reading text (articles, journals, Atlas, Codex,
+   Ghostly Wanderer): ~2.2em above, ~2.4em below, caption ~0.7em under the picture; in em so it
+   scales with --fs. Phones a little tighter. Replaces the per-section figure margins. */
+:is(main.read, .art-body) figure:not(.gw-banner), .journal-fig { margin: 2.2em 0 2.4em; }
+:is(main.read, .art-body) figure:not(.gw-banner) figcaption, .journal-fig figcaption { margin-top: .7em; }
+@media (max-width: 800px) {
+  :is(main.read, .art-body) figure:not(.gw-banner), .journal-fig { margin: 1.6em 0 1.8em; }
+}

@@ -55,7 +55,7 @@ body.gw-page main.read blockquote h5 {
 body.gw-page main.read hr {
   border: 0; border-top: 1px solid rgba(243,238,230,0.16); margin: 36px 0; height: 0;
 }
-body.gw-page main.read figure.gw-fig { margin: 22px 0; }
+/* fsp1: figure margins come from html.css (site-wide). */
 body.gw-page main.read figure.gw-fig img { display: block; width: 100%; height: auto; border-radius: 8px; }
 body.gw-page main.read ul { margin: 10px 0 22px; padding-left: 1.3em; list-style: disc; }
 body.gw-page main.read li {
