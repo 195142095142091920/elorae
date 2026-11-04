@@ -679,9 +679,8 @@ async function batch2Tests(browser, vpName) {
     const file = "articles/aghor/index.html";
     await openEdit(page, "articles/aghor/");
     const t0 = await caretIn(page, LORE, 0.5);
-    await page.click("#ee-art"); await page.waitForSelector(".ee-gal-item", { timeout: 10000 }).catch(() => {});
-    await page.check('input[name="ee-gal-act"][value="insert"]');
-    await page.click(".ee-gal-item"); await page.waitForTimeout(400);
+    await page.click("#ee-img"); await page.waitForSelector("#ee-galm-wrap .ee-gal-item", { timeout: 10000 }).catch(() => {});
+    await page.dblclick("#ee-galm-wrap .ee-gal-item"); await page.waitForTimeout(400);
     // ic1: a figure can't sit inside a <p>, so the captioned picture goes right after the paragraph
     // holding the caret (not at the page end), with the paragraph's text left whole.
     const g = await page.evaluate((t0) => { const p = window.__el, f = p && p.nextElementSibling, im = f && f.tagName === "FIGURE" && f.querySelector(":scope > img"), fc = f && f.querySelector(":scope > figcaption");
@@ -1144,8 +1143,8 @@ async function indexArtTests(browser, vpName) {
   async function artFile(href, file) {
     await page.click(`main.index-flow a.index-card[href="${href}"]`);
     await page.click("#ee-idx-art");
-    await page.waitForSelector("#ee-pick-file", { timeout: 10000 });
-    await page.setInputFiles("#ee-pick-file", file);
+    await page.waitForSelector("#ee-galm-file", { state: "attached", timeout: 10000 });
+    await page.setInputFiles("#ee-galm-file", file); await page.click("#ee-galm-upload");
     await page.waitForFunction(() => /ready|could not|over 5 MB/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
     return (await page.textContent("#ee-bar")).trim();
   }
@@ -1154,8 +1153,8 @@ async function indexArtTests(browser, vpName) {
   const third = await page.evaluate(() => [...document.querySelectorAll("main.index-flow a.index-card")].map((a) => a.getAttribute("href")).filter((h) => h !== "/articles/aghor/" && h !== "/articles/zq-test-card/")[2]);
   await page.click(`main.index-flow a.index-card[href="${third}"]`);
   await page.click("#ee-idx-art");
-  await page.waitForSelector("#ee-pick-wrap .ee-gal-item", { timeout: 10000 });
-  const pickPath = await page.evaluate(() => { const b = document.querySelector("#ee-pick-wrap .ee-gal-item"); const id = b.getAttribute("data-pick-id"); b.click(); return id; });
+  await page.waitForSelector("#ee-galm-wrap .ee-gal-item", { timeout: 10000 });
+  const pickPath = await page.evaluate(() => { const b = document.querySelector("#ee-galm-wrap .ee-gal-item"); const id = b.getAttribute("data-gal-id"); b.dispatchEvent(new MouseEvent("dblclick", { bubbles: true })); return id; });
   await page.waitForTimeout(200);
   const prev = await page.evaluate((hs) => hs.map((h) => { const a = document.querySelector(`a.index-card[href="${h}"]`); const im = a.querySelector("img"); return { noArt: a.classList.contains("no-art"), src: im && im.getAttribute("src"), ok: im && im.complete && im.naturalWidth > 0 }; }), [NEW, AG, third]);
   check(`[${vpName}] art: uploads show on their cards at once (from memory), big files resized`, /resized to 2400×\d+|ready \(\d+ KB/.test(b1) && /resized to 2400×800/.test(b2) && prev[0].src.startsWith("blob:") && !prev[0].noArt && prev[0].ok && prev[1].src.startsWith("blob:") && prev[1].ok, b1 + " | " + b2);
@@ -1200,12 +1199,10 @@ async function indexArtTests(browser, vpName) {
   const SH = "articles/shune-s-basin/";
   if (fs.existsSync(path.join(ROOT, SH, "index.html"))) {
     await openEdit(page, SH);
-    await page.click("#ee-art"); await page.waitForSelector("#ee-art-file", { timeout: 10000 });
-    const radio = await page.$('input[name="ee-gal-act"][value="hero"]');
-    if (radio) await radio.check();
-    await page.setInputFiles("#ee-art-file", SMALL);
-    await page.fill("#ee-art-title", "Shune Test Art");
-    await page.click("#ee-art-up"); await page.waitForTimeout(500);
+    await page.evaluate(() => window.EloraeEditor.openArtPanel()); await page.waitForSelector("#ee-galm-file", { state: "attached", timeout: 10000 });
+    await page.setInputFiles("#ee-galm-file", SMALL);
+    await page.fill("#ee-galm-newtitle", "Shune Test Art");
+    await page.click("#ee-galm-upload"); await page.waitForTimeout(500);
     const shown = await page.evaluate(() => { const im = document.querySelector(".art-hero img"); return im && im.getAttribute("src").startsWith("blob:") && !document.querySelector(".art-hero").classList.contains("no-art"); });
     await page.click("#ee-save");
     await page.waitForFunction(() => /Saved|failed|refused/i.test((document.getElementById("ee-bar") || {}).textContent || ""), null, { timeout: 30000 });
@@ -1477,14 +1474,15 @@ async function artSetTests(browser, vpName) {
     await openEdit(page, "articles/aghor/");
     await page.click("#ee-arts-btn"); await page.waitForSelector("#ee-arts .ee-art-item");
     const s0 = await strip(page);
-    await page.click("#ee-arts-add"); await page.waitForSelector("#ee-pick-file", { timeout: 10000 });
-    await page.setInputFiles("#ee-pick-file", UP);
+    await page.click("#ee-arts-add"); await page.waitForSelector("#ee-galm-file", { state: "attached", timeout: 10000 });
+    await page.setInputFiles("#ee-galm-file", UP); await page.click("#ee-galm-upload");
     await page.waitForFunction(() => document.querySelectorAll("#ee-arts .ee-art-item").length === 2, null, { timeout: 20000 });
     const s1 = await strip(page);
     const heroNow = await page.evaluate(() => document.querySelector(".art-hero > img").getAttribute("src"));
     check(`[${vpName}] arts: Arts strip lists the page's art; upload adds a 2nd (caption = file name), previewed in the hero`, s0.length === 1 && s0[0].main && s1.length === 2 && s1[1].cap === "Aghor Dawn" && /^blob:/.test(heroNow), JSON.stringify(s1));
-    await page.click("#ee-arts-add"); await page.waitForSelector("#ee-pick-wrap .ee-gal-item", { timeout: 15000 });
-    const pickId = await page.evaluate(() => { const b = [...document.querySelectorAll("#ee-pick-wrap .ee-gal-item")].find((x) => !/aghor/i.test(x.getAttribute("data-pick-id"))); b.click(); return b.getAttribute("data-pick-id"); });
+    await page.click("#ee-arts-add"); await page.waitForSelector("#ee-galm-wrap .ee-gal-item", { timeout: 15000 });
+    const pickId = await page.evaluate(() => { const b = [...document.querySelectorAll("#ee-galm-wrap .ee-gal-item")].find((x) => !/aghor/i.test(x.getAttribute("data-gal-id"))); b.click(); return b.getAttribute("data-gal-id"); });
+    await page.click("#ee-galm-pick");
     await page.waitForFunction(() => document.querySelectorAll("#ee-arts .ee-art-item").length === 3, null, { timeout: 10000 });
     // Reorder (drag only, no arrows): 3rd one step earlier, then the first to the end.
     await dragArt(page, 2, 1, false);
@@ -1572,9 +1570,9 @@ async function artSetTests(browser, vpName) {
     await openEdit(page, "articles/vaerek/");
     const hasBtn = !!(await page.$("#ee-arts-btn"));
     await page.click("#ee-arts-btn"); await page.waitForSelector("#ee-arts .ee-art-item");
-    await page.click("#ee-arts-add"); await page.waitForSelector("#ee-pick-wrap .ee-gal-item", { timeout: 15000 });
-    const noUpload = !(await page.$("#ee-pick-file"));
-    await page.evaluate(() => document.querySelector("#ee-pick-wrap .ee-gal-item").click());
+    await page.click("#ee-arts-add"); await page.waitForSelector("#ee-galm-wrap .ee-gal-item", { timeout: 15000 });
+    const noUpload = !(await page.isVisible(".ee-galm-upbtn"));
+    await page.dblclick("#ee-galm-wrap .ee-gal-item");
     await page.waitForFunction(() => document.querySelectorAll("#ee-arts .ee-art-item").length === 3, null, { timeout: 10000 });
     await page.click(item(2, "main"));
     const b1 = await saveAndWait(page);

@@ -1506,133 +1506,47 @@
   }
 
 
+  /* pk1: every art / image picker is the Gallery window (openGalleryManager) in pick mode: same
+     search, upload, grid and details; choosing a picture (the details' + button, or a double
+     click) hands it to the caller, an upload hands the file over (published with the page). */
   function openArtPanel(opts) {
-    // ic1: "Image" on the edit bar opens the same gallery in insert-only mode, for anyone who can
-    // edit this page (players: gallery pictures they may use; upload only where they may upload).
-    state.galInsertOnly = !!(opts && opts.insert);
+    // Edit-bar Image: insert at the caret. (Admin Art: replace the hero / main art.)
+    var insert = !!(opts && opts.insert) || !heroSection();
     if (!Media) return;
-    if (!P.isAdmin(state.profile) && !(state.galInsertOnly && state.editing && P.canEdit(state.profile, PATH))) return;
-    openPanel();
-    var p = $("ee-panel");
-    if (p) {
-      p.classList.add("ee-gal-mode");
-      var box = p.querySelector(".ee-box");
-      if (box) {
-        box.classList.add("ee-wide");
-        box.setAttribute("aria-label", "Art gallery");
-      }
-    }
-    var b = $("ee-body");
-    b.innerHTML = '<p class="ee-k">Art</p><p class="ee-note">Loading gallery…</p>';
-    var catP = E.getFile(Media.CATALOG).then(function (f) {
-      return JSON.parse(f.text);
-    }, function () {
-      return { version: 1, media: {} };
-    });
-    // Durable: always merge top-level assets/ so live site art appears without re-upload.
-    var assetsP = (E.listDir ? E.listDir(Media.ASSET_DIR) : Promise.reject(new Error("no listDir"))).then(function (entries) {
-      return entries.filter(function (e) { return e.type === "file"; }).map(function (e) { return e.path; });
-    }, function () { return []; });
-    Promise.all([catP, assetsP]).then(function (pair) {
-      var cat = pair[0], paths = pair[1];
-      if (paths && paths.length) {
-        var seeded = Media.seedFromAssetPaths(cat, paths, { everyone: true, tags: ["site", "seed"] });
-        cat = seeded.catalog;
-      }
-      renderGallery(cat);
+    if (!P.isAdmin(state.profile) && !(insert && state.editing && P.canEdit(state.profile, PATH))) return;
+    return openGalleryManager({
+      label: insert ? "Insert" : "Use as main art", icon: insert ? "imgadd" : "check", person: (state.profile && state.profile.person) || "devin",
+      upload: P.isAdmin(state.profile) || canUploadArt(),
+      onPick: function (entry) { if (insert) insertCatalogImage(entry); else applyCatalogToHero(entry); },
+      onFile: function (file, meta) { return useUpload(insert ? "insert" : "hero", file, meta); }
     });
   }
-
-  /* Art picker for other tools (the Index organizer's card art): the gallery to pick from, plus
-     upload. opts: { title, note, onPick(entry), onFile(file) -> Promise<bool> }. */
-  function loadCatalogForGallery() {
-    var catP = E.getFile(Media.CATALOG).then(function (f) { return JSON.parse(f.text); }, function () { return { version: 1, media: {} }; });
-    var assetsP = (E.listDir ? E.listDir(Media.ASSET_DIR) : Promise.reject(new Error("no listDir"))).then(function (entries) {
-      return entries.filter(function (e) { return e.type === "file"; }).map(function (e) { return e.path; });
-    }, function () { return []; });
-    return Promise.all([catP, assetsP]).then(function (pair) {
-      var cat = pair[0];
-      if (pair[1] && pair[1].length) cat = Media.seedFromAssetPaths(cat, pair[1], { everyone: true, tags: ["site", "seed"] }).catalog;
-      return cat;
-    });
-  }
+  /* For other tools (the Index organizer's card art, the Art strip's +):
+     opts { label, icon, person, upload, onPick(entry), onFile(file, meta) -> Promise<bool> }. */
   function openArtPicker(opts) {
     if (!Media) return;
-    opts = opts || {};
-    openPanel();
-    var p = $("ee-panel");
-    if (p) {
-      p.classList.add("ee-gal-mode");
-      var box = p.querySelector(".ee-box");
-      if (box) { box.classList.add("ee-wide"); box.setAttribute("aria-label", opts.title || "Art"); }
-    }
-    var b = $("ee-body");
-    b.innerHTML = '<p class="ee-k">' + esc(opts.title || "Art") + '</p>' +
-      (opts.upload === false
-        ? '<p class="ee-note">' + esc(opts.noUploadNote || "Uploading new pictures needs Devin; pick one from the gallery.") + '</p><p class="ee-err" id="ee-pick-err" hidden></p>'
-        : '<form id="ee-pick-form" class="ee-gal-up ee-gal-first">' +
-          '<p class="ee-sub">Upload new</p>' +
-          fileButton("ee-pick-file") +
-          '<p class="ee-err" id="ee-pick-err" hidden></p></form>') +
-      '<div class="ee-gal-head"><p class="ee-sub">Or pick from the gallery</p>' +
-      '<input type="search" id="ee-pick-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false"></div>' +
-      '<div id="ee-pick-wrap"><p class="ee-note">Loading gallery…</p></div>';
-    var fileIn = $("ee-pick-file");
-    bindFileButton(fileIn);
-    if (fileIn) fileIn.onchange = function () {
-      var f = fileIn.files && fileIn.files[0];
-      if (!f) return;
-      var err = $("ee-pick-err"); err.hidden = true;
-      Promise.resolve(opts.onFile ? opts.onFile(f) : true).then(function (ok) {
-        if (ok === false) { err.textContent = "That image could not be used (see the bar below)."; err.hidden = false; return; }
-        closePanel();
-      });
-    };
-    loadCatalogForGallery().then(function (catalog) {
-      var all = Media.listVisible(catalog, opts.person || "devin", opts.person ? P.isAdmin(state.profile) : true);
-      function grid(items) {
-        if (!items.length) return '<p class="ee-note">No pictures yet.</p>';
-        return '<div class="ee-gallery">' + items.map(function (m) {
-          var thumb = window.eloraeImg
-            ? window.eloraeImg.html(E.ROOT + m.path, { sizes: "(max-width: 800px) 180px, 240px", min: 160, max: 640, fallback: 320, lazy: true }, 'alt=""')
-            : '<img src="' + esc(gallerySrc(m)) + '" alt="" loading="lazy">';
-          return '<button type="button" class="ee-gal-item" data-pick-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' + thumb + '<span>' + esc(m.title || m.id) + '</span></button>';
-        }).join("") + '</div>';
-      }
-      function draw(items) {
-        var w = $("ee-pick-wrap"); if (!w) return;
-        w.innerHTML = grid(items);
-        thumbFallback(w, catalog);
-        Array.prototype.forEach.call(w.querySelectorAll("[data-pick-id]"), function (btn) {
-          btn.onclick = function () {
-            var entry = catalog.media[btn.getAttribute("data-pick-id")];
-            if (!entry) return;
-            closePanel();
-            if (opts.onPick) opts.onPick(entry);
-          };
-        });
-      }
-      draw(all);
-      var q = $("ee-pick-search");
-      if (q) q.oninput = function () {
-        var t = String(q.value || "").trim().toLowerCase();
-        draw(all.filter(function (m) { return !t || [m.id, m.title, m.path].concat(m.tags || []).join(" ").toLowerCase().indexOf(t) >= 0; }));
-      };
-    });
+    opts = Object.assign({}, opts || {});
+    if (typeof opts.onPick !== "function") opts.onPick = function () {};
+    return openGalleryManager(opts);
   }
-
-  /* Gallery manager (top-nav GALLERY, Devin only, any page, no edit mode): browse and search the
-     art catalog, upload new art, rename, retag, set who may use it, remove it from the gallery.
-     Every change is one commit of edit/media/catalog.json (+ the image for an upload), made on a
-     fresh copy of the catalog and retried automatically when someone else saved meanwhile. */
-  function openGalleryManager() {
+  function openGalleryManager(opts) {
+    opts = opts || {};
+    var pick = typeof opts.onPick === "function";
     return profileReady.then(function () {
-      if (!Media || !state.profile || !P.isAdmin(state.profile)) return false;
+      var admin = !!(state.profile && P.isAdmin(state.profile));
+      if (!Media || !state.profile || !(admin || pick)) return false;
       openPanel();
       var p = $("ee-panel");
       p.classList.add("ee-gal-mode");
+      p.classList.toggle("ee-gal-pick", pick);
       var box = p.querySelector(".ee-box");
-      if (box) { box.classList.add("ee-wide"); box.setAttribute("aria-label", "Gallery"); }
+      if (box) { box.classList.add("ee-wide"); box.setAttribute("aria-label", pick ? (opts.label || "Pick") : "Gallery"); }
+      var canUp = pick ? opts.upload !== false && (admin || !!opts.onFile) : true;
+      function choose(id) {
+        var entry = catalog && catalog.media[id]; if (!entry) return;
+        entry = Object.assign({ id: id }, entry);
+        closePanel(); opts.onPick(entry);
+      }
       var b = $("ee-body");
       b.innerHTML = '<p class="ee-k">Gallery</p><p class="ee-note">Loading gallery\u2026</p>';
       var catalog = null, q = "", sel = null, busy = false, animIn = true;
@@ -1653,8 +1567,11 @@
       function detailHtml(m) {
         if (!m) return '';
         var thumb = '<img src="' + esc(gallerySrc(m)) + '" alt="" title="' + esc(m.path) + '">';
-        return '<div class="ee-galm-dhead"><div class="ee-galm-pic">' + thumb + '</div>' +
-          '<button type="button" class="ee-btn ee-ic" id="ee-galm-deselect" aria-label="Close" title="Close">' + ic("x") + '</button></div>' +
+        var pickBtn = pick ? '<button type="button" class="ee-btn ee-ic ee-primary" id="ee-galm-pick" aria-label="' + esc(opts.label || "Use") + '" title="' + esc(opts.label || "Use") + '">' + ic(opts.icon || "plus") + '</button>' : "";
+        var head = '<div class="ee-galm-dhead"><div class="ee-galm-pic">' + thumb + '</div>' + pickBtn +
+          '<button type="button" class="ee-btn ee-ic" id="ee-galm-deselect" aria-label="Close" title="Close">' + ic("x") + '</button></div>';
+        if (!admin) return head + '<p class="ee-galm-lbl">Used on</p><div class="ee-galm-used" id="ee-galm-used" aria-live="polite"></div>';
+        return head +
           '<label class="ee-galm-lbl" for="ee-galm-title">Title</label><input type="text" id="ee-galm-title" class="ee-field" value="' + esc(m.title || "") + '" autocomplete="off">' +
           '<label class="ee-galm-lbl" for="ee-galm-tags">Tags</label><input type="text" id="ee-galm-tags" class="ee-field" value="' + esc((m.tags || []).join(", ")) + '" autocomplete="off">' +
           '<p class="ee-galm-lbl">Access</p>' +
@@ -1665,7 +1582,7 @@
           '<button type="button" class="ee-btn ee-ic ee-primary" id="ee-galm-save" aria-label="Save" title="Save">' + ic("check") + '</button></div>';
       }
       function list() {
-        var all = Media.listVisible(catalog, "devin", true);
+        var all = admin ? Media.listVisible(catalog, "devin", true) : Media.listVisible(catalog, opts.person || (state.profile && state.profile.person) || "", false);
         return all.filter(function (m) { return !q || [m.id, m.title, m.path].concat(m.tags || []).join(" ").toLowerCase().indexOf(q) >= 0; });
       }
       function drawGrid() {
@@ -1680,6 +1597,7 @@
         }).join("") + '</div>' : '<p class="ee-note">' + (q ? "No matches." : "Empty.") + '</p>';
         thumbFallback(w, catalog); animIn = false;
         Array.prototype.forEach.call(w.querySelectorAll("[data-gal-id]"), function (btn) {
+          if (pick) btn.ondblclick = function () { choose(btn.getAttribute("data-gal-id")); };
           btn.onclick = function () {
             sel = btn.getAttribute("data-gal-id"); drawGrid(); drawDetail();
             if (window.matchMedia && matchMedia("(max-width: 800px)").matches) { var d = $("ee-galm-detail"); if (d) d.scrollIntoView({ block: "start", behavior: "smooth" }); }
@@ -1707,6 +1625,8 @@
         if (!m) return;
         drawUsed(m);
         $("ee-galm-deselect").onclick = function () { sel = null; drawGrid(); drawDetail(); };
+        if ($("ee-galm-pick")) $("ee-galm-pick").onclick = function () { choose(m.id); };
+        if (!admin) return;
         var ev = $("ee-galm-everyone");
         ev.onchange = function () { Array.prototype.forEach.call(d.querySelectorAll("[data-galm-who]"), function (c) { c.disabled = ev.checked; }); };
         $("ee-galm-save").onclick = function () {
@@ -1748,7 +1668,7 @@
         assetPaths = r[1]; catalog = mergeSeeded(r[0]);
         b.innerHTML = '<div class="ee-galm-top">' +
           '<label class="ee-galm-search">' + ic("search") + '<input type="search" id="ee-galm-search" class="ee-field ee-gal-q" placeholder="Search" aria-label="Search" autocomplete="off" spellcheck="false"></label>' +
-          '<label class="ee-btn ee-ic ee-galm-upbtn" title="Upload" aria-label="Upload"><input type="file" id="ee-galm-file" accept="image/png,image/jpeg,image/webp,image/gif">' + ic("upload") + '</label></div>' +
+          '<label class="ee-btn ee-ic ee-galm-upbtn" title="Upload" aria-label="Upload"' + (canUp ? "" : " hidden") + '><input type="file" id="ee-galm-file" accept="image/png,image/jpeg,image/webp,image/gif">' + ic("upload") + '</label></div>' +
           '<form id="ee-galm-up" class="ee-galm-up" hidden>' +
           '<img class="ee-galm-prev" alt="">' +
           '<input type="text" id="ee-galm-newtitle" class="ee-field" placeholder="Title" aria-label="Title" autocomplete="off">' +
@@ -1779,6 +1699,12 @@
           if (!file) { say("Choose an image first.", true); return; }
           if (busy) return; busy = true; say("Uploading\u2026");
           var title = $("ee-galm-newtitle").value.trim(), tags = $("ee-galm-newtags").value.split(",").map(function (t) { return t.trim(); }).filter(Boolean), every = $("ee-galm-neweveryone").checked;
+          if (pick && opts.onFile) { // pk1: the caller takes the file (published with the page)
+            busy = true; say("");
+            return Promise.resolve(opts.onFile(file, { title: title, tags: tags, everyone: every })).then(function (ok) {
+              busy = false; if (ok === false) { say("That image could not be used.", true); return; } closePanel();
+            }, function (err) { busy = false; say((err && err.message) || "That image could not be used.", true); });
+          }
           Media.validateFile(file).then(function (info) {
             var newId = null;
             return commitCatalog(function (fresh) {
@@ -1789,6 +1715,7 @@
           }).then(function (r) {
             busy = false; catalog = mergeSeeded(r.next); sel = r.id; fi.value = ""; fi.dispatchEvent(new Event("change"));
             $("ee-galm-newtitle").value = ""; $("ee-galm-newtags").value = "";
+            if (pick) { choose(r.id); return; }
             say("Uploaded. It shows on the site in about a minute."); drawGrid(); drawDetail();
           }, function (err) { busy = false; say(err.message || "Upload failed. Nothing was saved.", true); });
         };
@@ -1798,24 +1725,11 @@
     });
   }
 
-  /* Styled file picker (no raw "Choose file / No file chosen"): the real input stays in the form,
-     visually hidden; the label is the button and shows the chosen file's name. */
-  function fileButton(id) {
-    return '<label class="ee-file"><input type="file" id="' + id + '" accept="image/png,image/jpeg,image/webp,image/gif">' +
-      '<span class="ee-file-btn">Choose image</span><span class="ee-file-name" data-file-name>No image chosen</span></label>';
-  }
-  function bindFileButton(input) {
-    if (!input) return;
-    input.addEventListener("change", function () {
-      var n = input.parentNode && input.parentNode.querySelector("[data-file-name]");
-      if (n) n.textContent = input.files && input.files[0] ? input.files[0].name : "No image chosen";
-    });
-  }
   /* A picture uploaded a moment ago is in the repo but not on the site until it rebuilds (~1 min),
      so its thumbnail 404s: fall back to the repo's raw file, then to a quiet placeholder. */
   function thumbFallback(root, catalog) {
     Array.prototype.forEach.call(root.querySelectorAll(".ee-gal-item img"), function (im) {
-      var btn = im.closest(".ee-gal-item"), id = btn && (btn.getAttribute("data-pick-id") || btn.getAttribute("data-gal-id"));
+      var btn = im.closest(".ee-gal-item"), id = btn && btn.getAttribute("data-gal-id");
       var entry = id && catalog && catalog.media && catalog.media[id];
       function fail() {
         if (!entry || im.getAttribute("data-ee-raw")) { btn.classList.add("ee-gal-missing"); return; }
@@ -1831,98 +1745,6 @@
   function gallerySrc(entry) {
     // Root-absolute (like the site's own /assets/ URLs), so both copies of a page agree.
     return new URL(E.ROOT).pathname + entry.path;
-  }
-
-  function renderGallery(catalog) {
-    var b = $("ee-body");
-    if (!b) return;
-    var admin = P.isAdmin(state.profile);
-    var allItems = Media.listVisible(catalog, admin ? "devin" : ((state.profile && state.profile.person) || ""), admin);
-    var insertOnly = state.galInsertOnly || !admin;
-    var hasHero = !insertOnly && !!document.querySelector(".art-hero img, section.art-hero");
-    var canUp = admin || canUploadArt();
-    var act = hasHero ? (state.galAct || "hero") : "insert";
-    function matchItem(m, q) {
-      if (!q) return true;
-      var hay = [m.id, m.title, m.path].concat(Array.isArray(m.tags) ? m.tags : []).join(" ").toLowerCase();
-      return hay.indexOf(q) >= 0;
-    }
-    function gridHtml(items) {
-      if (!items.length) {
-        return allItems.length
-          ? '<p class="ee-note" id="ee-gal-empty">No matches.</p>'
-          : '<p class="ee-note" id="ee-gal-empty">Empty.</p>';
-      }
-      return '<div class="ee-gallery" id="ee-gal-grid">' + items.map(function (m) {
-        var src = gallerySrc(m);
-        /* img-resize: thumbnail sized to its ~120-240 x 96px cover box (/img.js); ~7:3 art. */
-        var thumb = window.eloraeImg
-          ? window.eloraeImg.html(E.ROOT + m.path, { sizes: "(max-width: 800px) 180px, 240px", min: 160, max: 640, fallback: 320, lazy: true }, 'alt=""')
-          : '<img src="' + esc(src) + '" alt="">';
-        return '<button type="button" class="ee-gal-item" data-gal-id="' + esc(m.id) + '" title="' + esc(m.title || m.id) + '">' +
-          thumb +
-          '<span>' + esc(m.title || m.id) + '</span></button>';
-      }).join("") + '</div>';
-    }
-    function bindThumbs(root) {
-      Array.prototype.forEach.call(root.querySelectorAll("[data-gal-id]"), function (btn) {
-        btn.onclick = function () {
-          var id = btn.getAttribute("data-gal-id");
-          var entry = catalog.media[id];
-          if (!entry) return;
-          if (act === "hero") applyCatalogToHero(entry);
-          else insertCatalogImage(entry);
-        };
-      });
-    }
-    b.innerHTML =
-      '<p class="ee-k">' + (insertOnly ? "Insert image" : "Art") + '</p>' +
-      (hasHero
-        ? '<p class="ee-gal-act" role="radiogroup" aria-label="Click a picture to">' +
-          '<label><input type="radio" name="ee-gal-act" value="hero"' + (act === "hero" ? " checked" : "") + '> Hero</label>' +
-          '<label><input type="radio" name="ee-gal-act" value="insert"' + (act === "insert" ? " checked" : "") + '> Insert at caret</label></p>'
-        : '') +
-      '<label class="ee-gal-search-label" for="ee-gal-search">Search</label>' +
-      '<input type="search" id="ee-gal-search" class="ee-field ee-gal-q" placeholder="Search by name or tag" autocomplete="off" spellcheck="false">' +
-      '<div id="ee-gal-wrap">' + gridHtml(allItems) + '</div>' +
-      '<form id="ee-art-form" class="ee-gal-up"' + (canUp ? '' : ' hidden') + '>' +
-      '<p class="ee-sub">Upload new</p>' +
-      fileButton("ee-art-file") +
-      '<input type="text" id="ee-art-title" class="ee-field" placeholder="Title (optional)" autocomplete="off">' +
-      '<input type="text" id="ee-art-tags" class="ee-field" placeholder="Tags (comma-separated)" autocomplete="off">' +
-      '<label class="ee-check"><input type="checkbox" id="ee-art-everyone" checked> Everyone can use in the editor</label>' +
-      '<div class="ee-row"><button type="submit" class="ee-btn ee-primary" id="ee-art-up">' + (act === "hero" ? "Use as hero" : "Insert") + '</button>' +
-      '<button type="button" class="ee-btn ee-ic" id="ee-art-back" aria-label="Back" title="Back">' + ic("back") + '</button></div>' +
-      '<p class="ee-err" id="ee-art-err" hidden></p></form>' +
-      (canUp ? '' : '<div class="ee-row"><button type="button" class="ee-btn ee-ic" id="ee-art-back2" aria-label="Back" title="Back">' + ic("back") + '</button></div><p class="ee-err" id="ee-art-err2" hidden></p>');
-    $("ee-art-back").onclick = function () { closePanel(); };
-    if ($("ee-art-back2")) $("ee-art-back2").onclick = function () { closePanel(); };
-    Array.prototype.forEach.call(b.querySelectorAll('input[name="ee-gal-act"]'), function (r) {
-      r.onchange = function () {
-        act = state.galAct = r.value;
-        $("ee-art-up").textContent = act === "hero" ? "Use as hero" : "Insert";
-      };
-    });
-    $("ee-art-form").onsubmit = function (e) {
-      e.preventDefault();
-      replaceHeroImage(act);
-    };
-    bindThumbs(b);
-    thumbFallback(b, catalog);
-    bindFileButton($("ee-art-file"));
-    var search = $("ee-gal-search");
-    if (search) {
-      search.oninput = function () {
-        var q = String(search.value || "").trim().toLowerCase();
-        var filtered = allItems.filter(function (m) { return matchItem(m, q); });
-        var wrap = $("ee-gal-wrap");
-        if (!wrap) return;
-        wrap.innerHTML = gridHtml(filtered);
-        bindThumbs(wrap);
-        thumbFallback(wrap, catalog);
-      };
-      setTimeout(function () { try { search.focus(); } catch (e) {} }, 30);
-    }
   }
 
   /* Hero art: a gallery pick (or a new upload) only previews on the page; it is written
@@ -2103,12 +1925,7 @@
   function insertCatalogImage(entry) {
     var rel = gallerySrc(entry);
     var imgHtml = '<img src="' + esc(rel) + '" alt="' + esc(entry.title || "") + '">';
-    if (!insertFigure(imgHtml)) {
-      var err = $("ee-art-err");
-      if (err) { err.textContent = "Enter edit mode and place the caret where the image should go."; err.hidden = false; }
-      return;
-    }
-    closePanel();
+    if (!insertFigure(imgHtml)) { editBar("Place the caret where the image should go.", "ee-bad-bar"); return; }
     markDirty();
     editBar("Image inserted");
   }
@@ -2244,13 +2061,11 @@
   function artsAddDialog() {
     var up = canUploadArt();
     openArtPicker({
-      title: "Add art to this page", upload: up,
+      label: "Add art", icon: "plus", upload: up,
       person: (state.profile && state.profile.person) || "devin",
-      note: "",
-      noUploadNote: "Uploading new pictures needs Devin; you can add any picture from the gallery.",
-      onFile: function (f) {
-        var nm = baseName(f.name) || "Art";
-        return addPending(f, { title: nm, alt: nm, tags: ["art"], everyone: true }).then(function (pd) {
+      onFile: function (f, meta) {
+        var nm = (meta && meta.title) || baseName(f.name) || "Art";
+        return addPending(f, { title: nm, alt: nm, tags: (meta && meta.tags && meta.tags.length) ? meta.tags : ["art"], everyone: !meta || meta.everyone !== false }).then(function (pd) {
           artsAdd({ src: null, alt: nm, pending: pd, pos: null, raw: null, src0: null, alt0: null });
           return true;
         }, function (e) { editBar(e.message || "That image could not be used.", "ee-bad-bar"); return false; });
@@ -2478,34 +2293,17 @@
     };
   }
 
-  function replaceHeroImage(mode) {
-    mode = mode || (heroImg() ? "hero" : "insert");
-    var file = $("ee-art-file").files[0];
-    var err = $("ee-art-err");
-    function fail(m) { err.textContent = m; err.hidden = false; }
-    err.hidden = true;
-    var title = ($("ee-art-title").value || "").trim();
-    var tags = ($("ee-art-tags").value || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
-    var everyone = $("ee-art-everyone").checked;
-    if (mode === "hero" && !heroImg() && !heroSection()) return fail("No hero on this page.");
-    if (!file) return fail("No file chosen.");
-    addPending(file, { title: title || file.name, alt: title, tags: tags, everyone: everyone }).then(function (pd) {
-      if (mode === "hero" && state.arts && state.arts.list.length) {
-        artsReplaceMain({ src: null, alt: title || null, pending: pd });
-        closePanel();
-        editBar("Main art replaced \u00b7 uploaded and published when you press Save");
-        return;
-      }
-      if (mode === "hero") {
-        setHeroPreview(null, title || null, pd);
-        closePanel();
-        editBar("Hero preview \u00b7 uploaded and published when you press Save");
-        return;
-      }
-      if (!insertFigure(pendingImgHtml(pd))) throw new Error("Enter edit mode and place the caret where the image should go.");
-      closePanel(); markDirty();
-      editBar("Image inserted \u00b7 uploaded when you press Save");
-    }).catch(function (e) { fail(e.message || "Upload failed."); });
+  // pk1: an upload from the picker, used on this page and published with it on Save.
+  function useUpload(mode, file, meta) {
+    meta = meta || {};
+    var title = meta.title || "", tags = meta.tags || [], everyone = meta.everyone !== false;
+    if (mode === "hero" && !heroImg() && !heroSection()) return Promise.reject(new Error("No hero on this page."));
+    return addPending(file, { title: title || file.name, alt: title, tags: tags, everyone: everyone }).then(function (pd) {
+      if (mode === "hero" && state.arts && state.arts.list.length) { artsReplaceMain({ src: null, alt: title || null, pending: pd }); editBar("Main art replaced"); return true; }
+      if (mode === "hero") { setHeroPreview(null, title || null, pd); editBar("Hero preview"); return true; }
+      if (!insertFigure(pendingImgHtml(pd))) throw new Error("Place the caret where the image should go.");
+      markDirty(); editBar("Image inserted"); return true;
+    });
   }
 
   function onKey(e) {
@@ -4466,5 +4264,5 @@
     });
   }
 
-  window.EloraeEditor = { openGalleryManager: openGalleryManager, openArtPicker: openArtPicker, sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash, deleteDialog: deleteDialog, planDelete: planDelete, deleteArticle: deleteArticleFlow };
+  window.EloraeEditor = { openGalleryManager: openGalleryManager, openArtPicker: openArtPicker, openArtPanel: openArtPanel, sanitize: sanitize, preserveEntities: preserveEntities, state: state, startEdit: startEdit, save: save, cancel: cancelEdit, path: PATH, openPanel: openPanel, glyph: glyph, tryEnterEdit: tryEnterEdit, onHash: onHash, deleteDialog: deleteDialog, planDelete: planDelete, deleteArticle: deleteArticleFlow };
 })();

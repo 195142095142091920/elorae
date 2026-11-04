@@ -179,8 +179,7 @@
     var Ed = window.EloraeEditor;
     if (Ed && Ed.openArtPicker) {
       Ed.openArtPicker({
-        title: "Art for “" + cardName(card) + "”",
-        note: "Shown on the card and as its article's hero. Nothing is published until you press Save.",
+        label: "Use for \u201c" + cardName(card) + "\u201d", icon: "check",
         onFile: function (f) { return setArtFile(card, f); },
         onPick: function (entry) { setArtAsset(card, entry); }
       });
