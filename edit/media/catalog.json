@@ -3598,6 +3598,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "gimithrie-2": {
+      "path": "assets/gimithrie.jpg",
+      "title": "Gimithrie",
+      "tags": [
+        "art"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-04T13:40:47.627Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
