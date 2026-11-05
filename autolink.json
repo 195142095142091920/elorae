@@ -3,302 +3,395 @@
  "version": 1,
  "articles": {
   "aghor": {
-   "n": "Aghor"
+   "n": "Aghor",
+   "a": "/assets/Aghor.png"
   },
   "alaric": {
-   "n": "Alaric Morn"
+   "n": "Alaric Morn",
+   "a": "/assets/alaric-morn-2.webp"
   },
   "amora": {
-   "n": "Amora"
+   "n": "Amora",
+   "a": "/assets/amora-2.webp"
   },
   "ara-tess": {
-   "n": "Ara Tess"
+   "n": "Ara Tess",
+   "a": "/assets/ara-tess.webp"
   },
   "arleth": {
-   "n": "Arleth"
+   "n": "Arleth",
+   "a": "/assets/arleth.webp"
   },
   "asenia": {
-   "n": "Asenia"
+   "n": "Asenia",
+   "a": "/assets/asenia.webp"
   },
   "astar": {
-   "n": "Astar"
+   "n": "Astar",
+   "a": "/assets/astar.jpg"
   },
   "aszurithice": {
-   "n": "Aszurithice"
+   "n": "Aszurithice",
+   "a": "/assets/Aszurithice.png"
   },
   "auralon": {
-   "n": "Auralon"
+   "n": "Auralon",
+   "a": "/assets/Auralon.png"
   },
   "baiji": {
-   "n": "Baiji En"
+   "n": "Baiji En",
+   "a": "/assets/Baiji.png"
   },
   "balamad": {
-   "n": "Balamad"
+   "n": "Balamad",
+   "a": "/assets/balamad.jpg"
   },
   "bel-harath": {
    "n": "Bel Harath",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Bel Harath.png"
   },
   "benedine": {
-   "n": "Benedine"
+   "n": "Benedine",
+   "a": "/assets/benedine.webp"
   },
   "cadarinost-falls": {
-   "n": "Cadarinost Falls"
+   "n": "Cadarinost Falls",
+   "a": "/assets/Cadarinost Falls.png"
   },
   "calor": {
-   "n": "Calor"
+   "n": "Calor",
+   "a": "/assets/calor.webp"
   },
   "caurobor": {
-   "n": "Caurobor"
+   "n": "Caurobor",
+   "a": "/assets/Caurobor.png"
   },
   "celurna": {
-   "n": "Celurna"
+   "n": "Celurna",
+   "a": "/assets/celurna.webp"
   },
   "cressana": {
    "n": "Cressana",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Ghostly Wanderer - Cressana Sacrificed.png"
   },
   "cursed-of-olesh": {
    "n": "Cursed of Olesh",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Cursed of Olesh.png"
   },
   "daeloth": {
-   "n": "Daeloth"
+   "n": "Daeloth",
+   "a": "/assets/daeloth.webp"
   },
   "darcdressil": {
    "n": "Darcdressil",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/darcdressil.webp"
   },
   "darmstadt": {
    "n": "Darmstadt",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Darmstadt.png"
   },
   "elraim": {
    "n": "Elraim",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Elraim.jpg"
   },
   "erenar": {
-   "n": "Erenar"
+   "n": "Erenar",
+   "a": "/assets/erenar.webp"
   },
   "eshrag": {
-   "n": "Eshrag"
+   "n": "Eshrag",
+   "a": "/assets/eshrag-2.webp"
   },
   "etyana": {
-   "n": "Etyana"
+   "n": "Etyana",
+   "a": "/assets/etyana.webp"
   },
   "fell": {
-   "n": "Fell"
+   "n": "Fell",
+   "a": "/assets/fell.webp"
   },
   "fena": {
-   "n": "Fena"
+   "n": "Fena",
+   "a": "/assets/fena.webp"
   },
   "filibeth": {
-   "n": "Filibeth"
+   "n": "Filibeth",
+   "a": "/assets/Filibeth.png"
   },
   "galand-helviath": {
-   "n": "Galand Helviath"
+   "n": "Galand Helviath",
+   "a": "/assets/Galand's First Flight.png"
   },
   "gimithrie": {
-   "n": "Gimithrie"
+   "n": "Gimithrie",
+   "a": "/assets/gimithrie.jpg"
   },
   "haethlin": {
-   "n": "Haethlin"
+   "n": "Haethlin",
+   "a": "/assets/Haethlin.png"
   },
   "haethlin-dream": {
    "n": "Haethlin in the Dream",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Haethlin in the Dream .png"
   },
   "hanto-han": {
-   "n": "Hanto Han"
+   "n": "Hanto Han",
+   "a": "/assets/Hanto Han.png"
   },
   "heldranc": {
-   "n": "Heldranc"
+   "n": "Heldranc",
+   "a": "/assets/Heldranc, Human Form.webp"
   },
   "hesk": {
-   "n": "Hesk"
+   "n": "Hesk",
+   "a": "/assets/Hesk.png"
   },
   "horlg": {
-   "n": "Horlg"
+   "n": "Horlg",
+   "a": "/assets/horlg.webp"
   },
   "imani-valash": {
    "n": "Imani Valash",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Imani Valash.png"
   },
   "imroten": {
-   "n": "Imroten"
+   "n": "Imroten",
+   "a": "/assets/imroten.webp"
   },
   "ito-gangara": {
    "n": "Ito Gangara",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Ito Gangara.png"
   },
   "izil": {
-   "n": "Izil"
+   "n": "Izil",
+   "a": "/assets/izil.webp"
   },
   "kojin": {
-   "n": "Kojin En"
+   "n": "Kojin En",
+   "a": "/assets/Kojin.png"
   },
   "krael": {
-   "n": "Krael"
+   "n": "Krael",
+   "a": "/assets/krael.webp"
   },
   "kuroishi": {
-   "n": "Kuroishi"
+   "n": "Kuroishi",
+   "a": "/assets/Ashforge Kuroishi.png"
   },
   "larellan": {
-   "n": "Larellan"
+   "n": "Larellan",
+   "a": "/assets/larellan.webp"
   },
   "maegoroth": {
-   "n": "Maegoroth"
+   "n": "Maegoroth",
+   "a": "/assets/Maegoroth.png"
   },
   "malyr": {
-   "n": "Malyr"
+   "n": "Malyr",
+   "a": "/assets/malyr.webp"
   },
   "mano": {
-   "n": "Mano"
+   "n": "Mano",
+   "a": "/assets/Mano.png"
   },
   "megana": {
-   "n": "Megana"
+   "n": "Megana",
+   "a": "/assets/megana.webp"
   },
   "minashi": {
-   "n": "Minashi"
+   "n": "Minashi",
+   "a": "/assets/minashi.webp"
   },
   "mintas-fae": {
-   "n": "Mintas Fae"
+   "n": "Mintas Fae",
+   "a": "/assets/Mintas Fae.png"
   },
   "montmorian": {
-   "n": "Montmorian"
+   "n": "Montmorian",
+   "a": "/assets/Montmorian and the Alabaster Blade.png"
   },
   "nadra": {
-   "n": "Nadra"
+   "n": "Nadra",
+   "a": "/assets/nadra.webp"
   },
   "nereb": {
-   "n": "Nereb"
+   "n": "Nereb",
+   "a": "/assets/nereb.webp"
   },
   "nilarem-kavari": {
    "n": "Nilarem Kavari",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/nilarem-kavari.webp"
   },
   "nobunaga-yudai": {
    "n": "Nobunaga Yudai"
   },
   "nul": {
-   "n": "Nul"
+   "n": "Nul",
+   "a": "/assets/Ghostly Wanderer - Nul.jpg"
   },
   "nyralshirad": {
-   "n": "Nyralshirad"
+   "n": "Nyralshirad",
+   "a": "/assets/Nyralshirad.png"
   },
   "olesh": {
-   "n": "Olesh"
+   "n": "Olesh",
+   "a": "/assets/olesh.webp"
   },
   "olesh-in-the-basin-of-tears": {
-   "n": "Olesh in the Basin of Tears"
+   "n": "Olesh in the Basin of Tears",
+   "a": "/assets/face-in-the-cursed-tree.png"
   },
   "perstrin-naba": {
-   "n": "Perstrin Naba"
+   "n": "Perstrin Naba",
+   "a": "/assets/Perstrin Naba.png"
   },
   "pethengorom": {
-   "n": "Pethengorom"
+   "n": "Pethengorom",
+   "a": "/assets/Pethengorom.png"
   },
   "phantom-cavern": {
-   "n": "Phantom Cavern"
+   "n": "Phantom Cavern",
+   "a": "/assets/Phantom Cavern.png"
   },
   "quenala": {
-   "n": "Quenala"
+   "n": "Quenala",
+   "a": "/assets/quenala.webp"
   },
   "raith": {
-   "n": "Raith"
+   "n": "Raith",
+   "a": "/assets/raith.webp"
   },
   "rathalon": {
    "n": "Rathalon",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Rathalon.png"
   },
   "revenant-host": {
-   "n": "Revenant Host"
+   "n": "Revenant Host",
+   "a": "/assets/Revenant Host.png"
   },
   "salaseth": {
-   "n": "Salaseth"
+   "n": "Salaseth",
+   "a": "/assets/Salaseth II.png"
   },
   "saoirse": {
-   "n": "Saoirse"
+   "n": "Saoirse",
+   "a": "/assets/Saoirse.png"
   },
   "saoirse-s-arlethian-tide": {
-   "n": "Saoirse's Arlethian Tide"
+   "n": "Saoirse's Arlethian Tide",
+   "a": "/assets/saoirses-arlethian-tide.webp"
   },
   "sar-sareen": {
-   "n": "Sar Sareen"
+   "n": "Sar Sareen",
+   "a": "/assets/sar-sareen.webp"
   },
   "sen-teloch-ini": {
    "n": "Sen Teloch Ini",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Sen Teloch Ini.png"
   },
   "shiok": {
-   "n": "Shiok"
+   "n": "Shiok",
+   "a": "/assets/shiok.webp"
   },
   "shune": {
-   "n": "Shune"
+   "n": "Shune",
+   "a": "/assets/shune.webp"
   },
   "shune-s-basin": {
-   "n": "Shune's Basin"
+   "n": "Shune's Basin",
+   "a": "/assets/flowers-upon-a-river.png"
   },
   "silar-scorria": {
-   "n": "Silar Scorria"
+   "n": "Silar Scorria",
+   "a": "/assets/Silar Scorria.png"
   },
   "sthistu": {
-   "n": "Sthistu"
+   "n": "Sthistu",
+   "a": "/assets/Sthistu.png"
   },
   "telorin": {
-   "n": "Telorin Nelis"
+   "n": "Telorin Nelis",
+   "a": "/assets/telorin-nelis-2.webp"
   },
   "thalancord-s-arrival": {
-   "n": "Thalancord's Arrival"
+   "n": "Thalancord's Arrival",
+   "a": "/assets/thalancords-arrival.webp"
   },
   "the-beckoning-bell": {
    "n": "The Beckoning Bell",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Ghostly Wanderer - Vorn's Congregation.png"
   },
   "the-empire-of-raim": {
-   "n": "The Empire of Raim"
+   "n": "The Empire of Raim",
+   "a": "/assets/Ghostly Wanderer - Lords of the Raim Empire.png"
   },
   "the-glaurfeldt": {
-   "n": "The Glaurfeldt"
+   "n": "The Glaurfeldt",
+   "a": "/assets/the-glaurfeldt.webp"
   },
   "the-k-bas-forest": {
-   "n": "The K'bas Forest"
+   "n": "The K'bas Forest",
+   "a": "/assets/filibeth-in-the-kbas.webp"
   },
   "the-six-kings": {
    "n": "The Six Kings",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/the-six-kings.webp"
   },
   "the-starry-kingdom": {
-   "n": "The Starry Kingdom"
+   "n": "The Starry Kingdom",
+   "a": "/assets/the-starry-kingdom-2.webp"
   },
   "vaerek": {
-   "n": "Vaerek Rathkin"
+   "n": "Vaerek Rathkin",
+   "a": "/assets/Vaerek, At Ease.png"
   },
   "vallorca": {
    "n": "Vallorca",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Vallorca.png"
   },
   "vana": {
-   "n": "Vana"
+   "n": "Vana",
+   "a": "/assets/vana.webp"
   },
   "vehem-adahr": {
-   "n": "Vehem Adahr"
+   "n": "Vehem Adahr",
+   "a": "/assets/Vehem Adahr.png"
   },
   "vorn": {
-   "n": "Vorn"
+   "n": "Vorn",
+   "a": "/assets/Vorn.png"
   },
   "yena": {
    "n": "Yena",
-   "o": "devin"
+   "o": "devin",
+   "a": "/assets/Yena.png"
   },
   "yudai-s-flame": {
-   "n": "Yudai's Flame"
+   "n": "Yudai's Flame",
+   "a": "/assets/yudais-flame.webp"
   },
   "yuo-nanaga": {
-   "n": "Yuo Nanaga"
+   "n": "Yuo Nanaga",
+   "a": "/assets/Yuo Nanaga.png"
   },
   "zimn": {
-   "n": "Zimn"
+   "n": "Zimn",
+   "a": "/assets/zimn.webp"
   }
  },
  "terms": {

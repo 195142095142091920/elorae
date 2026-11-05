@@ -1,5 +1,5 @@
 /* al1 (2026-11-04): the auto-link map (/autolink.json at the site root) — which words link to which article.
-   autolink.json = { version, articles: { "<slug>": { n: "<name>", o: "<private owner>"? } },
+   autolink.json = { version, articles: { "<slug>": { n: "<name>", o: "<private owner>"?, a: "</assets/hero>"? } },
                      terms: { "<Word or Phrase>": "<slug>" }, skipped: { "<term>": [slugs] }, reserved: [names] }
    Terms, per article:
    - its full name (the article's h1);
@@ -96,7 +96,26 @@
     return { terms: sortObj(terms), skipped: sortObj(skipped) };
   }
   function sortObj(o) { var r = {}; Object.keys(o).sort().forEach(function (k) { r[k] = o[k]; }); return r; }
-  function empty() { return { _readme: "Auto-link map, built by edit/autolink.js (tools/build-autolink.js; refreshed by admin edit-mode saves). Words in 'terms' link to that article site-wide. Add a word: give one of the article's hero/Art images a Capitalised tag in the Gallery.", version: 1, articles: {}, terms: {}, skipped: {}, reserved: [] }; }
+  /* Hero art path for peek hover cards (pe1): first image marked hero on the article, else
+     first art. Stored as a root-absolute /assets/... path so peek.js can warm it without
+     fetching the article HTML first. */
+  function heroArt(usage, slug) {
+    var pages = (usage && usage.pages) || {};
+    var info = pages["/articles/" + slug + "/"] || pages["/articles/" + slug];
+    if (!info || !info.u) return "";
+    var hero = "", art = "", u = info.u, k;
+    for (k in u) if (Object.prototype.hasOwnProperty.call(u, k) && u[k].indexOf("hero") >= 0) { hero = k; break; }
+    if (!hero) for (k in u) if (Object.prototype.hasOwnProperty.call(u, k) && u[k].indexOf("art") >= 0) { art = k; break; }
+    var p = hero || art; if (!p) return "";
+    return p.charAt(0) === "/" ? p : "/" + p;
+  }
+  function stampArt(articles, usage) {
+    Object.keys(articles).forEach(function (s) {
+      var a = heroArt(usage, s);
+      if (a) articles[s].a = a; else delete articles[s].a;
+    });
+  }
+  function empty() { return { _readme: "Auto-link map, built by edit/autolink.js (tools/build-autolink.js; refreshed by admin edit-mode saves). Words in 'terms' link to that article site-wide. Add a word: give one of the article's hero/Art images a Capitalised tag in the Gallery. articles.<slug>.a is the hero art path for peek hover-card preloads.", version: 1, articles: {}, terms: {}, skipped: {}, reserved: [] }; }
   function render(o) { return JSON.stringify(o, null, 1) + "\n"; }
   // oldText: current autolink.json; files: commit files [{path, text|delete}];
   // catalogText/usageText: the catalog and usage at the same parent (files win). -> new text or null.
@@ -120,10 +139,11 @@
     o.articles = sortObj(o.articles);
     var r = compute(o.articles, c, u, o.reserved);
     o.terms = r.terms; o.skipped = r.skipped;
+    stampArt(o.articles, u);
     var t = render(o);
     return t === oldText ? null : t;
   }
-  var api = { PATH: PATH, CATALOG: CATALOG, USAGE: USAGE, slugOf: slugOf, parseArticle: parseArticle, parts: parts, compute: compute, update: update, empty: empty, render: render, admin: false };
+  var api = { PATH: PATH, CATALOG: CATALOG, USAGE: USAGE, slugOf: slugOf, parseArticle: parseArticle, parts: parts, compute: compute, heroArt: heroArt, stampArt: stampArt, update: update, empty: empty, render: render, admin: false };
   if (root) root.EloraeAutolinkMap = api;
   if (typeof module === "object" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : null);

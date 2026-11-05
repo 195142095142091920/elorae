@@ -10,7 +10,11 @@
    Data: the article page is fetched once (on hover / touch / open) and cached; only what this
    viewer may see is used: private (owner-gated) parts are dropped exactly as html.css + vis-gate
    hide them on the article itself, and a secret page this viewer is not allowed to see gives
-   nothing. Empty template fields are skipped. */
+   nothing. Empty template fields are skipped.
+   pe1 (2026-11-05): hover-card art is known from autolink.json articles.<slug>.a, so the image
+   starts loading on pointerenter (and during idle for nearby links) before the HTML fetch
+   returns. The card fades in only once that image is decoded (short cap), so the picture is
+   there when the card opens. Private/secret articles this viewer cannot see are never warmed. */
 (function () {
   "use strict";
   if (window.__eloraePeek) return; window.__eloraePeek = 1;
@@ -360,6 +364,78 @@
     var SCOPE = "main, .read, .codex-body";
     var card = null, link = null, showT = 0, hideT = 0, my = 0;
     var here = articleKey(location.href);
+    /* pe1: art path per slug from /autolink.json (articles.<slug>.a). Known before the HTML
+       fetch, so the CDN image can warm during the 250ms open delay. */
+    var mapArts = null, warm = {};
+    var ART_W = 640, WARM_CAP = 12, DECODE_WAIT = 450;
+    function takeMap(j) {
+      if (!j || !j.articles) return;
+      mapArts = j.articles;
+      idleWarm();
+    }
+    function loadMap() {
+      try {
+        var m = window.EloraeAutolink && window.EloraeAutolink.map && window.EloraeAutolink.map();
+        if (m && m.articles) { takeMap(m); return; }
+      } catch (e) {}
+      fetch("/autolink.json", { cache: "default" }).then(function (r) { return r.ok ? r.json() : null; }).then(takeMap).catch(function () {});
+    }
+    function canWarm(slug) {
+      if (!mapArts || !mapArts[slug] || !mapArts[slug].a) return false;
+      var a = mapArts[slug];
+      if (a.o) return seesArticle(a.o, slug);
+      var man = manifest(), id;
+      for (id in man) {
+        var s = man[id];
+        if (s && (s.path === "articles/" + slug + ".html" || s.path === "articles/" + slug + "/index.html"))
+          return !!(s.everyone || sees(s.owner || "", id));
+      }
+      return true;
+    }
+    function artOf(slug) { return (mapArts && mapArts[slug] && mapArts[slug].a) || ""; }
+    /* trusted=true: caller already passed parse() privacy (HTML fetch). Otherwise only
+       warm when the map lists art and this viewer may see that article. */
+    function warmArt(slug, src, trusted) {
+      if (!slug) return null;
+      src = src || artOf(slug);
+      if (!src) return null;
+      if (!trusted && !canWarm(slug)) return null;
+      if (warm[slug]) return warm[slug];
+      var url = img(src, ART_W);
+      var p = new Promise(function (resolve) {
+        var im = new Image();
+        var done = function (ok) { resolve(ok ? url : ""); };
+        im.decoding = "async";
+        im.onload = function () {
+          if (im.decode) im.decode().then(function () { done(true); }, function () { done(true); });
+          else done(true);
+        };
+        im.onerror = function () { done(false); };
+        im.src = url;
+      });
+      warm[slug] = p;
+      return p;
+    }
+    function nearViewport(el) {
+      var r = el.getBoundingClientRect(), m = 240;
+      return r.bottom >= -m && r.top <= innerHeight + m && r.right >= -m && r.left <= innerWidth + m;
+    }
+    function idleWarm() {
+      if (!mapArts || editing()) return;
+      var ric = window.requestIdleCallback || function (f) { return setTimeout(f, 1); };
+      ric(function () {
+        if (editing() || !mapArts) return;
+        var seen = {}, n = 0;
+        Array.prototype.forEach.call(doc.querySelectorAll(SCOPE + " a[href]"), function (a) {
+          if (n >= WARM_CAP) return;
+          if (a.closest(".mast, nav, aside:not(.cx-side), .art-index, .toc, #section-bar, .art-swap")) return;
+          var slug = articleKey(a.getAttribute("href"));
+          if (!slug || slug === here || seen[slug] || !nearViewport(a) || !canWarm(slug)) return;
+          seen[slug] = 1;
+          if (warmArt(slug)) n++;
+        });
+      }, { timeout: 1200 });
+    }
     function el() {
       if (card) return card;
       card = doc.createElement("div");
@@ -380,20 +456,40 @@
       else if (y + ch > H - 8) y = Math.max(8, H - ch - 8);
       c.style.left = Math.round(x) + "px"; c.style.top = Math.round(y) + "px";
     }
+    function reveal(c, n) {
+      if (n !== my) return;
+      c.hidden = false;
+      place(link);
+      if (reduce) c.classList.add("hover-card-on");
+      else requestAnimationFrame(function () { if (n === my) c.classList.add("hover-card-on"); });
+    }
+    function whenReady(im, n, c) {
+      if (!im) { reveal(c, n); return; }
+      var done = false;
+      function go() { if (done || n !== my) return; done = true; reveal(c, n); }
+      if (im.complete && im.naturalWidth) {
+        if (im.decode) im.decode().then(go, go); else go();
+        return;
+      }
+      im.addEventListener("load", function () {
+        if (im.decode) im.decode().then(go, go); else go();
+      });
+      im.addEventListener("error", go);
+      setTimeout(go, DECODE_WAIT);
+    }
     function show(a, slug) {
       var n = ++my;
       load(slug).then(function (d) {
         if (n !== my || link !== a || !d || editing()) return;
         var f = d.fields.filter(function (x) { return x[0].toLowerCase() !== "name"; }).slice(0, 3);
+        var artSrc = d.art || artOf(slug);
+        if (artSrc) warmArt(slug, artSrc, true);
         var c = el();
-        c.innerHTML = (d.art ? '<div class="hover-card-art"><img alt="" decoding="async" src="' + esc(img(d.art, 640)) + '"></div>' : "") +
+        c.innerHTML = (artSrc ? '<div class="hover-card-art"><img alt="" decoding="async" src="' + esc(img(artSrc, ART_W)) + '"></div>' : "") +
           '<div class="hover-card-body"><div class="hover-card-name">' + esc(d.name) + "</div>" +
           (d.epithet ? '<div class="hover-card-ep">' + esc(d.epithet) + "</div>" : "") +
           (f.length ? '<dl class="hover-card-dl">' + f.map(function (x) { return "<dt>" + esc(x[0]) + "</dt><dd>" + esc(x[1]) + "</dd>"; }).join("") + "</dl>" : "") + "</div>";
-        c.hidden = false;
-        place(a);
-        if (reduce) c.classList.add("hover-card-on");
-        else requestAnimationFrame(function () { if (n === my) c.classList.add("hover-card-on"); });
+        whenReady(c.querySelector("img"), n, c);
       }, function () {});
     }
     doc.addEventListener("pointerover", function (e) {
@@ -406,7 +502,8 @@
       if (a === link) { clearTimeout(hideT); return; }
       hide();
       link = a;
-      load(slug); // start fetching now; show after the delay
+      warmArt(slug); // start the image now (from the map), before the HTML returns
+      load(slug); // start fetching HTML; show after the delay
       showT = setTimeout(function () { if (link === a) show(a, slug); }, 250);
     }, { passive: true });
     doc.addEventListener("pointerout", function (e) {
@@ -416,9 +513,19 @@
       if (link.contains(e.target)) hideSoon();
     }, { passive: true });
     doc.addEventListener("pointerdown", function (e) { if (!(card && card.contains(e.target))) hide(); }, true);
-    window.addEventListener("scroll", function () { if (link) hide(); }, { passive: true });
+    window.addEventListener("scroll", function () { if (link) hide(); idleWarm(); }, { passive: true });
     window.addEventListener("blur", hide);
     new MutationObserver(function () { if (editing()) hide(); }).observe(root, { attributes: true, attributeFilter: ["class"] });
+    loadMap();
+    // Autolink may finish its fetch after us; pick up the map then.
+    var tries = 0, poll = setInterval(function () {
+      tries++;
+      if (mapArts || tries > 40) { clearInterval(poll); return; }
+      try {
+        var m = window.EloraeAutolink && window.EloraeAutolink.map && window.EloraeAutolink.map();
+        if (m && m.articles) takeMap(m);
+      } catch (e) {}
+    }, 100);
   }
 
   function init() {

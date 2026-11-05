@@ -170,8 +170,15 @@ async function hoverTests(browser) {
   await p.waitForTimeout(120);
   const early = await p.$("#hover-card.hover-card-on");
   await p.waitForSelector("#hover-card.hover-card-on", { timeout: 4000 });
-  const c = await p.evaluate(() => { const h = document.getElementById("hover-card"); const b = h.getBoundingClientRect(); return { name: h.querySelector(".hover-card-name").textContent, ep: (h.querySelector(".hover-card-ep") || {}).textContent, dl: [...h.querySelectorAll("dt")].map((d) => d.textContent).join("|"), img: !!h.querySelector("img"), w: Math.round(b.width), inside: b.left >= 0 && b.right <= innerWidth && b.top >= 0 && b.bottom <= innerHeight }; });
+  const c = await p.evaluate(() => { const h = document.getElementById("hover-card"); const b = h.getBoundingClientRect(); const im = h.querySelector("img"); return { name: h.querySelector(".hover-card-name").textContent, ep: (h.querySelector(".hover-card-ep") || {}).textContent, dl: [...h.querySelectorAll("dt")].map((d) => d.textContent).join("|"), img: !!im, imgReady: !!(im && im.complete && im.naturalWidth > 0), w: Math.round(b.width), inside: b.left >= 0 && b.right <= innerWidth && b.top >= 0 && b.bottom <= innerHeight }; });
   check("hover: a link to an article shows its card after the delay (not instantly): art, name, epithet, ≤3 filled fields, ~280px, on screen", !early && c.name === "Galand Helviath" && c.ep && c.img && c.dl.split("|").length <= 3 && !/Name/.test(c.dl) && c.w === 280 && c.inside, JSON.stringify(c));
+  // pe1: leave and re-hover so the warmed CDN/original is in cache; the image must be complete the moment the card opens.
+  await p.mouse.move(5, 300); await p.waitForTimeout(400);
+  await p.waitForFunction(() => !document.querySelector("#hover-card.hover-card-on"), { timeout: 2000 }).catch(() => {});
+  await p.mouse.move(r.x + r.width / 2, r.y + r.height / 2);
+  await p.waitForSelector("#hover-card.hover-card-on", { timeout: 4000 });
+  const ready = await p.evaluate(() => { const im = document.querySelector("#hover-card img"); return !!(im && im.complete && im.naturalWidth > 0); });
+  check("hover pe1: on a warmed link the art is complete the moment the card opens", ready, "imgReady=" + ready);
   const hit = await p.evaluate((sel) => { const a = document.querySelector(sel), b = a.getBoundingClientRect(); const e = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); return e === a || a.contains(e); }, L);
   check("hover: the card never covers the link (still clickable)", hit);
   // Leave the link toward the card (it may open above or below; links in a stacked list sit right next to each other).
