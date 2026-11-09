@@ -1,4 +1,4 @@
-/* players/player.js (merged-signin). Player pages, built at runtime from the site's own files:
+/* players/player.js (nt1). Player pages, built at runtime from the site's own files:
    - characters: mast marks (span.friend[data-owner]) as cards (hero art, name, epithet) at
      the top of the page — no "Characters" / "The party" heading. Game Master
      (edit/visibility.json "admins") sees the party;
@@ -51,7 +51,16 @@
     ".nt-pl-keytip{margin:28px 0 0;max-width:42ch;font-size:calc((13px) * var(--fs,1.5094));line-height:1.5;color:#8f8a82}.nt-pl-keytip a{color:#cfc6b8;text-decoration:underline}@media (min-width:801px){.nt-pl-keytip a:hover{color:#fff}}@media (max-width:800px){#nt-player h2{margin-top:28px;margin-bottom:14px;font-size:calc((10px) * var(--fs,1.5094));letter-spacing:.22em}" +
     ".nt-pl-chars{gap:12px;justify-content:space-between}" +
     ".nt-pl-char{width:calc(50% - 6px)}.nt-pl-char img,.nt-pl-char .ph{height:calc((50vw - 22px) * 4 / 3)}" +
-    ".nt-pl-chars+.nt-pl-chars{margin-top:28px;padding-top:28px}}";
+    ".nt-pl-chars+.nt-pl-chars{margin-top:28px;padding-top:28px}}" +
+    ".nt-pl-settings{margin:36px 0 0;padding-top:36px;border-top:1px solid rgba(243,238,230,.09)}" +
+    ".nt-pl-settings .nt-pl-row{display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:28ch}" +
+    ".nt-pl-settings .nt-pl-lab{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:calc((12px) * var(--fs,1.5094));letter-spacing:.16em;text-transform:uppercase;color:#cfc6b8}" +
+    ".nt-pl-settings .nt-pl-sw{appearance:none;-webkit-appearance:none;position:relative;width:42px;height:24px;border-radius:12px;border:1px solid rgba(243,238,230,.22);background:#141414;cursor:pointer;padding:0;flex:0 0 auto;transition:background .2s ease,border-color .2s ease}" +
+    ".nt-pl-settings .nt-pl-sw::after{content:\"\";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#8f8a82;transition:transform .2s ease,background .2s ease}" +
+    ".nt-pl-settings .nt-pl-sw[aria-checked=\"true\"]{background:rgba(243,238,230,.14);border-color:rgba(243,238,230,.55)}" +
+    ".nt-pl-settings .nt-pl-sw[aria-checked=\"true\"]::after{transform:translateX(18px);background:#f3eee6;box-shadow:0 0 10px rgba(255,255,255,.45)}" +
+    ".nt-pl-settings .nt-pl-sw:focus-visible{outline:none;border-color:#f3eee6}" +
+    "@media (max-width:800px){.nt-pl-settings{margin-top:28px;padding-top:28px}}";
   document.head.appendChild(css);
 
   function characters(who) {
@@ -244,6 +253,41 @@
         var box = el("div", "nt-pl-char"); row.appendChild(box);
         fillComboCard(box, it.path, it.title, it.link, { edit: it.edit, secret: it.secret, art: it.art }, it.href);
       });
+    }
+    /* Own-page Settings: icon-nav toggle (localStorage elorae-nav-icons:<who>). */
+    if (v && v === slug) {
+      root.appendChild(el("h2", null, "Settings"));
+      var sbox = el("div", "nt-pl-settings");
+      sbox.setAttribute("data-ee-ui", "");
+      sbox.setAttribute("aria-label", "Settings");
+      var row = el("div", "nt-pl-row");
+      row.appendChild(el("span", "nt-pl-lab", "Icons"));
+      var sw = document.createElement("button");
+      sw.type = "button";
+      sw.className = "nt-pl-sw";
+      sw.setAttribute("role", "switch");
+      sw.setAttribute("aria-label", "Icons");
+      function syncSw() {
+        var on = !!(window.eloraeNavIcons && window.eloraeNavIcons.get(v));
+        sw.setAttribute("aria-checked", on ? "true" : "false");
+        sw.title = on ? "Icons" : "Icons";
+      }
+      syncSw();
+      sw.addEventListener("click", function () {
+        var on = sw.getAttribute("aria-checked") !== "true";
+        if (window.eloraeNavIcons) window.eloraeNavIcons.set(on, v);
+        else {
+          try {
+            if (on) localStorage.setItem("elorae-nav-icons:" + v, "1");
+            else localStorage.removeItem("elorae-nav-icons:" + v);
+          } catch (e) {}
+          try { window.dispatchEvent(new Event("elorae-nav-pref")); } catch (e2) {}
+        }
+        syncSw();
+      });
+      row.appendChild(sw);
+      sbox.appendChild(row);
+      root.appendChild(sbox);
     }
     /* Unlock-secrets nudge: signed-out visitors only. Never show to signed-in players. */
     if (!v) {
