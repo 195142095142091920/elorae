@@ -1,5 +1,5 @@
 /* Site-wide text scale: 1.2075 x 1.25 (the 125%-zoom look) = 1.5094. Every font-size is calc(... * var(--fs)). Set 1 to undo. */
-:root { --fs: 1.5094; }
+:root { --fs: 1.2075; }
 html { font-size: calc(100% * var(--fs,1.5094)); }
 :root {
   --bg: #070707;

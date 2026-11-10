@@ -1,5 +1,5 @@
-/* Site-wide text scale: 1.2075 (font test 1.05 x 1.15) x 1.25 (the 125%-zoom look) = 1.5094. Every font-size is calc(... * var(--fs)). Set 1 to undo. */
-:root { --fs: 1.5094; --rail-w: 275px; /* desktop rail: 220px x 1.25, so its labels fit the larger text */ }
+/* Site-wide text scale: 1.2075 (font test 1.05 x 1.15). The 125% desktop look (1.5094, fs125) was reverted Nov 10 (ts1). Every font-size is calc(... * var(--fs)). Set 1 to undo. */
+:root { --fs: 1.2075; --rail-w: 275px; /* desktop rail: 220px x 1.25, so its labels fit the larger text */ }
 html { font-size: calc(100% * var(--fs,1.5094)); }
 body{background:#070707;color:#f3eee6}.mast{position:sticky;top:0;z-index:20;background:#070707}#section-bar{display:flex;justify-content:center;gap:18px;background:#070707;padding:12px}#section-bar a{color:#8f8a82;text-decoration:none;letter-spacing:.12em;text-transform:uppercase;font-size:calc((12px) * var(--fs,1.5094))}#section-bar a.active{color:#f3eee6}.read{max-width:720px;margin:32px auto 80px;padding:0 22px;font-family:"Iowan Old Style","Palatino Linotype",Palatino,serif;font-size:calc((18px) * var(--fs,1.5094));line-height:1.55}.read h2{font-weight:400;font-style:italic}.read img{width:100%;height:auto}.toc{position:fixed;left:0;top:96px;bottom:0;width:240px;overflow:auto;padding:28px 22px;background:#070707}.toc a{display:block;margin:0 0 10px;color:#8f8a82;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:calc((12px) * var(--fs,1.5094))}.toc a.on{color:#f3eee6}.with-toc{margin-left:240px}.index-flow{display:flex;flex-wrap:wrap;justify-content:center;gap:34px 26px;padding:32px 40px 72px}.index-card{width:220px;color:#f3eee6;text-decoration:none}.index-card span{display:block;min-height:2.7em;margin:0 0 12px;font-size:calc((12px) * var(--fs,1.5094));letter-spacing:.14em;text-transform:uppercase}.index-card img{width:220px;height:300px;object-fit:cover}@media(max-width:800px){.toc{position:static;width:auto}.with-toc{margin-left:0}.wall{grid-template-columns:1fr 1fr}}
 
@@ -5299,31 +5299,6 @@ html:not(.ee-page-editing) figcaption:empty { display: none; }
    every width stays clamped to the space beside the rail. */
 @media (max-width: 800px) {
   :root { --fs: 1.2075; --ee-px: 1; }
-}
-@media (min-width: 801px) {
-  .journal-page .read { max-width: 1209px; }
-  html body.gw-page main.read.gw { max-width: 1209px; }
-  body.journal-page:has(aside.toc) main.read {
-    width: min(1209px, calc(100vw - var(--rail-w,275px) - 67px));
-    margin-left: max(calc(var(--rail-w,275px) + 16px), calc(50vw - 604.5px));
-  }
-  body.book:has(aside.toc) main.read {
-    width: min(920px, calc(100vw - var(--rail-w,275px) - 56px));
-    margin-left: max(calc(var(--rail-w,275px) + 8px), calc(50vw - 460px));
-  }
-  body.book .read { max-width: 800px; }
-  body.article .art-body {
-    width: min(920px, calc(100% - 56px));
-    margin-left: calc((100% - min(920px, calc(100% - 56px))) / 2);
-  }
-  body.article.art-index-open .art-body,
-  html.cats-rail-pinned body.article .art-body {
-    width: min(920px, calc(100% - var(--rail-w,275px) - 56px));
-    margin-left: calc(var(--rail-w,275px) + (100% - var(--rail-w,275px) - min(920px, calc(100% - var(--rail-w,275px) - 56px))) / 2);
-  }
-  body.player-page main.read { max-width: 1300px; }
-  #search-hits { max-width: 900px; }
-  .index-list { max-width: 1025px; }
 }
 
 /* toc-nav1: on desktop the 125% look is for the reading text only. The masthead and every nav
