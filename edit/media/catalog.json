@@ -3680,6 +3680,46 @@
         "jason"
       ],
       "everyone": true
+    },
+    "thalancord": {
+      "path": "assets/thalancord.webp",
+      "title": "Thalancord",
+      "tags": [
+        "Thalancord"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-19T23:59:44.718Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
+    },
+    "nathalor": {
+      "path": "assets/nathalor.webp",
+      "title": "Nathalor",
+      "tags": [
+        "Nathalor"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-19T23:59:44.719Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
