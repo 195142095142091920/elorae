@@ -1247,6 +1247,9 @@
     "assets/thalancord.webp": [
      "inline"
     ],
+    "assets/nathalor.webp": [
+     "inline"
+    ],
     "assets/telorin-against-olesh.jpg": [
      "inline"
     ],
@@ -1440,9 +1443,6 @@
      "inline"
     ],
     "assets/the-twlight-of-the-setting-suns.png": [
-     "inline"
-    ],
-    "assets/nathalor.webp": [
      "inline"
     ]
    }
