@@ -1247,7 +1247,7 @@
     "assets/thalancord.webp": [
      "inline"
     ],
-    "assets/nathalor.webp": [
+    "assets/throne-of-the-dragonlord.webp": [
      "inline"
     ],
     "assets/telorin-against-olesh.jpg": [
@@ -1443,6 +1443,9 @@
      "inline"
     ],
     "assets/the-twlight-of-the-setting-suns.png": [
+     "inline"
+    ],
+    "assets/nathalor.webp": [
      "inline"
     ]
    }

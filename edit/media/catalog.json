@@ -3720,6 +3720,26 @@
         "jason"
       ],
       "everyone": true
+    },
+    "throne-of-the-dragonlord": {
+      "path": "assets/throne-of-the-dragonlord.webp",
+      "title": "Throne of the Dragonlord",
+      "tags": [
+        "Throne of the Dragonlord"
+      ],
+      "uploadedBy": "devin",
+      "date": "2026-11-20T00:35:38.574Z",
+      "owner": "devin",
+      "allowed": [
+        "devin",
+        "jack",
+        "jon",
+        "julie",
+        "sawyer",
+        "sylum",
+        "jason"
+      ],
+      "everyone": true
     }
   },
   "hidden": [
